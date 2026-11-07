@@ -9,7 +9,7 @@ import { b58encode, b58decode, SYSTEM_PROGRAM } from './tx.js'
 import { findPda, SQUADS_PROGRAM, squadsPda } from './squads.js'
 
 export const CONFIG_SIZE = 448
-export const CASE_SIZE = 160
+export const CASE_SIZE = 176
 export const MAX_JURORS = 8
 export const CASE_STATUS = ['empty', 'registered', 'approved', 'rejected', 'escaped']
 export const JUDICIARY_ERRORS = { 1: 'bad input', 2: 'bad accounts', 3: 'small account', 4: 'overflow', 6: 'out of bounds', 100: 'wrong state', 101: 'wrong account', 102: 'bad ruling', 103: 'too early', 104: 'transaction changed' }
@@ -44,24 +44,28 @@ export const judiciaryEncode = {
     if (!(jurors.length >= 1 && jurors.length <= MAX_JURORS)) throw new Error(`a judiciary signer seats 1 to ${MAX_JURORS} jurors`)
     return Buffer.concat([Buffer.from([0]), u32(barPpm), k32(multisig), k32(policyHash), k32(modelsHash), k32(rulingProgram), u64(challengeSlots), u64(escapeSlots), Buffer.from([jurors.length]), ...jurors.map(k32)])
   },
-  register: lamports => Buffer.concat([Buffer.from([1]), u64(lamports)]),
+  register: (rent, fee = 0) => Buffer.concat([Buffer.from([1]), u64(rent), u64(fee)]),
   decide: () => Buffer.from([2]),
   escape: () => Buffer.from([3]),
+  pay: () => Buffer.from([4]),
 }
 
 /** Instructions for the judiciary program. */
 export const judiciaryIx = {
   attach: ({ programId, config, creator, ...args }) => ({ programId: k32(programId), keys: [meta(config, false, true), meta(creator, true, false)], data: judiciaryEncode.attach(args) }),
-  register: ({ programId, config, multisig, index, payer, lamports, squads = SQUADS_PROGRAM }) => {
+  /** `lamports` is the case account's rent; `fee` is the jury's pay, held in the case until `pay`. */
+  register: ({ programId, config, multisig, index, payer, lamports, fee = 0, squads = SQUADS_PROGRAM }) => {
     const proposal = squadsPda.proposal(multisig, index, squads).address
     const tx = squadsPda.transaction(multisig, index, squads).address
-    return { programId: k32(programId), keys: [meta(config, false, false), meta(caseOf(config, proposal, programId).address, false, true), meta(multisig, false, false), meta(proposal, false, false), meta(tx, false, false), meta(payer, true, true), meta(SYSTEM_PROGRAM, false, false)], data: judiciaryEncode.register(lamports) }
+    return { programId: k32(programId), keys: [meta(config, false, false), meta(caseOf(config, proposal, programId).address, false, true), meta(multisig, false, false), meta(proposal, false, false), meta(tx, false, false), meta(payer, true, true), meta(SYSTEM_PROGRAM, false, false)], data: judiciaryEncode.register(lamports, fee) }
   },
   decide: ({ programId, config, ruling, multisig, index, squads = SQUADS_PROGRAM }) => {
     const proposal = squadsPda.proposal(multisig, index, squads).address
     const tx = squadsPda.transaction(multisig, index, squads).address
     return { programId: k32(programId), keys: [meta(config, false, false), meta(caseOf(config, proposal, programId).address, false, true), meta(ruling, false, false), meta(multisig, false, false), meta(proposal, false, true), meta(tx, false, false), meta(authorityOf(config, programId).address, false, true), meta(squads, false, false)], data: judiciaryEncode.decide() }
   },
+  /** Split the case fee among the jurors who revealed. `jurors` is the ruling's seats, in order. */
+  pay: ({ programId, config, proposal, ruling, jurors }) => ({ programId: k32(programId), keys: [meta(config, false, false), meta(caseOf(config, proposal, programId).address, false, true), meta(ruling, false, false), ...jurors.map(j => meta(j, false, true))], data: judiciaryEncode.pay() }),
   escape: ({ programId, config, multisig, index, squads = SQUADS_PROGRAM }) => {
     const proposal = squadsPda.proposal(multisig, index, squads).address
     return { programId: k32(programId), keys: [meta(config, false, false), meta(caseOf(config, proposal, programId).address, false, true), meta(multisig, false, false), meta(proposal, false, true), meta(authorityOf(config, programId).address, false, true), meta(squads, false, false)], data: judiciaryEncode.escape() }
@@ -94,7 +98,7 @@ export function decodeSignerConfig(data) {
 export function decodeCase(data) {
   const b = Buffer.from(data)
   if (b.subarray(0, 8).toString() !== 'VRFYCAS1') return { status: 'empty' }
-  return { status: CASE_STATUS[b[8]], config: b58encode(b.subarray(16, 48)), proposal: b58encode(b.subarray(48, 80)), transactionHash: b.subarray(80, 112).toString('hex'), caseHash: b.subarray(112, 144).toString('hex'), registeredSlot: Number(b.readBigUInt64LE(144)), decidedSlot: Number(b.readBigUInt64LE(152)) }
+  return { status: CASE_STATUS[b[8]], paid: b[9] === 1, fee: Number(b.readBigUInt64LE(160)), config: b58encode(b.subarray(16, 48)), proposal: b58encode(b.subarray(48, 80)), transactionHash: b.subarray(80, 112).toString('hex'), caseHash: b.subarray(112, 144).toString('hex'), registeredSlot: Number(b.readBigUInt64LE(144)), decidedSlot: Number(b.readBigUInt64LE(152)) }
 }
 
 /**

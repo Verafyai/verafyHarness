@@ -24,7 +24,7 @@ pub mod err {
 }
 
 /// The most accounts one TinySVM instruction may take.
-pub const MAX_ACCOUNTS: usize = 8;
+pub const MAX_ACCOUNTS: usize = 16;
 const NON_DUP_MARKER: u8 = 0xff;
 const MAX_PERMITTED_DATA_INCREASE: usize = 10 * 1024;
 
@@ -101,7 +101,7 @@ pub unsafe fn deserialize<'a>(input: *mut u8) -> Result<Input<'a>, u64> {
     if n > MAX_ACCOUNTS {
         return Err(err::BAD_ACCOUNTS);
     }
-    let mut accounts: [Option<Account<'a>>; MAX_ACCOUNTS] = [None, None, None, None, None, None, None, None];
+    let mut accounts: [Option<Account<'a>>; MAX_ACCOUNTS] = core::array::from_fn(|_| None);
     for slot in accounts.iter_mut().take(n) {
         let dup = *input.add(off);
         if dup != NON_DUP_MARKER {
@@ -334,7 +334,7 @@ pub mod cpi {
     pub struct Arg { pub raw: Raw, pub writable: bool, pub signer: bool }
 
     /// The most accounts and seeds one call here passes.
-    const MAX: usize = 8;
+    const MAX: usize = 16;
 
     /// Call `program` with `accounts` and `data`, signing as the program
     /// address made from `seeds` (bump last). `program_raw` is the callee's

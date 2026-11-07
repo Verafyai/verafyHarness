@@ -13,14 +13,19 @@
 //!                data: bar_ppm u32, multisig[32], policy_hash[32], models_hash[32],
 //!                      ruling_program[32], challenge_slots u64, escape_slots u64, n u8, n juror keys[32]
 //! - `1 register` [config, case (w, PDA ["case", config, proposal]), multisig, proposal, transaction,
-//!                 payer (signer, w), system program]   data: lamports u64
+//!                 payer (signer, w), system program]   data: rent u64, fee u64
 //!                Opens a case for one proposal and fixes the transaction it will act on.
+//!                The fee is the jury's pay (VIP-0012), held in the case account.
 //! - `2 decide`   [config, case (w), ruling, multisig, proposal (w), transaction, authority (w, PDA ["authority", config]), squads]
 //!                Votes as the ruling says: answer 0 approves, answer 1 rejects.
 //! - `3 escape`   [config, case (w), multisig, proposal (w), authority (w), squads]
 //!                If the signer allows an escape hatch and the case has waited `escape_slots`
 //!                with no decision, approve, so a dead jury cannot trap funds. A rejected
 //!                case can never escape.
+//! - `4 pay`      [config, case (w), ruling, the ruling's juror keys (w), in seat order]
+//!                After a decision, split the fee equally among the jurors the ruling records
+//!                as revealed. Jurors who never revealed get nothing; their share stays in
+//!                the case. Once only.
 //!
 //! The case hash every ruling must carry as its contract hash:
 //!   sha256("verafy-judiciary/1" || config || proposal || sha256(transaction account data))
@@ -28,8 +33,8 @@
 //! Config layout: 0 magic "VRFYJUD1"  8 status  9 n  10 pad[2]  12 bar_ppm u32  16 multisig[32]
 //!   48 policy_hash[32]  80 models_hash[32]  112 ruling_program[32]  144 creator[32]
 //!   176 challenge_slots u64  184 escape_slots u64  192 jurors[8][32]  -> 448
-//! Case layout: 0 magic "VRFYCAS1"  8 status  16 config[32]  48 proposal[32]  80 tx_hash[32]
-//!   112 case_hash[32]  144 registered_slot u64  152 decided_slot u64  -> 160
+//! Case layout: 0 magic "VRFYCAS1"  8 status  9 paid  16 config[32]  48 proposal[32]  80 tx_hash[32]
+//!   112 case_hash[32]  144 registered_slot u64  152 decided_slot u64  160 fee u64  -> 176
 #![cfg_attr(target_os = "solana", no_std)]
 
 use abi::cpi::{find_program_address, invoke_signed, Arg};
@@ -38,7 +43,7 @@ use abi::{err, Input, Reader};
 pub const CONFIG_MAGIC: &[u8; 8] = b"VRFYJUD1";
 pub const CASE_MAGIC: &[u8; 8] = b"VRFYCAS1";
 pub const CONFIG_SIZE: usize = 448;
-pub const CASE_SIZE: usize = 160;
+pub const CASE_SIZE: usize = 176;
 pub const MAX_JURORS: usize = 8;
 pub const CASE_PREFIX: &[u8] = b"verafy-judiciary/1";
 
@@ -237,7 +242,9 @@ pub fn process(ix: &mut Input) -> Result<(), u64> {
         }
         1 => {
             ix.expect(7)?;
-            let lamports = r.u64()?;
+            let rent = r.u64()?;
+            let fee = r.u64()?;
+            let lamports = rent.checked_add(fee).ok_or(err::OVERFLOW)?;
             r.end()?;
             let (config_m, case_m, ms_m, prop_m, tx_m, payer_m, sys_m) = (meta(ix, 0)?, meta(ix, 1)?, meta(ix, 2)?, meta(ix, 3)?, meta(ix, 4)?, meta(ix, 5)?, meta(ix, 6)?);
             let config = ix.take_read(0)?;
@@ -275,6 +282,7 @@ pub fn process(ix: &mut Input) -> Result<(), u64> {
             case[80..112].copy_from_slice(&tx_hash);
             case[112..144].copy_from_slice(&hash);
             case[144..152].copy_from_slice(&slot().to_le_bytes());
+            case[160..168].copy_from_slice(&fee.to_le_bytes());
             Ok(())
         }
         2 => {
@@ -356,6 +364,63 @@ pub fn process(ix: &mut Input) -> Result<(), u64> {
             case[8] = ESCAPED;
             case[152..160].copy_from_slice(&now.to_le_bytes());
             vote(b"proposal_approve", &config_m.key, &auth_m.key, &program_id, sq_m.raw, ms_m.raw, auth_m.raw, prop_m.raw)
+        }
+        4 => {
+            r.end()?;
+            let config_m = meta(ix, 0)?;
+            let case_m = meta(ix, 1)?;
+            let ruling_m = meta(ix, 2)?;
+            let config = ix.take_read(0)?;
+            let ruling = ix.take_read(2)?;
+            if config_m.owner != program_id || config.len() < CONFIG_SIZE || &config[0..8] != CONFIG_MAGIC || config[8] != ATTACHED {
+                return Err(WRONG_STATE);
+            }
+            if ruling_m.owner[..] != config[112..144] || ruling.len() < R_SIZE || &ruling[0..8] != R_MAGIC || ruling[8] != R_SEALED {
+                return Err(BAD_RULING);
+            }
+            let n = ruling[9] as usize;
+            ix.expect(3 + n)?;
+            let mut revealed = [false; MAX_JURORS];
+            let mut count = 0u64;
+            for i in 0..n {
+                let k = key_at(ruling, R_JUROR_AT + R_JUROR_SIZE * i);
+                let m = meta(ix, 3 + i)?;
+                if m.key != k || !m.writable {
+                    return Err(WRONG_ACCOUNT);
+                }
+                if !(0..config[9] as usize).any(|j| config[192 + 32 * j..224 + 32 * j] == k[..]) {
+                    return Err(BAD_RULING);
+                }
+                if ruling[R_JUROR_AT + R_JUROR_SIZE * i + 97] == 2 {
+                    revealed[i] = true;
+                    count += 1;
+                }
+            }
+            let ruled_on = key_at(ruling, 16);
+            let case = ix.take_owned(1)?;
+            if case.len() < CASE_SIZE || &case[0..8] != CASE_MAGIC || case[16..48] != config_m.key[..] || case[112..144] != ruled_on[..] {
+                return Err(WRONG_STATE);
+            }
+            if !(case[8] == APPROVED || case[8] == REJECTED) || case[9] != 0 {
+                return Err(WRONG_STATE);
+            }
+            case[9] = 1;
+            let fee = u64_at(case, 160);
+            if count == 0 || fee == 0 {
+                return Ok(());
+            }
+            let share = fee / count;
+            // The case account is this program's, so it can be debited directly; any account can be credited.
+            unsafe {
+                *case_m.raw.lamports = (*case_m.raw.lamports).checked_sub(share * count).ok_or(err::OVERFLOW)?;
+                for (i, r) in revealed.iter().enumerate().take(n) {
+                    if *r {
+                        let j = meta(ix, 3 + i)?;
+                        *j.raw.lamports = (*j.raw.lamports).checked_add(share).ok_or(err::OVERFLOW)?;
+                    }
+                }
+            }
+            Ok(())
         }
         _ => Err(err::BAD_INPUT),
     }
