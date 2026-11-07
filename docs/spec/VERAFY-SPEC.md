@@ -3,7 +3,7 @@
 **Version 0.0.2-alpha**, November 6, 2026. Covers Verafy Harness (this repo) and Verafy Chain ([Verafyai/verafyChain](https://github.com/Verafyai/verafyChain)).
 
 <!-- score -->
-**Scored 66% overall** at v0.0.2-alpha (see [SCORECARD.md](SCORECARD.md)).
+**Scored 63% overall** at v0.0.2-alpha (see [SCORECARD.md](SCORECARD.md)).
 <!-- /score -->
 
 This is an alpha spec for a prototype. Nothing here describes a running network, and there is no token. Every number is labeled **measured** (our own runs, with a date), **vendor-reported** (by whoever built the tool), **modeled** (computed from those, in `packages/economics`) or **illustrative** (an assumption to replace).
@@ -68,11 +68,30 @@ Juries span labs and are drawn from the parent block hash. Auditors from other l
 | JURY-003 | built | Retry and back-off for rate-limited models |
 | JURY-004 | built | Auditors from other labs re-check sealed rulings |
 | JURY-005 | built | Challenges append affirm, overturn or supersede; escalation funds a wider jury |
-| JURY-006 | planned | Challenge bonds: lock on open, return on overturn, forfeit on affirm. *Gap: Not built; needed before challenges can run on a network.* |
+| JURY-006 | designed | Challenge bonds: lock on open, return on overturn, forfeit on affirm. *Gap: Designed in VIP-0006; not built.* |
 | JURY-007 | planned | Track record: agreement with final rulings and forecast scores per harness. *Gap: No per-harness history yet; needed for bonds and for routing weights.* |
 | JURY-008 | partial | 100 live rulings across the four market types, with audits and costs published. *Gap: Only the first five live rulings are published.* |
 | JURY-009 | built | Harness daemon: a long-running process that watches for funded contracts and takes seats |
 <!-- /reqs:JURY -->
+
+## CONS: consensus hardening and slashing
+
+Running a harness means posting a bond that can be slashed for misbehavior. A jury scheduler draws every jury from a randomness beacon that no sealer can steer, caps seats per operator, sets block-height deadlines for commit and reveal, and replaces no-shows from fixed alternates during the commit phase only. Every recorded fault (a missing commit or reveal, a reveal that doesn't match its commitment, a bad proof, equivocation, a withheld beacon reveal) carries a penalty from a published slashing schedule, applied as a bond diff that conserves totals. Payouts wait until the challenge window closes, so an overturn moves money, not just the record. Designs: [docs/proposals](../proposals/README.md).
+
+<!-- reqs:CONS -->
+| ID | Status | Requirement |
+|---|---|---|
+| CONS-001 | designed | Jury scheduler: beacon seed, draw, alternates, block-height deadlines, commit-phase replacement. *Gap: Designed; not built.* |
+| CONS-002 | designed | Randomness beacon with lookahead; a withheld reveal is a slashable fault. *Gap: Designed; not built.* |
+| CONS-003 | designed | Operator keys on harness cards, a seat cap per operator, operator bonds. *Gap: Designed; not built.* |
+| CONS-004 | designed | Draw weighting: equal by default, bond-weighted with a cap as an option. *Gap: Network default waits on Rex.* |
+| CONS-005 | designed | Slashing: a published schedule applied to recorded faults as conserving bond diffs. *Gap: Designed; not built.* |
+| CONS-006 | designed | Payouts held until the challenge window closes; an overturn redirects the held escrow. *Gap: Designed; not built.* |
+| CONS-007 | designed | Single-harness mode: a jury of one with a mandatory window and an automatic audit. *Gap: Whether to offer it waits on Rex.* |
+| CONS-008 | designed | Prover placement: each harness or shared provers, with the prover named in the proof record. *Gap: Default waits on Rex.* |
+| CONS-009 | planned | verafy_ruling: a reveal deadline slot, and a releasable-after slot. *Gap: Program change; not built.* |
+| CONS-010 | planned | Economics: bond capital cost, expected slashing, challenge cost. *Gap: Not modeled.* |
+<!-- /reqs:CONS -->
 
 ## CHAIN: the Verafy Chain node
 

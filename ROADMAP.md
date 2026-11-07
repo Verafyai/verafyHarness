@@ -34,7 +34,7 @@ Done when: five DSH processes on five model routes rule on `examples/market-reso
 - [x] Auditor role, in core: `drawAuditors` picks harnesses from labs not on the jury, `sampleForAudit` takes a seeded sample, and `audit` re-verifies a sealed ruling from its round record and re-runs the contract, returning a signed `swarm.audit/0` report that flags a bad record or disagreement. Tested with scripted models. Not yet: auditor pay from `pool:auditors`, auditor bonds, and audits run live or on a schedule
 - [x] Challenge with new evidence, in core: `challengeContract` builds a `swarm.challenge/0` contract (the prior ruling as a pinned `ruling` context entry, the original evidence, the new material labeled new; a jury at least as large that shares no lab or harness with the original; exits that only record), and `resolveChallenge` returns a `swarm.review/0` record: affirm, overturn (new or false evidence, error), supersede (changed rules), or the original stands. `appendReview` and `reviewStatus` keep an append-only log; `seal` carries reviews only in the block of the ruling that decided them. The original ruling is never edited. Tested end to end with scripted models: forged evidence, then a challenge on false evidence, then overturned
 - [x] Escalation, in core: `escalate` turns a below-bar ruling into a `swarm.escalation/0` contract funded by exactly the carried escrow, with a wider jury that excludes the original jury's labs and harnesses. Tested with a nine-seat jury drawn from labs not on the original
-- [ ] Challenge bonds: lock on open, return on overturn or supersede, forfeit on affirm (draft rulings SIMD). Not built
+- [ ] Challenge bonds: lock on open, return on overturn or supersede, forfeit on affirm (draft rulings SIMD). Not built; designed in [VIP-0006](docs/proposals/VIP-0006-challenge-bonds.md), milestone 4b
 - [ ] Run challenges and escalations from the CLI and the demo; today they are core functions and tests only
 - [ ] A fast lane: a System 1 screen that settles only the safe default and escalates the rest
 
@@ -77,7 +77,7 @@ Still open from that list: the harness daemon (milestone 4).
 
 ## Milestone 4: A network of harnesses
 
-- [ ] Harness daemon: a long-running process that watches for funded contracts and takes jury seats
+- [x] Harness daemon: a long-running process that watches for funded contracts and takes jury seats (`verafy harness serve`, v0.0.2-alpha)
 - [ ] MCP daemon tools, once the daemon exists: `verafy_harness_start`, `verafy_harness_status` and `verafy_harness_stop`. They run a real juror process with its own model and tool lock, so the agent that calls them still never votes. Not in `packages/mcp` yet.
 - [ ] Gossip between harnesses for commitments and reveals; a sealer rotation
 - [ ] Availability layer: storage harnesses that serve context by hash through the challenge window
@@ -85,6 +85,24 @@ Still open from that list: the harness daemon (milestone 4).
 - [ ] Hardware attestation where providers offer it, recorded with each vote
 
 Done when: ten independently operated harnesses, on at least five labs' models, seal blocks on a test network for a week.
+
+## Milestone 4b: Consensus hardening and slashing (v0.0.3-alpha)
+
+Running a harness means posting a bond that can be taken for misbehavior. Each item has a design proposal in [docs/proposals](docs/proposals/README.md), a requirement in the spec, and a GitHub issue labeled `proposal`.
+
+- [ ] Jury scheduler: seed, draw, alternates, block-height deadlines, commit-phase replacements, audit sampling ([VIP-0001](docs/proposals/VIP-0001-jury-scheduler.md), CONS-001)
+- [ ] Randomness beacon with lookahead; withholding a reveal is slashable ([VIP-0002](docs/proposals/VIP-0002-randomness-beacon.md), CONS-002)
+- [ ] Operator keys on harness cards; seat cap per operator; operator bonds ([VIP-0003](docs/proposals/VIP-0003-operator-diversity.md), CONS-003)
+- [ ] Draw weighting: equal (default) or bond-weighted, capped. Rex decides the network default ([VIP-0004](docs/proposals/VIP-0004-draw-weighting.md), CONS-004)
+- [ ] Slashing: a published schedule, `slash()` producing conserving bond diffs, operator reach, appeals ([VIP-0005](docs/proposals/VIP-0005-fault-slashing.md), CONS-005)
+- [ ] Challenge bonds: lock on open, return on overturn or supersede, forfeit on affirm ([VIP-0006](docs/proposals/VIP-0006-challenge-bonds.md), JURY-006)
+- [ ] Payouts held until the challenge window closes; an overturn inside the window redirects the held escrow ([VIP-0007](docs/proposals/VIP-0007-payout-hold.md), CONS-006)
+- [ ] Single-harness mode: a jury of one with a mandatory window and an automatic audit. Rex decides whether to offer it ([VIP-0008](docs/proposals/VIP-0008-single-harness-mode.md), CONS-007)
+- [ ] Prover placement: each harness, or shared provers. Rex decides the default ([VIP-0009](docs/proposals/VIP-0009-prover-placement.md), CONS-008)
+- [ ] `verafy_ruling` on Solana: a reveal deadline so one silent juror can't block a seal, and a releasable-after slot (CONS-009)
+- [ ] Economics: bond capital cost, expected slashing, and the cost of a challenge, in `packages/economics` (CONS-010)
+
+Done when: the testnet coordinator runs every ruling through the scheduler, a harness that withholds a reveal is slashed in a sealed block, and a challenged ruling's held payout follows the challenge outcome.
 
 ## Milestone 5: Solana integration
 
