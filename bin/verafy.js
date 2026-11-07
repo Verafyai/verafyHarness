@@ -33,10 +33,12 @@
  * `swarm` is kept as an alias for this command.
  */
 import { readFile, writeFile, mkdir, readdir, appendFile } from 'node:fs/promises'
+import { existsSync, readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
   Harness, drawJuryFor, rule, ruleFromReveals, seal, validate, pin, ascHash, short,
+  JuryScheduler, scheduleRecord, beaconChain, beaconEntry, slashRuling, DEFAULT_SLASHING,
   mockProvider, openaiProvider, createRouter, configPath, chainPaths, envValue,
   fundingCheck, Outbox, PauseLog,
 } from '../packages/core/src/index.js'
@@ -45,7 +47,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const CHAIN = chainPaths(ROOT)
 const args = process.argv.slice(2)
 const flag = f => args.includes(f)
-const VALUE_FLAGS = ['--config', '--env', '--plans', '--chain', '--rpc', '--program', '--payer', '--target', '--family', '--model', '--kind', '--nodes', '--id', '--public-url', '--region', '--plan', '--ref', '--port']
+const VALUE_FLAGS = ['--config', '--env', '--plans', '--chain', '--rpc', '--program', '--payer', '--target', '--family', '--model', '--kind', '--nodes', '--id', '--public-url', '--region', '--plan', '--ref', '--port', '--misbehave']
 const positional = args.filter((a, i) => !a.startsWith('--') && !VALUE_FLAGS.includes(args[i - 1]))
 const value = f => { const i = args.indexOf(f); return i >= 0 ? args[i + 1] : undefined }
 const [cmd, file, ...rest] = positional
@@ -233,7 +235,7 @@ async function packedCommand() {
 async function testnetCommand() {
   const { testnetUp, testnetDown } = await import('../packages/deploy/src/index.js')
   if (file === 'down') { console.log(`stopped ${testnetDown()} harness process(es)`); return }
-  if (file !== 'up') { console.log('usage: verafy testnet up [--live] [--solana] [--rpc url] [--program id] [--payer file] [--keep] [--chain dir] [asc.json...] | verafy testnet down'); process.exitCode = 2; return }
+  if (file !== 'up') { console.log('usage: verafy testnet up [--live] [--solana] [--rpc url] [--program id] [--payer file] [--keep] [--misbehave id:fault,...] [--chain dir] [asc.json...] | verafy testnet down'); process.exitCode = 2; return }
   const chainDir = value('--chain')
   if (chainDir) {
     const { spawnSync } = await import('node:child_process')
@@ -241,7 +243,9 @@ async function testnetCommand() {
     return
   }
   const solana = flag('--solana') || value('--rpc') ? { rpc: value('--rpc'), program: value('--program'), payer: value('--payer') } : null
-  const r = await testnetUp({ live: flag('--live'), contracts: rest.length ? rest.map(f => resolve(f)) : undefined, solana, keep: flag('--keep') })
+  // --misbehave h-llama-1:no-reveal[,h-qwen-1:no-commit]: scripted testnets only, to watch slashing.
+  const misbehave = Object.fromEntries((value('--misbehave') ?? '').split(',').filter(Boolean).map(x => x.split(':')))
+  const r = await testnetUp({ live: flag('--live'), contracts: rest.length ? rest.map(f => resolve(f)) : undefined, solana, keep: flag('--keep'), misbehave })
   if (flag('--keep')) { console.log('harnesses keep running; stop them with  verafy testnet down'); await new Promise(() => {}) }
   return r
 }
@@ -312,7 +316,13 @@ async function main() {
   const pool = config.pool.map(h => new Harness({ ...h, provider: flag('--live') ? providerFor(config, h) : mockProvider(script, asc.id, h.family) }))
   const chain = await loadChain()
   const parent = chain.at(-1) ?? null
-  const jury = drawJuryFor(asc, pool, parent?.hash ?? 'genesis')
+  // The jury seed is this block's beacon value (VIP-0002): the local node's hash chain, fixed before any contract.
+  const beaconFile = join(CHAIN.dir, 'beacon.json')
+  const saved = existsSync(beaconFile) ? JSON.parse(readFileSync(beaconFile, 'utf8')) : null
+  const bchain = beaconChain(saved ? { secret: saved.secret, length: saved.length } : {})
+  const revealed = (saved?.revealed ?? 0) + 1
+  const beacon = beaconEntry(parent, { sealer: 'node-local', reveal: bchain.reveal(revealed) }, (parent?.height ?? 0) + 1)
+  const { jury, schedule } = new JuryScheduler().draw(asc, pool, { seed: beacon.value, height: (parent?.height ?? 0) + 1 })
   const sealer = pool.find(h => !jury.includes(h)) ?? jury[0]
   const log = flag('--json') ? () => {} : event => print(event, asc)
 
@@ -320,16 +330,20 @@ async function main() {
     console.log(c.b(`\n${asc.title}`))
     console.log(c.d(`mode ${flag('--live') ? 'live models' : 'mock answers'} · escrow ${asc.payment.escrow} ${asc.payment.currency} · bar ${pct(asc.payment.bar)} · jury ${asc.payment.jury.size} across ${asc.payment.jury.minFamilies}+ families`))
   }
-  const ruling = await rule(asc, jury, sealer, log, { seed: parent?.hash ?? 'genesis' })
-  const block = seal(parent, [ruling], sealer)
+  const ruling = await rule(asc, jury, sealer, log, { seed: beacon.value, schedule: scheduleRecord(schedule) })
+  const slashings = slashRuling(ruling, DEFAULT_SLASHING, { height: (parent?.height ?? 0) + 1 }).filter(x => x.amount > 0 || x.forgiven)
+  const block = seal(parent, [ruling], sealer, { beacon, slashings })
   const router = createRouter(config.payments)
   const payouts = ruling.passed ? await router.settle(ruling, asc, config.payments?.book) : []
   await mkdir(CHAIN.dir, { recursive: true })
   await writeFile(CHAIN.write, JSON.stringify([...chain, block], null, 2))
+  await writeFile(beaconFile, JSON.stringify({ secret: bchain.secret, length: bchain.length, anchor: bchain.anchor, revealed }), { mode: 0o600 })
   if (flag('--json')) { console.log(JSON.stringify(block, null, 2)); return }
   console.log(c.b('\nSEAL'))
   console.log(`  block ${block.height}  ${short(block.hash)}  parent ${short(block.parent)}  sealed by ${block.sealer}`)
-  console.log(c.d(`  rulings root ${short(block.rulingsRoot)} · written to .verafy/chain.json`))
+  console.log(c.d(`  rulings root ${short(block.rulingsRoot)} · jury seed ${short(beacon.value)} from the beacon · written to .verafy/chain.json`))
+  for (const x of slashings) console.log(`  ${c.a('slashed')} ${x.harness}: ${x.fault}, ${x.forgiven ? 'forgiven (first in the window)' : `${x.rate * 100}% of bond = ${x.amount}`}`)
+  if (ruling.held) console.log(c.d(`  payouts held for ${ruling.held.window} blocks (challenge window)`))
   console.log(c.d(`  payment router ${router.name}: ${payouts.length} payouts in ${asc.payment.currency}${asc.payment.chain ? ` on ${asc.payment.chain}` : ''}${router.name === 'ledger' ? ` recorded to ${config.payments?.file ?? '.verafy/payouts.jsonl'}` : ''}\n`))
 }
 
@@ -363,10 +377,13 @@ async function sealFromJurors(asc, dirs) {
   const payouts = ruling.passed ? await router.settle(ruling, asc, config.payments?.book) : []
   await mkdir(CHAIN.dir, { recursive: true })
   await writeFile(CHAIN.write, JSON.stringify([...chain, block], null, 2))
+  await writeFile(beaconFile, JSON.stringify({ secret: bchain.secret, length: bchain.length, anchor: bchain.anchor, revealed }), { mode: 0o600 })
   if (flag('--json')) { console.log(JSON.stringify(block, null, 2)); return }
   console.log(c.b('\nSEAL'))
   console.log(`  block ${block.height}  ${short(block.hash)}  parent ${short(block.parent)}  sealed by ${block.sealer}`)
-  console.log(c.d(`  rulings root ${short(block.rulingsRoot)} · written to .verafy/chain.json`))
+  console.log(c.d(`  rulings root ${short(block.rulingsRoot)} · jury seed ${short(beacon.value)} from the beacon · written to .verafy/chain.json`))
+  for (const x of slashings) console.log(`  ${c.a('slashed')} ${x.harness}: ${x.fault}, ${x.forgiven ? 'forgiven (first in the window)' : `${x.rate * 100}% of bond = ${x.amount}`}`)
+  if (ruling.held) console.log(c.d(`  payouts held for ${ruling.held.window} blocks (challenge window)`))
   console.log(c.d(`  payment router ${router.name}: ${payouts.length} payouts in ${asc.payment.currency}${asc.payment.chain ? ` on ${asc.payment.chain}` : ''}${router.name === 'ledger' ? ` recorded to ${config.payments?.file ?? '.verafy/payouts.jsonl'}` : ''}\n`))
 }
 

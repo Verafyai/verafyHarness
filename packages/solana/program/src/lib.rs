@@ -8,7 +8,8 @@
 //!
 //! Instructions (tag byte first):
 //! - `0 open`   accounts [ruling (w), opener (signer)]
-//!              data: contract_hash[32], bar_ppm u32, n u8, n juror keys[32]
+//!              data: contract_hash[32], bar_ppm u32, n u8, n juror keys[32],
+//!                    then optionally reveal_window u32, challenge_window u32 (slots)
 //! - `1 commit` accounts [ruling (w), juror (signer)]
 //!              data: index u8, commitment[32]
 //! - `2 reveal` accounts [ruling (w), juror (signer)]
@@ -16,14 +17,20 @@
 //!              commitment = sha256(contract_hash || index || answer || reasoning_hash || salt)
 //! - `3 seal`   accounts [ruling (w), opener (signer)]
 //!              data: summary_len u16, summary (at most 512 bytes)
-//!              Every seated juror must have revealed. The plurality answer
-//!              wins if its votes / seats >= bar; otherwise below-bar.
+//!              Every seated juror must have revealed, unless the reveal window
+//!              set at open has passed: then only the revealed seats count, and
+//!              the rest stay marked unrevealed, a fault the harness network
+//!              slashes. One silent juror can no longer block a seal. The
+//!              plurality answer wins if its votes / seats >= bar; otherwise
+//!              below-bar. A sealed ruling is releasable after its challenge
+//!              window: programs that pay on it read `releasable_after_slot`.
 //!
 //! Layout (little endian):
 //!   0  magic "VRFYRUL1"          8  status u8   9 n u8   10 answer u8   11 agree u8
 //!   12 bar_ppm u32               16 contract_hash[32]   48 opener[32]
 //!   80 juror i at 80 + 104*i:   key[32] commitment[32] reasoning_hash[32] answer u8 flags u8 (pad 6)
 //!   912 summary_len u16, 914 summary[512]
+//!   1426 reveal_deadline_slot u64 (0: none)   1434 releasable_after_slot u64   1442 challenge_window u32 (pad 4)
 #![cfg_attr(target_os = "solana", no_std)]
 
 use abi::{err, Input, Reader};
@@ -33,7 +40,10 @@ pub const MAX_JURORS: usize = 8;
 pub const JUROR_SIZE: usize = 104;
 pub const SUMMARY_MAX: usize = 512;
 pub const SUMMARY_AT: usize = 80 + MAX_JURORS * JUROR_SIZE;
-pub const RULING_SIZE: usize = SUMMARY_AT + 2 + SUMMARY_MAX;
+pub const DEADLINE_AT: usize = SUMMARY_AT + 2 + SUMMARY_MAX;
+pub const RELEASE_AT: usize = DEADLINE_AT + 8;
+pub const WINDOW_AT: usize = RELEASE_AT + 8;
+pub const RULING_SIZE: usize = WINDOW_AT + 8;
 
 pub const EMPTY: u8 = 0;
 pub const OPEN: u8 = 1;
@@ -82,6 +92,28 @@ fn sha256(parts: &[&[u8]]) -> [u8; 32] {
     out
 }
 
+/// The current slot, from the Clock sysvar.
+#[cfg(target_os = "solana")]
+fn slot() -> u64 {
+    extern "C" {
+        fn sol_get_clock_sysvar(addr: *mut u8) -> u64;
+    }
+    let mut clock = [0u8; 40];
+    unsafe { sol_get_clock_sysvar(clock.as_mut_ptr()) };
+    u64::from_le_bytes([clock[0], clock[1], clock[2], clock[3], clock[4], clock[5], clock[6], clock[7]])
+}
+
+#[cfg(not(target_os = "solana"))]
+fn slot() -> u64 {
+    0
+}
+
+fn u64_at(s: &[u8], at: usize) -> u64 {
+    let mut b = [0u8; 8];
+    b.copy_from_slice(&s[at..at + 8]);
+    u64::from_le_bytes(b)
+}
+
 #[cfg(not(target_os = "solana"))]
 fn sha256(_parts: &[&[u8]]) -> [u8; 32] {
     // Host builds only type-check; the program is tested on a validator.
@@ -117,7 +149,12 @@ pub fn process(ix: &mut Input) -> Result<(), u64> {
                 }
                 s[juror_at(i)..juror_at(i) + 32].copy_from_slice(k);
             }
+            // Optional windows, in slots. Absent: no reveal deadline and no challenge window, as before.
+            let (reveal_window, challenge_window) = if ix.data.len() == 1 + 32 + 4 + 1 + 32 * n + 8 { (r.u32()? as u64, r.u32()?) } else { (0, 0) };
             r.end()?;
+            let deadline = if reveal_window == 0 { 0 } else { slot().checked_add(reveal_window).ok_or(err::OVERFLOW)? };
+            s[DEADLINE_AT..DEADLINE_AT + 8].copy_from_slice(&deadline.to_le_bytes());
+            s[WINDOW_AT..WINDOW_AT + 4].copy_from_slice(&challenge_window.to_le_bytes());
             s[0..8].copy_from_slice(MAGIC);
             s[8] = OPEN;
             s[9] = n as u8;
@@ -187,10 +224,16 @@ pub fn process(ix: &mut Input) -> Result<(), u64> {
             let summary = r.bytes(len)?;
             r.end()?;
             let n = s[9] as usize;
+            let deadline = u64_at(s, DEADLINE_AT);
+            let now = slot();
+            let past = deadline != 0 && now > deadline;
             let mut counts = [0u8; 256];
             for i in 0..n {
                 let at = juror_at(i);
                 if s[at + 97] != REVEALED {
+                    if past {
+                        continue;
+                    }
                     return Err(NOT_ALL_REVEALED);
                 }
                 let a = s[at + 96] as usize;
@@ -212,9 +255,12 @@ pub fn process(ix: &mut Input) -> Result<(), u64> {
             s[11] = agree as u8;
             s[SUMMARY_AT..SUMMARY_AT + 2].copy_from_slice(&(len as u16).to_le_bytes());
             s[SUMMARY_AT + 2..SUMMARY_AT + 2 + len].copy_from_slice(summary);
-            for b in s[SUMMARY_AT + 2 + len..RULING_SIZE].iter_mut() {
+            for b in s[SUMMARY_AT + 2 + len..DEADLINE_AT].iter_mut() {
                 *b = 0;
             }
+            let window = u32::from_le_bytes([s[WINDOW_AT], s[WINDOW_AT + 1], s[WINDOW_AT + 2], s[WINDOW_AT + 3]]) as u64;
+            let release = now.checked_add(window).ok_or(err::OVERFLOW)?;
+            s[RELEASE_AT..RELEASE_AT + 8].copy_from_slice(&release.to_le_bytes());
             abi::log(if met { "verafy_ruling: sealed" } else { "verafy_ruling: below bar" });
             Ok(())
         }

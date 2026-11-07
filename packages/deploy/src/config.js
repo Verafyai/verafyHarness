@@ -50,7 +50,9 @@ export function serveConfig(file = {}, env = process.env) {
   const publicUrl = env.VERAFY_PUBLIC_URL ?? file.publicUrl ?? `http://127.0.0.1:${port}`
   const dataDir = env.VERAFY_DATA_DIR ?? file.dataDir ?? join(homedir(), '.verafy')
   const mock = env.VERAFY_MOCK === '1' || file.mock === true
-  return { harness, provider, nodes, port, publicUrl, dataDir, mock }
+  // Test-only (VERAFY_MISBEHAVE): a harness that skips commits or reveals, or reveals a changed answer, so the testnet can show slashing.
+  const misbehave = env.VERAFY_MISBEHAVE || null
+  return { harness, provider, nodes, port, publicUrl, dataDir, mock, misbehave }
 }
 
 /**
@@ -64,6 +66,7 @@ export function checkServeConfig(c, env = process.env) {
   if (!c.harness.family) p.push('no model family: set VERAFY_FAMILY or harness.family to the base model your open-weight model descends from (llama, qwen, mistral, deepseek, gemma, ...)')
   if (!c.harness.model) p.push('no model: set VERAFY_MODEL or harness.model')
   if (!(c.harness.bond > 0)) p.push('bond must be a positive number')
+  if (c.misbehave && !c.mock) p.push('VERAFY_MISBEHAVE is for the local testnet only; it needs VERAFY_MOCK=1')
   if (!c.mock && !env[c.provider.apiKeyEnv] && !isLocalEndpoint(c.provider.baseURL)) p.push(`no model key: set ${c.provider.apiKeyEnv} (or VERAFY_MOCK=1 to try it with scripted answers)`)
   if (!(c.port >= 0 && c.port < 65536)) p.push('port must be 0 to 65535')
   if (c.nodes.length && /127\.0\.0\.1|localhost/.test(c.publicUrl) && !c.nodes.every(n => /127\.0\.0\.1|localhost/.test(n))) p.push('publicUrl is a local address but the nodes are remote: set VERAFY_PUBLIC_URL to an address they can reach')

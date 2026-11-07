@@ -1,11 +1,19 @@
 /**
  * `verafy testnet`: a whole testnet on one machine.
  *
- * It starts one harness daemon per family as its own process (the same
- * `verafy harness serve` an operator runs), then a local coordinator that
- * does what a Verafy Chain node does: draws each contract's jury from the
- * parent block hash, runs the commit round and the reveal round over HTTP,
- * rules, and seals a block. Optionally it settles every ruling on Solana
+ * It starts one harness daemon per open-weight model family as its own
+ * process (the same `verafy harness serve` an operator runs), then a local
+ * coordinator that does what a Verafy Chain node does:
+ *   - draws each jury with the jury scheduler, seeded by the randomness beacon
+ *     (the coordinator's hash chain), never by a block hash;
+ *   - runs the commit round over HTTP, replaces seats that miss it from the
+ *     draw's alternates, then runs the reveal round;
+ *   - rules, prices every recorded fault with the slashing schedule, takes
+ *     the penalty from the harness's bond, and holds payouts for contracts
+ *     with a challenge window;
+ *   - seals a block carrying the beacon entry, the slashings and any releases.
+ * `misbehave` makes chosen harnesses skip a commit or a reveal, or reveal a
+ * changed answer, so slashing can be watched end to end. Optionally it settles every ruling on Solana
  * (a local test validator, or any RPC) through the verafy_ruling program,
  * each harness signing its own commit and reveal with its harness key.
  *
@@ -20,7 +28,7 @@
 import { spawn, spawnSync } from 'node:child_process'
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
-import { Harness, drawJuryFor, rule, seal, ascHash, importIdentity, mockProvider } from '../../core/src/index.js'
+import { Harness, seal, ascHash, mockProvider, importIdentity, ruleFromRecords, JuryScheduler, scheduleRecord, beaconChain, beaconEntry, verifyBeacon, penalties, slashDiff, bondAccount, releaseHeld, rulingId, DEFAULT_SLASHING } from '../../core/src/index.js'
 
 const ROOT = new URL('../../../', import.meta.url).pathname
 
@@ -52,10 +60,12 @@ function remote(card, url) {
  * @param {boolean} [o.live] - real models.
  * @param {string[]} [o.contracts] - contract files to rule on, one block each.
  * @param {{rpc?: string, program?: string, payer?: string, validator?: boolean}} [o.solana] - settle on Solana too.
+ * @param {Record<string, 'no-commit' | 'no-reveal' | 'bad-reveal'>} [o.misbehave] - harness id to misbehavior (scripted answers only).
  * @param {Function} [o.say]
  * @returns {Promise<{blocks: object[], harnesses: object[], solana: object[], stop: Function}>}
  */
-export async function testnetUp({ dir = join(ROOT, '.verafy/testnet'), basePort = 7201, live = false, contracts, solana = null, keep = false, say = console.log } = {}) {
+export async function testnetUp({ dir = join(ROOT, '.verafy/testnet'), basePort = 7201, live = false, contracts, solana = null, keep = false, misbehave = {}, say = console.log } = {}) {
+  if (live && Object.keys(misbehave).length) throw new Error('misbehave is for scripted testnets only')
   mkdirSync(dir, { recursive: true })
   const config = JSON.parse(readFileSync(join(ROOT, 'verafy.config.json'), 'utf8'))
   const files = contracts ?? ['examples/market-resolution.json', 'examples/fact-check.json', 'examples/delay-cover.json'].map(f => join(ROOT, f))
@@ -68,8 +78,9 @@ export async function testnetUp({ dir = join(ROOT, '.verafy/testnet'), basePort 
     for (const [i, h] of config.pool.entries()) {
       const port = basePort + i
       const dataDir = join(dir, h.id)
-      const env = { ...process.env, VERAFY_HARNESS_ID: h.id, VERAFY_FAMILY: h.family, VERAFY_MODEL: h.model, VERAFY_BOND: String(h.bond), VERAFY_PORT: String(port), VERAFY_PUBLIC_URL: `http://127.0.0.1:${port}`, VERAFY_DATA_DIR: dataDir, ...(live ? {} : { VERAFY_MOCK: '1' }) }
+      const env = { ...process.env, VERAFY_HARNESS_ID: h.id, VERAFY_FAMILY: h.family, VERAFY_MODEL: h.model, VERAFY_BOND: String(h.bond), VERAFY_PORT: String(port), VERAFY_PUBLIC_URL: `http://127.0.0.1:${port}`, VERAFY_DATA_DIR: dataDir, ...(live ? {} : { VERAFY_MOCK: '1' }), ...(misbehave[h.id] ? { VERAFY_MISBEHAVE: misbehave[h.id] } : {}) }
       delete env.VERAFY_NODES
+      if (!misbehave[h.id]) delete env.VERAFY_MISBEHAVE
       const p = spawn(process.execPath, [join(ROOT, 'bin/verafy.js'), 'harness', 'serve'], { env, stdio: ['ignore', 'pipe', 'pipe'] })
       const log = []
       p.stdout.on('data', d => log.push(String(d)))
@@ -82,30 +93,89 @@ export async function testnetUp({ dir = join(ROOT, '.verafy/testnet'), basePort 
     say(`${pool.length} harnesses up: ${pool.map(p => `${p.id} (${p.family})`).join(', ')}${live ? '' : ' (scripted answers, no model calls)'}`)
     writeFileSync(join(dir, 'pids.json'), JSON.stringify(harnesses.map(h => ({ id: h.id, pid: h.pid, url: h.url }))))
 
-    // The coordinator's own key seals blocks, as a node would.
+    // The coordinator's own key seals blocks, as a node would, and its hash chain feeds the beacon.
     const sealer = new Harness({ id: 'node-local', family: 'node', model: 'none', bond: 0, provider: mockProvider({}), identityFile: join(dir, 'node-local.identity.pem') })
+    const beaconFile = join(dir, 'beacon.json')
+    const saved = existsSync(beaconFile) ? JSON.parse(readFileSync(beaconFile, 'utf8')) : null
+    const bchain = beaconChain(saved ? { secret: saved.secret, length: saved.length } : { length: 10_000 })
+    const anchors = { [sealer.id]: bchain.anchor }
     const chainFile = join(dir, 'chain.json')
     const chain = existsSync(chainFile) ? JSON.parse(readFileSync(chainFile, 'utf8')) : []
+    let revealed = saved?.revealed ?? 0
+    // Bonds: each harness posts its card's bond; slashing takes from it.
+    const bondsFile = join(dir, 'bonds.json')
+    const bonds = existsSync(bondsFile) ? JSON.parse(readFileSync(bondsFile, 'utf8')) : Object.fromEntries(pool.map(h => [bondAccount(h.id), Number(h.bond)]))
+    const holdsFile = join(dir, 'holds.json')
+    const holds = existsSync(holdsFile) ? JSON.parse(readFileSync(holdsFile, 'utf8')) : []
+    const history = chain.flatMap(b => (b.slashings ?? []).map(x => ({ harness: x.harness, fault: x.fault, height: b.height })))
+    const scheduler = new JuryScheduler()
     const blocks = []
     const settled = []
+    const slashed = []
     let sol = null
     if (solana) sol = await solanaSetup({ ...solana, onStop: f => stops.push(f) }, dir, say)
     for (const f of files) {
       const asc = JSON.parse(readFileSync(f, 'utf8'))
       const parent = chain.at(-1) ?? null
-      const seed = parent?.hash ?? 'genesis'
-      const jury = drawJuryFor(asc, pool, seed)
-      const ruling = await rule(asc, jury, sealer, () => {}, { seed })
-      const block = seal(parent, [ruling], sealer)
+      const height = (parent?.height ?? 0) + 1
+      // The seed is this block's beacon value: fixed by the sealer's registered anchor, not by anything in the block.
+      const beacon = beaconEntry(parent, { sealer: sealer.id, reveal: bchain.reveal(++revealed) }, height)
+      const s0 = scheduler.draw(asc, pool, { seed: beacon.value, height })
+      // Commit round; seats that miss it take the draw's alternates (commit phase only).
+      const commits = []
+      const failed = []
+      const tryCommit = async j => { try { commits.push(await j.commit(asc)) } catch (err) { failed.push(j.id); say(`  ${j.id} missed the commit: ${err.message}`) } }
+      await Promise.all(s0.jury.map(tryCommit))
+      let s = s0
+      if (failed.length) {
+        s = scheduler.replace(asc, s0, failed, { height: s0.schedule.commitBy + 1 })
+        for (const r of s.schedule.replaced) say(`  seat ${r.seat} replaced by alternate ${r.by}`)
+        await Promise.all(s.added.map(tryCommit))
+      }
+      // Reveal round.
+      const reveals = []
+      for (const c of commits) {
+        const j = s.jury.find(x => x.id === c.harness)
+        try { reveals.push(await j.reveal(ascHash(asc))) } catch (err) { say(`  ${j.id} withheld its reveal: ${err.message}`) }
+      }
+      const ruling = ruleFromRecords(asc, commits, reveals, { jury: s.jury.map(j => j.card), sealer: sealer.id, seed: beacon.value, schedule: scheduleRecord(s.schedule) })
+      // A replaced seat's missed commit is still a fault against its own bond; the ruling's own faults cover everyone still seated.
+      const juryCards = [...new Map([...s0.jury, ...s.jury].map(j => [j.id, j.card])).values()]
+      const replacedFaults = s.schedule.replaced.map(r => ({ harness: r.seat, fault: 'no-commit' }))
+      // Penalties are shares of what each harness still has posted, not of the bond its card advertises.
+      const posted = Object.fromEntries(juryCards.map(c => [c.id, bonds[bondAccount(c.id)] ?? Number(c.bond)]))
+      const priced = penalties([...replacedFaults, ...ruling.round.faults].map(x => ({ ...x, ruling: rulingId(ruling) })), DEFAULT_SLASHING, { bonds: posted, history, height })
+      const { diff } = slashDiff(priced, { balances: bonds })
+      for (const d of diff) bonds[d.account] = Math.round(((bonds[d.account] ?? 0) + d.delta) * 1e6) / 1e6
+      const slashings = priced.filter(x => x.amount > 0 || x.forgiven)
+      for (const x of slashings) { history.push({ harness: x.harness, fault: x.fault, height }); slashed.push({ ...x, height }) }
+      // Held payouts whose window has closed are released in this block.
+      const releases = []
+      for (const hd of holds.filter(x => !x.released)) {
+        const a = JSON.parse(readFileSync(hd.file, 'utf8'))
+        const d = releaseHeld(a, hd.ruling, { sealedAt: hd.sealedAt, height })
+        if (d.status === 'release') { releases.push({ ruling: hd.id, diff: d.diff }); hd.released = height }
+      }
+      const block = seal(parent, [ruling], sealer, { beacon, slashings, releases })
+      if (ruling.held) holds.push({ id: rulingId(ruling), file: f, ruling, sealedAt: block.height })
       chain.push(block)
       blocks.push(block)
-      say(`block ${block.height}  ${block.hash.slice(0, 12)}  ${asc.id}: ${ruling.passed ? ruling.exit ?? ruling.answer : 'below bar'}  jury ${jury.map(j => j.family).join(',')}`)
-      if (sol && asc.question?.answer?.options) settled.push(await settleOnSolana(sol, asc, ruling, jury, harnesses, say))
+      writeFileSync(beaconFile, JSON.stringify({ secret: bchain.secret, length: bchain.length, anchor: bchain.anchor, revealed }), { mode: 0o600 })
+      say(`block ${block.height}  ${block.hash.slice(0, 12)}  ${asc.id}: ${ruling.passed ? ruling.exit ?? ruling.answer : 'below bar'}  jury ${s.jury.map(j => j.family).join(',')}  seed ${beacon.value.slice(0, 8)}`)
+      for (const x of slashings) say(`  slashed ${x.harness}: ${x.fault}, ${x.forgiven ? 'forgiven (first in the window)' : `${x.rate * 100}% of bond = ${x.amount}`}`)
+      if (ruling.held) say(`  payouts held until block ${block.height + ruling.held.window} (challenge window)`)
+      for (const r of releases) say(`  released held payouts for ${r.ruling.slice(0, 12)}`)
+      if (sol && asc.question?.answer?.options) settled.push(await settleOnSolana(sol, asc, ruling, s.jury, harnesses, say))
     }
+    const bv = verifyBeacon(chain, anchors)
+    say(`beacon: ${bv.ok ? 'every reveal checks against the anchor' : bv.problems.join('; ')}${bv.faults.length ? `; ${bv.faults.length} withheld` : ''}`)
+    writeFileSync(beaconFile, JSON.stringify({ secret: bchain.secret, length: bchain.length, anchor: bchain.anchor, revealed }), { mode: 0o600 })
+    writeFileSync(bondsFile, JSON.stringify(bonds, null, 2))
+    writeFileSync(holdsFile, JSON.stringify(holds, null, 2))
     writeFileSync(chainFile, JSON.stringify(chain, null, 2))
     say(`chain: ${chainFile} (${chain.length} blocks)`)
     if (!keep) stop()
-    return { blocks, harnesses: harnesses.map(({ log, ...h }) => h), solana: settled, stop }
+    return { blocks, harnesses: harnesses.map(({ log, ...h }) => h), solana: settled, slashed, bonds, beacon: bv, stop }
   } catch (err) {
     stop()
     for (const h of harnesses) if (h.log.length) say(`--- ${h.id}\n${h.log.join('').slice(-800)}`)
@@ -169,7 +239,18 @@ async function settleOnSolana(sol, asc, ruling, jury, harnesses, say) {
     votes.push({ keypair: identitySigner(identity), answer: idx, reasoningHash: v.reasoningHash ?? createHash('sha256').update('').digest('hex') })
   }
   if (!votes.length) return { asc: asc.id, skipped: 'no votes with an option answer' }
-  const r = await settleRuling({ rpc: sol.rpc, programId: sol.program, payer: sol.payer, contractHash: ascHash(asc), votes, barPpm: Math.round((asc.payment?.bar ?? 0.8) * 1e6), summary: JSON.stringify({ asc: asc.id, rulingAnswer: ruling.answer }).slice(0, 512) })
-  say(`  solana: ruling account ${r.ruling} ${r.state.status}, ${options[r.state.answer]} ${r.state.agree}/${r.state.seats}`)
+  // A juror that committed and withheld its reveal holds a seat on chain too: it commits and never reveals,
+  // and the program's reveal deadline lets the seal go ahead without it.
+  const withhold = []
+  for (const f of ruling.round?.faults ?? []) {
+    if (f.fault !== 'no-reveal') continue
+    const h = harnesses.find(x => x.id === f.harness)
+    if (!h) continue
+    const identity = importIdentity(readFileSync(join(h.dataDir, `${h.id}.identity.pem`), 'utf8'))
+    withhold.push(votes.length)
+    votes.push({ keypair: identitySigner(identity), answer: 0, reasoningHash: createHash('sha256').update('').digest('hex') })
+  }
+  const r = await settleRuling({ rpc: sol.rpc, programId: sol.program, payer: sol.payer, contractHash: ascHash(asc), votes, withhold, revealWindow: 6, challengeWindow: asc.payment?.challengeWindow ?? 0, barPpm: Math.round((asc.payment?.bar ?? 0.8) * 1e6), summary: JSON.stringify({ asc: asc.id, rulingAnswer: ruling.answer }).slice(0, 512), say: withhold.length ? say : () => {} })
+  say(`  solana: ruling account ${r.ruling} ${r.state.status}, ${options[r.state.answer]} ${r.state.agree}/${r.state.seats}${withhold.length ? `, ${withhold.length} seat(s) unrevealed past the deadline` : ''}`)
   return { asc: asc.id, account: r.ruling, status: r.state.status, answer: options[r.state.answer] }
 }

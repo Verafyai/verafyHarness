@@ -37,7 +37,7 @@ export async function startServe(c, { env = process.env, log } = {}) {
     c = { ...c, harness: { ...c.harness, id: readFileSync(idFile, 'utf8').trim() } }
   }
   const harness = new Harness({ ...c.harness, provider: providerFrom(c, env), identityFile: join(c.dataDir, `${c.harness.id}.identity.pem`) })
-  const daemon = new HarnessDaemon({ harness, nodes: c.nodes, publicUrl: c.publicUrl, port: c.port, stateFile: join(c.dataDir, `${c.harness.id}.state.json`), ...(log ? { log } : {}) })
+  const daemon = new HarnessDaemon({ harness, nodes: c.nodes, publicUrl: c.publicUrl, port: c.port, stateFile: join(c.dataDir, `${c.harness.id}.state.json`), misbehave: c.misbehave, ...(log ? { log } : {}) })
   await daemon.start()
   return daemon
 }
