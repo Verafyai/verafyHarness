@@ -109,3 +109,16 @@ test('reasoning length uses the proof window (modeled, 1,000 contracts)', () => 
   near(r(150).perContractUsd, 0.0147, 'full reasoning')
   near(r(400).perContractUsd, 0.0251, 'long reasoning')
 })
+
+test('stake: bond capital is cents per block, an honest harness inside the grace loses nothing, and one provable fault costs thousands of seat fees', async () => {
+  const { stake, STAKE_DEFAULTS } = await import('../src/index.js')
+  for (const d of Object.values(STAKE_DEFAULTS)) assert.ok(['illustrative', 'modeled', 'input', 'prototype default'].includes(d.label))
+  const s = stake()
+  assert.equal(s.seatsPerDay, 2400)
+  assert.ok(s.capitalPerBlockUsd > 0.2 && s.capitalPerBlockUsd < 0.25)
+  assert.equal(s.honestSlashPerSeatUsd, 0, '1% missed commits is inside the 2% grace')
+  assert.ok(stake({ missCommitPct: 5, missRevealPct: 0.5 }).honestSlashShareOfFees > 1, 'an unreliable harness loses more than it earns')
+  assert.equal(s.badRevealUsd, 125)
+  assert.ok(s.badRevealInSeatFees > 50_000)
+  assert.equal(s.majorityBondsUsd, 1500)
+})

@@ -598,7 +598,10 @@ export function verifyRuling(asc, ruling, { cards, pool, seed, verifiers } = {})
   for (const x of checkPay(asc, ruling, round.sealer)) p.push(x)
 
   try {
-    const again = ruleFromRecords(asc, round.commits, round.reveals, { jury, sealer: round.sealer, seed: round.seed, proofRecords: round.proofRecords, proofChecks: round.proofChecks, declines: round.declines, schedule: round.schedule })
+    // Faults that carry signed evidence (double-commit, bad-reveal) are recomputed from that evidence.
+    const evidence = kind => (round.faults ?? []).filter(f => f.fault === kind).flatMap(f => f.evidence ?? [])
+    const doubled = new Set((round.faults ?? []).filter(f => f.fault === 'double-commit').map(f => f.harness))
+    const again = ruleFromRecords(asc, [...round.commits.filter(c => !doubled.has(c.harness)), ...evidence('double-commit')], [...round.reveals, ...evidence('bad-reveal')], { jury, sealer: round.sealer, seed: round.seed, proofRecords: round.proofRecords, proofChecks: round.proofChecks, declines: round.declines, schedule: round.schedule })
     const differs = Object.keys(again).filter(k => canonical(again[k]) !== canonical(ruling[k]))
     if (differs.length) p.push(`ruling does not match what its round computes (${differs.join(', ')})`)
   } catch (err) {

@@ -162,6 +162,9 @@ test('faults: double commits and bad reveals are recorded with signed evidence',
   assert.equal(f[jury[0].id].fault, 'double-commit'); assert.equal(f[jury[0].id].evidence.length, 2)
   assert.equal(f[jury[1].id].fault, 'bad-reveal'); assert.equal(f[jury[1].id].evidence.length, 1)
   assert.equal(f[jury[2].id].fault, 'no-reveal'); assert.equal(f[jury[2].id].evidence, undefined)
+  assert.deepEqual(verifyRuling(asc, ruling).problems, [], 'evidence-backed faults recompute from their evidence')
+  const forged = structuredClone(ruling); forged.round.faults.find(x => x.fault === 'bad-reveal').evidence[0].signature = 'AA=='
+  assert.equal(verifyRuling(asc, forged).ok, false, 'evidence with a bad signature does not recompute')
 })
 
 test('slashing: the schedule prices each fault, grace forgives one outage, and the diff conserves', async () => {
@@ -169,17 +172,23 @@ test('slashing: the schedule prices each fault, grace forgives one outage, and t
   assert.match(slashingHash(), /^[0-9a-f]{64}$/)
   const asc = ex('market-resolution')
   const { ruling, jury } = await ruledWith(asc, ({ reveals }) => { reveals[0] = null })
-  const list = slashRuling(ruling)
+  const list = slashRuling(ruling, DEFAULT_SLASHING, { history: [{ harness: jury[0].id, fault: 'no-reveal', height: -500 }] })
   assert.equal(list.length, 1)
-  assert.equal(list[0].fault, 'no-reveal'); assert.equal(list[0].rate, 0.05)
-  assert.equal(list[0].amount, jury[0].bond * 0.05)
+  assert.equal(list[0].fault, 'no-reveal'); assert.equal(list[0].amount, 0.5, 'a liveness fault is a fixed amount, not a share of the bond')
   assert.equal(list[0].ruling, rulingId(ruling))
   const { diff } = slashDiff(list)
   assert.ok(conserves(diff))
-  assert.deepEqual(diff, [{ account: bondAccount(jury[0].id), delta: -jury[0].bond * 0.05 }, { account: 'pool:slashed', delta: jury[0].bond * 0.05 }])
+  assert.deepEqual(diff, [{ account: bondAccount(jury[0].id), delta: -0.5 }, { account: 'pool:slashed', delta: 0.5 }])
 
-  const outages = penalties([{ harness: 'h', fault: 'no-commit', height: 5 }, { harness: 'h', fault: 'no-commit', height: 9 }, { harness: 'h', fault: 'no-commit', height: 5000 }], DEFAULT_SLASHING, { bonds: { h: 1000 } })
-  assert.deepEqual(outages.map(p => [p.forgiven, p.amount]), [[true, 0], [false, 10], [true, 0]], 'one free outage per window, then 1%')
+  // Without a seat count, one miss per window is free; then a fixed amount, doubling only within a streak.
+  const outages = penalties([5, 9, 12, 200, 5000].map(height => ({ harness: 'h', fault: 'no-commit', height })), DEFAULT_SLASHING, { bonds: { h: 1000 } })
+  assert.deepEqual(outages.map(p => [p.forgiven, p.amount]), [[true, 0], [false, 0.1], [false, 0.2], [false, 0.05], [true, 0]])
+  // With a seat count, 2% of seats may be missed for free: 1% outages cost an honest harness nothing.
+  const honest = penalties(Array.from({ length: 10 }, (_, i) => ({ harness: 'h', fault: 'no-commit', height: i * 90 })), DEFAULT_SLASHING, { bonds: { h: 500 }, seats: { h: 1000 } })
+  assert.ok(honest.every(p => p.forgiven))
+  const withholder = penalties(Array.from({ length: 12 }, (_, i) => ({ harness: 'w', fault: 'no-reveal', height: i })), DEFAULT_SLASHING, { bonds: { w: 500 }, seats: { w: 100 } })
+  assert.equal(withholder.at(-1).amount, 25, 'a streak of withheld reveals hits the liveness cap: 5% of the bond per fault')
+  assert.ok(withholder.reduce((s, p) => s + p.amount, 0) > 100)
 
   // A reporter that proves a fault takes half; a bond that runs short reaches the operator's bond, then records the rest unpaid.
   const proven = penalties([{ harness: 'h', fault: 'double-commit', reporter: 'harness:watcher' }], DEFAULT_SLASHING, { bonds: { h: 500 } })

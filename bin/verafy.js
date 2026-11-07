@@ -342,7 +342,7 @@ async function main() {
   console.log(c.b('\nSEAL'))
   console.log(`  block ${block.height}  ${short(block.hash)}  parent ${short(block.parent)}  sealed by ${block.sealer}`)
   console.log(c.d(`  rulings root ${short(block.rulingsRoot)} · jury seed ${short(beacon.value)} from the beacon · written to .verafy/chain.json`))
-  for (const x of slashings) console.log(`  ${c.a('slashed')} ${x.harness}: ${x.fault}, ${x.forgiven ? 'forgiven (first in the window)' : `${x.rate * 100}% of bond = ${x.amount}`}`)
+  for (const x of slashings) console.log(`  ${c.a('slashed')} ${x.harness}: ${x.fault}, ${x.forgiven ? 'forgiven (first in the window)' : `${x.amount} taken from its bond (${+(x.rate * 100).toFixed(3)}%)`}`)
   if (ruling.held) console.log(c.d(`  payouts held for ${ruling.held.window} blocks (challenge window)`))
   console.log(c.d(`  payment router ${router.name}: ${payouts.length} payouts in ${asc.payment.currency}${asc.payment.chain ? ` on ${asc.payment.chain}` : ''}${router.name === 'ledger' ? ` recorded to ${config.payments?.file ?? '.verafy/payouts.jsonl'}` : ''}\n`))
 }
@@ -382,7 +382,7 @@ async function sealFromJurors(asc, dirs) {
   console.log(c.b('\nSEAL'))
   console.log(`  block ${block.height}  ${short(block.hash)}  parent ${short(block.parent)}  sealed by ${block.sealer}`)
   console.log(c.d(`  rulings root ${short(block.rulingsRoot)} · jury seed ${short(beacon.value)} from the beacon · written to .verafy/chain.json`))
-  for (const x of slashings) console.log(`  ${c.a('slashed')} ${x.harness}: ${x.fault}, ${x.forgiven ? 'forgiven (first in the window)' : `${x.rate * 100}% of bond = ${x.amount}`}`)
+  for (const x of slashings) console.log(`  ${c.a('slashed')} ${x.harness}: ${x.fault}, ${x.forgiven ? 'forgiven (first in the window)' : `${x.amount} taken from its bond (${+(x.rate * 100).toFixed(3)}%)`}`)
   if (ruling.held) console.log(c.d(`  payouts held for ${ruling.held.window} blocks (challenge window)`))
   console.log(c.d(`  payment router ${router.name}: ${payouts.length} payouts in ${asc.payment.currency}${asc.payment.chain ? ` on ${asc.payment.chain}` : ''}${router.name === 'ledger' ? ` recorded to ${config.payments?.file ?? '.verafy/payouts.jsonl'}` : ''}\n`))
 }

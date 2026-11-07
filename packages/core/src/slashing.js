@@ -19,24 +19,44 @@ export const SLASH_RECORD_KIND = 'verafy.slash/1'
 /** Every fault a schedule prices. */
 export const FAULTS = ['no-commit', 'no-reveal', 'bad-reveal', 'double-commit', 'no-proof', 'bad-proof', 'runtime-mismatch', 'no-beacon-reveal', 'false-evidence']
 
-/** The default schedule. Rates are shares of the bond. All illustrative. */
+/**
+ * The default schedule. All illustrative.
+ *
+ * Two kinds of fault, priced differently on purpose:
+ *   - provable misbehavior (`rates`): a share of the bond. Signed evidence shows
+ *     the harness did it, so the penalty can be large.
+ *   - liveness (`fixed`): honest machines go offline, so a harness may miss up
+ *     to `graceRate` of its seats in a `window` for free. Past that, each miss
+ *     costs a fixed amount in the contract's currency, doubling (`escalate`)
+ *     for each other miss in the last `streak` blocks and capped at
+ *     `livenessCap` of the bond. A bond-share penalty for every missed seat
+ *     would cost an honest harness many times its fees (packages/economics
+ *     `stake` shows it); a streak of withheld reveals, which is how a juror
+ *     would sink rulings it saw going the wrong way, still gets expensive fast.
+ */
 export const DEFAULT_SLASHING = Object.freeze({
   kind: SLASHING_KIND,
   label: 'illustrative',
   rates: Object.freeze({
-    'no-commit': 0.01, // outages happen; the first in a window is free (see `grace`)
-    'no-reveal': 0.05, // committing then withholding is how a juror sinks a ruling it saw going the wrong way
     'bad-reveal': 0.25, // a signed reveal that does not open its own commitment
     'double-commit': 1, // equivocation: two signed commitments for one contract
-    'no-proof': 0.1,
     'bad-proof': 0.5, // a claim that the named model ran when it did not
     'runtime-mismatch': 0.25,
     'no-beacon-reveal': 0.1,
     'false-evidence': 1, // proven only by a challenge that names the harness
   }),
-  /** No-commit faults forgiven per harness within `window` blocks. */
-  grace: Object.freeze({ 'no-commit': 1 }),
+  fixed: Object.freeze({
+    'no-commit': 0.05,
+    'no-reveal': 0.5, // committing then withholding is how a juror sinks a ruling it saw going the wrong way
+    'no-proof': 0.5,
+  }),
+  escalate: 2,
+  livenessCap: 0.05,
+  /** Share of a harness's seats in `window` blocks it may miss for free. Without a seat count, one miss per window is free. */
+  graceRate: Object.freeze({ 'no-commit': 0.02, 'no-reveal': 0.002 }),
   window: 1000,
+  /** Misses within this many blocks of each other count as a streak and escalate. */
+  streak: 10,
   /** Share of a slash paid to the party that proved the fault; the rest goes to `pool`. */
   reporterShare: 0.5,
   pool: 'pool:slashed',
@@ -59,6 +79,14 @@ export function validateSlashing(s) {
     if (!FAULTS.includes(f)) p.push(`unknown fault "${f}"`)
     if (!(typeof r === 'number' && r >= 0 && r <= 1)) p.push(`rates.${f} must be a share of the bond, 0 to 1`)
   }
+  for (const [f, a] of Object.entries(s?.fixed ?? {})) {
+    if (!FAULTS.includes(f)) p.push(`unknown fault "${f}"`)
+    if (f in (s.rates ?? {})) p.push(`${f} is priced twice, in rates and fixed`)
+    if (!(typeof a === 'number' && a >= 0)) p.push(`fixed.${f} must be an amount, 0 or more`)
+  }
+  for (const f of FAULTS) if (!(f in (s?.rates ?? {})) && !(f in (s?.fixed ?? {}))) p.push(`${f} has no price`)
+  if (s?.fixed && !(s.escalate >= 1)) p.push('escalate must be at least 1')
+  if (s?.fixed && !(s.livenessCap > 0 && s.livenessCap <= 1)) p.push('livenessCap must be a share of the bond')
   if (!(s?.reporterShare >= 0 && s.reporterShare <= 1)) p.push('reporterShare must be 0 to 1')
   if (typeof s?.pool !== 'string' || !s.pool) p.push('pool must be an account')
   return p
@@ -73,20 +101,35 @@ export const operatorBondAccount = key => `bond:operator:${key}`
  * @param {{harness: string, fault: string, ruling?: string, height?: number, reporter?: string, evidence?: unknown}[]} faults - recorded faults.
  * @param {object} [schedule] - the slashing schedule.
  * @param {{bonds?: Record<string, number> | Map<string, number>, history?: {harness: string, fault: string, height: number}[], height?: number}} [options] -
- *   `bonds`: each harness's posted bond (a card's `bond` when absent); `history`: earlier faults, for grace.
+ *   `bonds`: each harness's posted bond (a card's `bond` when absent); `history`: earlier faults;
+ *   `seats`: seats each harness held in the window, so grace is a share of them.
  * @returns {{kind: string, harness: string, fault: string, rate: number, amount: number, forgiven: boolean, ruling?: string, reporter?: string}[]} the penalties, in input order.
  */
-export function penalties(faults, schedule = DEFAULT_SLASHING, { bonds = {}, history = [], height } = {}) {
+export function penalties(faults, schedule = DEFAULT_SLASHING, { bonds = {}, history = [], height, seats = {} } = {}) {
   const bondOf = id => Number(bonds instanceof Map ? bonds.get(id) : bonds[id]) || 0
   const seen = history.slice()
   return faults.map(f => {
     if (!FAULTS.includes(f.fault)) throw new Error(`unknown fault "${f.fault}"`)
     const at = f.height ?? height ?? 0
-    const prior = seen.filter(x => x.harness === f.harness && x.fault === f.fault && at - (x.height ?? 0) < schedule.window).length
+    const same = x => x.harness === f.harness && x.fault === f.fault
+    const prior = seen.filter(x => same(x) && at - (x.height ?? 0) < schedule.window).length
+    const streak = seen.filter(x => same(x) && at - (x.height ?? 0) < (schedule.streak ?? schedule.window)).length
     seen.push({ harness: f.harness, fault: f.fault, height: at })
-    const forgiven = prior < (schedule.grace?.[f.fault] ?? 0)
-    const rate = forgiven ? 0 : schedule.rates[f.fault] ?? 0
-    return { kind: SLASH_RECORD_KIND, harness: f.harness, fault: f.fault, rate, amount: round(bondOf(f.harness) * rate), forgiven, ...(f.ruling ? { ruling: f.ruling } : {}), ...(f.reporter ? { reporter: f.reporter } : {}), ...(f.evidence ? { evidenceHash: sha256(f.evidence) } : {}) }
+    const liveness = f.fault in (schedule.fixed ?? {})
+    const held = Number(seats instanceof Map ? seats.get(f.harness) : seats[f.harness]) || 0
+    const grace = liveness ? (held ? Math.floor(held * (schedule.graceRate?.[f.fault] ?? 0)) : (schedule.graceRate?.[f.fault] ? 1 : 0)) : 0
+    const forgiven = liveness && prior < grace
+    const bond = bondOf(f.harness)
+    let rate = 0, amount = 0
+    if (!forgiven && liveness) {
+      // Liveness past the grace: a fixed amount that doubles with each other miss in the streak, capped at a share of the bond.
+      amount = round(Math.min(schedule.fixed[f.fault] * (schedule.escalate ?? 1) ** streak, bond * (schedule.livenessCap ?? 1)))
+      rate = bond ? round(amount / bond) : 0
+    } else if (!forgiven) {
+      rate = schedule.rates[f.fault] ?? 0
+      amount = round(bond * rate)
+    }
+    return { kind: SLASH_RECORD_KIND, harness: f.harness, fault: f.fault, rate, amount, forgiven, ...(f.ruling ? { ruling: f.ruling } : {}), ...(f.reporter ? { reporter: f.reporter } : {}), ...(f.evidence ? { evidenceHash: sha256(f.evidence) } : {}) }
   })
 }
 
@@ -162,7 +205,7 @@ export function slashDiff(list, { balances, operators = {}, schedule = DEFAULT_S
  * @returns {{bond: number, worstFault: string, atStake: number}} the exposure.
  */
 export function exposure(bond, schedule = DEFAULT_SLASHING) {
-  const [worstFault, rate] = Object.entries(schedule.rates).sort((a, b) => b[1] - a[1])[0]
+  const [worstFault, rate] = Object.entries(schedule.rates ?? {}).sort((a, b) => b[1] - a[1])[0] ?? ['none', 0]
   return { bond, worstFault, atStake: round(bond * rate) }
 }
 

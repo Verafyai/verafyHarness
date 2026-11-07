@@ -144,7 +144,10 @@ export async function testnetUp({ dir = join(ROOT, '.verafy/testnet'), basePort 
       const replacedFaults = s.schedule.replaced.map(r => ({ harness: r.seat, fault: 'no-commit' }))
       // Penalties are shares of what each harness still has posted, not of the bond its card advertises.
       const posted = Object.fromEntries(juryCards.map(c => [c.id, bonds[bondAccount(c.id)] ?? Number(c.bond)]))
-      const priced = penalties([...replacedFaults, ...ruling.round.faults].map(x => ({ ...x, ruling: rulingId(ruling) })), DEFAULT_SLASHING, { bonds: posted, history, height })
+      // Grace is a share of the seats each harness held in the window, this one included.
+      const seats = {}
+      for (const b of [...chain.filter(b => height - b.height < DEFAULT_SLASHING.window), { rulings: [{ round: { jury: juryCards } }] }]) for (const r of b.rulings ?? []) for (const c of r.round?.jury ?? []) seats[c.id] = (seats[c.id] ?? 0) + 1
+      const priced = penalties([...replacedFaults, ...ruling.round.faults].map(x => ({ ...x, ruling: rulingId(ruling) })), DEFAULT_SLASHING, { bonds: posted, history, height, seats })
       const { diff } = slashDiff(priced, { balances: bonds })
       for (const d of diff) bonds[d.account] = Math.round(((bonds[d.account] ?? 0) + d.delta) * 1e6) / 1e6
       const slashings = priced.filter(x => x.amount > 0 || x.forgiven)
@@ -162,7 +165,7 @@ export async function testnetUp({ dir = join(ROOT, '.verafy/testnet'), basePort 
       blocks.push(block)
       writeFileSync(beaconFile, JSON.stringify({ secret: bchain.secret, length: bchain.length, anchor: bchain.anchor, revealed }), { mode: 0o600 })
       say(`block ${block.height}  ${block.hash.slice(0, 12)}  ${asc.id}: ${ruling.passed ? ruling.exit ?? ruling.answer : 'below bar'}  jury ${s.jury.map(j => j.family).join(',')}  seed ${beacon.value.slice(0, 8)}`)
-      for (const x of slashings) say(`  slashed ${x.harness}: ${x.fault}, ${x.forgiven ? 'forgiven (first in the window)' : `${x.rate * 100}% of bond = ${x.amount}`}`)
+      for (const x of slashings) say(`  slashed ${x.harness}: ${x.fault}, ${x.forgiven ? 'forgiven (first in the window)' : `${x.amount} taken from its bond (${+(x.rate * 100).toFixed(3)}%)`}`)
       if (ruling.held) say(`  payouts held until block ${block.height + ruling.held.window} (challenge window)`)
       for (const r of releases) say(`  released held payouts for ${r.ruling.slice(0, 12)}`)
       if (sol && asc.question?.answer?.options) settled.push(await settleOnSolana(sol, asc, ruling, s.jury, harnesses, say))

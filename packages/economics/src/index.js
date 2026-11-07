@@ -229,3 +229,71 @@ export const CASCADE_EXAMPLE = [
   { id: 'mid', usd: 0.0033, seconds: 10, stopShare: 0.20 },
   { id: 'frontier', usd: 0.0300, seconds: 35, stopShare: 0.15 },
 ]
+
+/**
+ * Stake: what it costs to post a bond, what an honest harness should expect to
+ * lose to slashing, what a dishonest one stands to lose, and what a challenge
+ * costs (VIP-0005, VIP-0006). Every default is illustrative; the fault prices
+ * mirror DEFAULT_SLASHING in packages/core/src/slashing.js (this file has no
+ * imports, so the site can inline it).
+ */
+export const STAKE_DEFAULTS = {
+  bondUsd: { value: 500, label: 'illustrative', source: 'Bond per harness, as in verafy.config.json' },
+  capitalCostPct: { value: 8, label: 'illustrative', source: 'Yearly return the bond could earn elsewhere' },
+  poolSize: { value: 50, label: 'illustrative', source: 'Harnesses in the network' },
+  jurors: { value: 5, label: 'prototype default', source: 'Seats per contract' },
+  contractsPerBlock: { value: 1000, label: 'input', source: 'Contracts per block' },
+  blocksPerDay: { value: 24, label: 'illustrative', source: 'One block an hour' },
+  feePerSeatUsd: { value: 0.0068 / 5, label: 'modeled', source: 'The routed jury: $0.0068 per decision on average, over five seats (packages/economics cascade)' },
+  missCommitPct: { value: 1, label: 'illustrative', source: 'Seats an honest harness misses (outages, timeouts)' },
+  missRevealPct: { value: 0.1, label: 'illustrative', source: 'Seats an honest harness commits and then fails to reveal' },
+  fixedNoCommitUsd: { value: 0.05, label: 'illustrative', source: 'DEFAULT_SLASHING.fixed["no-commit"]' },
+  fixedNoRevealUsd: { value: 0.5, label: 'illustrative', source: 'DEFAULT_SLASHING.fixed["no-reveal"]' },
+  graceNoCommitPct: { value: 2, label: 'illustrative', source: 'DEFAULT_SLASHING.graceRate["no-commit"]: share of seats a harness may miss for free' },
+  graceNoRevealPct: { value: 0.2, label: 'illustrative', source: 'DEFAULT_SLASHING.graceRate["no-reveal"]' },
+  windowBlocks: { value: 1000, label: 'illustrative', source: 'DEFAULT_SLASHING.window' },
+  livenessCapPct: { value: 5, label: 'illustrative', source: 'DEFAULT_SLASHING.livenessCap' },
+  badRevealPct: { value: 25, label: 'illustrative', source: 'DEFAULT_SLASHING.rates["bad-reveal"]' },
+  doubleCommitPct: { value: 100, label: 'illustrative', source: 'DEFAULT_SLASHING.rates["double-commit"]' },
+  challengeBondFactor: { value: 1.5, label: 'illustrative', source: 'HOLD_DEFAULTS.challengeBondFactor: a challenge locks 1.5 times its jury\'s escrow' },
+  challengeEscrowUsd: { value: 0.0068 * 2, label: 'modeled', source: 'A challenge jury at least as large as the original, from model families not on it: about twice the routed jury cost' },
+}
+
+/**
+ * @param {object} [raw] - overrides on STAKE_DEFAULTS (plain numbers).
+ * @returns {object} per-seat and per-block costs, honest expected slashing, attack costs, and the challenge bond.
+ */
+export function stake(raw = {}) {
+  const i = Object.fromEntries(Object.entries(STAKE_DEFAULTS).map(([k, d]) => [k, raw[k] ?? d.value]))
+  const seatsPerDay = i.contractsPerBlock * i.blocksPerDay * i.jurors / i.poolSize
+  const capitalPerDay = i.bondUsd * i.capitalCostPct / 100 / 365
+  const capitalPerSeat = capitalPerDay / seatsPerDay
+  // Honest liveness slashing: misses past the grace share pay the fixed price. Honest misses are spread out,
+  // so they rarely form a streak; escalation is for clustered misses and is not modeled here.
+  const seatsPerWindow = seatsPerDay / i.blocksPerDay * i.windowBlocks
+  const excess = (missPct, gracePct) => Math.max(0, seatsPerWindow * (missPct - gracePct) / 100)
+  const honestPerWindow = excess(i.missCommitPct, i.graceNoCommitPct) * i.fixedNoCommitUsd + excess(i.missRevealPct, i.graceNoRevealPct) * i.fixedNoRevealUsd
+  const honestPerSeat = seatsPerWindow ? honestPerWindow / seatsPerWindow : 0
+  const feesPerWindow = seatsPerWindow * i.feePerSeatUsd
+  const perBlockSeats = i.contractsPerBlock * i.jurors
+  // A dishonest harness: what one provable fault costs, against what one seat earns.
+  const badReveal = i.bondUsd * i.badRevealPct / 100
+  const doubleCommit = i.bondUsd * i.doubleCommitPct / 100
+  // Taking a majority of one jury needs ceil(jurors/2) seats, each on its own bond, and each caught seat is slashed.
+  const majority = Math.ceil(i.jurors / 2)
+  return {
+    inputs: i,
+    seatsPerDay,
+    capitalPerSeatUsd: capitalPerSeat,
+    capitalPerBlockUsd: capitalPerSeat * perBlockSeats,
+    honestSlashPerSeatUsd: honestPerSeat,
+    honestSlashPerBlockUsd: honestPerSeat * perBlockSeats,
+    honestSlashShareOfFees: feesPerWindow ? honestPerWindow / feesPerWindow : 0,
+    feePerSeatUsd: i.feePerSeatUsd,
+    badRevealUsd: badReveal,
+    doubleCommitUsd: doubleCommit,
+    badRevealInSeatFees: badReveal / i.feePerSeatUsd,
+    majorityBondsUsd: majority * i.bondUsd,
+    challengeBondUsd: i.challengeBondFactor * i.challengeEscrowUsd,
+  }
+}
