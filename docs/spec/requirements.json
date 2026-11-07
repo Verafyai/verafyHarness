@@ -4,7 +4,7 @@
   "date": "2026-11-06",
   "levels": {
     "verified": {
-      "points": 1.0,
+      "points": 1,
       "meaning": "Built, tested, and run live or on a devnet with measured results"
     },
     "built": {
@@ -24,7 +24,7 @@
       "meaning": "Named and scoped; not specified in detail"
     },
     "research": {
-      "points": 0.0,
+      "points": 0,
       "meaning": "An open question or experiment; may never ship"
     }
   },
@@ -46,7 +46,8 @@
     "DEPLOY": "Deploy and run anywhere: daemon, launcher, clouds, releases, local testnet",
     "SITE": "Sites, docs and the spec",
     "OPS": "Security and operations",
-    "EXT": "External collaborations and data"
+    "EXT": "External collaborations and data",
+    "CONS": "Consensus hardening: jury scheduling, randomness, operators, slashing, payout holds"
   },
   "requirements": [
     {
@@ -244,10 +245,15 @@
       "id": "JURY-006",
       "area": "JURY",
       "weight": 2,
-      "status": "planned",
+      "status": "designed",
       "title": "Challenge bonds: lock on open, return on overturn, forfeit on affirm",
-      "checks": [],
-      "gap": "Not built; needed before challenges can run on a network"
+      "checks": [
+        {
+          "grep": "docs/proposals/VIP-0006-challenge-bonds.md",
+          "re": "vip: .?0006"
+        }
+      ],
+      "gap": "Designed in VIP-0006; not built"
     },
     {
       "id": "JURY-007",
@@ -286,6 +292,136 @@
           "test": "packages/daemon/test/daemon.test.js"
         }
       ]
+    },
+    {
+      "id": "CONS-001",
+      "area": "CONS",
+      "weight": 3,
+      "status": "designed",
+      "title": "Jury scheduler: beacon seed, draw, alternates, block-height deadlines, commit-phase replacement",
+      "checks": [
+        {
+          "grep": "docs/proposals/VIP-0001-jury-scheduler.md",
+          "re": "vip: .?0001"
+        }
+      ],
+      "gap": "Designed; not built"
+    },
+    {
+      "id": "CONS-002",
+      "area": "CONS",
+      "weight": 3,
+      "status": "designed",
+      "title": "Randomness beacon with lookahead; a withheld reveal is a slashable fault",
+      "checks": [
+        {
+          "grep": "docs/proposals/VIP-0002-randomness-beacon.md",
+          "re": "vip: .?0002"
+        }
+      ],
+      "gap": "Designed; not built"
+    },
+    {
+      "id": "CONS-003",
+      "area": "CONS",
+      "weight": 2,
+      "status": "designed",
+      "title": "Operator keys on harness cards, a seat cap per operator, operator bonds",
+      "checks": [
+        {
+          "grep": "docs/proposals/VIP-0003-operator-diversity.md",
+          "re": "vip: .?0003"
+        }
+      ],
+      "gap": "Designed; not built"
+    },
+    {
+      "id": "CONS-004",
+      "area": "CONS",
+      "weight": 1,
+      "status": "designed",
+      "title": "Draw weighting: equal by default, bond-weighted with a cap as an option",
+      "checks": [
+        {
+          "grep": "docs/proposals/VIP-0004-draw-weighting.md",
+          "re": "vip: .?0004"
+        }
+      ],
+      "gap": "Network default waits on Rex"
+    },
+    {
+      "id": "CONS-005",
+      "area": "CONS",
+      "weight": 3,
+      "status": "designed",
+      "title": "Slashing: a published schedule applied to recorded faults as conserving bond diffs",
+      "checks": [
+        {
+          "grep": "docs/proposals/VIP-0005-fault-slashing.md",
+          "re": "vip: .?0005"
+        }
+      ],
+      "gap": "Designed; not built"
+    },
+    {
+      "id": "CONS-006",
+      "area": "CONS",
+      "weight": 3,
+      "status": "designed",
+      "title": "Payouts held until the challenge window closes; an overturn redirects the held escrow",
+      "checks": [
+        {
+          "grep": "docs/proposals/VIP-0007-payout-hold.md",
+          "re": "vip: .?0007"
+        }
+      ],
+      "gap": "Designed; not built"
+    },
+    {
+      "id": "CONS-007",
+      "area": "CONS",
+      "weight": 1,
+      "status": "designed",
+      "title": "Single-harness mode: a jury of one with a mandatory window and an automatic audit",
+      "checks": [
+        {
+          "grep": "docs/proposals/VIP-0008-single-harness-mode.md",
+          "re": "vip: .?0008"
+        }
+      ],
+      "gap": "Whether to offer it waits on Rex"
+    },
+    {
+      "id": "CONS-008",
+      "area": "CONS",
+      "weight": 1,
+      "status": "designed",
+      "title": "Prover placement: each harness or shared provers, with the prover named in the proof record",
+      "checks": [
+        {
+          "grep": "docs/proposals/VIP-0009-prover-placement.md",
+          "re": "vip: .?0009"
+        }
+      ],
+      "gap": "Default waits on Rex"
+    },
+    {
+      "id": "CONS-009",
+      "area": "CONS",
+      "weight": 2,
+      "status": "planned",
+      "title": "verafy_ruling: a reveal deadline slot, and a releasable-after slot",
+      "checks": [],
+      "gap": "Program change; not built"
+    },
+    {
+      "id": "CONS-010",
+      "area": "CONS",
+      "weight": 1,
+      "status": "planned",
+      "title": "Economics: bond capital cost, expected slashing, challenge cost",
+      "checks": [],
+      "gap": "Not modeled"
     },
     {
       "id": "CHAIN-001",
