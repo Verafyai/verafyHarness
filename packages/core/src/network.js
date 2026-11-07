@@ -18,11 +18,14 @@ import { PROOF_HASH } from './juror.js'
 import { sha256, canonical } from './hash.js'
 import { needsProofs, gateProofs, finality, checkProofCheck } from './proving.js'
 import { familyOf, familyField, minFamiliesOf, excludedFamilies } from './family.js'
+import { attested } from './attestation.js'
 
 /**
  * Harnesses a contract may seat: bonded for the most value one vote can decide
  * (`payment.maxValuePerVote`), and not excluded by the jury rules
- * (`excludeFamilies`, `excludeHarnesses`, used by escalated and challenge juries).
+ * (`excludeFamilies`, `excludeHarnesses`, used by escalated and challenge juries),
+ * running one of `allowModels` when a judiciary signer names its models (VIP-0010),
+ * and attested when the rules say `attested: true` (VIP-0013).
  * @param {object[]} pool - harnesses or harness cards.
  * @param {object} asc - the contract.
  * @returns {object[]} the eligible harnesses, in the order given.
@@ -34,7 +37,8 @@ export function eligibleJurors(pool, asc) {
 function filterPool(pool, rules, minBond) {
   const families = new Set(excludedFamilies(rules))
   const ids = new Set(rules.excludeHarnesses ?? [])
-  return pool.filter(h => !families.has(familyOf(h)) && !ids.has(h.id) && (minBond > 0 ? Number(h.bond) >= minBond : true))
+  const models = rules.allowModels ? new Set(rules.allowModels) : null
+  return pool.filter(h => !families.has(familyOf(h)) && !ids.has(h.id) && (minBond > 0 ? Number(h.bond) >= minBond : true) && (!models || models.has(h.model)) && (!rules.attested || attested(h)))
 }
 
 /**
