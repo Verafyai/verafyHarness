@@ -20,6 +20,9 @@ const u64 = n => { const b = Buffer.alloc(8); b.writeBigUInt64LE(BigInt(n)); ret
 const meta = (pubkey, isSigner, isWritable) => ({ pubkey: k32(pubkey), isSigner, isWritable })
 const text = b => b.toString('utf8').replace(/\0+$/, '')
 
+/** A Solana key as the base64 SPKI DER public key a harness card carries. */
+export const spki = key => Buffer.concat([Buffer.from('302a300506032b6570032100', 'hex'), k32(key)]).toString('base64')
+
 /** The registry account for a harness key. */
 export const harnessAccount = (harnessKey, programId) => findPda(['harness', k32(harnessKey)], programId)
 
@@ -78,7 +81,7 @@ export async function discoverHarnesses(rpc, programId, { includeRetired = false
     .sort((x, y) => x.registeredSlot - y.registeredSlot)
     .map(h => ({
       id: `${h.family}:${h.harnessKey.slice(0, 8)}`, family: h.family, model: h.model, bond: h.bond / 1e9, operator: h.operator,
-      solanaKey: h.harnessKey, endpoint: h.endpoint, pricePerSeat: h.price, registry: h.address,
+      solanaKey: h.harnessKey, publicKey: spki(h.harnessKey), endpoint: h.endpoint, pricePerSeat: h.price, registry: h.address,
       ...(h.modelCommitment ? { modelCommitment: h.modelCommitment } : {}), ...(h.attestationHash ? { attestationHash: h.attestationHash } : {}),
     }))
 }

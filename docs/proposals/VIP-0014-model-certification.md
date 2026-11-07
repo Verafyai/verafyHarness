@@ -1,7 +1,7 @@
 ---
 vip: '0014'
 title: 'Model certification: measured attack results before a closed model may judge'
-status: Building
+status: Built; no model measured
 created: 2026-11-07
 requirement: SIGN-003
 depends: ['0010']

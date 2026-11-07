@@ -1,17 +1,18 @@
 {
-  "date": "2026-11-07T23:33:34.863Z",
+  "date": "2026-11-07T23:43:32.531Z",
   "validator": "solana-test-validator 2.1.21 (src:8a085eeb; feat:1416569292, client:Agave)",
   "squads": "SQDS4ep65T869zMMBKyuUq6aD6EgTu8psMjkvj52pCf",
   "squadsSource": "dumped from mainnet",
   "ruling": "A6iZhDZASfQGCmzxXWW8JdnEhtz7EZE3gS4N1hkiJNNN",
   "judiciary": "6fUWUTA7qni3p1pWWdd58icC7cxKGmVv1vonawg1QnnJ",
+  "registry": "Bn6jV1CGK4WFibJcCVsEzHeVVhtph2xPsNkemWfgqn9R",
   "challengeSlots": 6,
   "escapeSlots": 40,
   "results": [
     {
       "name": "signer attached with its jury, policy and models fixed",
       "ok": true,
-      "detail": "member 7YnkHVmQhrrRMQk3UzmVVVjiX2PHXavAM4o1N7CXNF8u"
+      "detail": "member BdeaJscPMarvyFXQutGPh6vtLLmydWV2R5c5xEL4akJ2"
     },
     {
       "name": "multisig created with the judiciary signer as a voting member",
@@ -64,6 +65,16 @@
       "detail": ""
     },
     {
+      "name": "6a. the case fee is split among the jurors who revealed",
+      "ok": true,
+      "detail": "10000000 lamports each"
+    },
+    {
+      "name": "6b. a case pays once",
+      "ok": true,
+      "detail": ""
+    },
+    {
       "name": "4a. a REJECT ruling votes no",
       "ok": true,
       "detail": ""
@@ -87,8 +98,33 @@
       "name": "5c. the case records that it escaped",
       "ok": true,
       "detail": ""
+    },
+    {
+      "name": "7a. harnesses register and are discovered with one RPC call",
+      "ok": true,
+      "detail": "mistral:HVymCVMq, gpt-oss:8jyvYuo9, gemma:GDMDN5Ci"
+    },
+    {
+      "name": "7b. only the operator can change a harness",
+      "ok": true,
+      "detail": "not authorized"
+    },
+    {
+      "name": "7c. the operator updates the endpoint and price",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "7d. a retired harness drops out of discovery",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "7e. its bond waits out the unbonding delay",
+      "ok": true,
+      "detail": "too early"
     }
   ],
-  "passed": 16,
-  "total": 16
+  "passed": 23,
+  "total": 23
 }

@@ -54,3 +54,64 @@ test('commitments bind every field; encoders and the layout agree', () => {
   assert.deepEqual([w.revealDeadlineSlot, w.releasableAfterSlot, w.challengeWindow], [1234, 5678, 150])
   assert.equal(RULING_SIZE, 1450)
 })
+
+// ---- v0.0.4: Squads, the judiciary signer and the registry (offline) ----------
+import { findPda, onCurve, squadsPda, discriminator, decodeVaultTransaction, compileVaultMessage, judiciaryEncode, caseHash, authorityOf, caseOf, decodeCase, decodeSignerConfig, CONFIG_SIZE, CASE_SIZE, registryIx, decodeHarness, harnessAccount, spki, HARNESS_SIZE } from '../src/index.js'
+
+test('program addresses match Squads on mainnet and are never on the curve', () => {
+  assert.equal(squadsPda.programConfig().address, 'BSTq9w3kZwNwpBXJEvTZz2G9ZTNyKBvoSeXMvwb4cNZr')
+  const p = findPda(['authority', new Uint8Array(32)], 'SQDS4ep65T869zMMBKyuUq6aD6EgTu8psMjkvj52pCf')
+  assert.equal(onCurve(p.bytes), false)
+  assert.equal(onCurve(keypair().publicKey), true, 'a real public key is a curve point')
+})
+
+test('a compiled vault message decodes back to the same instructions', () => {
+  const vault = squadsPda.vault(keypair().address).address
+  const to = keypair()
+  const data = Buffer.from([2, 0, 0, 0, 0, 202, 154, 59, 0, 0, 0, 0])
+  const msg = compileVaultMessage(vault, [{ programId: new Uint8Array(32), keys: [{ pubkey: b58decode(vault), isSigner: true, isWritable: true }, { pubkey: to.publicKey, isSigner: false, isWritable: true }], data }])
+  // VaultTransaction account: discriminator, multisig, creator, index, bump, vault index, vault bump, ephemeral bumps (vec), then the message with u32 vectors.
+  const small = Buffer.from(msg)
+  const nKeys = small[3]
+  const keys = small.subarray(4, 4 + 32 * nKeys)
+  let at = 4 + 32 * nKeys
+  const nIx = small[at++]
+  const ixs = []
+  for (let i = 0; i < nIx; i++) {
+    const prog = small[at++]; const na = small[at++]; const accs = small.subarray(at, at + na); at += na
+    const dl = small.readUInt16LE(at); at += 2; const d = small.subarray(at, at + dl); at += dl
+    ixs.push(Buffer.concat([Buffer.from([prog]), Buffer.from(Uint32Array.of(na).buffer), accs, Buffer.from(Uint32Array.of(dl).buffer), d]))
+  }
+  const acct = Buffer.concat([discriminator('account', 'VaultTransaction'), Buffer.alloc(64), Buffer.alloc(8), Buffer.from([255, 0, 254]), Buffer.from(Uint32Array.of(0).buffer), small.subarray(0, 3), Buffer.from(Uint32Array.of(nKeys).buffer), keys, Buffer.from(Uint32Array.of(nIx).buffer), ...ixs, Buffer.from(Uint32Array.of(0).buffer)])
+  const t = decodeVaultTransaction(acct)
+  assert.equal(t.message.accountKeys[0], vault)
+  assert.equal(t.instructions[0].program, '11111111111111111111111111111111')
+  assert.deepEqual(t.instructions[0].accounts, [vault, to.address])
+  assert.equal(t.instructions[0].data, data.toString('hex'))
+})
+
+test('judiciary: the case hash binds config, proposal and transaction bytes; layouts decode', () => {
+  const config = keypair().address, proposal = keypair().address
+  const h = caseHash(config, proposal, Buffer.from('tx'))
+  assert.match(h, /^[0-9a-f]{64}$/)
+  assert.notEqual(h, caseHash(config, proposal, Buffer.from('tx2')))
+  assert.notEqual(h, caseHash(config, keypair().address, Buffer.from('tx')))
+  assert.equal(judiciaryEncode.attach({ barPpm: 1, multisig: config, policyHash: 'ab'.repeat(32), modelsHash: 'cd'.repeat(32), rulingProgram: config, challengeSlots: 1, escapeSlots: 2, jurors: [config, proposal] }).length, 1 + 4 + 32 * 4 + 8 + 8 + 1 + 64)
+  assert.throws(() => judiciaryEncode.attach({ jurors: [] }), /1 to 8/)
+  assert.notEqual(authorityOf(config, proposal).address, caseOf(config, proposal, proposal).address)
+  assert.equal(decodeSignerConfig(Buffer.alloc(CONFIG_SIZE)).status, 'empty')
+  const c = Buffer.alloc(CASE_SIZE); c.write('VRFYCAS1'); c[8] = 2; c.writeBigUInt64LE(30_000_000n, 160)
+  assert.deepEqual([decodeCase(c).status, decodeCase(c).fee, decodeCase(c).paid], ['approved', 30_000_000, false])
+})
+
+test('registry: register encodes every field; a harness account decodes to a card', () => {
+  const programId = keypair().address, harness = keypair(), operator = keypair()
+  const ix = registryIx.register({ programId, harnessKey: harness.address, operator: operator.address, lamports: 5, family: 'gemma', model: 'google/gemma-3-27b-it', endpoint: 'https://h.example/cases', price: 7 })
+  assert.equal(ix.data.length, 1 + 8 + 32 + 64 + 32 + 128 + 8 + 32)
+  assert.throws(() => registryIx.register({ programId, harnessKey: harness.address, operator: operator.address, lamports: 5, family: 'x'.repeat(33), model: 'm', endpoint: 'e' }), /longer than 32/)
+  const b = Buffer.alloc(HARNESS_SIZE); b.write('VRFYHRN1'); b[8] = 1; Buffer.from(harness.publicKey).copy(b, 16); b.write('gemma', 80); b.write('https://h.example/cases', 208); b.writeBigUInt64LE(7n, 336)
+  const h = decodeHarness(b, 2e9, 1e9)
+  assert.deepEqual([h.status, h.harnessKey, h.family, h.endpoint, h.price, h.bond, h.attestationHash], ['active', harness.address, 'gemma', 'https://h.example/cases', 7, 1e9, null])
+  assert.equal(Buffer.from(spki(harness.address), 'base64').length, 44)
+  assert.ok(harnessAccount(harness.address, programId).address)
+})

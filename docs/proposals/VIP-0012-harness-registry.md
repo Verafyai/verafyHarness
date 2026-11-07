@@ -1,7 +1,7 @@
 ---
 vip: '0012'
 title: 'Harness registry: find harnesses on chain, and pay them'
-status: Building
+status: Built
 created: 2026-11-07
 requirement: NET-001
 depends: ['0005', '0010', '0013']

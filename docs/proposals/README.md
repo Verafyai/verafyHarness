@@ -33,8 +33,18 @@ A proposal is not a promise. Each one is tracked in three places:
 | [0007](VIP-0007-payout-hold.md) | Hold payouts until the challenge window closes | Built | CONS-006 |
 | [0008](VIP-0008-single-harness-mode.md) | Single-harness mode: a jury of one, with a challenge window | Built; needs Rex | CONS-007 |
 | [0009](VIP-0009-prover-placement.md) | Prover placement: each harness proves, or shared provers do | Decision needed | CONS-008 |
+| [0010](VIP-0010-judiciary-signer.md) | Judiciary Signer: a multisig member that votes only as a jury rules | Built; decisions for Rex | SIGN-001 |
+| [0011](VIP-0011-policies.md) | Policies, and Covenant Launch: rules a wallet cannot break | Built | SIGN-002 |
+| [0012](VIP-0012-harness-registry.md) | Harness registry: find harnesses on chain, and pay them | Built | NET-001 |
+| [0013](VIP-0013-hardware-attestation.md) | Hardware attestation: a known build inside an enclave | Building: verification built, no enclave run | NET-002 |
+| [0014](VIP-0014-model-certification.md) | Model certification: measured attack results before a closed model may judge | Built; no model measured | SIGN-003 |
+| [0015](VIP-0015-asset-transfer-records.md) | Asset transfer records: sell a physical thing, record that it changed hands | Idea | SIGN-004 |
+| [0016](VIP-0016-commission-covenant.md) | Commission covenant: a validator bonds its promise on fees | Idea | SIGN-005 |
+| [0017](VIP-0017-programs-first.md) | Programs first, SIMD on adoption | Accepted | SOL-002 |
 
-Tracking issues: [#26 to #36](https://github.com/Verafyai/verafyHarness/issues?q=label%3Aproposal). Built in v0.0.3-alpha unless the status says otherwise; every number in them is illustrative until Rex sets it.
+Tracking issues: [#26 to #36](https://github.com/Verafyai/verafyHarness/issues?q=label%3Aproposal). VIPs 0001 to 0009 were built in v0.0.3-alpha and 0010 to 0017 written in v0.0.4-alpha, unless the status says otherwise; every number in them is illustrative until Rex sets it.
+
+**Process.** Every feature starts as a VIP, is built against it, and is crossed off here when it lands. Applications built on top of the protocol are Verafy App Pilots, in [docs/pilots](../pilots/README.md).
 
 ## How they fit together
 

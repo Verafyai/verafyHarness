@@ -1,7 +1,7 @@
 ---
 vip: '0011'
 title: 'Policies, and Covenant Launch: rules a wallet cannot break'
-status: Building
+status: Built
 created: 2026-11-07
 requirement: SIGN-002
 depends: ['0010']

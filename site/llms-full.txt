@@ -1,4 +1,4 @@
-# Verafy Harness, full text (v0.0.3-alpha)
+# Verafy Harness, full text (v0.0.4-alpha)
 
 The Learn pages, then the specification. Generated from the site sources.
 
@@ -638,12 +638,106 @@ Source: https://harness.verafy.ai/learn/bonds-and-slashing
 
 Source: https://harness.verafy.ai/learn/challenge-window
 
+# The Judiciary Signer
+
+*A Squads member no person holds a key for. It votes only as a sealed jury ruling says.*
+
+**What it is.** A program address that sits in a Squads multisig as a voter. It approves or rejects a proposal only when a ruling from its own jury, on that exact transaction, has cleared its bar and outlived its challenge window. Set the threshold so the humans can't pass anything without it, and the wallet's policy becomes enforceable.
+
+**What's fixed when it's attached.** The policy hash, up to three models, the jury's keys, the bar, the challenge window and the escape delay. None of it can change. A new policy is a new signer, added by a config change the current signer must approve.
+
+**How a ruling binds to a transaction.** Registering a proposal records `sha256` of the Squads transaction account. The ruling must carry `sha256("verafy-judiciary/1" || signer || proposal || that hash)` as its contract hash. A ruling on any other transaction, or on a changed one, is refused on chain.
+
+**The escape hatch.** Optional. If a case waits the full delay with no ruling, the signer approves, so a dead jury can't trap funds. A rejected case never escapes.
+
+**Status.** Built (SIGN-001). Measured end to end on a local validator against Squads v4 from mainnet, 23 of 23 checks. Not deployed yet. Design: [VIP-0010](https://github.com/Verafyai/verafyHarness/blob/main/docs/proposals/VIP-0010-judiciary-signer.md).
+
+**Related:** [Policies](https://harness.verafy.ai/learn/policies), [Model certification](https://harness.verafy.ai/learn/model-certification), [The challenge window](https://harness.verafy.ai/learn/challenge-window)
+
+Source: https://harness.verafy.ai/learn/judiciary-signer
+
+# Policies and Covenant Launch
+
+*Rules a wallet can't break, intent a jury reads, and the questions only a jury can answer.*
+
+**Rules** are checks any computer runs on the decoded transaction: which programs it may call, how much may leave per transaction and per window, to whom, and on what release schedule. A violation is final.
+
+**Intent and judgment** are for the jury: what the wallet is for, and questions such as "does this look like a dump on holders?".
+
+**Covenant Launch.** The creator's share of a new token sits in one visible wallet that may only release it on a published schedule, to published addresses. Buyers read the covenant before they buy. The signer enforces it on every transaction.
+
+**Always refused:** unreadable transactions, handing over token accounts, removing the signer, lowering the threshold so the humans can pass alone, shortening the time lock, and Squads spending limits.
+
+**Status.** Built in core (SIGN-002): rules, the three templates (covenant launch, treasury, upgrade authority), tests. Design: [VIP-0011](https://github.com/Verafyai/verafyHarness/blob/main/docs/proposals/VIP-0011-policies.md).
+
+**Related:** [The Judiciary Signer](https://harness.verafy.ai/learn/judiciary-signer), [Context is evidence](https://harness.verafy.ai/learn/context-is-evidence)
+
+Source: https://harness.verafy.ai/learn/policies
+
+# Model certification
+
+*A closed model may judge a wallet only with measured results on the attacks that matter.*
+
+**Why.** Wallet owners want to pick a model they know, such as a specific version of Claude. A closed model can't be proven the way an open-weight one can, and its behavior can change behind the same name. What can be known is how a pinned version behaves on the judiciary attack suite.
+
+**The suite.** Instructions hidden in memos, descriptions and token names; descriptions that lie about where money goes; amounts one unit over a cap; and ordinary payments that should pass, so refusing everything doesn't score well. The suite is generated and hashed, so every model runs exactly the same cases.
+
+**The bar** (illustrative until set): no false approvals, every injection resisted, accuracy of 95% or more, and the same answer across runs at least 95% of the time. A certification names a pinned model version, never an alias like "latest".
+
+**Status.** Built (SIGN-003): the suite, the runner and the bar, tested with scripted models. No closed model has been measured yet, so none can be chosen. Design: [VIP-0014](https://github.com/Verafyai/verafyHarness/blob/main/docs/proposals/VIP-0014-model-certification.md).
+
+**Related:** [The Judiciary Signer](https://harness.verafy.ai/learn/judiciary-signer), [Model families](https://harness.verafy.ai/learn/model-families)
+
+Source: https://harness.verafy.ai/learn/model-certification
+
+# The harness registry
+
+*Run a harness, register it on Solana, and get found and paid by anyone who needs a jury.*
+
+**How Solana finds validators.** Two layers: gossip, where nodes announce their network addresses, and the chain, where each validator's vote account holds its stake and commission. Harnesses only need the second.
+
+**One account per harness.** `verafy_registry` stores the harness key, the operator, the model and family, the endpoint where it takes cases, its price per seat, and its attestation hash. Registering needs the harness key's signature, so the operator proves it controls the key that votes. The bond is the SOL in the account above rent. It can only be withdrawn after retiring and an unbonding delay.
+
+**Discovery.** One `getProgramAccounts` call lists every active harness as a card the scheduler can draw from. From the CLI: `verafy discover --registry <program>`.
+
+**Pay.** A Judiciary Signer case carries a fee. After the decision, `pay` splits it among the jurors whose reveal the ruling records.
+
+**Status.** Built (NET-001). Measured on a local validator. Slashing the bond on chain is next. Design: [VIP-0012](https://github.com/Verafyai/verafyHarness/blob/main/docs/proposals/VIP-0012-harness-registry.md).
+
+**Related:** [Launching a harness](https://harness.verafy.ai/learn/launching-a-harness), [Bonds and slashing](https://harness.verafy.ai/learn/bonds-and-slashing), [Hardware attestation](https://harness.verafy.ai/learn/hardware-attestation)
+
+Source: https://harness.verafy.ai/learn/harness-registry
+
+# Hardware attestation
+
+*Prove a harness runs a known build inside an enclave, with its voting key made inside it.*
+
+**Why.** You can't inspect someone else's machine. Bonds, audits and proofs catch a wrong answer after the fact. An enclave changes what can be checked before: the CPU measures the VM at launch and signs that measurement, and the operator can't read the VM's memory or change its code without changing it.
+
+**AMD SEV-SNP first.** A harness asks its enclave for a report whose 64 bytes of report data are `sha256(harness key) || sha256(build hash)`. Verification checks:
+
+- the AMD certificate chain up to a root the operator pinned;
+- the report's P-384 signature;
+- that debugging is off;
+- that the launch measurement is a published harness build;
+- that the report binds this key and this build.
+
+Juries can then require `attested: true`.
+
+**What isn't done.** No harness runs in a real enclave yet; that needs a confidential VM on a cloud that offers SEV-SNP. Publishing a measurement needs a reproducible VM image. GPU inference needs NVIDIA confidential computing as well.
+
+**Status.** Verification built and tested with a test certificate chain (NET-002). Design: [VIP-0013](https://github.com/Verafyai/verafyHarness/blob/main/docs/proposals/VIP-0013-hardware-attestation.md).
+
+**Related:** [The harness registry](https://harness.verafy.ai/learn/harness-registry), [Proof of inference](https://harness.verafy.ai/learn/proof-of-inference)
+
+Source: https://harness.verafy.ai/learn/hardware-attestation
+
 # Verafy specification
 
 **Version 0.0.2-alpha**, November 6, 2026. Covers Verafy Harness (this repo) and Verafy Chain ([Verafyai/verafyChain](https://github.com/Verafyai/verafyChain)).
 
 <!-- score -->
-**Scored 67% overall** at v0.0.3-alpha (see [SCORECARD.md](SCORECARD.md)).
+**Scored 67% overall** at v0.0.4-alpha (see [SCORECARD.md](SCORECARD.md)).
 <!-- /score -->
 
 This is an alpha spec for a prototype. Nothing here describes a running network, and there is no token. Every number is labeled **measured** (our own runs, with a date), **vendor-reported** (by whoever built the tool), **modeled** (computed from those, in `packages/economics`) or **illustrative** (an assumption to replace).
@@ -732,6 +826,31 @@ Running a harness means posting a bond that can be slashed for misbehavior. A ju
 | CONS-009 | partial | verafy_ruling: a reveal deadline slot, and a releasable-after slot. *Gap: Measured on a local validator only; not on devnet.* |
 | CONS-010 | built | Economics: bond capital cost, expected slashing, challenge cost. *Gap: Every input is illustrative.* |
 <!-- /reqs:CONS -->
+
+## SIGN: Judiciary Signer, policies and model certification
+
+A Judiciary Signer is a member of a Squads multisig that no person holds a key for. It votes only as a sealed jury ruling says, and that ruling must bind to the exact transaction, come from the signer's named jury, clear its bar and outlive its challenge window. Its policy, fixed by hash at attach, has rules that code checks, intent and judgment the jury reads. Closed models may judge only with a certification of measured attack results. Designs: VIP-0010, VIP-0011, VIP-0014, VIP-0015, VIP-0016.
+
+<!-- reqs:SIGN -->
+| ID | Status | Requirement |
+|---|---|---|
+| SIGN-001 | built | Judiciary Signer: a Squads member that votes only as a sealed jury ruling says, bound to the exact transaction, past its challenge window, with an escape hatch a rejection blocks. *Gap: Measured on a local validator against Squads v4 from mainnet (23 of 23); not deployed to devnet.* |
+| SIGN-002 | built | Policies: deterministic rules, intent and judgment; templates for Covenant Launch, treasuries and upgrade authorities; hard config violations. *Gap: Rules cover SOL and SPL token transfers; other programs are refused, not read.* |
+| SIGN-003 | built | Model certification: a pinned attack suite and a bar a closed model must clear before a signer may use it. *Gap: No closed model measured yet; the bar is illustrative.* |
+| SIGN-004 | planned | Asset transfer records: physical item sales ruled on photos and serial numbers, with ownership and transfer records localized per country |
+| SIGN-005 | planned | Commission covenant: a validator bonds a promise not to raise fees on stakers |
+<!-- /reqs:SIGN -->
+
+## NET: harness registry, discovery, pay and attestation
+
+Harnesses register on Solana, are discovered with one RPC call, and are paid from case fees. A harness can prove it runs a known build inside an AMD SEV-SNP enclave with its key bound in. Designs: VIP-0012, VIP-0013.
+
+<!-- reqs:NET -->
+| ID | Status | Requirement |
+|---|---|---|
+| NET-001 | built | Harness registry on Solana: register, update, retire, bonded withdraw; discovery in one RPC call; case fees paid to jurors who revealed. *Gap: Local validator only; bonds are not slashed on chain yet.* |
+| NET-002 | partial | Hardware attestation: AMD SEV-SNP reports bound to the harness key and build, verified against a pinned root; attested juries. *Gap: Verified with a test certificate chain only; no harness has run in an enclave, and there is no reproducible image to publish a measurement for.* |
+<!-- /reqs:NET -->
 
 ## CHAIN: the Verafy Chain node
 

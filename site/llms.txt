@@ -1,15 +1,19 @@
 # Verafy Harness
 
-> An AI validator anyone can run: one model in a harness that rules on contracts written in words (Actually Smart Contracts), with juries across open-weight model families, commit and reveal, bonds that are slashed for misbehavior, exact settlement, and no token. Version 0.0.3-alpha. A prototype, not a running network.
+> An AI validator anyone can run: one model in a harness that rules on contracts written in words (Actually Smart Contracts), with juries across open-weight model families, commit and reveal, bonds that are slashed for misbehavior, exact settlement, and no token. Version 0.0.4-alpha. A prototype, not a running network.
 
 Every number on this site is labeled measured, vendor-reported, modeled or illustrative. Code: https://github.com/Verafyai/verafyHarness (MIT). The concept chain: https://chain.verafy.ai.
 
 ## Start here
 
 - [Verafy Harness](https://harness.verafy.ai/): An AI validator anyone can run: one model in a harness that rules on contracts written in words, holds its own keys and pays its own bills. No token.
+- [Judiciary Signer](https://harness.verafy.ai/signer): A Squads multisig member no person holds a key for. It signs only what the wallet policy allows, as a jury of AI models rules.
+- [Policies](https://harness.verafy.ai/policies): The rules a Judiciary Signer enforces: hard rules, intent and judgment, with templates for Covenant Launch, treasuries and upgrade keys.
 - [Launch a harness](https://harness.verafy.ai/launch): Launch a Verafy Harness on your machine, in Docker, on DigitalOcean or Hetzner, or on any cloud. Pick a model; get the command, the first-boot script or a one-click button.
 - [Run a Verafy Harness](https://harness.verafy.ai/run): How to run a Verafy Harness: machine requirements, models, how a model is proven, install, configure, costs and earnings.
 - [Verafy Chain testnet](https://harness.verafy.ai/testnet): The Verafy Chain local devnet you can run now, and the plan for Testnet 0.
+- [Roadmap](https://harness.verafy.ai/roadmap): Three stages: build on Solana programs with no SIMD, prove it with 10 to 50 pilots, then show the demand and scale to a SIMD.
+- [Pilots](https://harness.verafy.ai/pilots): Top Solana apps by revenue, and the jury projects that would make or save them money.
 
 ## Learn
 
@@ -48,16 +52,22 @@ Every number on this site is labeled measured, vendor-reported, modeled or illus
 - [Operators](https://harness.verafy.ai/learn/operators): Model families keep one model's blind spots from deciding. Operators keep one owner from holding several seats.
 - [Bonds and slashing](https://harness.verafy.ai/learn/bonds-and-slashing): Running a harness means posting a bond that can be taken for misbehavior. What each fault costs, and where the money goes.
 - [The challenge window and challenge bonds](https://harness.verafy.ai/learn/challenge-window): Payouts wait until a ruling can no longer be overturned cheaply, so an overturn moves money, not just the record.
+- [The Judiciary Signer](https://harness.verafy.ai/learn/judiciary-signer): A Squads member no person holds a key for, voting only as a sealed jury ruling says.
+- [Policies and Covenant Launch](https://harness.verafy.ai/learn/policies): Rules a wallet cannot break, intent a jury reads, and Covenant Launch for token creators.
+- [Model certification](https://harness.verafy.ai/learn/model-certification): Closed models judge a wallet only with measured results on the judiciary attack suite.
+- [The harness registry](https://harness.verafy.ai/learn/harness-registry): Register a harness on Solana, get discovered with one RPC call, and get paid per case.
+- [Hardware attestation](https://harness.verafy.ai/learn/hardware-attestation): Prove a harness runs a known build inside an AMD SEV-SNP enclave, with its key bound in.
 
 ## Reference
 
-- [Verafy specification v0.0.3-alpha](https://harness.verafy.ai/spec): The Verafy Harness and Verafy Chain specification, v0.0.3-alpha: every requirement with a stable ID and a status, checked against the code by a scoring pass.
+- [Verafy specification v0.0.4-alpha](https://harness.verafy.ai/spec): The Verafy Harness and Verafy Chain specification, v0.0.4-alpha: every requirement with a stable ID and a status, checked against the code by a scoring pass.
 - [Economics and proof packing](https://harness.verafy.ai/economics): What it costs to prove AI rulings, how proof packing cuts it, and what proving operators and verifiers earn. Modeled, with every source named.
 - [Coin Agnostic](https://harness.verafy.ai/coin-agnostic): Why there is no coin, what the money pays for, and how the Verafy Harness routing agent moves it.
 
 ## Release notes
 
 - [Release notes](https://harness.verafy.ai/blog): Release notes for Verafy Harness and the Verafy spec.
+- [Verafy Harness v0.0.4-alpha: the Judiciary Signer](https://harness.verafy.ai/blog/v0-0-4-alpha): A Squads multisig member that votes only as a jury rules, policies and Covenant Launch, model certification, a harness registry that finds and pays harnesses on Solana, and hardware attestation started.
 - [Verafy Harness v0.0.3-alpha: stake, slashing and open-weight models](https://harness.verafy.ai/blog/v0-0-3-alpha): Bonds that are slashed for misbehavior, a jury scheduler seeded by a randomness beacon, operator caps, payouts held through a challenge window, challenge bonds, and juries of open-weight models counted by family.
 - [Verafy Harness v0.0.2-alpha: run it anywhere](https://harness.verafy.ai/blog/v0-0-2-alpha): The harness daemon, verafy up for every cloud, a testnet on one machine, a Solana ruling program, proof packing end to end, a calibration set, the Banker as a service, and a Learn section.
 - [Verafy Harness v0.0.1-alpha: the first spec, scored](https://harness.verafy.ai/blog/v0-0-1-alpha): The first versioned spec, a scoring pass that checks it against the code, multi-model routing with calibration and audits, proof packing routed, and the economics rewritten.

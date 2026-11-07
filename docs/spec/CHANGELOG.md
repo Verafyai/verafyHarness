@@ -2,6 +2,28 @@
 
 Versions follow semantic versioning with a pre-release tag. Requirement IDs never change meaning. See [VERAFY-SPEC.md](VERAFY-SPEC.md) for the rules.
 
+## v0.0.4-alpha, November 7, 2026
+
+The Judiciary Signer, the harness registry and attestation. Scored 67% overall across 136 requirements (seven new: SIGN-001 to SIGN-005, NET-001, NET-002).
+
+**New in the spec**
+- SIGN and NET, two new areas, with design proposals VIP-0010 to VIP-0017 written before the code, and fifteen Verafy App Pilots (VAP-0001 to VAP-0015) in `docs/pilots`.
+
+**Status**
+- Built: SIGN-001 (Judiciary Signer), SIGN-002 (policies), SIGN-003 (model certification, none measured), NET-001 (registry, discovery, pay).
+- Partial: NET-002 (attestation verification; no enclave run).
+- Planned: SIGN-004 (asset transfer records), SIGN-005 (commission covenant).
+
+**Measured**
+- `verafy_judiciary` and `verafy_registry` on a local validator against the Squads v4 program dumped from mainnet: 23 of 23 checks (`results/judiciary-localnet-v0.0.4.json`).
+
+**New in the code**
+- `packages/solana/judiciary` and `packages/solana/registry`: two programs. The program ABI gains cross-program calls and allows 16 accounts.
+- `packages/solana/src/`: `squads.js` (program addresses, Squads accounts and instructions, no dependencies), `judiciary.js`, `registry.js`.
+- `packages/core/src/`: `policy.js`, `judiciary.js`, `certification.js`, `attestation.js`; jury rules gain `allowModels` and `attested`.
+- `verafy discover` and `verafy harness register`; `discoverPool` in the deploy package.
+- Site: Judiciary Signer, Policies, Roadmap and Pilots pages, five Learn pages.
+
 ## v0.0.3-alpha, November 7, 2026
 
 Stake, slashing and open-weight models. Scored 67% overall across 129 requirements (from 65% across 119; the ten new requirements start mostly built).

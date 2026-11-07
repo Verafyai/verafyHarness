@@ -1,7 +1,7 @@
 ---
 vip: '0010'
 title: 'Judiciary signer: a multisig member that votes only as a jury rules'
-status: Building
+status: Built; decisions for Rex
 created: 2026-11-07
 requirement: SIGN-001
 depends: ['0001', '0007', '0008', '0011', '0017']

@@ -1,6 +1,6 @@
 {
   "name": "@verafyharness/solana",
-  "version": "0.0.3-alpha",
+  "version": "0.0.4-alpha",
   "description": "Settle a Verafy ruling on Solana with no validator changes: the verafy_ruling program (commit, reveal, the Ruling account) and a zero-dependency client.",
   "type": "module",
   "license": "MIT",

@@ -1,1825 +1,1951 @@
 {
-  "spec": "Verafy Harness and Verafy Chain",
-  "version": "0.0.3-alpha",
-  "date": "2026-11-07",
-  "levels": {
-    "verified": {
-      "points": 1,
-      "meaning": "Built, tested, and run live or on a devnet with measured results"
-    },
-    "built": {
-      "points": 0.8,
-      "meaning": "Built and tested with mocks or scripted models; not yet run live"
-    },
-    "partial": {
-      "points": 0.5,
-      "meaning": "Part of it is built; the rest is specified"
-    },
-    "designed": {
-      "points": 0.25,
-      "meaning": "Specified in detail; no code yet"
-    },
-    "planned": {
-      "points": 0.1,
-      "meaning": "Named and scoped; not specified in detail"
-    },
-    "research": {
-      "points": 0,
-      "meaning": "An open question or experiment; may never ship"
-    }
+ "spec": "Verafy Harness and Verafy Chain",
+ "version": "0.0.4-alpha",
+ "date": "2026-11-07",
+ "levels": {
+  "verified": {
+   "points": 1,
+   "meaning": "Built, tested, and run live or on a devnet with measured results"
   },
-  "areas": {
-    "CORE": "Core protocol: contracts, commit and reveal, agreement, exits",
-    "JURY": "Juries, live runs, audits and challenges",
-    "CHAIN": "Verafy Chain node (verafyChain repo)",
-    "SETTLE": "TinySVM: exact settlement next to the AI",
-    "LIGHT": "Light client: reading source chains",
-    "BANK": "Routing agent: keyblock, banker, wallet, API router, deposits",
-    "PACK": "Proof packing and the prompt compressor",
-    "ROUTE": "Multi-model routing: screens, tiers, calibration",
-    "PROVE": "Proofs of inference",
-    "COT": "Disclosed reasoning",
-    "GOV": "Constitution, Embedded Ethics, amendments",
-    "SOL": "Solana settlement through the three SIMDs",
-    "ECON": "Economics and the calculator",
-    "AGENT": "Agent plugins and the MCP server",
-    "DEPLOY": "Deploy and run anywhere: daemon, launcher, clouds, releases, local testnet",
-    "SITE": "Sites, docs and the spec",
-    "OPS": "Security and operations",
-    "EXT": "External collaborations and data",
-    "CONS": "Consensus hardening: jury scheduling, randomness, operators, slashing, payout holds"
+  "built": {
+   "points": 0.8,
+   "meaning": "Built and tested with mocks or scripted models; not yet run live"
   },
-  "requirements": [
-    {
-      "id": "CORE-001",
-      "area": "CORE",
-      "weight": 3,
-      "status": "verified",
-      "title": "Contract format verafy.asc/1 with validation; swarm.asc/0 still validates and keeps its hash",
-      "checks": [
-        {
-          "grep": "packages/core/src/asc.js",
-          "re": "verafy\\.asc/1"
-        },
-        {
-          "test": "packages/core/test/rename.test.js"
-        }
-      ]
-    },
-    {
-      "id": "CORE-002",
-      "area": "CORE",
-      "weight": 3,
-      "status": "verified",
-      "title": "Pinned context: every context entry checked by SHA-256 before a model reads it",
-      "checks": [
-        {
-          "grep": "packages/core/src/juror.js",
-          "re": "sha256|loadContext"
-        }
-      ]
-    },
-    {
-      "id": "CORE-003",
-      "area": "CORE",
-      "weight": 3,
-      "status": "verified",
-      "title": "Commit then reveal with Ed25519 signatures and attestations",
-      "checks": [
-        {
-          "grep": "packages/core/src/signer.js",
-          "re": "export function commit"
-        }
-      ]
-    },
-    {
-      "id": "CORE-004",
-      "area": "CORE",
-      "weight": 3,
-      "status": "verified",
-      "title": "Agreement against the bar: verdict, forecast and graded; below-bar exits never pay jurors",
-      "checks": [
-        {
-          "file": "packages/core/src/agreement.js"
-        },
-        {
-          "grep": "packages/core/src/network.js",
-          "re": "checkPay"
-        }
-      ]
-    },
-    {
-      "id": "CORE-005",
-      "area": "CORE",
-      "weight": 3,
-      "status": "verified",
-      "title": "Exits and diffs conserve totals; declared exits only",
-      "checks": [
-        {
-          "grep": "packages/core/src/runtime.js",
-          "re": "export function buildDiff"
-        }
-      ]
-    },
-    {
-      "id": "CORE-006",
-      "area": "CORE",
-      "weight": 2,
-      "status": "built",
-      "title": "Rulings re-verifiable from their round record (ruleFromRecords, verifyRuling)",
-      "checks": [
-        {
-          "grep": "packages/core/src/network.js",
-          "re": "export function verifyRuling"
-        }
-      ]
-    },
-    {
-      "id": "CORE-007",
-      "area": "CORE",
-      "weight": 2,
-      "status": "built",
-      "title": "Quorum-signed triggers verafy.trigger/1 for calls to other chains",
-      "checks": [
-        {
-          "grep": "packages/core/src/trigger.js",
-          "re": "export function signTrigger"
-        }
-      ]
-    },
-    {
-      "id": "CORE-008",
-      "area": "CORE",
-      "weight": 2,
-      "status": "built",
-      "title": "Batching fields minBatch and maxWaitSeconds, without changing existing hashes",
-      "checks": [
-        {
-          "test": "packages/core/test/queue.test.js"
-        }
-      ]
-    },
-    {
-      "id": "CORE-009",
-      "area": "CORE",
-      "weight": 2,
-      "status": "built",
-      "title": "Exit programs with bounded params, aggregated from votes",
-      "checks": [
-        {
-          "grep": "packages/core/src/exitprogram.js",
-          "re": "export function checkParams"
-        },
-        {
-          "test": "packages/core/test/exitprogram.test.js"
-        }
-      ]
-    },
-    {
-      "id": "JURY-001",
-      "area": "JURY",
-      "weight": 3,
-      "status": "verified",
-      "title": "Live juries across five different models; measured Nov 6, 2026: five contracts, 5.9 to 30.1 s each, $0.0163 in total",
-      "checks": [
-        {
-          "file": "results/live-2026-11-06.md"
-        }
-      ]
-    },
-    {
-      "id": "JURY-002",
-      "area": "JURY",
-      "weight": 3,
-      "status": "verified",
-      "title": "Juror mode inside DeepSeek Harness: five different models sealed a block from their reveals",
-      "checks": [
-        {
-          "file": "packages/dsh-verafy-juror/src/index.ts"
-        },
-        {
-          "file": "docs/dsh-juror.md"
-        }
-      ]
-    },
-    {
-      "id": "JURY-003",
-      "area": "JURY",
-      "weight": 2,
-      "status": "built",
-      "title": "Retry and back-off for rate-limited models",
-      "checks": [
-        {
-          "grep": "packages/core/src/providers.js",
-          "re": "export function withRetry"
-        }
-      ]
-    },
-    {
-      "id": "JURY-004",
-      "area": "JURY",
-      "weight": 2,
-      "status": "built",
-      "title": "Auditors from other model families re-check sealed rulings",
-      "checks": [
-        {
-          "grep": "packages/core/src/challenge.js",
-          "re": "export async function audit"
-        }
-      ]
-    },
-    {
-      "id": "JURY-005",
-      "area": "JURY",
-      "weight": 2,
-      "status": "built",
-      "title": "Challenges append affirm, overturn or supersede; escalation funds a wider jury",
-      "checks": [
-        {
-          "grep": "packages/core/src/challenge.js",
-          "re": "export function escalate"
-        }
-      ]
-    },
-    {
-      "id": "JURY-006",
-      "area": "JURY",
-      "weight": 2,
-      "status": "built",
-      "title": "Challenge bonds: lock on open, return on overturn or supersede, forfeit on affirm",
-      "checks": [
-        {
-          "grep": "packages/core/src/hold.js",
-          "re": "export function settleChallengeBond"
-        },
-        {
-          "test": "packages/core/test/consensus.test.js"
-        }
-      ],
-      "gap": "Bond factor illustrative; not on a chain"
-    },
-    {
-      "id": "JURY-007",
-      "area": "JURY",
-      "weight": 2,
-      "status": "planned",
-      "title": "Track record: agreement with final rulings and forecast scores per harness",
-      "checks": [],
-      "gap": "No per-harness history yet; needed for bonds and for routing weights"
-    },
-    {
-      "id": "JURY-008",
-      "area": "JURY",
-      "weight": 3,
-      "status": "partial",
-      "title": "100 live rulings across the four market types, with audits and costs published",
-      "checks": [
-        {
-          "file": "results/live-2026-11-06.md"
-        }
-      ],
-      "gap": "Only the first five live rulings are published"
-    },
-    {
-      "id": "JURY-009",
-      "area": "JURY",
-      "weight": 3,
-      "status": "built",
-      "title": "Harness daemon: a long-running process that watches for funded contracts and takes seats",
-      "checks": [
-        {
-          "grep": "packages/daemon/src/daemon.js",
-          "re": "export class HarnessDaemon"
-        },
-        {
-          "test": "packages/daemon/test/daemon.test.js"
-        }
-      ]
-    },
-    {
-      "id": "CONS-001",
-      "area": "CONS",
-      "weight": 3,
-      "status": "built",
-      "title": "Jury scheduler: beacon seed, draw, alternates, block-height deadlines, commit-phase replacement",
-      "checks": [
-        {
-          "grep": "packages/core/src/scheduler.js",
-          "re": "export function replaceNoShows"
-        },
-        {
-          "test": "packages/core/test/consensus.test.js"
-        },
-        {
-          "grep": "packages/deploy/src/testnet.js",
-          "re": "scheduler\\.draw"
-        }
-      ],
-      "gap": "Deadlines and alternate counts are illustrative; the verafyChain node does not call the scheduler yet"
-    },
-    {
-      "id": "CONS-002",
-      "area": "CONS",
-      "weight": 3,
-      "status": "built",
-      "title": "Randomness beacon with lookahead; a withheld reveal is a slashable fault",
-      "checks": [
-        {
-          "grep": "packages/core/src/beacon.js",
-          "re": "export function verifyBeacon"
-        },
-        {
-          "test": "packages/core/test/consensus.test.js"
-        }
-      ],
-      "gap": "A hash-chain beacon with one bit of withholding bias, slashed; drand or a VRF would remove it (decision for Rex)"
-    },
-    {
-      "id": "CONS-003",
-      "area": "CONS",
-      "weight": 2,
-      "status": "partial",
-      "title": "Operator keys on harness cards, a seat cap per operator, operator bonds",
-      "checks": [
-        {
-          "grep": "packages/core/src/network.js",
-          "re": "maxSeatsPerOperator"
-        },
-        {
-          "test": "packages/core/test/consensus.test.js"
-        }
-      ],
-      "gap": "The cap and alternates are built; operator signatures are carried on cards but not yet checked, and operator bonds are not posted anywhere yet"
-    },
-    {
-      "id": "CONS-004",
-      "area": "CONS",
-      "weight": 1,
-      "status": "built",
-      "title": "Draw weighting: equal by default, bond-weighted with a cap as an option",
-      "checks": [
-        {
-          "grep": "packages/core/src/network.js",
-          "re": "export function drawOrder"
-        },
-        {
-          "test": "packages/core/test/consensus.test.js"
-        }
-      ],
-      "gap": "Equal is the default; whether the network allows bond weighting waits on Rex"
-    },
-    {
-      "id": "CONS-005",
-      "area": "CONS",
-      "weight": 3,
-      "status": "built",
-      "title": "Slashing: a published schedule applied to recorded faults as conserving bond diffs",
-      "checks": [
-        {
-          "grep": "packages/core/src/slashing.js",
-          "re": "export function slashDiff"
-        },
-        {
-          "test": "packages/core/test/consensus.test.js"
-        },
-        {
-          "test": "packages/deploy/test/deploy.test.js"
-        }
-      ],
-      "gap": "Every rate is illustrative; slashes apply on the local testnet, not on a chain"
-    },
-    {
-      "id": "CONS-006",
-      "area": "CONS",
-      "weight": 3,
-      "status": "built",
-      "title": "Payouts held until the challenge window closes; an overturn redirects the held escrow",
-      "checks": [
-        {
-          "grep": "packages/core/src/hold.js",
-          "re": "export function releaseHeld"
-        },
-        {
-          "test": "packages/core/test/consensus.test.js"
-        }
-      ],
-      "gap": "Window lengths are illustrative; the verafyChain node does not release held payouts yet"
-    },
-    {
-      "id": "CONS-007",
-      "area": "CONS",
-      "weight": 1,
-      "status": "built",
-      "title": "Single-harness mode: a jury of one with a mandatory window and an automatic audit",
-      "checks": [
-        {
-          "grep": "packages/core/src/scheduler.js",
-          "re": "singleHarness"
-        },
-        {
-          "test": "packages/core/test/consensus.test.js"
-        }
-      ],
-      "gap": "Allowed only with a window and an automatic audit; whether to offer it waits on Rex; cost not modeled"
-    },
-    {
-      "id": "CONS-008",
-      "area": "CONS",
-      "weight": 1,
-      "status": "designed",
-      "title": "Prover placement: each harness or shared provers, with the prover named in the proof record",
-      "checks": [
-        {
-          "grep": "docs/proposals/VIP-0009-prover-placement.md",
-          "re": "vip: .?0009"
-        }
-      ],
-      "gap": "Default waits on Rex; the proof record does not name its prover yet"
-    },
-    {
-      "id": "CONS-009",
-      "area": "CONS",
-      "weight": 2,
-      "status": "partial",
-      "title": "verafy_ruling: a reveal deadline slot, and a releasable-after slot",
-      "checks": [
-        {
-          "grep": "packages/solana/program/src/lib.rs",
-          "re": "DEADLINE_AT"
-        },
-        {
-          "test": "packages/solana/test/solana.test.js"
-        },
-        {
-          "grep": "docs/solana/localnet-run-v0.0.3.md",
-          "re": "sealed, NO, 4 of 5"
-        }
-      ],
-      "gap": "Measured on a local validator only; not on devnet"
-    },
-    {
-      "id": "CONS-010",
-      "area": "CONS",
-      "weight": 1,
-      "status": "built",
-      "title": "Economics: bond capital cost, expected slashing, challenge cost",
-      "checks": [
-        {
-          "grep": "packages/economics/src/index.js",
-          "re": "export function stake"
-        },
-        {
-          "test": "packages/economics/test/economics.test.js"
-        }
-      ],
-      "gap": "Every input is illustrative"
-    },
-    {
-      "id": "CHAIN-001",
-      "area": "CHAIN",
-      "weight": 3,
-      "status": "built",
-      "repo": "chain",
-      "title": "Node: mempool, jury coordination, gossip, sealer rotation, block store, verification",
-      "checks": [
-        {
-          "repo": "chain",
-          "file": "packages/node/src/server.js"
-        }
-      ]
-    },
-    {
-      "id": "CHAIN-002",
-      "area": "CHAIN",
-      "weight": 2,
-      "status": "built",
-      "repo": "chain",
-      "title": "Availability layer: context served by hash through the challenge window",
-      "checks": [
-        {
-          "repo": "chain",
-          "file": "packages/storage"
-        }
-      ]
-    },
-    {
-      "id": "CHAIN-003",
-      "area": "CHAIN",
-      "weight": 2,
-      "status": "built",
-      "repo": "chain",
-      "title": "Batching: blocks close by value or by time, with a pro rata cost split",
-      "checks": [
-        {
-          "repo": "chain",
-          "file": "packages/node/src/batch.js"
-        }
-      ]
-    },
-    {
-      "id": "CHAIN-004",
-      "area": "CHAIN",
-      "weight": 2,
-      "status": "partial",
-      "repo": "chain",
-      "title": "Encrypted queue: contracts sealed t of n until the jury is drawn",
-      "checks": [
-        {
-          "grep": "packages/core/src/queue.js",
-          "re": "export function sealContract"
-        }
-      ],
-      "gap": "Prototype: each author deals the shares; real distributed key generation and verifiable shares are planned"
-    },
-    {
-      "id": "CHAIN-005",
-      "area": "CHAIN",
-      "weight": 2,
-      "status": "planned",
-      "repo": "chain",
-      "title": "Registry on chain, sealer liveness, bonds and slashing, libp2p gossip",
-      "checks": [],
-      "gap": "Needed for a network of independently operated harnesses"
-    },
-    {
-      "id": "CHAIN-006",
-      "area": "CHAIN",
-      "weight": 1,
-      "status": "planned",
-      "repo": "chain",
-      "title": "Escalated juries accepted by the chain; challenge juries that share no model family",
-      "checks": []
-    },
-    {
-      "id": "SETTLE-001",
-      "area": "SETTLE",
-      "weight": 3,
-      "status": "built",
-      "title": "TinySVM phase 1: LiteSVM sidecar restricted to pinned programs and a compute cap",
-      "checks": [
-        {
-          "file": "packages/tinysvm/engine/src/main.rs"
-        },
-        {
-          "file": "packages/tinysvm/programs.lock.json"
-        }
-      ]
-    },
-    {
-      "id": "SETTLE-002",
-      "area": "SETTLE",
-      "weight": 3,
-      "status": "built",
-      "title": "Built-in programs escrow, bond and ledger; exit programs graded_payout, ranked_split, milestone_escrow",
-      "checks": [
-        {
-          "grep": "packages/tinysvm/programs.lock.json",
-          "re": "graded_payout"
-        }
-      ]
-    },
-    {
-      "id": "SETTLE-003",
-      "area": "SETTLE",
-      "weight": 3,
-      "status": "built",
-      "title": "runtime.js and TinySVM side by side; any disagreement is a fault",
-      "checks": [
-        {
-          "grep": "packages/tinysvm/src/index.js",
-          "re": "export function dualRuntime"
-        }
-      ]
-    },
-    {
-      "id": "SETTLE-004",
-      "area": "SETTLE",
-      "weight": 2,
-      "status": "planned",
-      "title": "Integer micro-units in runtime.js; TinySVM as the default runtime",
-      "checks": [],
-      "rex": true,
-      "gap": "Needs Rex: changes some future diffs by one micro-unit"
-    },
-    {
-      "id": "SETTLE-005",
-      "area": "SETTLE",
-      "weight": 1,
-      "status": "planned",
-      "title": "Phase 2: Anza's solana-svm crate; nodes re-run settlement when they verify a block",
-      "checks": []
-    },
-    {
-      "id": "SETTLE-006",
-      "area": "SETTLE",
-      "weight": 1,
-      "status": "partial",
-      "title": "Settlement core compiled into weights (svmLLM), proven with the judgment",
-      "checks": [
-        {
-          "grep": "packages/tinysvm/src/svmllm.js",
-          "re": "export function svmllmRuntime"
-        },
-        {
-          "test": "packages/tinysvm/test/tinysvm.test.js"
-        }
-      ],
-      "gap": "Demo: the five integer programs run on svmLLM's hand-built weights as an optional third runtime and agree with runtime.js and TinySVM; the jury pay rule (doubles) is not covered. No real proof made: mock only. Success criterion (a settlement proof cheaper than the judgment proof) untested"
-    },
-    {
-      "id": "LIGHT-001",
-      "area": "LIGHT",
-      "weight": 3,
-      "status": "verified",
-      "title": "Solana multi-RPC reader; one read-only devnet run measured Nov 6, 2026",
-      "checks": [
-        {
-          "grep": "packages/lightclient/solana/index.js",
-          "re": "export class SolanaReader"
-        },
-        {
-          "test": "packages/lightclient/test/lightclient.test.js"
-        }
-      ]
-    },
-    {
-      "id": "LIGHT-002",
-      "area": "LIGHT",
-      "weight": 2,
-      "status": "built",
-      "title": "EVM multi-RPC reader for any chain id",
-      "checks": [
-        {
-          "grep": "packages/lightclient/evm/index.js",
-          "re": "export class EvmReader"
-        }
-      ]
-    },
-    {
-      "id": "LIGHT-003",
-      "area": "LIGHT",
-      "weight": 3,
-      "status": "built",
-      "title": "Intake checks escrow funding; outbox confirms triggers; disagreement pauses, never guesses",
-      "checks": [
-        {
-          "grep": "packages/core/src/sourcechain.js",
-          "re": "export async function fundingCheck"
-        }
-      ]
-    },
-    {
-      "id": "LIGHT-004",
-      "area": "LIGHT",
-      "weight": 1,
-      "status": "partial",
-      "title": "Ethereum sync-committee verification through Helios",
-      "checks": [
-        {
-          "file": "packages/lightclient/evm/helios.js"
-        }
-      ],
-      "gap": "Adapter only, tested with Helios absent"
-    },
-    {
-      "id": "BANK-001",
-      "area": "BANK",
-      "weight": 3,
-      "status": "built",
-      "title": "Keyblock: keys encrypted at rest; scoped keys with expiry, use limits and revocation",
-      "checks": [
-        {
-          "grep": "packages/core/src/keyblock.js",
-          "re": "export class Keyblock"
-        }
-      ]
-    },
-    {
-      "id": "BANK-002",
-      "area": "BANK",
-      "weight": 3,
-      "status": "built",
-      "title": "Payment wallet: allowlisted payees, caps, approval threshold, bond reserve never spent",
-      "checks": [
-        {
-          "grep": "packages/core/src/routing.js",
-          "re": "export class PaymentWallet"
-        }
-      ]
-    },
-    {
-      "id": "BANK-003",
-      "area": "BANK",
-      "weight": 2,
-      "status": "built",
-      "title": "Banker core: accept allowed tokens, best quote across approved venues, slippage limit, ensure and pay",
-      "checks": [
-        {
-          "grep": "packages/core/src/banker.js",
-          "re": "export class Banker"
-        }
-      ]
-    },
-    {
-      "id": "BANK-004",
-      "area": "BANK",
-      "weight": 2,
-      "status": "built",
-      "title": "API router: keyed calls, metering, per-call or accrued billing",
-      "checks": [
-        {
-          "grep": "packages/core/src/apirouter.js",
-          "re": "export class ApiRouter"
-        }
-      ]
-    },
-    {
-      "id": "BANK-005",
-      "area": "BANK",
-      "weight": 2,
-      "status": "built",
-      "title": "Inference routing by assurance level, L0 to L2; L2 never to a hosted API",
-      "checks": [
-        {
-          "grep": "packages/core/src/routing.js",
-          "re": "export function routeInference"
-        }
-      ]
-    },
-    {
-      "id": "BANK-006",
-      "area": "BANK",
-      "weight": 3,
-      "status": "built",
-      "title": "BankerService: deposit state machine (detect, classify, hold, quote, simulate, swap, sweep, record), idempotent by txid",
-      "checks": [
-        {
-          "grep": "packages/banker/src/service.js",
-          "re": "export class BankerService"
-        },
-        {
-          "test": "packages/banker/test/banker.test.js"
-        }
-      ]
-    },
-    {
-      "id": "BANK-007",
-      "area": "BANK",
-      "weight": 3,
-      "status": "partial",
-      "title": "Real venue adapters: Jupiter on Solana, an EVM aggregator, a bridge; price sanity against a reference",
-      "checks": [
-        {
-          "grep": "packages/banker/src/venues.js",
-          "re": "export function jupiterVenue"
-        },
-        {
-          "grep": "packages/banker/src/venues.js",
-          "re": "export function lifiVenue"
-        }
-      ],
-      "gap": "Jupiter and LI.FI quote live (measured Nov 6, 2026); simulation and sending are built behind the execute switch but have not run against a funded wallet"
-    },
-    {
-      "id": "BANK-008",
-      "area": "BANK",
-      "weight": 2,
-      "status": "built",
-      "title": "Token allowlist by address; quarantine unknown tokens; dust; sanctions screen; daily caps; kill switch",
-      "checks": [
-        {
-          "grep": "packages/banker/src/service.js",
-          "re": "QUARANTINED"
-        },
-        {
-          "test": "packages/banker/test/banker.test.js"
-        }
-      ]
-    },
-    {
-      "id": "BANK-009",
-      "area": "BANK",
-      "weight": 2,
-      "status": "partial",
-      "title": "Gas reserves per chain; exact approvals; simulate before send; append-only ledger with cost basis",
-      "checks": [
-        {
-          "grep": "packages/banker/src/service.js",
-          "re": "export class Ledger"
-        }
-      ],
-      "gap": "Simulate before send and the hash-chained ledger are built; per-chain gas reserves, exact approvals and cost-basis export are not"
-    },
-    {
-      "id": "BANK-010",
-      "area": "BANK",
-      "weight": 1,
-      "status": "built",
-      "title": "Banker advisor: a read-only model that reports and flags, holding no keys",
-      "checks": [
-        {
-          "grep": "packages/banker/src/advisor.js",
-          "re": "export function advise"
-        }
-      ]
-    },
-    {
-      "id": "BANK-011",
-      "area": "BANK",
-      "weight": 1,
-      "status": "built",
-      "title": "Service mode (converting other people's funds) disabled in code until legal review",
-      "checks": [
-        {
-          "grep": "packages/banker/src/service.js",
-          "re": "disabled in code until a legal review"
-        }
-      ],
-      "rex": true
-    },
-    {
-      "id": "BANK-012",
-      "area": "BANK",
-      "weight": 2,
-      "status": "planned",
-      "title": "Rent GPU and VM hosts on demand for open-weights and proving routes",
-      "checks": []
-    },
-    {
-      "id": "PACK-001",
-      "area": "PACK",
-      "weight": 3,
-      "status": "built",
-      "title": "Atoms: one question, closed answer type, only deciding facts, each with a pin",
-      "checks": [
-        {
-          "grep": "packages/pack/src/atom.js",
-          "re": "export function validateAtom"
-        }
-      ]
-    },
-    {
-      "id": "PACK-002",
-      "area": "PACK",
-      "weight": 3,
-      "status": "built",
-      "title": "Atom plans with an exact composition rule; UNKNOWN goes to the declared fallback",
-      "checks": [
-        {
-          "grep": "packages/pack/src/plan.js",
-          "re": "export function decide"
-        }
-      ]
-    },
-    {
-      "id": "PACK-003",
-      "area": "PACK",
-      "weight": 3,
-      "status": "built",
-      "title": "Dedupe across contracts by atom hash; first-fit packing into 1,024-token requests; block-hash slot order (library, tested with mocks)",
-      "checks": [
-        {
-          "grep": "packages/pack/src/packer.js",
-          "re": "export function pack"
-        },
-        {
-          "test": "packages/pack/test/pack.test.js"
-        }
-      ]
-    },
-    {
-      "id": "PACK-004",
-      "area": "PACK",
-      "weight": 2,
-      "status": "built",
-      "title": "Strict reply reading: every slot exactly once, typed answers, nothing else",
-      "checks": [
-        {
-          "grep": "packages/pack/src/packer.js",
-          "re": "export function readReply"
-        }
-      ]
-    },
-    {
-      "id": "PACK-005",
-      "area": "PACK",
-      "weight": 2,
-      "status": "built",
-      "title": "Atomizer: drafts a plan with any model and checks every cited pin is real",
-      "checks": [
-        {
-          "grep": "packages/pack/src/atomize.js",
-          "re": "export async function atomize"
-        }
-      ]
-    },
-    {
-      "id": "PACK-006",
-      "area": "PACK",
-      "weight": 3,
-      "status": "built",
-      "title": "Fidelity check: an unproven multi-family panel rules a plan FAITHFUL before it is used",
-      "checks": [
-        {
-          "grep": "packages/pack/src/pipeline.js",
-          "re": "export async function checkFidelity"
-        },
-        {
-          "test": "packages/pack/test/pipeline.test.js"
-        }
-      ]
-    },
-    {
-      "id": "PACK-007",
-      "area": "PACK",
-      "weight": 2,
-      "status": "planned",
-      "title": "Real token counts with the target model's tokenizer",
-      "checks": [],
-      "gap": "The packer estimates about four characters per token"
-    },
-    {
-      "id": "PACK-008",
-      "area": "PACK",
-      "weight": 2,
-      "status": "designed",
-      "title": "Prompt compressor: briefs for contracts that cannot be atomized; party-agreed or checked",
-      "checks": [
-        {
-          "file": "docs/spec/VERAFY-SPEC.md"
-        }
-      ],
-      "gap": "Brief mode is modeled in economics, not built in the packer"
-    },
-    {
-      "id": "PACK-009",
-      "area": "PACK",
-      "weight": 1,
-      "status": "designed",
-      "title": "Long contracts split by claims with a proven combine step",
-      "checks": []
-    },
-    {
-      "id": "PACK-010",
-      "area": "PACK",
-      "weight": 2,
-      "status": "built",
-      "title": "Route before packing: only atoms in the proven lane reach the packer",
-      "checks": [
-        {
-          "grep": "packages/route/src/router.js",
-          "re": "export async function routeBlock"
-        }
-      ]
-    },
-    {
-      "id": "PACK-011",
-      "area": "PACK",
-      "weight": 3,
-      "status": "partial",
-      "title": "Packing wired into harness runs and chain intake: atomize, route, pack, prove, assemble, end to end",
-      "checks": [
-        {
-          "grep": "packages/pack/src/pipeline.js",
-          "re": "export async function packedBlock"
-        },
-        {
-          "test": "packages/pack/test/pipeline.test.js"
-        },
-        {
-          "grep": "bin/verafy.js",
-          "re": "packedCommand"
-        }
-      ],
-      "gap": "Built for harness runs (verafy packed, packedBlock) with the mock prover; the verafyChain node intake and the daemon do not call it yet, and no real prover is attached"
-    },
-    {
-      "id": "ROUTE-001",
-      "area": "ROUTE",
-      "weight": 3,
-      "status": "built",
-      "title": "Tiered router: screen, then panels from small to frontier; a unanimous panel stops, a split one escalates",
-      "checks": [
-        {
-          "grep": "packages/route/src/router.js",
-          "re": "export class Router"
-        },
-        {
-          "test": "packages/route/test/route.test.js"
-        }
-      ]
-    },
-    {
-      "id": "ROUTE-002",
-      "area": "ROUTE",
-      "weight": 3,
-      "status": "built",
-      "title": "The contract's floor is never lowered; L2 never uses a screen's answer; stakes cap screen settlement",
-      "checks": [
-        {
-          "grep": "packages/route/src/router.js",
-          "re": "floorTier"
-        }
-      ]
-    },
-    {
-      "id": "ROUTE-003",
-      "area": "ROUTE",
-      "weight": 3,
-      "status": "built",
-      "title": "Shadow mode by default: the screen sizes juries and logs what it would settle",
-      "checks": [
-        {
-          "grep": "packages/route/src/router.js",
-          "re": "mode = 'shadow'"
-        }
-      ]
-    },
-    {
-      "id": "ROUTE-004",
-      "area": "ROUTE",
-      "weight": 3,
-      "status": "built",
-      "title": "Calibration: per-type cutoffs from the Wilson lower bound; recheck withdraws a cutoff when live accuracy drops",
-      "checks": [
-        {
-          "grep": "packages/route/src/calibrate.js",
-          "re": "export function calibrate"
-        }
-      ]
-    },
-    {
-      "id": "ROUTE-005",
-      "area": "ROUTE",
-      "weight": 2,
-      "status": "built",
-      "title": "Audits drawn from the block hash re-check settled answers at the top tier",
-      "checks": [
-        {
-          "grep": "packages/route/src/router.js",
-          "re": "export function audited"
-        }
-      ]
-    },
-    {
-      "id": "ROUTE-006",
-      "area": "ROUTE",
-      "weight": 2,
-      "status": "built",
-      "title": "Screen adapters: a Jev adapter taking any client call, and a scripted screen",
-      "checks": [
-        {
-          "grep": "packages/route/src/screens.js",
-          "re": "export function jevScreen"
-        }
-      ]
-    },
-    {
-      "id": "ROUTE-007",
-      "area": "ROUTE",
-      "weight": 3,
-      "status": "partial",
-      "title": "A labeled calibration set of atoms with known answers, and a Jev calibration run",
-      "checks": [
-        {
-          "file": "examples/calibration/atoms.jsonl"
-        },
-        {
-          "file": "scripts/calibrate-screen.mjs"
-        },
-        {
-          "test": "packages/route/test/calibration.test.js"
-        }
-      ],
-      "gap": "The labeled set (1,000 atoms, 200 per kind) and the runner are built; a Jev run needs Jev access (JEV_URL, JEV_API_KEY). A simulated run checks the pipeline only"
-    },
-    {
-      "id": "ROUTE-008",
-      "area": "ROUTE",
-      "weight": 2,
-      "status": "planned",
-      "title": "Wire the router into the harness and the chain intake, with per-contract allowScreen, stakes and floors in the contract format",
-      "checks": [],
-      "gap": "The router is a library; contracts cannot declare allowScreen or floorTier yet"
-    },
-    {
-      "id": "ROUTE-009",
-      "area": "ROUTE",
-      "weight": 1,
-      "status": "planned",
-      "title": "Skip tiers when stakes or question type make escalation likely",
-      "checks": []
-    },
-    {
-      "id": "PROVE-001",
-      "area": "PROVE",
-      "weight": 3,
-      "status": "built",
-      "title": "Proof hashes on votes; a proof itself on chain fails verification",
-      "checks": [
-        {
-          "grep": "packages/core/src/network.js",
-          "re": "proofHash"
-        },
-        {
-          "grep": "packages/core/src/proving.js",
-          "re": "export function proofRecord"
-        }
-      ]
-    },
-    {
-      "id": "PROVE-002",
-      "area": "PROVE",
-      "weight": 3,
-      "status": "built",
-      "title": "Prover and Verifier interfaces with mock, DeepProve and FlashProve adapters",
-      "checks": [
-        {
-          "grep": "packages/prove/src/interface.js",
-          "re": "export function assertProver"
-        },
-        {
-          "grep": "packages/prove/src/external.js",
-          "re": "export function flashProveVerifier"
-        },
-        {
-          "test": "packages/prove/test/prove.test.js"
-        }
-      ],
-      "gap": "DeepProve and FlashProve adapters tested against a stand-in prover only; the FlashProve binding check (bindsTo) is planned"
-    },
-    {
-      "id": "PROVE-003",
-      "area": "PROVE",
-      "weight": 3,
-      "status": "built",
-      "title": "Commit, reveal, then attach the proof before a deadline; L2 final only when every counted proof verifies",
-      "checks": [
-        {
-          "grep": "packages/core/src/proving.js",
-          "re": "export function gateProofs"
-        },
-        {
-          "grep": "packages/core/src/proving.js",
-          "re": "export function finality"
-        },
-        {
-          "test": "packages/core/test/proving.test.js"
-        }
-      ]
-    },
-    {
-      "id": "PROVE-004",
-      "area": "PROVE",
-      "weight": 3,
-      "status": "designed",
-      "title": "Prove once, verify many while one model is provable; verifiers drawn from the block hash",
-      "checks": []
-    },
-    {
-      "id": "PROVE-005",
-      "area": "PROVE",
-      "weight": 2,
-      "status": "designed",
-      "title": "One Merkle root per block over manifests and proof hashes; sampled verification with challenges",
-      "checks": []
-    },
-    {
-      "id": "PROVE-006",
-      "area": "PROVE",
-      "weight": 3,
-      "status": "partial",
-      "title": "Measured DeepProve run on packed questions; FlashProve proving-harness runbook",
-      "checks": [
-        {
-          "file": "docs/proving-harness.md"
-        }
-      ],
-      "rex": true,
-      "gap": "Runbook written (docs/proving-harness.md), not run. No real proof made or verified; needs Rex to rent a machine and accept the Llama 4 and Lagrange licenses"
-    },
-    {
-      "id": "PROVE-007",
-      "area": "PROVE",
-      "weight": 1,
-      "status": "research",
-      "title": "Recursive aggregation of many proofs into one",
-      "checks": []
-    },
-    {
-      "id": "COT-001",
-      "area": "COT",
-      "weight": 2,
-      "status": "built",
-      "title": "Each vote carries reasoning; the commitment covers it, so it cannot be rewritten after the fact",
-      "checks": [
-        {
-          "grep": "packages/core/src/juror.js",
-          "re": "reasoning"
-        }
-      ]
-    },
-    {
-      "id": "COT-002",
-      "area": "COT",
-      "weight": 2,
-      "status": "built",
-      "title": "Rulings record a hash of each juror's reasoning; dissents keep their reasoning",
-      "checks": [
-        {
-          "grep": "packages/core/src/network.js",
-          "re": "reasoningHash"
-        }
-      ]
-    },
-    {
-      "id": "COT-003",
-      "area": "COT",
-      "weight": 2,
-      "status": "designed",
-      "title": "Structured, step-wise reasons with a cited pin per step; challenges cite a step",
-      "checks": [],
-      "gap": "Reasoning is two or three free-text sentences today"
-    },
-    {
-      "id": "COT-004",
-      "area": "COT",
-      "weight": 1,
-      "status": "designed",
-      "title": "Short reasons in the proven lane; full reasoning off chain by hash in unproven tiers",
-      "checks": []
-    },
-    {
-      "id": "COT-005",
-      "area": "COT",
-      "weight": 1,
-      "status": "research",
-      "title": "Disagreement graph: structured objections against a rule or evidence item, versioned across rulings",
-      "checks": []
-    },
-    {
-      "id": "GOV-001",
-      "area": "GOV",
-      "weight": 2,
-      "status": "built",
-      "repo": "chain",
-      "title": "Constitution Draft 0 with Article 1 (no foundation, no VC, no coin, no fundraising, no secret team, no community fund, no treasury)",
-      "checks": [
-        {
-          "repo": "chain",
-          "file": "CONSTITUTION.md"
-        }
-      ]
-    },
-    {
-      "id": "GOV-002",
-      "area": "GOV",
-      "weight": 3,
-      "status": "built",
-      "repo": "chain",
-      "title": "Ethics gate: allow, refuse or escalate at intake; doubt resolves toward refusal; no bypass",
-      "checks": [
-        {
-          "repo": "chain",
-          "grep": "packages/node/src/ethics.js",
-          "re": "export function screeningContract"
-        },
-        {
-          "repo": "chain",
-          "file": "test/ethics.test.js"
-        }
-      ],
-      "gap": "Panel sizes, bar and the screening fee are illustrative until Rex sets them; challenges to an ethics ruling are not built"
-    },
-    {
-      "id": "GOV-003",
-      "area": "GOV",
-      "weight": 2,
-      "status": "built",
-      "repo": "chain",
-      "title": "Amendment process: seven stages, entrenched clauses, verafy.amendment/1",
-      "checks": [
-        {
-          "grep": "packages/core/src/amendment.js",
-          "re": "AMENDMENT_STAGES"
-        },
-        {
-          "repo": "chain",
-          "file": "test/governance.test.js"
-        }
-      ],
-      "gap": "Tested in process with 42 harnesses; not on the five-harness multi-process devnet"
-    },
-    {
-      "id": "GOV-004",
-      "area": "GOV",
-      "weight": 1,
-      "status": "built",
-      "repo": "chain",
-      "title": "Eleven design principles",
-      "checks": [
-        {
-          "repo": "chain",
-          "file": "PRINCIPLES.md"
-        }
-      ]
-    },
-    {
-      "id": "SOL-001",
-      "area": "SOL",
-      "weight": 3,
-      "status": "designed",
-      "title": "Three draft SIMDs: inference programs, attestations, rulings; no validator changes",
-      "checks": [
-        {
-          "file": "docs/simds/XXXX-inference-programs.md"
-        },
-        {
-          "file": "docs/simds/XXXX-inference-attestations.md"
-        },
-        {
-          "file": "docs/simds/XXXX-inference-rulings.md"
-        }
-      ]
-    },
-    {
-      "id": "SOL-002",
-      "area": "SOL",
-      "weight": 3,
-      "status": "partial",
-      "title": "A Solana devnet program implementing commit, reveal and the Ruling account; one harness ruling settled on devnet",
-      "checks": [
-        {
-          "file": "packages/solana/program/src/lib.rs"
-        },
-        {
-          "grep": "packages/solana/src/ruling.js",
-          "re": "export async function settleRuling"
-        },
-        {
-          "test": "packages/solana/test/solana.test.js"
-        },
-        {
-          "file": "docs/solana/localnet-run.json"
-        }
-      ],
-      "gap": "Built and run on a local solana-test-validator (measured Nov 6, 2026: five harnesses commit and reveal with their own keys; five bad transactions refused). Not yet deployed to devnet: the devnet and testnet RPC faucets are closed, so it needs about 1 devnet SOL from faucet.solana.com"
-    },
-    {
-      "id": "SOL-003",
-      "area": "SOL",
-      "weight": 2,
-      "status": "designed",
-      "title": "SIMD amendment: packed proofs shared by many attestations (proof hash, slot and manifest hash)",
-      "checks": [],
-      "gap": "Text not yet drafted into the attestations SIMD"
-    },
-    {
-      "id": "SOL-004",
-      "area": "SOL",
-      "weight": 2,
-      "status": "planned",
-      "title": "Fair juror draws on Solana (commit-reveal randomness or a VRF), since slot data can be nudged",
-      "checks": []
-    },
-    {
-      "id": "SOL-005",
-      "area": "SOL",
-      "weight": 1,
-      "status": "planned",
-      "title": "Availability for off-chain refs on Solana through the challenge window",
-      "checks": []
-    },
-    {
-      "id": "ECON-001",
-      "area": "ECON",
-      "weight": 2,
-      "status": "built",
-      "title": "Proven block model: per proof, per block, per decision; warm-up; capacity; break-even; roles",
-      "checks": [
-        {
-          "grep": "packages/economics/src/index.js",
-          "re": "export function estimate"
-        },
-        {
-          "test": "packages/economics/test/economics.test.js"
-        }
-      ]
-    },
-    {
-      "id": "ECON-002",
-      "area": "ECON",
-      "weight": 2,
-      "status": "built",
-      "title": "Proof packing, atomize, dedupe and a fast screen in the model",
-      "checks": [
-        {
-          "grep": "packages/economics/src/index.js",
-          "re": "screenFidelityPct"
-        }
-      ]
-    },
-    {
-      "id": "ECON-003",
-      "area": "ECON",
-      "weight": 1,
-      "status": "built",
-      "title": "Cascade model: average and typical cost and time across tiers, and the worst case",
-      "checks": [
-        {
-          "grep": "packages/economics/src/index.js",
-          "re": "export function cascade"
-        }
-      ]
-    },
-    {
-      "id": "ECON-004",
-      "area": "ECON",
-      "weight": 2,
-      "status": "built",
-      "title": "Calculator page harness.verafy.ai/economics from the same functions",
-      "checks": [
-        {
-          "file": "site/economics.html"
-        }
-      ]
-    },
-    {
-      "id": "ECON-005",
-      "area": "ECON",
-      "weight": 1,
-      "status": "built",
-      "title": "Calculator: cascade tiers, reasoning length, screen savings and Solana costs on the economics page",
-      "checks": [
-        {
-          "grep": "site/src/economics.html",
-          "re": "cascadeInputs"
-        },
-        {
-          "grep": "site/src/economics.js",
-          "re": "reasonTable"
-        }
-      ]
-    },
-    {
-      "id": "AGENT-001",
-      "area": "AGENT",
-      "weight": 2,
-      "status": "built",
-      "title": "Zero-dependency MCP server: eight tools; no vote, key or funds tool; live calls behind a flag and a spend cap",
-      "checks": [
-        {
-          "file": "packages/mcp/src/server.js"
-        },
-        {
-          "test": "packages/mcp/test/mcp.test.js"
-        }
-      ]
-    },
-    {
-      "id": "AGENT-002",
-      "area": "AGENT",
-      "weight": 2,
-      "status": "built",
-      "title": "Integrations for Claude Code, Codex, Cursor, Gemini CLI, Goose, Hermes Agent, OpenClaw and any MCP client",
-      "checks": [
-        {
-          "file": "integrations/claude-code"
-        },
-        {
-          "file": "integrations/hermes"
-        },
-        {
-          "file": "integrations/openclaw"
-        }
-      ]
-    },
-    {
-      "id": "AGENT-003",
-      "area": "AGENT",
-      "weight": 1,
-      "status": "planned",
-      "title": "Publish the MCP server to npm and submit to agent catalogs",
-      "checks": [],
-      "rex": true
-    },
-    {
-      "id": "AGENT-004",
-      "area": "AGENT",
-      "weight": 1,
-      "status": "planned",
-      "title": "MCP tools for routing (verafy_route) and packing (verafy_pack)",
-      "checks": []
-    },
-    {
-      "id": "SITE-001",
-      "area": "SITE",
-      "weight": 1,
-      "status": "built",
-      "title": "harness.verafy.ai: landing, run, testnet, coin agnostic, economics",
-      "checks": [
-        {
-          "file": "site/index.html"
-        },
-        {
-          "file": "site/run.html"
-        }
-      ]
-    },
-    {
-      "id": "SITE-002",
-      "area": "SITE",
-      "weight": 1,
-      "status": "built",
-      "title": "Versioned spec with stable requirement IDs, a changelog and a generated scorecard",
-      "checks": [
-        {
-          "file": "docs/spec/VERAFY-SPEC.md"
-        },
-        {
-          "file": "docs/spec/CHANGELOG.md"
-        },
-        {
-          "file": "docs/spec/SCORECARD.md"
-        }
-      ]
-    },
-    {
-      "id": "SITE-003",
-      "area": "SITE",
-      "weight": 1,
-      "status": "built",
-      "title": "Spec page and release-notes blog on harness.verafy.ai",
-      "checks": [
-        {
-          "file": "site/spec.html"
-        },
-        {
-          "file": "site/blog/v0-0-1-alpha.html"
-        }
-      ]
-    },
-    {
-      "id": "OPS-001",
-      "area": "OPS",
-      "weight": 3,
-      "status": "built",
-      "title": "No secret in output: tests plant a key and check no tool or log prints it",
-      "checks": [
-        {
-          "grep": "packages/mcp/test/mcp.test.js",
-          "re": "sk-test"
-        }
-      ]
-    },
-    {
-      "id": "OPS-002",
-      "area": "OPS",
-      "weight": 2,
-      "status": "built",
-      "title": "Context is evidence: injected instructions in context are returned as evidence and change nothing",
-      "checks": [
-        {
-          "grep": "packages/mcp/test/mcp.test.js",
-          "re": "evidence"
-        }
-      ]
-    },
-    {
-      "id": "OPS-003",
-      "area": "OPS",
-      "weight": 2,
-      "status": "planned",
-      "title": "Monitoring: per-harness health, spend, faults and alerts",
-      "checks": []
-    },
-    {
-      "id": "OPS-004",
-      "area": "OPS",
-      "weight": 2,
-      "status": "planned",
-      "title": "Threat model document covering keys, queue, provers, screens and the banker",
-      "checks": []
-    },
-    {
-      "id": "EXT-001",
-      "area": "EXT",
-      "weight": 1,
-      "status": "research",
-      "title": "Muse experiment A: targeted certification from semantic diffs vs full-context review",
-      "checks": []
-    },
-    {
-      "id": "EXT-002",
-      "area": "EXT",
-      "weight": 1,
-      "status": "research",
-      "title": "Muse experiment B: poisoned evidence with and without signed provenance manifests",
-      "checks": []
-    },
-    {
-      "id": "BANK-013",
-      "area": "BANK",
-      "title": "API credits: read provider balances, project days left from spend, and say what to top up and how",
-      "status": "built",
-      "weight": 2,
-      "checks": [
-        {
-          "grep": "packages/banker/src/credits.js",
-          "re": "export async function creditPlan"
-        }
-      ],
-      "gap": "No provider tops up automatically: OpenRouter's crypto top-up API returns 410 Gone (checked Nov 6, 2026). An x402 pay-per-request slot is reserved"
-    },
-    {
-      "id": "DEPLOY-001",
-      "area": "DEPLOY",
-      "title": "verafy harness serve: one harness daemon configured by VERAFY_* variables, an env file or a config file; one id and key per data directory",
-      "status": "built",
-      "weight": 3,
-      "checks": [
-        {
-          "grep": "packages/deploy/src/serve.js",
-          "re": "export async function startServe"
-        },
-        {
-          "test": "packages/deploy/test/deploy.test.js"
-        }
-      ]
-    },
-    {
-      "id": "DEPLOY-002",
-      "area": "DEPLOY",
-      "title": "verafy up: ask a few questions, show the plan with keys masked, then run locally (Node), in Docker, on DigitalOcean or Hetzner, or print user data for any cloud",
-      "status": "built",
-      "weight": 3,
-      "checks": [
-        {
-          "grep": "packages/deploy/src/plan.js",
-          "re": "export function plan"
-        },
-        {
-          "grep": "packages/deploy/src/up.js",
-          "re": "export async function upInteractive"
-        }
-      ]
-    },
-    {
-      "id": "DEPLOY-003",
-      "area": "DEPLOY",
-      "title": "Cloud clients for DigitalOcean and Hetzner, and a first-boot script that installs, hardens and runs the daemon as a service",
-      "status": "partial",
-      "weight": 2,
-      "checks": [
-        {
-          "grep": "packages/deploy/src/clouds.js",
-          "re": "hetzner"
-        },
-        {
-          "grep": "packages/deploy/src/cloudinit.js",
-          "re": "export function cloudInit"
-        }
-      ],
-      "gap": "Tested against fake APIs; no real server has been created yet (needs an operator token)"
-    },
-    {
-      "id": "DEPLOY-004",
-      "area": "DEPLOY",
-      "title": "Hardware profiles: which open-weights model a machine can hold, by modeled memory, and its router tier",
-      "status": "built",
-      "weight": 2,
-      "checks": [
-        {
-          "grep": "packages/deploy/src/profiles.js",
-          "re": "export function recommend"
-        }
-      ]
-    },
-    {
-      "id": "DEPLOY-005",
-      "area": "DEPLOY",
-      "title": "Container image, compose file, and one-click Render and DigitalOcean App Platform buttons",
-      "status": "partial",
-      "weight": 2,
-      "checks": [
-        {
-          "file": "Dockerfile"
-        },
-        {
-          "file": "compose.yaml"
-        },
-        {
-          "file": "render.yaml"
-        },
-        {
-          "file": ".do/deploy.template.yaml"
-        }
-      ],
-      "gap": "The image has not been built here (no Docker daemon); it builds and publishes on the first tagged release"
-    },
-    {
-      "id": "DEPLOY-006",
-      "area": "DEPLOY",
-      "title": "Releases: source tarball, single-file binaries for Linux, macOS and Windows, a GHCR image, checksums, and install.sh",
-      "status": "partial",
-      "weight": 2,
-      "checks": [
-        {
-          "file": ".github/workflows/release.yml"
-        },
-        {
-          "file": "install.sh"
-        }
-      ],
-      "gap": "The workflow has not run yet; it runs on the first pushed version tag"
-    },
-    {
-      "id": "DEPLOY-007",
-      "area": "DEPLOY",
-      "title": "verafy testnet: a local testnet on one machine (a daemon per model family, juries over HTTP, sealed blocks), scripted or live, with optional Solana settlement",
-      "status": "built",
-      "weight": 3,
-      "checks": [
-        {
-          "grep": "packages/deploy/src/testnet.js",
-          "re": "export async function testnetUp"
-        },
-        {
-          "test": "packages/deploy/test/deploy.test.js"
-        }
-      ]
-    },
-    {
-      "id": "DEPLOY-008",
-      "area": "DEPLOY",
-      "title": "verafy up --ui: the launcher as a page on 127.0.0.1, with a one-time token in its URL",
-      "status": "built",
-      "weight": 1,
-      "checks": [
-        {
-          "grep": "packages/deploy/src/up.js",
-          "re": "export async function upUi"
-        }
-      ]
-    },
-    {
-      "id": "DEPLOY-009",
-      "area": "DEPLOY",
-      "title": "Launch page on harness.verafy.ai: pick a model and a target, get the command, the user data or a button",
-      "status": "built",
-      "weight": 2,
-      "checks": [
-        {
-          "file": "site/src/launch.html"
-        }
-      ]
-    },
-    {
-      "id": "DEPLOY-010",
-      "area": "DEPLOY",
-      "title": "Hosted harnesses run by Verafy for people who do not want to operate one",
-      "status": "planned",
-      "weight": 2,
-      "checks": [],
-      "rex": true,
-      "gap": "Needs Rex: billing, servers and terms"
-    },
-    {
-      "id": "DEPLOY-011",
-      "area": "DEPLOY",
-      "title": "A desktop app (installer with its own window) wrapping verafy up and the daemon",
-      "status": "planned",
-      "weight": 1,
-      "checks": []
-    },
-    {
-      "id": "SITE-004",
-      "area": "SITE",
-      "title": "Learn: one page per concept, from Actually Smart Contracts to the Banker, each with its status and related concepts",
-      "status": "built",
-      "weight": 2,
-      "checks": [
-        {
-          "file": "site/src/learn/index.md"
-        }
-      ]
-    },
-    {
-      "id": "SITE-005",
-      "area": "SITE",
-      "title": "Machine-readable site: llms.txt and llms-full.txt, sitemap.xml, robots.txt, canonical URLs, Open Graph and JSON-LD on every page",
-      "status": "built",
-      "weight": 2,
-      "checks": [
-        {
-          "grep": "site/build.py",
-          "re": "llms.txt"
-        },
-        {
-          "grep": "site/build.py",
-          "re": "sitemap.xml"
-        }
-      ]
+  "partial": {
+   "points": 0.5,
+   "meaning": "Part of it is built; the rest is specified"
+  },
+  "designed": {
+   "points": 0.25,
+   "meaning": "Specified in detail; no code yet"
+  },
+  "planned": {
+   "points": 0.1,
+   "meaning": "Named and scoped; not specified in detail"
+  },
+  "research": {
+   "points": 0,
+   "meaning": "An open question or experiment; may never ship"
+  }
+ },
+ "areas": {
+  "CORE": "Core protocol: contracts, commit and reveal, agreement, exits",
+  "JURY": "Juries, live runs, audits and challenges",
+  "CHAIN": "Verafy Chain node (verafyChain repo)",
+  "SETTLE": "TinySVM: exact settlement next to the AI",
+  "LIGHT": "Light client: reading source chains",
+  "BANK": "Routing agent: keyblock, banker, wallet, API router, deposits",
+  "PACK": "Proof packing and the prompt compressor",
+  "ROUTE": "Multi-model routing: screens, tiers, calibration",
+  "PROVE": "Proofs of inference",
+  "COT": "Disclosed reasoning",
+  "GOV": "Constitution, Embedded Ethics, amendments",
+  "SOL": "Solana settlement through the three SIMDs",
+  "ECON": "Economics and the calculator",
+  "AGENT": "Agent plugins and the MCP server",
+  "DEPLOY": "Deploy and run anywhere: daemon, launcher, clouds, releases, local testnet",
+  "SITE": "Sites, docs and the spec",
+  "OPS": "Security and operations",
+  "EXT": "External collaborations and data",
+  "CONS": "Consensus hardening: jury scheduling, randomness, operators, slashing, payout holds",
+  "SIGN": "Judiciary Signer, policies and model certification",
+  "NET": "Harness registry, discovery, pay and attestation"
+ },
+ "requirements": [
+  {
+   "id": "CORE-001",
+   "area": "CORE",
+   "weight": 3,
+   "status": "verified",
+   "title": "Contract format verafy.asc/1 with validation; swarm.asc/0 still validates and keeps its hash",
+   "checks": [
+    {
+     "grep": "packages/core/src/asc.js",
+     "re": "verafy\\.asc/1"
+    },
+    {
+     "test": "packages/core/test/rename.test.js"
     }
-  ]
+   ]
+  },
+  {
+   "id": "CORE-002",
+   "area": "CORE",
+   "weight": 3,
+   "status": "verified",
+   "title": "Pinned context: every context entry checked by SHA-256 before a model reads it",
+   "checks": [
+    {
+     "grep": "packages/core/src/juror.js",
+     "re": "sha256|loadContext"
+    }
+   ]
+  },
+  {
+   "id": "CORE-003",
+   "area": "CORE",
+   "weight": 3,
+   "status": "verified",
+   "title": "Commit then reveal with Ed25519 signatures and attestations",
+   "checks": [
+    {
+     "grep": "packages/core/src/signer.js",
+     "re": "export function commit"
+    }
+   ]
+  },
+  {
+   "id": "CORE-004",
+   "area": "CORE",
+   "weight": 3,
+   "status": "verified",
+   "title": "Agreement against the bar: verdict, forecast and graded; below-bar exits never pay jurors",
+   "checks": [
+    {
+     "file": "packages/core/src/agreement.js"
+    },
+    {
+     "grep": "packages/core/src/network.js",
+     "re": "checkPay"
+    }
+   ]
+  },
+  {
+   "id": "CORE-005",
+   "area": "CORE",
+   "weight": 3,
+   "status": "verified",
+   "title": "Exits and diffs conserve totals; declared exits only",
+   "checks": [
+    {
+     "grep": "packages/core/src/runtime.js",
+     "re": "export function buildDiff"
+    }
+   ]
+  },
+  {
+   "id": "CORE-006",
+   "area": "CORE",
+   "weight": 2,
+   "status": "built",
+   "title": "Rulings re-verifiable from their round record (ruleFromRecords, verifyRuling)",
+   "checks": [
+    {
+     "grep": "packages/core/src/network.js",
+     "re": "export function verifyRuling"
+    }
+   ]
+  },
+  {
+   "id": "CORE-007",
+   "area": "CORE",
+   "weight": 2,
+   "status": "built",
+   "title": "Quorum-signed triggers verafy.trigger/1 for calls to other chains",
+   "checks": [
+    {
+     "grep": "packages/core/src/trigger.js",
+     "re": "export function signTrigger"
+    }
+   ]
+  },
+  {
+   "id": "CORE-008",
+   "area": "CORE",
+   "weight": 2,
+   "status": "built",
+   "title": "Batching fields minBatch and maxWaitSeconds, without changing existing hashes",
+   "checks": [
+    {
+     "test": "packages/core/test/queue.test.js"
+    }
+   ]
+  },
+  {
+   "id": "CORE-009",
+   "area": "CORE",
+   "weight": 2,
+   "status": "built",
+   "title": "Exit programs with bounded params, aggregated from votes",
+   "checks": [
+    {
+     "grep": "packages/core/src/exitprogram.js",
+     "re": "export function checkParams"
+    },
+    {
+     "test": "packages/core/test/exitprogram.test.js"
+    }
+   ]
+  },
+  {
+   "id": "JURY-001",
+   "area": "JURY",
+   "weight": 3,
+   "status": "verified",
+   "title": "Live juries across five different models; measured Nov 6, 2026: five contracts, 5.9 to 30.1 s each, $0.0163 in total",
+   "checks": [
+    {
+     "file": "results/live-2026-11-06.md"
+    }
+   ]
+  },
+  {
+   "id": "JURY-002",
+   "area": "JURY",
+   "weight": 3,
+   "status": "verified",
+   "title": "Juror mode inside DeepSeek Harness: five different models sealed a block from their reveals",
+   "checks": [
+    {
+     "file": "packages/dsh-verafy-juror/src/index.ts"
+    },
+    {
+     "file": "docs/dsh-juror.md"
+    }
+   ]
+  },
+  {
+   "id": "JURY-003",
+   "area": "JURY",
+   "weight": 2,
+   "status": "built",
+   "title": "Retry and back-off for rate-limited models",
+   "checks": [
+    {
+     "grep": "packages/core/src/providers.js",
+     "re": "export function withRetry"
+    }
+   ]
+  },
+  {
+   "id": "JURY-004",
+   "area": "JURY",
+   "weight": 2,
+   "status": "built",
+   "title": "Auditors from other model families re-check sealed rulings",
+   "checks": [
+    {
+     "grep": "packages/core/src/challenge.js",
+     "re": "export async function audit"
+    }
+   ]
+  },
+  {
+   "id": "JURY-005",
+   "area": "JURY",
+   "weight": 2,
+   "status": "built",
+   "title": "Challenges append affirm, overturn or supersede; escalation funds a wider jury",
+   "checks": [
+    {
+     "grep": "packages/core/src/challenge.js",
+     "re": "export function escalate"
+    }
+   ]
+  },
+  {
+   "id": "JURY-006",
+   "area": "JURY",
+   "weight": 2,
+   "status": "built",
+   "title": "Challenge bonds: lock on open, return on overturn or supersede, forfeit on affirm",
+   "checks": [
+    {
+     "grep": "packages/core/src/hold.js",
+     "re": "export function settleChallengeBond"
+    },
+    {
+     "test": "packages/core/test/consensus.test.js"
+    }
+   ],
+   "gap": "Bond factor illustrative; not on a chain"
+  },
+  {
+   "id": "JURY-007",
+   "area": "JURY",
+   "weight": 2,
+   "status": "planned",
+   "title": "Track record: agreement with final rulings and forecast scores per harness",
+   "checks": [],
+   "gap": "No per-harness history yet; needed for bonds and for routing weights"
+  },
+  {
+   "id": "JURY-008",
+   "area": "JURY",
+   "weight": 3,
+   "status": "partial",
+   "title": "100 live rulings across the four market types, with audits and costs published",
+   "checks": [
+    {
+     "file": "results/live-2026-11-06.md"
+    }
+   ],
+   "gap": "Only the first five live rulings are published"
+  },
+  {
+   "id": "JURY-009",
+   "area": "JURY",
+   "weight": 3,
+   "status": "built",
+   "title": "Harness daemon: a long-running process that watches for funded contracts and takes seats",
+   "checks": [
+    {
+     "grep": "packages/daemon/src/daemon.js",
+     "re": "export class HarnessDaemon"
+    },
+    {
+     "test": "packages/daemon/test/daemon.test.js"
+    }
+   ]
+  },
+  {
+   "id": "CONS-001",
+   "area": "CONS",
+   "weight": 3,
+   "status": "built",
+   "title": "Jury scheduler: beacon seed, draw, alternates, block-height deadlines, commit-phase replacement",
+   "checks": [
+    {
+     "grep": "packages/core/src/scheduler.js",
+     "re": "export function replaceNoShows"
+    },
+    {
+     "test": "packages/core/test/consensus.test.js"
+    },
+    {
+     "grep": "packages/deploy/src/testnet.js",
+     "re": "scheduler\\.draw"
+    }
+   ],
+   "gap": "Deadlines and alternate counts are illustrative; the verafyChain node does not call the scheduler yet"
+  },
+  {
+   "id": "CONS-002",
+   "area": "CONS",
+   "weight": 3,
+   "status": "built",
+   "title": "Randomness beacon with lookahead; a withheld reveal is a slashable fault",
+   "checks": [
+    {
+     "grep": "packages/core/src/beacon.js",
+     "re": "export function verifyBeacon"
+    },
+    {
+     "test": "packages/core/test/consensus.test.js"
+    }
+   ],
+   "gap": "A hash-chain beacon with one bit of withholding bias, slashed; drand or a VRF would remove it (decision for Rex)"
+  },
+  {
+   "id": "CONS-003",
+   "area": "CONS",
+   "weight": 2,
+   "status": "partial",
+   "title": "Operator keys on harness cards, a seat cap per operator, operator bonds",
+   "checks": [
+    {
+     "grep": "packages/core/src/network.js",
+     "re": "maxSeatsPerOperator"
+    },
+    {
+     "test": "packages/core/test/consensus.test.js"
+    }
+   ],
+   "gap": "The cap and alternates are built; operator signatures are carried on cards but not yet checked, and operator bonds are not posted anywhere yet"
+  },
+  {
+   "id": "CONS-004",
+   "area": "CONS",
+   "weight": 1,
+   "status": "built",
+   "title": "Draw weighting: equal by default, bond-weighted with a cap as an option",
+   "checks": [
+    {
+     "grep": "packages/core/src/network.js",
+     "re": "export function drawOrder"
+    },
+    {
+     "test": "packages/core/test/consensus.test.js"
+    }
+   ],
+   "gap": "Equal is the default; whether the network allows bond weighting waits on Rex"
+  },
+  {
+   "id": "CONS-005",
+   "area": "CONS",
+   "weight": 3,
+   "status": "built",
+   "title": "Slashing: a published schedule applied to recorded faults as conserving bond diffs",
+   "checks": [
+    {
+     "grep": "packages/core/src/slashing.js",
+     "re": "export function slashDiff"
+    },
+    {
+     "test": "packages/core/test/consensus.test.js"
+    },
+    {
+     "test": "packages/deploy/test/deploy.test.js"
+    }
+   ],
+   "gap": "Every rate is illustrative; slashes apply on the local testnet, not on a chain"
+  },
+  {
+   "id": "CONS-006",
+   "area": "CONS",
+   "weight": 3,
+   "status": "built",
+   "title": "Payouts held until the challenge window closes; an overturn redirects the held escrow",
+   "checks": [
+    {
+     "grep": "packages/core/src/hold.js",
+     "re": "export function releaseHeld"
+    },
+    {
+     "test": "packages/core/test/consensus.test.js"
+    }
+   ],
+   "gap": "Window lengths are illustrative; the verafyChain node does not release held payouts yet"
+  },
+  {
+   "id": "CONS-007",
+   "area": "CONS",
+   "weight": 1,
+   "status": "built",
+   "title": "Single-harness mode: a jury of one with a mandatory window and an automatic audit",
+   "checks": [
+    {
+     "grep": "packages/core/src/scheduler.js",
+     "re": "singleHarness"
+    },
+    {
+     "test": "packages/core/test/consensus.test.js"
+    }
+   ],
+   "gap": "Allowed only with a window and an automatic audit; whether to offer it waits on Rex; cost not modeled"
+  },
+  {
+   "id": "CONS-008",
+   "area": "CONS",
+   "weight": 1,
+   "status": "designed",
+   "title": "Prover placement: each harness or shared provers, with the prover named in the proof record",
+   "checks": [
+    {
+     "grep": "docs/proposals/VIP-0009-prover-placement.md",
+     "re": "vip: .?0009"
+    }
+   ],
+   "gap": "Default waits on Rex; the proof record does not name its prover yet"
+  },
+  {
+   "id": "CONS-009",
+   "area": "CONS",
+   "weight": 2,
+   "status": "partial",
+   "title": "verafy_ruling: a reveal deadline slot, and a releasable-after slot",
+   "checks": [
+    {
+     "grep": "packages/solana/program/src/lib.rs",
+     "re": "DEADLINE_AT"
+    },
+    {
+     "test": "packages/solana/test/solana.test.js"
+    },
+    {
+     "grep": "docs/solana/localnet-run-v0.0.3.md",
+     "re": "sealed, NO, 4 of 5"
+    }
+   ],
+   "gap": "Measured on a local validator only; not on devnet"
+  },
+  {
+   "id": "CONS-010",
+   "area": "CONS",
+   "weight": 1,
+   "status": "built",
+   "title": "Economics: bond capital cost, expected slashing, challenge cost",
+   "checks": [
+    {
+     "grep": "packages/economics/src/index.js",
+     "re": "export function stake"
+    },
+    {
+     "test": "packages/economics/test/economics.test.js"
+    }
+   ],
+   "gap": "Every input is illustrative"
+  },
+  {
+   "id": "CHAIN-001",
+   "area": "CHAIN",
+   "weight": 3,
+   "status": "built",
+   "repo": "chain",
+   "title": "Node: mempool, jury coordination, gossip, sealer rotation, block store, verification",
+   "checks": [
+    {
+     "repo": "chain",
+     "file": "packages/node/src/server.js"
+    }
+   ]
+  },
+  {
+   "id": "CHAIN-002",
+   "area": "CHAIN",
+   "weight": 2,
+   "status": "built",
+   "repo": "chain",
+   "title": "Availability layer: context served by hash through the challenge window",
+   "checks": [
+    {
+     "repo": "chain",
+     "file": "packages/storage"
+    }
+   ]
+  },
+  {
+   "id": "CHAIN-003",
+   "area": "CHAIN",
+   "weight": 2,
+   "status": "built",
+   "repo": "chain",
+   "title": "Batching: blocks close by value or by time, with a pro rata cost split",
+   "checks": [
+    {
+     "repo": "chain",
+     "file": "packages/node/src/batch.js"
+    }
+   ]
+  },
+  {
+   "id": "CHAIN-004",
+   "area": "CHAIN",
+   "weight": 2,
+   "status": "partial",
+   "repo": "chain",
+   "title": "Encrypted queue: contracts sealed t of n until the jury is drawn",
+   "checks": [
+    {
+     "grep": "packages/core/src/queue.js",
+     "re": "export function sealContract"
+    }
+   ],
+   "gap": "Prototype: each author deals the shares; real distributed key generation and verifiable shares are planned"
+  },
+  {
+   "id": "CHAIN-005",
+   "area": "CHAIN",
+   "weight": 2,
+   "status": "planned",
+   "repo": "chain",
+   "title": "Registry on chain, sealer liveness, bonds and slashing, libp2p gossip",
+   "checks": [],
+   "gap": "Needed for a network of independently operated harnesses"
+  },
+  {
+   "id": "CHAIN-006",
+   "area": "CHAIN",
+   "weight": 1,
+   "status": "planned",
+   "repo": "chain",
+   "title": "Escalated juries accepted by the chain; challenge juries that share no model family",
+   "checks": []
+  },
+  {
+   "id": "SETTLE-001",
+   "area": "SETTLE",
+   "weight": 3,
+   "status": "built",
+   "title": "TinySVM phase 1: LiteSVM sidecar restricted to pinned programs and a compute cap",
+   "checks": [
+    {
+     "file": "packages/tinysvm/engine/src/main.rs"
+    },
+    {
+     "file": "packages/tinysvm/programs.lock.json"
+    }
+   ]
+  },
+  {
+   "id": "SETTLE-002",
+   "area": "SETTLE",
+   "weight": 3,
+   "status": "built",
+   "title": "Built-in programs escrow, bond and ledger; exit programs graded_payout, ranked_split, milestone_escrow",
+   "checks": [
+    {
+     "grep": "packages/tinysvm/programs.lock.json",
+     "re": "graded_payout"
+    }
+   ]
+  },
+  {
+   "id": "SETTLE-003",
+   "area": "SETTLE",
+   "weight": 3,
+   "status": "built",
+   "title": "runtime.js and TinySVM side by side; any disagreement is a fault",
+   "checks": [
+    {
+     "grep": "packages/tinysvm/src/index.js",
+     "re": "export function dualRuntime"
+    }
+   ]
+  },
+  {
+   "id": "SETTLE-004",
+   "area": "SETTLE",
+   "weight": 2,
+   "status": "planned",
+   "title": "Integer micro-units in runtime.js; TinySVM as the default runtime",
+   "checks": [],
+   "rex": true,
+   "gap": "Needs Rex: changes some future diffs by one micro-unit"
+  },
+  {
+   "id": "SETTLE-005",
+   "area": "SETTLE",
+   "weight": 1,
+   "status": "planned",
+   "title": "Phase 2: Anza's solana-svm crate; nodes re-run settlement when they verify a block",
+   "checks": []
+  },
+  {
+   "id": "SETTLE-006",
+   "area": "SETTLE",
+   "weight": 1,
+   "status": "partial",
+   "title": "Settlement core compiled into weights (svmLLM), proven with the judgment",
+   "checks": [
+    {
+     "grep": "packages/tinysvm/src/svmllm.js",
+     "re": "export function svmllmRuntime"
+    },
+    {
+     "test": "packages/tinysvm/test/tinysvm.test.js"
+    }
+   ],
+   "gap": "Demo: the five integer programs run on svmLLM's hand-built weights as an optional third runtime and agree with runtime.js and TinySVM; the jury pay rule (doubles) is not covered. No real proof made: mock only. Success criterion (a settlement proof cheaper than the judgment proof) untested"
+  },
+  {
+   "id": "LIGHT-001",
+   "area": "LIGHT",
+   "weight": 3,
+   "status": "verified",
+   "title": "Solana multi-RPC reader; one read-only devnet run measured Nov 6, 2026",
+   "checks": [
+    {
+     "grep": "packages/lightclient/solana/index.js",
+     "re": "export class SolanaReader"
+    },
+    {
+     "test": "packages/lightclient/test/lightclient.test.js"
+    }
+   ]
+  },
+  {
+   "id": "LIGHT-002",
+   "area": "LIGHT",
+   "weight": 2,
+   "status": "built",
+   "title": "EVM multi-RPC reader for any chain id",
+   "checks": [
+    {
+     "grep": "packages/lightclient/evm/index.js",
+     "re": "export class EvmReader"
+    }
+   ]
+  },
+  {
+   "id": "LIGHT-003",
+   "area": "LIGHT",
+   "weight": 3,
+   "status": "built",
+   "title": "Intake checks escrow funding; outbox confirms triggers; disagreement pauses, never guesses",
+   "checks": [
+    {
+     "grep": "packages/core/src/sourcechain.js",
+     "re": "export async function fundingCheck"
+    }
+   ]
+  },
+  {
+   "id": "LIGHT-004",
+   "area": "LIGHT",
+   "weight": 1,
+   "status": "partial",
+   "title": "Ethereum sync-committee verification through Helios",
+   "checks": [
+    {
+     "file": "packages/lightclient/evm/helios.js"
+    }
+   ],
+   "gap": "Adapter only, tested with Helios absent"
+  },
+  {
+   "id": "BANK-001",
+   "area": "BANK",
+   "weight": 3,
+   "status": "built",
+   "title": "Keyblock: keys encrypted at rest; scoped keys with expiry, use limits and revocation",
+   "checks": [
+    {
+     "grep": "packages/core/src/keyblock.js",
+     "re": "export class Keyblock"
+    }
+   ]
+  },
+  {
+   "id": "BANK-002",
+   "area": "BANK",
+   "weight": 3,
+   "status": "built",
+   "title": "Payment wallet: allowlisted payees, caps, approval threshold, bond reserve never spent",
+   "checks": [
+    {
+     "grep": "packages/core/src/routing.js",
+     "re": "export class PaymentWallet"
+    }
+   ]
+  },
+  {
+   "id": "BANK-003",
+   "area": "BANK",
+   "weight": 2,
+   "status": "built",
+   "title": "Banker core: accept allowed tokens, best quote across approved venues, slippage limit, ensure and pay",
+   "checks": [
+    {
+     "grep": "packages/core/src/banker.js",
+     "re": "export class Banker"
+    }
+   ]
+  },
+  {
+   "id": "BANK-004",
+   "area": "BANK",
+   "weight": 2,
+   "status": "built",
+   "title": "API router: keyed calls, metering, per-call or accrued billing",
+   "checks": [
+    {
+     "grep": "packages/core/src/apirouter.js",
+     "re": "export class ApiRouter"
+    }
+   ]
+  },
+  {
+   "id": "BANK-005",
+   "area": "BANK",
+   "weight": 2,
+   "status": "built",
+   "title": "Inference routing by assurance level, L0 to L2; L2 never to a hosted API",
+   "checks": [
+    {
+     "grep": "packages/core/src/routing.js",
+     "re": "export function routeInference"
+    }
+   ]
+  },
+  {
+   "id": "BANK-006",
+   "area": "BANK",
+   "weight": 3,
+   "status": "built",
+   "title": "BankerService: deposit state machine (detect, classify, hold, quote, simulate, swap, sweep, record), idempotent by txid",
+   "checks": [
+    {
+     "grep": "packages/banker/src/service.js",
+     "re": "export class BankerService"
+    },
+    {
+     "test": "packages/banker/test/banker.test.js"
+    }
+   ]
+  },
+  {
+   "id": "BANK-007",
+   "area": "BANK",
+   "weight": 3,
+   "status": "partial",
+   "title": "Real venue adapters: Jupiter on Solana, an EVM aggregator, a bridge; price sanity against a reference",
+   "checks": [
+    {
+     "grep": "packages/banker/src/venues.js",
+     "re": "export function jupiterVenue"
+    },
+    {
+     "grep": "packages/banker/src/venues.js",
+     "re": "export function lifiVenue"
+    }
+   ],
+   "gap": "Jupiter and LI.FI quote live (measured Nov 6, 2026); simulation and sending are built behind the execute switch but have not run against a funded wallet"
+  },
+  {
+   "id": "BANK-008",
+   "area": "BANK",
+   "weight": 2,
+   "status": "built",
+   "title": "Token allowlist by address; quarantine unknown tokens; dust; sanctions screen; daily caps; kill switch",
+   "checks": [
+    {
+     "grep": "packages/banker/src/service.js",
+     "re": "QUARANTINED"
+    },
+    {
+     "test": "packages/banker/test/banker.test.js"
+    }
+   ]
+  },
+  {
+   "id": "BANK-009",
+   "area": "BANK",
+   "weight": 2,
+   "status": "partial",
+   "title": "Gas reserves per chain; exact approvals; simulate before send; append-only ledger with cost basis",
+   "checks": [
+    {
+     "grep": "packages/banker/src/service.js",
+     "re": "export class Ledger"
+    }
+   ],
+   "gap": "Simulate before send and the hash-chained ledger are built; per-chain gas reserves, exact approvals and cost-basis export are not"
+  },
+  {
+   "id": "BANK-010",
+   "area": "BANK",
+   "weight": 1,
+   "status": "built",
+   "title": "Banker advisor: a read-only model that reports and flags, holding no keys",
+   "checks": [
+    {
+     "grep": "packages/banker/src/advisor.js",
+     "re": "export function advise"
+    }
+   ]
+  },
+  {
+   "id": "BANK-011",
+   "area": "BANK",
+   "weight": 1,
+   "status": "built",
+   "title": "Service mode (converting other people's funds) disabled in code until legal review",
+   "checks": [
+    {
+     "grep": "packages/banker/src/service.js",
+     "re": "disabled in code until a legal review"
+    }
+   ],
+   "rex": true
+  },
+  {
+   "id": "BANK-012",
+   "area": "BANK",
+   "weight": 2,
+   "status": "planned",
+   "title": "Rent GPU and VM hosts on demand for open-weights and proving routes",
+   "checks": []
+  },
+  {
+   "id": "PACK-001",
+   "area": "PACK",
+   "weight": 3,
+   "status": "built",
+   "title": "Atoms: one question, closed answer type, only deciding facts, each with a pin",
+   "checks": [
+    {
+     "grep": "packages/pack/src/atom.js",
+     "re": "export function validateAtom"
+    }
+   ]
+  },
+  {
+   "id": "PACK-002",
+   "area": "PACK",
+   "weight": 3,
+   "status": "built",
+   "title": "Atom plans with an exact composition rule; UNKNOWN goes to the declared fallback",
+   "checks": [
+    {
+     "grep": "packages/pack/src/plan.js",
+     "re": "export function decide"
+    }
+   ]
+  },
+  {
+   "id": "PACK-003",
+   "area": "PACK",
+   "weight": 3,
+   "status": "built",
+   "title": "Dedupe across contracts by atom hash; first-fit packing into 1,024-token requests; block-hash slot order (library, tested with mocks)",
+   "checks": [
+    {
+     "grep": "packages/pack/src/packer.js",
+     "re": "export function pack"
+    },
+    {
+     "test": "packages/pack/test/pack.test.js"
+    }
+   ]
+  },
+  {
+   "id": "PACK-004",
+   "area": "PACK",
+   "weight": 2,
+   "status": "built",
+   "title": "Strict reply reading: every slot exactly once, typed answers, nothing else",
+   "checks": [
+    {
+     "grep": "packages/pack/src/packer.js",
+     "re": "export function readReply"
+    }
+   ]
+  },
+  {
+   "id": "PACK-005",
+   "area": "PACK",
+   "weight": 2,
+   "status": "built",
+   "title": "Atomizer: drafts a plan with any model and checks every cited pin is real",
+   "checks": [
+    {
+     "grep": "packages/pack/src/atomize.js",
+     "re": "export async function atomize"
+    }
+   ]
+  },
+  {
+   "id": "PACK-006",
+   "area": "PACK",
+   "weight": 3,
+   "status": "built",
+   "title": "Fidelity check: an unproven multi-family panel rules a plan FAITHFUL before it is used",
+   "checks": [
+    {
+     "grep": "packages/pack/src/pipeline.js",
+     "re": "export async function checkFidelity"
+    },
+    {
+     "test": "packages/pack/test/pipeline.test.js"
+    }
+   ]
+  },
+  {
+   "id": "PACK-007",
+   "area": "PACK",
+   "weight": 2,
+   "status": "planned",
+   "title": "Real token counts with the target model's tokenizer",
+   "checks": [],
+   "gap": "The packer estimates about four characters per token"
+  },
+  {
+   "id": "PACK-008",
+   "area": "PACK",
+   "weight": 2,
+   "status": "designed",
+   "title": "Prompt compressor: briefs for contracts that cannot be atomized; party-agreed or checked",
+   "checks": [
+    {
+     "file": "docs/spec/VERAFY-SPEC.md"
+    }
+   ],
+   "gap": "Brief mode is modeled in economics, not built in the packer"
+  },
+  {
+   "id": "PACK-009",
+   "area": "PACK",
+   "weight": 1,
+   "status": "designed",
+   "title": "Long contracts split by claims with a proven combine step",
+   "checks": []
+  },
+  {
+   "id": "PACK-010",
+   "area": "PACK",
+   "weight": 2,
+   "status": "built",
+   "title": "Route before packing: only atoms in the proven lane reach the packer",
+   "checks": [
+    {
+     "grep": "packages/route/src/router.js",
+     "re": "export async function routeBlock"
+    }
+   ]
+  },
+  {
+   "id": "PACK-011",
+   "area": "PACK",
+   "weight": 3,
+   "status": "partial",
+   "title": "Packing wired into harness runs and chain intake: atomize, route, pack, prove, assemble, end to end",
+   "checks": [
+    {
+     "grep": "packages/pack/src/pipeline.js",
+     "re": "export async function packedBlock"
+    },
+    {
+     "test": "packages/pack/test/pipeline.test.js"
+    },
+    {
+     "grep": "bin/verafy.js",
+     "re": "packedCommand"
+    }
+   ],
+   "gap": "Built for harness runs (verafy packed, packedBlock) with the mock prover; the verafyChain node intake and the daemon do not call it yet, and no real prover is attached"
+  },
+  {
+   "id": "ROUTE-001",
+   "area": "ROUTE",
+   "weight": 3,
+   "status": "built",
+   "title": "Tiered router: screen, then panels from small to frontier; a unanimous panel stops, a split one escalates",
+   "checks": [
+    {
+     "grep": "packages/route/src/router.js",
+     "re": "export class Router"
+    },
+    {
+     "test": "packages/route/test/route.test.js"
+    }
+   ]
+  },
+  {
+   "id": "ROUTE-002",
+   "area": "ROUTE",
+   "weight": 3,
+   "status": "built",
+   "title": "The contract's floor is never lowered; L2 never uses a screen's answer; stakes cap screen settlement",
+   "checks": [
+    {
+     "grep": "packages/route/src/router.js",
+     "re": "floorTier"
+    }
+   ]
+  },
+  {
+   "id": "ROUTE-003",
+   "area": "ROUTE",
+   "weight": 3,
+   "status": "built",
+   "title": "Shadow mode by default: the screen sizes juries and logs what it would settle",
+   "checks": [
+    {
+     "grep": "packages/route/src/router.js",
+     "re": "mode = 'shadow'"
+    }
+   ]
+  },
+  {
+   "id": "ROUTE-004",
+   "area": "ROUTE",
+   "weight": 3,
+   "status": "built",
+   "title": "Calibration: per-type cutoffs from the Wilson lower bound; recheck withdraws a cutoff when live accuracy drops",
+   "checks": [
+    {
+     "grep": "packages/route/src/calibrate.js",
+     "re": "export function calibrate"
+    }
+   ]
+  },
+  {
+   "id": "ROUTE-005",
+   "area": "ROUTE",
+   "weight": 2,
+   "status": "built",
+   "title": "Audits drawn from the block hash re-check settled answers at the top tier",
+   "checks": [
+    {
+     "grep": "packages/route/src/router.js",
+     "re": "export function audited"
+    }
+   ]
+  },
+  {
+   "id": "ROUTE-006",
+   "area": "ROUTE",
+   "weight": 2,
+   "status": "built",
+   "title": "Screen adapters: a Jev adapter taking any client call, and a scripted screen",
+   "checks": [
+    {
+     "grep": "packages/route/src/screens.js",
+     "re": "export function jevScreen"
+    }
+   ]
+  },
+  {
+   "id": "ROUTE-007",
+   "area": "ROUTE",
+   "weight": 3,
+   "status": "partial",
+   "title": "A labeled calibration set of atoms with known answers, and a Jev calibration run",
+   "checks": [
+    {
+     "file": "examples/calibration/atoms.jsonl"
+    },
+    {
+     "file": "scripts/calibrate-screen.mjs"
+    },
+    {
+     "test": "packages/route/test/calibration.test.js"
+    }
+   ],
+   "gap": "The labeled set (1,000 atoms, 200 per kind) and the runner are built; a Jev run needs Jev access (JEV_URL, JEV_API_KEY). A simulated run checks the pipeline only"
+  },
+  {
+   "id": "ROUTE-008",
+   "area": "ROUTE",
+   "weight": 2,
+   "status": "planned",
+   "title": "Wire the router into the harness and the chain intake, with per-contract allowScreen, stakes and floors in the contract format",
+   "checks": [],
+   "gap": "The router is a library; contracts cannot declare allowScreen or floorTier yet"
+  },
+  {
+   "id": "ROUTE-009",
+   "area": "ROUTE",
+   "weight": 1,
+   "status": "planned",
+   "title": "Skip tiers when stakes or question type make escalation likely",
+   "checks": []
+  },
+  {
+   "id": "PROVE-001",
+   "area": "PROVE",
+   "weight": 3,
+   "status": "built",
+   "title": "Proof hashes on votes; a proof itself on chain fails verification",
+   "checks": [
+    {
+     "grep": "packages/core/src/network.js",
+     "re": "proofHash"
+    },
+    {
+     "grep": "packages/core/src/proving.js",
+     "re": "export function proofRecord"
+    }
+   ]
+  },
+  {
+   "id": "PROVE-002",
+   "area": "PROVE",
+   "weight": 3,
+   "status": "built",
+   "title": "Prover and Verifier interfaces with mock, DeepProve and FlashProve adapters",
+   "checks": [
+    {
+     "grep": "packages/prove/src/interface.js",
+     "re": "export function assertProver"
+    },
+    {
+     "grep": "packages/prove/src/external.js",
+     "re": "export function flashProveVerifier"
+    },
+    {
+     "test": "packages/prove/test/prove.test.js"
+    }
+   ],
+   "gap": "DeepProve and FlashProve adapters tested against a stand-in prover only; the FlashProve binding check (bindsTo) is planned"
+  },
+  {
+   "id": "PROVE-003",
+   "area": "PROVE",
+   "weight": 3,
+   "status": "built",
+   "title": "Commit, reveal, then attach the proof before a deadline; L2 final only when every counted proof verifies",
+   "checks": [
+    {
+     "grep": "packages/core/src/proving.js",
+     "re": "export function gateProofs"
+    },
+    {
+     "grep": "packages/core/src/proving.js",
+     "re": "export function finality"
+    },
+    {
+     "test": "packages/core/test/proving.test.js"
+    }
+   ]
+  },
+  {
+   "id": "PROVE-004",
+   "area": "PROVE",
+   "weight": 3,
+   "status": "designed",
+   "title": "Prove once, verify many while one model is provable; verifiers drawn from the block hash",
+   "checks": []
+  },
+  {
+   "id": "PROVE-005",
+   "area": "PROVE",
+   "weight": 2,
+   "status": "designed",
+   "title": "One Merkle root per block over manifests and proof hashes; sampled verification with challenges",
+   "checks": []
+  },
+  {
+   "id": "PROVE-006",
+   "area": "PROVE",
+   "weight": 3,
+   "status": "partial",
+   "title": "Measured DeepProve run on packed questions; FlashProve proving-harness runbook",
+   "checks": [
+    {
+     "file": "docs/proving-harness.md"
+    }
+   ],
+   "rex": true,
+   "gap": "Runbook written (docs/proving-harness.md), not run. No real proof made or verified; needs Rex to rent a machine and accept the Llama 4 and Lagrange licenses"
+  },
+  {
+   "id": "PROVE-007",
+   "area": "PROVE",
+   "weight": 1,
+   "status": "research",
+   "title": "Recursive aggregation of many proofs into one",
+   "checks": []
+  },
+  {
+   "id": "COT-001",
+   "area": "COT",
+   "weight": 2,
+   "status": "built",
+   "title": "Each vote carries reasoning; the commitment covers it, so it cannot be rewritten after the fact",
+   "checks": [
+    {
+     "grep": "packages/core/src/juror.js",
+     "re": "reasoning"
+    }
+   ]
+  },
+  {
+   "id": "COT-002",
+   "area": "COT",
+   "weight": 2,
+   "status": "built",
+   "title": "Rulings record a hash of each juror's reasoning; dissents keep their reasoning",
+   "checks": [
+    {
+     "grep": "packages/core/src/network.js",
+     "re": "reasoningHash"
+    }
+   ]
+  },
+  {
+   "id": "COT-003",
+   "area": "COT",
+   "weight": 2,
+   "status": "designed",
+   "title": "Structured, step-wise reasons with a cited pin per step; challenges cite a step",
+   "checks": [],
+   "gap": "Reasoning is two or three free-text sentences today"
+  },
+  {
+   "id": "COT-004",
+   "area": "COT",
+   "weight": 1,
+   "status": "designed",
+   "title": "Short reasons in the proven lane; full reasoning off chain by hash in unproven tiers",
+   "checks": []
+  },
+  {
+   "id": "COT-005",
+   "area": "COT",
+   "weight": 1,
+   "status": "research",
+   "title": "Disagreement graph: structured objections against a rule or evidence item, versioned across rulings",
+   "checks": []
+  },
+  {
+   "id": "GOV-001",
+   "area": "GOV",
+   "weight": 2,
+   "status": "built",
+   "repo": "chain",
+   "title": "Constitution Draft 0 with Article 1 (no foundation, no VC, no coin, no fundraising, no secret team, no community fund, no treasury)",
+   "checks": [
+    {
+     "repo": "chain",
+     "file": "CONSTITUTION.md"
+    }
+   ]
+  },
+  {
+   "id": "GOV-002",
+   "area": "GOV",
+   "weight": 3,
+   "status": "built",
+   "repo": "chain",
+   "title": "Ethics gate: allow, refuse or escalate at intake; doubt resolves toward refusal; no bypass",
+   "checks": [
+    {
+     "repo": "chain",
+     "grep": "packages/node/src/ethics.js",
+     "re": "export function screeningContract"
+    },
+    {
+     "repo": "chain",
+     "file": "test/ethics.test.js"
+    }
+   ],
+   "gap": "Panel sizes, bar and the screening fee are illustrative until Rex sets them; challenges to an ethics ruling are not built"
+  },
+  {
+   "id": "GOV-003",
+   "area": "GOV",
+   "weight": 2,
+   "status": "built",
+   "repo": "chain",
+   "title": "Amendment process: seven stages, entrenched clauses, verafy.amendment/1",
+   "checks": [
+    {
+     "grep": "packages/core/src/amendment.js",
+     "re": "AMENDMENT_STAGES"
+    },
+    {
+     "repo": "chain",
+     "file": "test/governance.test.js"
+    }
+   ],
+   "gap": "Tested in process with 42 harnesses; not on the five-harness multi-process devnet"
+  },
+  {
+   "id": "GOV-004",
+   "area": "GOV",
+   "weight": 1,
+   "status": "built",
+   "repo": "chain",
+   "title": "Eleven design principles",
+   "checks": [
+    {
+     "repo": "chain",
+     "file": "PRINCIPLES.md"
+    }
+   ]
+  },
+  {
+   "id": "SOL-001",
+   "area": "SOL",
+   "weight": 3,
+   "status": "designed",
+   "title": "Three draft SIMDs: inference programs, attestations, rulings; no validator changes",
+   "checks": [
+    {
+     "file": "docs/simds/XXXX-inference-programs.md"
+    },
+    {
+     "file": "docs/simds/XXXX-inference-attestations.md"
+    },
+    {
+     "file": "docs/simds/XXXX-inference-rulings.md"
+    }
+   ]
+  },
+  {
+   "id": "SOL-002",
+   "area": "SOL",
+   "weight": 3,
+   "status": "partial",
+   "title": "A Solana devnet program implementing commit, reveal and the Ruling account; one harness ruling settled on devnet",
+   "checks": [
+    {
+     "file": "packages/solana/program/src/lib.rs"
+    },
+    {
+     "grep": "packages/solana/src/ruling.js",
+     "re": "export async function settleRuling"
+    },
+    {
+     "test": "packages/solana/test/solana.test.js"
+    },
+    {
+     "file": "docs/solana/localnet-run.json"
+    }
+   ],
+   "gap": "Built and run on a local solana-test-validator (measured Nov 6, 2026: five harnesses commit and reveal with their own keys; five bad transactions refused). Not yet deployed to devnet: the devnet and testnet RPC faucets are closed, so it needs about 1 devnet SOL from faucet.solana.com"
+  },
+  {
+   "id": "SOL-003",
+   "area": "SOL",
+   "weight": 2,
+   "status": "designed",
+   "title": "SIMD amendment: packed proofs shared by many attestations (proof hash, slot and manifest hash)",
+   "checks": [],
+   "gap": "Text not yet drafted into the attestations SIMD"
+  },
+  {
+   "id": "SOL-004",
+   "area": "SOL",
+   "weight": 2,
+   "status": "planned",
+   "title": "Fair juror draws on Solana (commit-reveal randomness or a VRF), since slot data can be nudged",
+   "checks": []
+  },
+  {
+   "id": "SOL-005",
+   "area": "SOL",
+   "weight": 1,
+   "status": "planned",
+   "title": "Availability for off-chain refs on Solana through the challenge window",
+   "checks": []
+  },
+  {
+   "id": "ECON-001",
+   "area": "ECON",
+   "weight": 2,
+   "status": "built",
+   "title": "Proven block model: per proof, per block, per decision; warm-up; capacity; break-even; roles",
+   "checks": [
+    {
+     "grep": "packages/economics/src/index.js",
+     "re": "export function estimate"
+    },
+    {
+     "test": "packages/economics/test/economics.test.js"
+    }
+   ]
+  },
+  {
+   "id": "ECON-002",
+   "area": "ECON",
+   "weight": 2,
+   "status": "built",
+   "title": "Proof packing, atomize, dedupe and a fast screen in the model",
+   "checks": [
+    {
+     "grep": "packages/economics/src/index.js",
+     "re": "screenFidelityPct"
+    }
+   ]
+  },
+  {
+   "id": "ECON-003",
+   "area": "ECON",
+   "weight": 1,
+   "status": "built",
+   "title": "Cascade model: average and typical cost and time across tiers, and the worst case",
+   "checks": [
+    {
+     "grep": "packages/economics/src/index.js",
+     "re": "export function cascade"
+    }
+   ]
+  },
+  {
+   "id": "ECON-004",
+   "area": "ECON",
+   "weight": 2,
+   "status": "built",
+   "title": "Calculator page harness.verafy.ai/economics from the same functions",
+   "checks": [
+    {
+     "file": "site/economics.html"
+    }
+   ]
+  },
+  {
+   "id": "ECON-005",
+   "area": "ECON",
+   "weight": 1,
+   "status": "built",
+   "title": "Calculator: cascade tiers, reasoning length, screen savings and Solana costs on the economics page",
+   "checks": [
+    {
+     "grep": "site/src/economics.html",
+     "re": "cascadeInputs"
+    },
+    {
+     "grep": "site/src/economics.js",
+     "re": "reasonTable"
+    }
+   ]
+  },
+  {
+   "id": "AGENT-001",
+   "area": "AGENT",
+   "weight": 2,
+   "status": "built",
+   "title": "Zero-dependency MCP server: eight tools; no vote, key or funds tool; live calls behind a flag and a spend cap",
+   "checks": [
+    {
+     "file": "packages/mcp/src/server.js"
+    },
+    {
+     "test": "packages/mcp/test/mcp.test.js"
+    }
+   ]
+  },
+  {
+   "id": "AGENT-002",
+   "area": "AGENT",
+   "weight": 2,
+   "status": "built",
+   "title": "Integrations for Claude Code, Codex, Cursor, Gemini CLI, Goose, Hermes Agent, OpenClaw and any MCP client",
+   "checks": [
+    {
+     "file": "integrations/claude-code"
+    },
+    {
+     "file": "integrations/hermes"
+    },
+    {
+     "file": "integrations/openclaw"
+    }
+   ]
+  },
+  {
+   "id": "AGENT-003",
+   "area": "AGENT",
+   "weight": 1,
+   "status": "planned",
+   "title": "Publish the MCP server to npm and submit to agent catalogs",
+   "checks": [],
+   "rex": true
+  },
+  {
+   "id": "AGENT-004",
+   "area": "AGENT",
+   "weight": 1,
+   "status": "planned",
+   "title": "MCP tools for routing (verafy_route) and packing (verafy_pack)",
+   "checks": []
+  },
+  {
+   "id": "SITE-001",
+   "area": "SITE",
+   "weight": 1,
+   "status": "built",
+   "title": "harness.verafy.ai: landing, run, testnet, coin agnostic, economics",
+   "checks": [
+    {
+     "file": "site/index.html"
+    },
+    {
+     "file": "site/run.html"
+    }
+   ]
+  },
+  {
+   "id": "SITE-002",
+   "area": "SITE",
+   "weight": 1,
+   "status": "built",
+   "title": "Versioned spec with stable requirement IDs, a changelog and a generated scorecard",
+   "checks": [
+    {
+     "file": "docs/spec/VERAFY-SPEC.md"
+    },
+    {
+     "file": "docs/spec/CHANGELOG.md"
+    },
+    {
+     "file": "docs/spec/SCORECARD.md"
+    }
+   ]
+  },
+  {
+   "id": "SITE-003",
+   "area": "SITE",
+   "weight": 1,
+   "status": "built",
+   "title": "Spec page and release-notes blog on harness.verafy.ai",
+   "checks": [
+    {
+     "file": "site/spec.html"
+    },
+    {
+     "file": "site/blog/v0-0-1-alpha.html"
+    }
+   ]
+  },
+  {
+   "id": "OPS-001",
+   "area": "OPS",
+   "weight": 3,
+   "status": "built",
+   "title": "No secret in output: tests plant a key and check no tool or log prints it",
+   "checks": [
+    {
+     "grep": "packages/mcp/test/mcp.test.js",
+     "re": "sk-test"
+    }
+   ]
+  },
+  {
+   "id": "OPS-002",
+   "area": "OPS",
+   "weight": 2,
+   "status": "built",
+   "title": "Context is evidence: injected instructions in context are returned as evidence and change nothing",
+   "checks": [
+    {
+     "grep": "packages/mcp/test/mcp.test.js",
+     "re": "evidence"
+    }
+   ]
+  },
+  {
+   "id": "OPS-003",
+   "area": "OPS",
+   "weight": 2,
+   "status": "planned",
+   "title": "Monitoring: per-harness health, spend, faults and alerts",
+   "checks": []
+  },
+  {
+   "id": "OPS-004",
+   "area": "OPS",
+   "weight": 2,
+   "status": "planned",
+   "title": "Threat model document covering keys, queue, provers, screens and the banker",
+   "checks": []
+  },
+  {
+   "id": "EXT-001",
+   "area": "EXT",
+   "weight": 1,
+   "status": "research",
+   "title": "Muse experiment A: targeted certification from semantic diffs vs full-context review",
+   "checks": []
+  },
+  {
+   "id": "EXT-002",
+   "area": "EXT",
+   "weight": 1,
+   "status": "research",
+   "title": "Muse experiment B: poisoned evidence with and without signed provenance manifests",
+   "checks": []
+  },
+  {
+   "id": "BANK-013",
+   "area": "BANK",
+   "title": "API credits: read provider balances, project days left from spend, and say what to top up and how",
+   "status": "built",
+   "weight": 2,
+   "checks": [
+    {
+     "grep": "packages/banker/src/credits.js",
+     "re": "export async function creditPlan"
+    }
+   ],
+   "gap": "No provider tops up automatically: OpenRouter's crypto top-up API returns 410 Gone (checked Nov 6, 2026). An x402 pay-per-request slot is reserved"
+  },
+  {
+   "id": "DEPLOY-001",
+   "area": "DEPLOY",
+   "title": "verafy harness serve: one harness daemon configured by VERAFY_* variables, an env file or a config file; one id and key per data directory",
+   "status": "built",
+   "weight": 3,
+   "checks": [
+    {
+     "grep": "packages/deploy/src/serve.js",
+     "re": "export async function startServe"
+    },
+    {
+     "test": "packages/deploy/test/deploy.test.js"
+    }
+   ]
+  },
+  {
+   "id": "DEPLOY-002",
+   "area": "DEPLOY",
+   "title": "verafy up: ask a few questions, show the plan with keys masked, then run locally (Node), in Docker, on DigitalOcean or Hetzner, or print user data for any cloud",
+   "status": "built",
+   "weight": 3,
+   "checks": [
+    {
+     "grep": "packages/deploy/src/plan.js",
+     "re": "export function plan"
+    },
+    {
+     "grep": "packages/deploy/src/up.js",
+     "re": "export async function upInteractive"
+    }
+   ]
+  },
+  {
+   "id": "DEPLOY-003",
+   "area": "DEPLOY",
+   "title": "Cloud clients for DigitalOcean and Hetzner, and a first-boot script that installs, hardens and runs the daemon as a service",
+   "status": "partial",
+   "weight": 2,
+   "checks": [
+    {
+     "grep": "packages/deploy/src/clouds.js",
+     "re": "hetzner"
+    },
+    {
+     "grep": "packages/deploy/src/cloudinit.js",
+     "re": "export function cloudInit"
+    }
+   ],
+   "gap": "Tested against fake APIs; no real server has been created yet (needs an operator token)"
+  },
+  {
+   "id": "DEPLOY-004",
+   "area": "DEPLOY",
+   "title": "Hardware profiles: which open-weights model a machine can hold, by modeled memory, and its router tier",
+   "status": "built",
+   "weight": 2,
+   "checks": [
+    {
+     "grep": "packages/deploy/src/profiles.js",
+     "re": "export function recommend"
+    }
+   ]
+  },
+  {
+   "id": "DEPLOY-005",
+   "area": "DEPLOY",
+   "title": "Container image, compose file, and one-click Render and DigitalOcean App Platform buttons",
+   "status": "partial",
+   "weight": 2,
+   "checks": [
+    {
+     "file": "Dockerfile"
+    },
+    {
+     "file": "compose.yaml"
+    },
+    {
+     "file": "render.yaml"
+    },
+    {
+     "file": ".do/deploy.template.yaml"
+    }
+   ],
+   "gap": "The image has not been built here (no Docker daemon); it builds and publishes on the first tagged release"
+  },
+  {
+   "id": "DEPLOY-006",
+   "area": "DEPLOY",
+   "title": "Releases: source tarball, single-file binaries for Linux, macOS and Windows, a GHCR image, checksums, and install.sh",
+   "status": "partial",
+   "weight": 2,
+   "checks": [
+    {
+     "file": ".github/workflows/release.yml"
+    },
+    {
+     "file": "install.sh"
+    }
+   ],
+   "gap": "The workflow has not run yet; it runs on the first pushed version tag"
+  },
+  {
+   "id": "DEPLOY-007",
+   "area": "DEPLOY",
+   "title": "verafy testnet: a local testnet on one machine (a daemon per model family, juries over HTTP, sealed blocks), scripted or live, with optional Solana settlement",
+   "status": "built",
+   "weight": 3,
+   "checks": [
+    {
+     "grep": "packages/deploy/src/testnet.js",
+     "re": "export async function testnetUp"
+    },
+    {
+     "test": "packages/deploy/test/deploy.test.js"
+    }
+   ]
+  },
+  {
+   "id": "DEPLOY-008",
+   "area": "DEPLOY",
+   "title": "verafy up --ui: the launcher as a page on 127.0.0.1, with a one-time token in its URL",
+   "status": "built",
+   "weight": 1,
+   "checks": [
+    {
+     "grep": "packages/deploy/src/up.js",
+     "re": "export async function upUi"
+    }
+   ]
+  },
+  {
+   "id": "DEPLOY-009",
+   "area": "DEPLOY",
+   "title": "Launch page on harness.verafy.ai: pick a model and a target, get the command, the user data or a button",
+   "status": "built",
+   "weight": 2,
+   "checks": [
+    {
+     "file": "site/src/launch.html"
+    }
+   ]
+  },
+  {
+   "id": "DEPLOY-010",
+   "area": "DEPLOY",
+   "title": "Hosted harnesses run by Verafy for people who do not want to operate one",
+   "status": "planned",
+   "weight": 2,
+   "checks": [],
+   "rex": true,
+   "gap": "Needs Rex: billing, servers and terms"
+  },
+  {
+   "id": "DEPLOY-011",
+   "area": "DEPLOY",
+   "title": "A desktop app (installer with its own window) wrapping verafy up and the daemon",
+   "status": "planned",
+   "weight": 1,
+   "checks": []
+  },
+  {
+   "id": "SITE-004",
+   "area": "SITE",
+   "title": "Learn: one page per concept, from Actually Smart Contracts to the Banker, each with its status and related concepts",
+   "status": "built",
+   "weight": 2,
+   "checks": [
+    {
+     "file": "site/src/learn/index.md"
+    }
+   ]
+  },
+  {
+   "id": "SITE-005",
+   "area": "SITE",
+   "title": "Machine-readable site: llms.txt and llms-full.txt, sitemap.xml, robots.txt, canonical URLs, Open Graph and JSON-LD on every page",
+   "status": "built",
+   "weight": 2,
+   "checks": [
+    {
+     "grep": "site/build.py",
+     "re": "llms.txt"
+    },
+    {
+     "grep": "site/build.py",
+     "re": "sitemap.xml"
+    }
+   ]
+  },
+  {
+   "id": "SIGN-001",
+   "area": "SIGN",
+   "weight": 3,
+   "status": "built",
+   "title": "Judiciary Signer: a Squads member that votes only as a sealed jury ruling says, bound to the exact transaction, past its challenge window, with an escape hatch a rejection blocks",
+   "checks": [
+    {
+     "grep": "packages/solana/judiciary/src/lib.rs",
+     "re": "proposal_approve"
+    },
+    {
+     "grep": "packages/core/src/judiciary.js",
+     "re": "checkSquadsSetup"
+    },
+    {
+     "test": "packages/core/test/judiciary.test.js"
+    },
+    {
+     "grep": "results/judiciary-localnet-v0.0.4.json",
+     "re": "\"passed\": 23"
+    }
+   ],
+   "gap": "Measured on a local validator against Squads v4 from mainnet (23 of 23); not deployed to devnet"
+  },
+  {
+   "id": "SIGN-002",
+   "area": "SIGN",
+   "weight": 2,
+   "status": "built",
+   "title": "Policies: deterministic rules, intent and judgment; templates for Covenant Launch, treasuries and upgrade authorities; hard config violations",
+   "checks": [
+    {
+     "grep": "packages/core/src/policy.js",
+     "re": "covenant-launch"
+    },
+    {
+     "test": "packages/core/test/judiciary.test.js"
+    }
+   ],
+   "gap": "Rules cover SOL and SPL token transfers; other programs are refused, not read"
+  },
+  {
+   "id": "SIGN-003",
+   "area": "SIGN",
+   "weight": 2,
+   "status": "built",
+   "title": "Model certification: a pinned attack suite and a bar a closed model must clear before a signer may use it",
+   "checks": [
+    {
+     "grep": "packages/core/src/certification.js",
+     "re": "attackSuite"
+    },
+    {
+     "test": "packages/core/test/judiciary.test.js"
+    }
+   ],
+   "gap": "No closed model measured yet; the bar is illustrative"
+  },
+  {
+   "id": "SIGN-004",
+   "area": "SIGN",
+   "weight": 1,
+   "status": "planned",
+   "title": "Asset transfer records: physical item sales ruled on photos and serial numbers, with ownership and transfer records localized per country",
+   "checks": [
+    {
+     "grep": "docs/proposals/VIP-0015-asset-transfer-records.md",
+     "re": "Asset transfer"
+    }
+   ]
+  },
+  {
+   "id": "SIGN-005",
+   "area": "SIGN",
+   "weight": 1,
+   "status": "planned",
+   "title": "Commission covenant: a validator bonds a promise not to raise fees on stakers",
+   "checks": [
+    {
+     "grep": "docs/proposals/VIP-0016-commission-covenant.md",
+     "re": "Commission covenant"
+    }
+   ]
+  },
+  {
+   "id": "NET-001",
+   "area": "NET",
+   "weight": 3,
+   "status": "built",
+   "title": "Harness registry on Solana: register, update, retire, bonded withdraw; discovery in one RPC call; case fees paid to jurors who revealed",
+   "checks": [
+    {
+     "grep": "packages/solana/registry/src/lib.rs",
+     "re": "UNBOND_SLOTS"
+    },
+    {
+     "grep": "packages/solana/src/registry.js",
+     "re": "discoverHarnesses"
+    },
+    {
+     "grep": "bin/verafy.js",
+     "re": "discoverCommand"
+    }
+   ],
+   "gap": "Local validator only; bonds are not slashed on chain yet"
+  },
+  {
+   "id": "NET-002",
+   "area": "NET",
+   "weight": 2,
+   "status": "partial",
+   "title": "Hardware attestation: AMD SEV-SNP reports bound to the harness key and build, verified against a pinned root; attested juries",
+   "checks": [
+    {
+     "grep": "packages/core/src/attestation.js",
+     "re": "verifyAttestation"
+    },
+    {
+     "test": "packages/core/test/judiciary.test.js"
+    }
+   ],
+   "gap": "Verified with a test certificate chain only; no harness has run in an enclave, and there is no reproducible image to publish a measurement for"
+  }
+ ]
 }

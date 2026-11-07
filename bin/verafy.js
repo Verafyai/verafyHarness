@@ -161,6 +161,40 @@ async function readCommand(confirm) {
 }
 
 /**
+ * `verafy discover --registry <program> [--rpc url] [--json]`: list every
+ * active harness in the on-chain registry (VIP-0012).
+ */
+async function discoverCommand() {
+  const { rpc, discoverHarnesses } = await import('../packages/solana/src/index.js')
+  const registry = value('--registry')
+  if (!registry) { console.error('need --registry <program address>'); process.exitCode = 2; return }
+  const cards = await discoverHarnesses(rpc(value('--rpc') ?? 'https://api.devnet.solana.com'), registry)
+  if (flag('--json')) { console.log(JSON.stringify(cards, null, 2)); return }
+  if (!cards.length) console.log('no active harnesses registered')
+  for (const c of cards) console.log(`${c.id}  ${c.model}  bond ${c.bond} SOL  ${c.pricePerSeat} lamports a seat  ${c.endpoint}${c.attestationHash ? '  attested' : ''}`)
+}
+
+/**
+ * `verafy harness register --registry <program> --identity <identity.pem> --operator <keypair.json>
+ *   --endpoint <url> --family <family> --model <model> [--price lamports] [--bond sol] [--rpc url]`:
+ * register this harness on chain so juries can find and pay it. The harness
+ * key signs, proving the operator controls the key that votes.
+ */
+async function registerCommand() {
+  const { rpc: rpcClient, keypair, identitySigner, buildTx, registryIx, harnessAccount, HARNESS_SIZE } = await import('../packages/solana/src/index.js')
+  const { importIdentity } = await import('../packages/core/src/index.js')
+  const need = ['--registry', '--identity', '--operator', '--endpoint', '--family', '--model'].filter(f => !value(f))
+  if (need.length) { console.error(`need ${need.join(', ')}`); process.exitCode = 2; return }
+  const rpc = rpcClient(value('--rpc') ?? 'https://api.devnet.solana.com')
+  const harness = identitySigner(importIdentity(await readFile(resolve(value('--identity')), 'utf8')))
+  const operator = keypair(await readJson(value('--operator')))
+  const lamports = (await rpc.rent(HARNESS_SIZE)) + Math.round(Number(value('--bond') ?? 0) * 1e9)
+  const programId = value('--registry')
+  const sig = await rpc.send(buildTx([registryIx.register({ programId, harnessKey: harness.address, operator: operator.address, lamports, family: value('--family'), model: value('--model'), endpoint: value('--endpoint'), price: Number(value('--price') ?? 0) })], operator, [operator, harness], await rpc.blockhash()))
+  console.log(`registered ${harness.address} at ${harnessAccount(harness.address, programId).address}\n  ${sig}`)
+}
+
+/**
  * `verafy harness serve [--env file] [--config file] [--mock]`: run the
  * harness daemon. Settings come from VERAFY_* variables (see
  * packages/deploy/src/config.js), an env file, and an optional JSON config
@@ -285,11 +319,13 @@ async function main() {
   if (cmd === 'seal' && file && rest.length) return sealFromJurors(await readJson(file), rest)
   if (cmd === 'harness' && file === 'commit-model') return commitModel(rest[0], rest[1])
   if (cmd === 'harness' && file === 'serve') return serveCommand()
+  if (cmd === 'harness' && file === 'register') return registerCommand()
+  if (cmd === 'discover') return discoverCommand()
   if (cmd === 'up') return upCommand()
   if (cmd === 'packed') return packedCommand()
   if (cmd === 'testnet') return testnetCommand()
   if (cmd !== 'run' || !file) {
-    console.log('usage: verafy up [--ui] | verafy harness serve [--env file] [--mock] | verafy run <asc.json> [--live] [--json] [--config file] | verafy seal <asc.json> <juror-dir...> | verafy doctor [--live] [--config file] | verafy validate <asc.json> | verafy pin <asc.json> | verafy chain | verafy read solana <slot|genesis|account <pubkey>> --config file | verafy confirm solana <signature> --config file')
+    console.log('usage: verafy up [--ui] | verafy harness serve [--env file] [--mock] | verafy harness register --registry <program> --identity <pem> --operator <keypair> --endpoint <url> --family <f> --model <m> | verafy discover --registry <program> [--rpc url] | verafy run <asc.json> [--live] [--json] [--config file] | verafy seal <asc.json> <juror-dir...> | verafy doctor [--live] [--config file] | verafy validate <asc.json> | verafy pin <asc.json> | verafy chain | verafy read solana <slot|genesis|account <pubkey>> --config file | verafy confirm solana <signature> --config file')
     process.exitCode = 2
     return
   }
