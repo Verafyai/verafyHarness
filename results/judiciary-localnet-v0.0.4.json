@@ -1,0 +1,94 @@
+{
+  "date": "2026-11-07T23:33:34.863Z",
+  "validator": "solana-test-validator 2.1.21 (src:8a085eeb; feat:1416569292, client:Agave)",
+  "squads": "SQDS4ep65T869zMMBKyuUq6aD6EgTu8psMjkvj52pCf",
+  "squadsSource": "dumped from mainnet",
+  "ruling": "A6iZhDZASfQGCmzxXWW8JdnEhtz7EZE3gS4N1hkiJNNN",
+  "judiciary": "6fUWUTA7qni3p1pWWdd58icC7cxKGmVv1vonawg1QnnJ",
+  "challengeSlots": 6,
+  "escapeSlots": 40,
+  "results": [
+    {
+      "name": "signer attached with its jury, policy and models fixed",
+      "ok": true,
+      "detail": "member 7YnkHVmQhrrRMQk3UzmVVVjiX2PHXavAM4o1N7CXNF8u"
+    },
+    {
+      "name": "multisig created with the judiciary signer as a voting member",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "case registered; its hash binds signer, proposal and transaction bytes",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the transaction decodes to what the jury will see",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "1. the human alone does not reach the threshold",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "2a. a ruling from a jury the signer did not name is refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "2b. a ruling on a different case is refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "3a. a ruling inside its challenge window is refused",
+      "ok": true,
+      "detail": "too early"
+    },
+    {
+      "name": "3b. after the window, the signer approves as the ruling says",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "3c. the approved transfer executes from the vault",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "3d. a decided case cannot be decided again",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "4a. a REJECT ruling votes no",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "4b. a rejected case can never escape",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "5a. with no ruling, escape is refused before the delay",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "5b. after the delay, the escape hatch approves",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "5c. the case records that it escaped",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "passed": 16,
+  "total": 16
+}

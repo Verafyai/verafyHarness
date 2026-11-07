@@ -35,6 +35,27 @@ pub struct Account<'a> {
     pub is_signer: bool,
     pub is_writable: bool,
     pub data: &'a mut [u8],
+    /// Where this account's header sits in the loader input, for cross-program calls (see `cpi`).
+    pub raw: Raw,
+}
+
+/// The pointers a cross-program call needs for one account. Null off chain.
+#[derive(Clone, Copy)]
+pub struct Raw {
+    pub key: *const u8,
+    pub lamports: *mut u64,
+    pub data_len: u64,
+    pub data: *mut u8,
+    pub owner: *const u8,
+    pub rent_epoch: u64,
+    pub is_signer: bool,
+    pub is_writable: bool,
+    pub executable: bool,
+}
+
+impl Raw {
+    /// A placeholder for accounts built off chain, in tests.
+    pub const NONE: Raw = Raw { key: core::ptr::null(), lamports: core::ptr::null_mut(), data_len: 0, data: core::ptr::null_mut(), owner: core::ptr::null(), rent_epoch: 0, is_signer: false, is_writable: false, executable: false };
 }
 
 /// What the loader handed the program.
@@ -88,19 +109,26 @@ pub unsafe fn deserialize<'a>(input: *mut u8) -> Result<Input<'a>, u64> {
         }
         let is_signer = *input.add(off + 1) != 0;
         let is_writable = *input.add(off + 2) != 0;
+        let executable = *input.add(off + 3) != 0;
         off += 8; // dup, signer, writable, executable, 4 bytes padding
-        let key = &*(input.add(off) as *const [u8; 32]);
+        let key_ptr = input.add(off);
+        let key = &*(key_ptr as *const [u8; 32]);
         off += 32;
-        let owner = &*(input.add(off) as *const [u8; 32]);
+        let owner_ptr = input.add(off);
+        let owner = &*(owner_ptr as *const [u8; 32]);
         off += 32;
-        off += 8; // lamports: engine bookkeeping only, never a token balance
+        let lamports = input.add(off) as *mut u64; // engine bookkeeping only, never a token balance
+        off += 8;
         let len = read_u64_raw(input, off) as usize;
         off += 8;
-        let data = core::slice::from_raw_parts_mut(input.add(off), len);
+        let data_ptr = input.add(off);
+        let data = core::slice::from_raw_parts_mut(data_ptr, len);
         off += len + MAX_PERMITTED_DATA_INCREASE;
         off += input.add(off).align_offset(8);
-        off += 8; // rent epoch
-        *slot = Some(Account { key, owner, is_signer, is_writable, data });
+        let rent_epoch = read_u64_raw(input, off);
+        off += 8;
+        let raw = Raw { key: key_ptr, lamports, data_len: len as u64, data: data_ptr, owner: owner_ptr, rent_epoch, is_signer, is_writable, executable };
+        *slot = Some(Account { key, owner, is_signer, is_writable, data, raw });
     }
     let dlen = read_u64_raw(input, off) as usize;
     off += 8;
@@ -285,6 +313,91 @@ pub unsafe fn abort() -> ! {
         fn abort() -> !;
     }
     abort()
+}
+
+/// Cross-program calls, signed by this program's addresses. On chain these go
+/// through `sol_invoke_signed_c`; off chain they are refused, so a program's
+/// logic can still be tested natively up to the call.
+pub mod cpi {
+    use super::Raw;
+
+    #[repr(C)]
+    struct AccountInfo { key: *const u8, lamports: *mut u64, data_len: u64, data: *mut u8, owner: *const u8, rent_epoch: u64, is_signer: bool, is_writable: bool, executable: bool }
+    #[repr(C)]
+    struct Meta { pubkey: *const u8, is_writable: bool, is_signer: bool }
+    #[repr(C)]
+    struct Instruction { program_id: *const u8, accounts: *const Meta, account_len: u64, data: *const u8, data_len: u64 }
+    #[repr(C)]
+    struct Bytes { addr: *const u8, len: u64 }
+
+    /// One account in a call: its pointers, and how the callee may use it.
+    pub struct Arg { pub raw: Raw, pub writable: bool, pub signer: bool }
+
+    /// The most accounts and seeds one call here passes.
+    const MAX: usize = 8;
+
+    /// Call `program` with `accounts` and `data`, signing as the program
+    /// address made from `seeds` (bump last). `program_raw` is the callee's
+    /// own account, which the runtime needs in the account list.
+    pub fn invoke_signed(program: &[u8; 32], program_raw: Raw, accounts: &[Arg], data: &[u8], seeds: &[&[u8]]) -> Result<(), u64> {
+        if accounts.len() + 1 > MAX || seeds.len() > MAX {
+            return Err(super::err::BAD_ACCOUNTS);
+        }
+        let mut metas: [Meta; MAX] = core::array::from_fn(|_| Meta { pubkey: core::ptr::null(), is_writable: false, is_signer: false });
+        let info = |r: &Raw, w: bool, s: bool| AccountInfo { key: r.key, lamports: r.lamports, data_len: r.data_len, data: r.data, owner: r.owner, rent_epoch: r.rent_epoch, is_signer: s || r.is_signer, is_writable: w && (r.is_writable), executable: r.executable };
+        let mut infos: [AccountInfo; MAX] = core::array::from_fn(|_| info(&Raw::NONE, false, false));
+        for (i, a) in accounts.iter().enumerate() {
+            metas[i] = Meta { pubkey: a.raw.key, is_writable: a.writable, is_signer: a.signer };
+            infos[i] = info(&a.raw, a.writable, a.signer);
+        }
+        infos[accounts.len()] = info(&program_raw, false, false);
+        let ix = Instruction { program_id: program.as_ptr(), accounts: metas.as_ptr(), account_len: accounts.len() as u64, data: data.as_ptr(), data_len: data.len() as u64 };
+        let mut seed_bytes: [Bytes; MAX] = core::array::from_fn(|_| Bytes { addr: core::ptr::null(), len: 0 });
+        for (i, s) in seeds.iter().enumerate() {
+            seed_bytes[i] = Bytes { addr: s.as_ptr(), len: s.len() as u64 };
+        }
+        let signer = Bytes { addr: seed_bytes.as_ptr() as *const u8, len: seeds.len() as u64 };
+        #[cfg(target_os = "solana")]
+        {
+            extern "C" {
+                fn sol_invoke_signed_c(ix: *const u8, infos: *const u8, infos_len: u64, seeds: *const u8, seeds_len: u64) -> u64;
+            }
+            let n_signers = if seeds.is_empty() { 0 } else { 1 };
+            let rc = unsafe { sol_invoke_signed_c(&ix as *const Instruction as *const u8, infos.as_ptr() as *const u8, (accounts.len() + 1) as u64, &signer as *const Bytes as *const u8, n_signers) };
+            if rc == 0 { Ok(()) } else { Err(rc) }
+        }
+        #[cfg(not(target_os = "solana"))]
+        {
+            let _ = (&ix, &infos, &signer);
+            Err(super::err::BAD_ACCOUNTS)
+        }
+    }
+
+    /// Find this program's address for `seeds`, and its bump.
+    pub fn find_program_address(seeds: &[&[u8]], program_id: &[u8; 32]) -> Result<([u8; 32], u8), u64> {
+        if seeds.len() > MAX {
+            return Err(super::err::BAD_INPUT);
+        }
+        let mut seed_bytes: [Bytes; MAX] = core::array::from_fn(|_| Bytes { addr: core::ptr::null(), len: 0 });
+        for (i, s) in seeds.iter().enumerate() {
+            seed_bytes[i] = Bytes { addr: s.as_ptr(), len: s.len() as u64 };
+        }
+        #[cfg(target_os = "solana")]
+        {
+            extern "C" {
+                fn sol_try_find_program_address(seeds: *const u8, seeds_len: u64, program_id: *const u8, address: *mut u8, bump: *mut u8) -> u64;
+            }
+            let mut address = [0u8; 32];
+            let mut bump = 0u8;
+            let rc = unsafe { sol_try_find_program_address(seed_bytes.as_ptr() as *const u8, seeds.len() as u64, program_id.as_ptr(), address.as_mut_ptr(), &mut bump) };
+            if rc == 0 { Ok((address, bump)) } else { Err(super::err::BAD_INPUT) }
+        }
+        #[cfg(not(target_os = "solana"))]
+        {
+            let _ = (&seed_bytes, program_id);
+            Err(super::err::BAD_INPUT)
+        }
+    }
 }
 
 /// Read the i-th little-endian u64 of a state account.

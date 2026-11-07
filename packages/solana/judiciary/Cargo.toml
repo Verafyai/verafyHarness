@@ -1,0 +1,22 @@
+# verafy_judiciary: a Squads member that votes only as a sealed jury ruling
+# says (VIP-0010). Same zero-dependency style as verafy_ruling.
+[package]
+name = "verafy-judiciary"
+version = "0.0.4"
+edition = "2021"
+license = "MIT"
+
+[lib]
+name = "verafy_judiciary"
+crate-type = ["cdylib", "lib"]
+
+[dependencies]
+abi = { package = "tinysvm-abi", path = "../../tinysvm/programs/abi" }
+
+[profile.release]
+overflow-checks = true
+codegen-units = 1
+lto = true
+panic = "abort"
+
+[workspace]
