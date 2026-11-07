@@ -57,6 +57,7 @@ Every number on this site is labeled measured, vendor-reported, modeled or illus
 - [Model certification](https://harness.verafy.ai/learn/model-certification): Closed models judge a wallet only with measured results on the judiciary attack suite.
 - [The harness registry](https://harness.verafy.ai/learn/harness-registry): Register a harness on Solana, get discovered with one RPC call, and get paid per case.
 - [Hardware attestation](https://harness.verafy.ai/learn/hardware-attestation): Prove a harness runs a known build inside an AMD SEV-SNP enclave, with its key bound in.
+- [Bias profiles](https://harness.verafy.ai/learn/bias-profiles): How a model leans when it judges, measured with paired probes, mapped, and checked by unannounced probes.
 
 ## Reference
 

@@ -41,6 +41,8 @@ A proposal is not a promise. Each one is tracked in three places:
 | [0015](VIP-0015-asset-transfer-records.md) | Asset transfer records: sell a physical thing, record that it changed hands | Idea | SIGN-004 |
 | [0016](VIP-0016-commission-covenant.md) | Commission covenant: a validator bonds its promise on fees | Idea | SIGN-005 |
 | [0017](VIP-0017-programs-first.md) | Programs first, SIMD on adoption | Accepted | SOL-002 |
+| [0018](VIP-0018-bias-profiles.md) | Bias profiles: measure how each model leans, map models, probe unannounced | Built; no model measured | SIGN-006 |
+| [0019](VIP-0019-encoder.md) | Encoder: policies and contracts on Solana in full, through IQ Labs until a SIMD | Accepted | SOL-005 |
 
 Tracking issues: [#26 to #36](https://github.com/Verafyai/verafyHarness/issues?q=label%3Aproposal). VIPs 0001 to 0009 were built in v0.0.3-alpha and 0010 to 0017 written in v0.0.4-alpha, unless the status says otherwise; every number in them is illustrative until Rex sets it.
 

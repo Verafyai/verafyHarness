@@ -1,6 +1,6 @@
 {
  "version": "0.0.4-alpha",
- "overall": 0.6655709342560553,
+ "overall": 0.6664948453608246,
  "areas": {
   "CORE": {
    "name": "Core protocol: contracts, commit and reveal, agreement, exits",
@@ -99,8 +99,8 @@
   },
   "SIGN": {
    "name": "Judiciary Signer, policies and model certification",
-   "count": 5,
-   "score": 0.6444444444444444
+   "count": 6,
+   "score": 0.6727272727272726
   },
   "NET": {
    "name": "Harness registry, discovery, pay and attestation",
@@ -516,6 +516,9 @@
   },
   {
    "id": "NET-002"
+  },
+  {
+   "id": "SIGN-006"
   }
  ],
  "gaps": [

@@ -401,5 +401,16 @@
       "proof-of-inference"
     ],
     "group": "Running one"
+  },
+  "bias-profiles": {
+    "title": "Bias profiles",
+    "desc": "How a model leans when it judges, measured with paired probes, mapped, and checked by unannounced probes.",
+    "status": "Built: SIGN-006. No real model profiled yet.",
+    "related": [
+      "model-certification",
+      "model-families",
+      "judiciary-signer"
+    ],
+    "group": "Wallets"
   }
 }

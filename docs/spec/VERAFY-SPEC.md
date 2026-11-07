@@ -105,6 +105,7 @@ A Judiciary Signer is a member of a Squads multisig that no person holds a key f
 | SIGN-003 | built | Model certification: a pinned attack suite and a bar a closed model must clear before a signer may use it. *Gap: No closed model measured yet; the bar is illustrative.* |
 | SIGN-004 | planned | Asset transfer records: physical item sales ruled on photos and serial numbers, with ownership and transfer records localized per country |
 | SIGN-005 | planned | Commission covenant: a validator bonds a promise not to raise fees on stakers |
+| SIGN-006 | built | Bias profiles: paired probes measure how a model leans (order, authority, framing, position, roles, anchors, length, approve rate, confidence, consistency), maps and least-shared-bias juries, and unannounced probes disguised as live cases. *Gap: No real model profiled yet; probes are written for escrow cases, not yet for wallet cases.* |
 <!-- /reqs:SIGN -->
 
 ## NET: harness registry, discovery, pay and attestation

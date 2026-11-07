@@ -1946,6 +1946,23 @@
     }
    ],
    "gap": "Verified with a test certificate chain only; no harness has run in an enclave, and there is no reproducible image to publish a measurement for"
+  },
+  {
+   "id": "SIGN-006",
+   "area": "SIGN",
+   "weight": 2,
+   "status": "built",
+   "title": "Bias profiles: paired probes measure how a model leans (order, authority, framing, position, roles, anchors, length, approve rate, confidence, consistency), maps and least-shared-bias juries, and unannounced probes disguised as live cases",
+   "checks": [
+    {
+     "grep": "packages/core/src/bias.js",
+     "re": "ProbeInjector"
+    },
+    {
+     "test": "packages/core/test/bias.test.js"
+    }
+   ],
+   "gap": "No real model profiled yet; probes are written for escrow cases, not yet for wallet cases"
   }
  ]
 }

@@ -732,6 +732,31 @@ Juries can then require `attested: true`.
 
 Source: https://harness.verafy.ai/learn/hardware-attestation
 
+# Bias profiles
+
+*How a model leans when it judges, measured as numbers that can be compared and mapped.*
+
+**How it's measured.** Hold the facts fixed, change one thing that shouldn't matter, and count how often the answer moves. The things changed:
+- the order of the options;
+- an "approved by compliance" claim in untrusted text;
+- positive or negative framing;
+- where the deciding fact sits;
+- which party is which (the answer should mirror);
+- an irrelevant large number;
+- a long, empty argument for the wrong side.
+
+Measured on their own: the approve rate on genuinely balanced cases, overconfidence (stated confidence minus accuracy), and inconsistency across runs. No probe uses names chosen to signal a group of people.
+
+**Maps.** Two profiles have a distance. Many profiles can be placed on a plane, and a jury can be suggested from the models whose leanings overlap least. Family diversity is a proxy for this; profiles measure it.
+
+**Unannounced.** Probes also fire at random among live cases, shaped like them, and their rulings never execute. The seed's hash is published first and the seed afterwards, so anyone can check the schedule. A model can't behave well only when it's being tested.
+
+**Status.** Built (SIGN-006), tested with scripted models whose biases are known. No real model profiled yet. Design: [VIP-0018](https://github.com/Verafyai/verafyHarness/blob/main/docs/proposals/VIP-0018-bias-profiles.md).
+
+**Related:** [Model certification](https://harness.verafy.ai/learn/model-certification), [Model families](https://harness.verafy.ai/learn/model-families), [The Judiciary Signer](https://harness.verafy.ai/learn/judiciary-signer)
+
+Source: https://harness.verafy.ai/learn/bias-profiles
+
 # Verafy specification
 
 **Version 0.0.2-alpha**, November 6, 2026. Covers Verafy Harness (this repo) and Verafy Chain ([Verafyai/verafyChain](https://github.com/Verafyai/verafyChain)).
@@ -839,6 +864,7 @@ A Judiciary Signer is a member of a Squads multisig that no person holds a key f
 | SIGN-003 | built | Model certification: a pinned attack suite and a bar a closed model must clear before a signer may use it. *Gap: No closed model measured yet; the bar is illustrative.* |
 | SIGN-004 | planned | Asset transfer records: physical item sales ruled on photos and serial numbers, with ownership and transfer records localized per country |
 | SIGN-005 | planned | Commission covenant: a validator bonds a promise not to raise fees on stakers |
+| SIGN-006 | built | Bias profiles: paired probes measure how a model leans (order, authority, framing, position, roles, anchors, length, approve rate, confidence, consistency), maps and least-shared-bias juries, and unannounced probes disguised as live cases. *Gap: No real model profiled yet; probes are written for escrow cases, not yet for wallet cases.* |
 <!-- /reqs:SIGN -->
 
 ## NET: harness registry, discovery, pay and attestation

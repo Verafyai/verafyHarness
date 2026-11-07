@@ -15,6 +15,7 @@ import { sha256 } from './hash.js'
 import { pin, ascHash, BELOW_BAR } from './asc.js'
 import { validatePolicy, policyHash, effectsOf, checkRules } from './policy.js'
 import { certificationMeets, CERTIFICATION_BAR } from './certification.js'
+import { sharedBiases } from './bias.js'
 
 export const SIGNER_KIND = 'verafy.judiciary-signer/1'
 export const CASE_OPTIONS = ['APPROVE', 'REJECT']
@@ -60,6 +61,22 @@ export function validateSigner(s, { certifications = [], bar = CERTIFICATION_BAR
   if (s?.escapeSlots > 0 && !(s.escapeSlots > s.challengeSlots)) p.push('the escape delay must be longer than the challenge window')
   if (!s?.multisig) p.push('multisig is required (the Squads multisig address)')
   return p
+}
+
+/**
+ * Warnings that don't block a signer: biases every chosen model shares
+ * (VIP-0018), so the jury would lean the same way together.
+ * @param {object} s - the signer.
+ * @param {{profiles?: object[], threshold?: number}} [o] - bias profiles for the chosen models.
+ * @returns {string[]} warnings.
+ */
+export function signerWarnings(s, { profiles = [], threshold = 0.2 } = {}) {
+  const chosen = s.models.map(m => profiles.find(p => p.model === m.model))
+  const w = []
+  if (chosen.some(p => !p)) w.push(`no bias profile for ${s.models.filter((m, i) => !chosen[i]).map(m => m.model).join(', ')}`)
+  const have = chosen.filter(Boolean)
+  if (have.length > 1) for (const b of sharedBiases(have, threshold)) w.push(`every chosen model shows ${b} above ${threshold}; the jury would lean the same way together`)
+  return w
 }
 
 /** The models hash fixed on chain at attach: the models and the certifications they rely on. */
