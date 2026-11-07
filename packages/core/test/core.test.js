@@ -10,7 +10,7 @@ import {
 const ex = name => JSON.parse(readFileSync(new URL(`../../../examples/${name}.json`, import.meta.url), 'utf8'))
 const mock = ex('mock-answers')
 const config = JSON.parse(readFileSync(new URL('../../../verafy.config.json', import.meta.url), 'utf8'))
-const poolFor = asc => config.pool.map(h => new Harness({ ...h, provider: mockProvider(mock, asc.id, h.lab) }))
+const poolFor = asc => config.pool.map(h => new Harness({ ...h, provider: mockProvider(mock, asc.id, h.family) }))
 
 test('canonical JSON sorts keys at every level', () => {
   assert.equal(canonical({ b: 1, a: { d: 2, c: 3 } }), '{"a":{"c":3,"d":2},"b":1}')
@@ -90,12 +90,12 @@ test('a passing diff pays every counted vote and conserves totals', () => {
   assert.equal(diff.filter(d => /^harness:[abc]$/.test(d.account)).length, 3)
 })
 
-test('a jury spans the required labs', () => {
+test('a jury spans the required families', () => {
   const asc = ex('market-resolution')
   for (const seed of ['x', 'y', 'z', 'genesis']) {
     const jury = drawJury(poolFor(asc), asc.payment.jury, seed)
     assert.equal(jury.length, 5)
-    assert.equal(new Set(jury.map(j => j.lab)).size, 5)
+    assert.equal(new Set(jury.map(j => j.family)).size, 5)
   }
 })
 
@@ -115,14 +115,14 @@ test('a full ruling seals into a block that links to its parent', async () => {
 
 test('a harness whose bond is too small refuses the contract', async () => {
   const asc = ex('delay-cover')
-  const h = new Harness({ id: 'small', lab: 'qwen', model: 'm', bond: 10, provider: mockProvider(mock, asc.id, 'qwen') })
+  const h = new Harness({ id: 'small', family: 'qwen', model: 'm', bond: 10, provider: mockProvider(mock, asc.id, 'qwen') })
   await assert.rejects(h.commit(asc), /bond 10 is below/)
 })
 
-async function processEntries(asc, labs) {
+async function processEntries(asc, families) {
   const out = []
-  for (const lab of labs) {
-    const h = new Harness({ ...config.pool.find(p => p.lab === lab), provider: mockProvider(mock, asc.id, lab) })
+  for (const family of families) {
+    const h = new Harness({ ...config.pool.find(p => p.family === family), provider: mockProvider(mock, asc.id, family) })
     const c = await h.commit(asc)
     out.push({ card: h.card, commit: c, reveal: h.reveal(ascHash(asc)) })
   }
@@ -131,7 +131,7 @@ async function processEntries(asc, labs) {
 
 test('reveals from separate harness processes rule like an in-process jury', async () => {
   const asc = ex('market-resolution')
-  const entries = await processEntries(asc, ['anthropic', 'openai', 'google', 'meta', 'qwen'])
+  const entries = await processEntries(asc, ['mistral', 'gpt-oss', 'gemma', 'llama', 'qwen'])
   const r = ruleFromReveals(asc, entries, 'h-sealer', 'genesis')
   assert.equal(r.answer, 'NO')
   assert.equal(r.passed, true)
@@ -141,7 +141,7 @@ test('reveals from separate harness processes rule like an in-process jury', asy
 
 test('a reveal that does not match its commitment, or a forged attestation, is not counted', async () => {
   const asc = ex('market-resolution')
-  const entries = await processEntries(asc, ['anthropic', 'openai', 'google', 'meta', 'qwen'])
+  const entries = await processEntries(asc, ['mistral', 'gpt-oss', 'gemma', 'llama', 'qwen'])
   entries[0].reveal = { ...entries[0].reveal, vote: { ...entries[0].reveal.vote, answer: 'YES' } }
   entries[1].commit = { ...entries[1].commit, attestation: { ...entries[1].commit.attestation, model: 'another-model' } }
   const events = []
@@ -158,7 +158,7 @@ test('payment routers: a harness refuses assets it does not accept, and the ledg
   assert.equal(acceptsPayment({ accept: [{ chain: 'solana', asset: 'USDC' }] }, asc.payment), true)
   assert.equal(acceptsPayment({ accept: [{ chain: 'ethereum', asset: 'ETH' }] }, asc.payment), false)
   assert.equal(acceptsPayment({}, asc.payment), true)
-  const h = new Harness({ id: 'eth-only', lab: 'qwen', model: 'm', bond: 500, provider: mockProvider(mock, asc.id, 'qwen'), payments: { accept: [{ chain: 'ethereum', asset: 'ETH' }] } })
+  const h = new Harness({ id: 'eth-only', family: 'qwen', model: 'm', bond: 500, provider: mockProvider(mock, asc.id, 'qwen'), payments: { accept: [{ chain: 'ethereum', asset: 'ETH' }] } })
   assert.ok(h.intake(asc).some(p => p.includes('does not accept USDC on solana')))
   const { mkdtempSync, readFileSync: read } = await import('node:fs')
   const { tmpdir } = await import('node:os')
@@ -175,9 +175,9 @@ test('payment routers: a harness refuses assets it does not accept, and the ledg
 test('the routing agent picks the cheapest route that meets the contract\'s assurance, up to proofs', async () => {
   const { routeInference, routeAssurance } = await import('../src/index.js')
   const routes = [
-    { id: 'hosted', lab: 'anthropic', model: 'anthropic/claude-haiku-4.5', kind: 'hosted', usdPerVote: 0.003 },
-    { id: 'local', lab: 'openai', model: 'openai/gpt-oss-120b', kind: 'open-weights', usdPerVote: 0.001 },
-    { id: 'proving', lab: 'meta', model: 'meta-llama/llama-4-maverick', kind: 'open-weights', proofs: true, usdPerVote: 0.03 },
+    { id: 'hosted', family: 'mistral', model: 'mistralai/mistral-small-3.2-24b-instruct', kind: 'hosted', usdPerVote: 0.003 },
+    { id: 'local', family: 'gpt-oss', model: 'openai/gpt-oss-120b', kind: 'open-weights', usdPerVote: 0.001 },
+    { id: 'proving', family: 'llama', model: 'meta-llama/llama-4-maverick', kind: 'open-weights', proofs: true, usdPerVote: 0.03 },
   ]
   assert.equal(routeAssurance(routes[0]), 'L1')
   assert.equal(routeAssurance(routes[2]), 'L2')

@@ -26,7 +26,7 @@ const HASHES = {
 
 test('batching fields are optional: every existing example validates and keeps its hash', () => {
   for (const [name, h] of Object.entries(HASHES)) {
-    const asc = read(`examples/${name}.json`)
+    const asc = read(`packages/core/test/fixtures/v0.0.2/${name}.json`)
     assert.equal(asc.payment.minBatch, undefined)
     assert.equal(asc.payment.maxWaitSeconds, undefined)
     assert.deepEqual(validate(asc), [], name)

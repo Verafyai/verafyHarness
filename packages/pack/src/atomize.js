@@ -2,7 +2,7 @@
  * The atomizer: asks a model to break a contract into atoms and a composition
  * rule, then validates the result. Its output is a DRAFT plan. A plan is only
  * used after a fidelity check: either the contract's parties agree to it, or
- * an unproven panel from several labs rules that it decides the same way as
+ * an unproven panel from several families rules that it decides the same way as
  * the original question (see fidelityQuestion).
  * @module @verafyharness/pack/atomize
  */
@@ -45,7 +45,7 @@ export function atomizePrompt(contract) {
  */
 export async function atomize(contract, provider, { model, contextTokens = 1024, countTokens = roughTokens } = {}) {
   const { system, user } = atomizePrompt(contract)
-  const raw = await provider.complete({ model, system, user, ascId: contract.id, lab: 'atomizer' })
+  const raw = await provider.complete({ model, system, user, ascId: contract.id, family: 'atomizer' })
   let plan
   try {
     plan = JSON.parse(String(raw).replace(/^```(?:json)?\s*|\s*```$/g, ''))

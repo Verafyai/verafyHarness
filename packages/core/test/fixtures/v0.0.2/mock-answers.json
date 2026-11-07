@@ -1,0 +1,487 @@
+{
+  "market-senate-bill-nov30": {
+    "anthropic": {
+      "answer": "NO",
+      "confidence": 0.95,
+      "reasoning": "The snapshot records only a failed motion to proceed on Nov 19 and no later votes through Nov 30.",
+      "sources": [
+        "c0",
+        "c1"
+      ]
+    },
+    "openai": {
+      "answer": "NO",
+      "confidence": 0.93,
+      "reasoning": "Vote 302 rejected the motion to proceed; nothing after it.",
+      "sources": [
+        "c0"
+      ]
+    },
+    "google": {
+      "answer": "NO",
+      "confidence": 0.9,
+      "reasoning": "No passing roll call for H.R. 4410 by the deadline.",
+      "sources": [
+        "c0",
+        "c1"
+      ]
+    },
+    "meta": {
+      "answer": "NO",
+      "confidence": 0.88,
+      "reasoning": "The record shows the bill stalled at the motion to proceed.",
+      "sources": [
+        "c0"
+      ]
+    },
+    "qwen": {
+      "answer": "NO",
+      "confidence": 0.9,
+      "reasoning": "Rules require a passing vote; the snapshot has none.",
+      "sources": [
+        "c0",
+        "c1"
+      ]
+    },
+    "deepseek": {
+      "answer": "NO",
+      "confidence": 0.92,
+      "reasoning": "No passage recorded.",
+      "sources": [
+        "c0"
+      ]
+    }
+  },
+  "factcheck-ceo-revenue-doubled": {
+    "anthropic": {
+      "answer": "misleading",
+      "confidence": 0.9,
+      "reasoning": "Cloud revenue doubled; total revenue grew 18 percent. The claim drops the segment.",
+      "sources": [
+        "c0",
+        "c1"
+      ]
+    },
+    "openai": {
+      "answer": "misleading",
+      "confidence": 0.85,
+      "reasoning": "Accurate for cloud only.",
+      "sources": [
+        "c0"
+      ]
+    },
+    "google": {
+      "answer": "false",
+      "confidence": 0.7,
+      "reasoning": "The CEO did not say revenue doubled; he said cloud revenue doubled.",
+      "sources": [
+        "c0"
+      ]
+    },
+    "meta": {
+      "answer": "misleading",
+      "confidence": 0.8,
+      "reasoning": "True of one segment, not the company.",
+      "sources": [
+        "c0"
+      ]
+    },
+    "qwen": {
+      "answer": "misleading",
+      "confidence": 0.85,
+      "reasoning": "The claim omits that it was cloud revenue.",
+      "sources": [
+        "c0",
+        "c2"
+      ]
+    },
+    "deepseek": {
+      "answer": "misleading",
+      "confidence": 0.8,
+      "reasoning": "Segment versus total.",
+      "sources": [
+        "c0"
+      ]
+    }
+  },
+  "forecast-march-rate-cut": {
+    "anthropic": {
+      "answer": 0.6,
+      "confidence": 0.7,
+      "reasoning": "Rising unemployment and softer inflation favor a cut; December hold delays it.",
+      "sources": [
+        "c0"
+      ]
+    },
+    "openai": {
+      "answer": 0.64,
+      "confidence": 0.7,
+      "reasoning": "Labor data is weakening.",
+      "sources": [
+        "c0"
+      ]
+    },
+    "google": {
+      "answer": 0.68,
+      "confidence": 0.65,
+      "reasoning": "Unemployment at 4.6 percent is the main driver.",
+      "sources": [
+        "c0"
+      ]
+    },
+    "meta": {
+      "answer": 0.55,
+      "confidence": 0.6,
+      "reasoning": "Core inflation is still above target.",
+      "sources": [
+        "c0"
+      ]
+    },
+    "qwen": {
+      "answer": 0.62,
+      "confidence": 0.7,
+      "reasoning": "Members tie cuts to labor data, which is softening.",
+      "sources": [
+        "c0"
+      ]
+    },
+    "deepseek": {
+      "answer": 0.58,
+      "confidence": 0.65,
+      "reasoning": "Balanced risks.",
+      "sources": [
+        "c0"
+      ]
+    }
+  },
+  "delay-cover-ua1532": {
+    "anthropic": {
+      "answer": "PAY",
+      "confidence": 0.98,
+      "reasoning": "Arrived 4h 12m late, over the 3 hour threshold.",
+      "sources": [
+        "c0",
+        "c1"
+      ]
+    },
+    "openai": {
+      "answer": "PAY",
+      "confidence": 0.97,
+      "reasoning": "Delay exceeds 3 hours.",
+      "sources": [
+        "c0"
+      ]
+    },
+    "google": {
+      "answer": "PAY",
+      "confidence": 0.96,
+      "reasoning": "21:17 against 17:05 scheduled.",
+      "sources": [
+        "c0"
+      ]
+    },
+    "meta": {
+      "answer": "PAY",
+      "confidence": 0.95,
+      "reasoning": "Covered delay.",
+      "sources": [
+        "c0",
+        "c1"
+      ]
+    },
+    "qwen": {
+      "answer": "PAY",
+      "confidence": 0.97,
+      "reasoning": "Record shows 4h 12m delay.",
+      "sources": [
+        "c0"
+      ]
+    },
+    "deepseek": {
+      "answer": "PAY",
+      "confidence": 0.96,
+      "reasoning": "Qualifies.",
+      "sources": [
+        "c0"
+      ]
+    }
+  },
+  "factcheck-drug-halved-deaths": {
+    "anthropic": {
+      "answer": "true",
+      "confidence": 0.8,
+      "reasoning": "Deaths fell from 12 to 6 percent in the reported group.",
+      "sources": [
+        "c0"
+      ]
+    },
+    "openai": {
+      "answer": "false",
+      "confidence": 0.8,
+      "reasoning": "Across the full trial the effect was small and not significant.",
+      "sources": [
+        "c0"
+      ]
+    },
+    "google": {
+      "answer": "true",
+      "confidence": 0.7,
+      "reasoning": "The summary reports deaths halving.",
+      "sources": [
+        "c0"
+      ]
+    },
+    "meta": {
+      "answer": "false",
+      "confidence": 0.7,
+      "reasoning": "The full population result contradicts the claim.",
+      "sources": [
+        "c0"
+      ]
+    },
+    "qwen": {
+      "answer": "misleading",
+      "confidence": 0.8,
+      "reasoning": "A subgroup result presented as general.",
+      "sources": [
+        "c0"
+      ]
+    },
+    "deepseek": {
+      "answer": "mostly true",
+      "confidence": 0.75,
+      "reasoning": "True for the subgroup the summary leads with.",
+      "sources": [
+        "c0"
+      ]
+    }
+  },
+  "hail-cover-farm117-2026-07": {
+    "anthropic": {
+      "answer": "PAY",
+      "confidence": 0.9,
+      "reasoning": "Hail confirmed on July 12; the report estimates about 43 percent of the insured crop destroyed.",
+      "sources": [
+        "c0",
+        "c1"
+      ],
+      "params": {
+        "percent": 43
+      }
+    },
+    "openai": {
+      "answer": "PAY",
+      "confidence": 0.9,
+      "reasoning": "Hail confirmed on July 12; the report estimates about 43 percent of the insured crop destroyed.",
+      "sources": [
+        "c0",
+        "c1"
+      ],
+      "params": {
+        "percent": 43
+      }
+    },
+    "google": {
+      "answer": "PAY",
+      "confidence": 0.9,
+      "reasoning": "Hail confirmed on July 12; the report estimates about 40 percent of the insured crop destroyed.",
+      "sources": [
+        "c0",
+        "c1"
+      ],
+      "params": {
+        "percent": 40
+      }
+    },
+    "meta": {
+      "answer": "PAY",
+      "confidence": 0.9,
+      "reasoning": "Hail confirmed on July 12; the report estimates about 45 percent of the insured crop destroyed.",
+      "sources": [
+        "c0",
+        "c1"
+      ],
+      "params": {
+        "percent": 45
+      }
+    },
+    "qwen": {
+      "answer": "PAY",
+      "confidence": 0.9,
+      "reasoning": "Hail confirmed on July 12; the report estimates about 43 percent of the insured crop destroyed.",
+      "sources": [
+        "c0",
+        "c1"
+      ],
+      "params": {
+        "percent": 43
+      }
+    },
+    "deepseek": {
+      "answer": "PAY",
+      "confidence": 0.9,
+      "reasoning": "Hail confirmed on July 12; the report estimates about 42 percent of the insured crop destroyed.",
+      "sources": [
+        "c0",
+        "c1"
+      ],
+      "params": {
+        "percent": 42
+      }
+    }
+  },
+  "hackathon-agents-2026-prize": {
+    "anthropic": {
+      "answer": "AWARD",
+      "confidence": 0.85,
+      "reasoning": "Four submissions run end to end; by the rubric entrant 3 leads on tests and docs, then entrant 0.",
+      "sources": [
+        "c0",
+        "c1"
+      ],
+      "params": {
+        "ranking": [
+          3,
+          0,
+          1
+        ]
+      }
+    },
+    "openai": {
+      "answer": "AWARD",
+      "confidence": 0.85,
+      "reasoning": "Four submissions run end to end; by the rubric entrant 3 leads on tests and docs, then entrant 0.",
+      "sources": [
+        "c0",
+        "c1"
+      ],
+      "params": {
+        "ranking": [
+          3,
+          0,
+          1
+        ]
+      }
+    },
+    "google": {
+      "answer": "AWARD",
+      "confidence": 0.85,
+      "reasoning": "Four submissions run end to end; by the rubric entrant 3 leads on tests and docs, then entrant 0.",
+      "sources": [
+        "c0",
+        "c1"
+      ],
+      "params": {
+        "ranking": [
+          0,
+          3,
+          1
+        ]
+      }
+    },
+    "meta": {
+      "answer": "AWARD",
+      "confidence": 0.85,
+      "reasoning": "Four submissions run end to end; by the rubric entrant 3 leads on tests and docs, then entrant 0.",
+      "sources": [
+        "c0",
+        "c1"
+      ],
+      "params": {
+        "ranking": [
+          3,
+          0,
+          1
+        ]
+      }
+    },
+    "qwen": {
+      "answer": "AWARD",
+      "confidence": 0.85,
+      "reasoning": "Four submissions run end to end; by the rubric entrant 3 leads on tests and docs, then entrant 0.",
+      "sources": [
+        "c0",
+        "c1"
+      ],
+      "params": {
+        "ranking": [
+          3,
+          0,
+          4
+        ]
+      }
+    },
+    "deepseek": {
+      "answer": "AWARD",
+      "confidence": 0.85,
+      "reasoning": "Four submissions run end to end; by the rubric entrant 3 leads on tests and docs, then entrant 0.",
+      "sources": [
+        "c0",
+        "c1"
+      ],
+      "params": {
+        "ranking": [
+          3,
+          0,
+          1
+        ]
+      }
+    }
+  },
+  "grant-ledger-sdk-m2": {
+    "anthropic": {
+      "answer": "MET",
+      "confidence": 0.92,
+      "reasoning": "SDK released with docs and 86 percent coverage, above the 80 percent bar.",
+      "sources": [
+        "c0",
+        "c1"
+      ]
+    },
+    "openai": {
+      "answer": "MET",
+      "confidence": 0.92,
+      "reasoning": "SDK released with docs and 86 percent coverage, above the 80 percent bar.",
+      "sources": [
+        "c0",
+        "c1"
+      ]
+    },
+    "google": {
+      "answer": "MET",
+      "confidence": 0.92,
+      "reasoning": "SDK released with docs and 86 percent coverage, above the 80 percent bar.",
+      "sources": [
+        "c0",
+        "c1"
+      ]
+    },
+    "meta": {
+      "answer": "MET",
+      "confidence": 0.92,
+      "reasoning": "SDK released with docs and 86 percent coverage, above the 80 percent bar.",
+      "sources": [
+        "c0",
+        "c1"
+      ]
+    },
+    "qwen": {
+      "answer": "MET",
+      "confidence": 0.92,
+      "reasoning": "SDK released with docs and 86 percent coverage, above the 80 percent bar.",
+      "sources": [
+        "c0",
+        "c1"
+      ]
+    },
+    "deepseek": {
+      "answer": "MET",
+      "confidence": 0.92,
+      "reasoning": "SDK released with docs and 86 percent coverage, above the 80 percent bar.",
+      "sources": [
+        "c0",
+        "c1"
+      ]
+    }
+  }
+}

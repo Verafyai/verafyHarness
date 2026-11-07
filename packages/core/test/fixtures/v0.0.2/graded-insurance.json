@@ -1,0 +1,96 @@
+{
+  "kind": "verafy.asc/1",
+  "id": "hail-cover-farm117-2026-07",
+  "title": "Pay a hail claim by the share of the crop destroyed",
+  "instructions": "You decide a crop hail insurance claim. PAY if the pinned adjuster report shows hail damage on the insured field during the policy period, DENY if it shows none or shows another cause, HOLD if the report is missing or contradictory. When you answer PAY, also give the percent of the insured crop destroyed, as a whole number from 0 to 100, measured from the report. The payout is coverage times that percent, paid from the policy reserve.",
+  "context": [
+    {
+      "kind": "document",
+      "label": "Adjuster report (example)",
+      "snapshotAt": "2026-07-14T18:00:00Z",
+      "content": "Example adjuster report. Farm 117, field 4, winter wheat, 80 acres insured. Storm of July 12, 2026, confirmed hail at the county station. Stand count on July 14: 30 of 80 acres destroyed, 10 acres partly damaged at about half loss, 40 acres undamaged. Estimated loss of insured crop: 43 percent.",
+      "sha256": "e04ea25f52b684fd9345e120e8924fe4023a971aca7acf673ec98a8c52e26e7d"
+    },
+    {
+      "kind": "policy",
+      "content": "Hail cover v1 (example). Coverage 5,000 USDC per field. Payout is coverage multiplied by the percent of insured crop destroyed by hail, rounded down to the base unit. Claims are paid from the policy reserve until it is exhausted.",
+      "sha256": "9bc6afb078ad24df8f1177be1dc3b291116cb7897ccc94e6a30a9de492c2f750"
+    }
+  ],
+  "question": {
+    "prompt": "Does the hail claim for farm 117, field 4 qualify, and what percent of the insured crop was destroyed?",
+    "answer": {
+      "type": "verdict",
+      "options": [
+        "PAY",
+        "DENY",
+        "HOLD"
+      ]
+    }
+  },
+  "payment": {
+    "escrow": 0.6,
+    "currency": "USDC",
+    "bar": 0.7,
+    "jury": {
+      "size": 5,
+      "minLabs": 4,
+      "quorum": 4
+    },
+    "split": {
+      "jurors": 0.8,
+      "auditors": 0.1,
+      "storage": 0.05,
+      "sealer": 0.05
+    },
+    "chain": "solana",
+    "maxValuePerVote": 250
+  },
+  "exits": [
+    {
+      "outcome": "PAY",
+      "effect": {
+        "type": "record",
+        "label": "paid by grade"
+      },
+      "exitProgram": {
+        "programHash": "e449115b16b47e34cf0aec4250458108edab11f09b9861217d348eab4c51f0e4",
+        "entry": "claim",
+        "params": {
+          "percent": {
+            "type": "integer",
+            "min": 0,
+            "max": 100
+          }
+        },
+        "args": {
+          "coverage": 5000000000,
+          "reserve": 50000000000,
+          "pot": "pot:hail-cover-2026",
+          "beneficiary": "wallet:farm-117"
+        }
+      }
+    },
+    {
+      "outcome": "DENY",
+      "effect": {
+        "type": "record",
+        "label": "denied"
+      }
+    },
+    {
+      "outcome": "HOLD",
+      "effect": {
+        "type": "hold",
+        "hours": 48
+      }
+    },
+    {
+      "outcome": "*below-bar",
+      "effect": {
+        "type": "escalate",
+        "jurySize": 9
+      }
+    }
+  ]
+}

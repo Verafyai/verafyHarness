@@ -16,8 +16,8 @@ const c2 = { ...base, id: 'market-cloture-nov18', question: { ...base.question, 
 const TRUTH = { [senate.atoms[0].q]: 'NO', [shared.q]: 'YES', [cloture.atoms[0].q]: 'YES' }
 /** A model that answers packed slots from the facts it was given. */
 const oracle = (truth = TRUTH) => ({ complete: async ({ user }) => [...user.matchAll(/\[S(\d+)\] Q: (.+)/g)].map(([, n, q]) => `S${n}: ${truth[q] ?? 'UNKNOWN'}`).join('\n') })
-const panelist = (lab, answer = 'FAITHFUL') => ({ lab, model: `${lab}-m`, provider: { complete: async () => JSON.stringify({ answer, confidence: 0.9, reasoning: 'checked against the pin', sources: ['c0'] }) } })
-const panel = (answers = ['FAITHFUL', 'FAITHFUL', 'FAITHFUL']) => answers.map((a, i) => panelist(['anthropic', 'openai', 'google'][i], a))
+const panelist = (family, answer = 'FAITHFUL') => ({ family, model: `${family}-m`, provider: { complete: async () => JSON.stringify({ answer, confidence: 0.9, reasoning: 'checked against the pin', sources: ['c0'] }) } })
+const panel = (answers = ['FAITHFUL', 'FAITHFUL', 'FAITHFUL']) => answers.map((a, i) => panelist(['mistral', 'gpt-oss', 'gemma'][i], a))
 const run = (o = {}) => packedBlock([c1, c2], { plans: { [c1.id]: senate, [c2.id]: cloture }, panel: panel(), prover: mockProver({ model: 'llama-4-maverick', complete: oracle().complete }), verifier: mockVerifier(), seed: 'block-1', ...o })
 
 test('end to end: two contracts, one shared atom, one proven request, verified', async () => {

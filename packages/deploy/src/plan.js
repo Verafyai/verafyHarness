@@ -26,7 +26,7 @@ export const IMAGE = 'ghcr.io/verafyai/verafy-harness'
 /**
  * @param {object} a - answers.
  * @param {string} a.target - one of TARGETS.
- * @param {string} a.lab - the model's lab.
+ * @param {string} a.family - the model's family.
  * @param {string} a.model - the model id (hosted) or Ollama tag (local).
  * @param {'hosted'|'local'} [a.kind] - hosted API model, or open weights served on the same machine.
  * @param {string} [a.id] - harness id.
@@ -44,14 +44,14 @@ export const IMAGE = 'ghcr.io/verafyai/verafy-harness'
  */
 export function plan(a) {
   if (!TARGETS.includes(a.target)) throw new Error(`target must be one of ${TARGETS.join(', ')}`)
-  if (!a.lab || !a.model) throw new Error('a lab and a model are needed')
+  if (!a.family || !a.model) throw new Error('a model family and a model are needed')
   const kind = a.kind ?? 'hosted'
-  const id = a.id ?? `h-${a.lab}-${Math.random().toString(36).slice(2, 6)}`
+  const id = a.id ?? `h-${a.family}-${Math.random().toString(36).slice(2, 6)}`
   const cloud = a.target === 'digitalocean' || a.target === 'hetzner'
   const warnings = []
   const env = {
     VERAFY_HARNESS_ID: id,
-    VERAFY_LAB: a.lab,
+    VERAFY_FAMILY: a.family,
     VERAFY_MODEL: a.model,
     VERAFY_BOND: String(a.bond ?? 500),
     VERAFY_PORT: '7200',

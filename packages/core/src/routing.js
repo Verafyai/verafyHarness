@@ -6,7 +6,7 @@
  *
  * Assurance levels follow the draft SIMDs:
  *   L0   signature only: proves which harness voted, not which model ran
- *   L1   L0 plus commit-reveal and lab diversity (any route qualifies; diversity is the jury's job)
+ *   L1   L0 plus commit-reveal and model-family diversity (any route qualifies; diversity is the jury's job)
  *   L1+  re-executable by auditors: open weights, temperature 0, pinned runtime, or a hardware attestation
  *   L2   a proof of inference per vote, verified off chain
  *   L3   a proof verified on chain (reserved)
@@ -49,7 +49,7 @@ export function meets(have, need) {
 /**
  * Pick the inference route for a contract.
  * @param {object} asc - the contract; `payment.jury.assurance` is the required level, default L0.
- * @param {{id: string, lab: string, model: string, kind: string, usdPerVote?: number, proofs?: boolean, attestation?: boolean}[]} routes - routes this harness can use.
+ * @param {{id: string, family: string, model: string, kind: string, usdPerVote?: number, proofs?: boolean, attestation?: boolean}[]} routes - routes this harness can use.
  * @returns {{route: object, assurance: string}} the cheapest qualifying route.
  */
 export function routeInference(asc, routes) {

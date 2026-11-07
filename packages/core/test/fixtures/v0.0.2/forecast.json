@@ -1,0 +1,58 @@
+{
+  "kind": "verafy.asc/1",
+  "id": "forecast-march-rate-cut",
+  "title": "Forecast: Will the Fed cut rates in March?",
+  "instructions": "You forecast. Give the probability that the Federal Reserve lowers the target range for the federal funds rate at its March 2027 meeting, using only the pinned context. You will be scored against the outcome.",
+  "context": [
+    {
+      "kind": "text",
+      "content": "Example briefing, Nov 5, 2026. The target range is 3.75 to 4.00 percent after a cut in September. Core inflation was 2.6 percent year over year in October. Unemployment rose to 4.6 percent. Two committee members said further cuts depend on labor data. The December meeting is expected to hold.",
+      "sha256": "5d1c05c60f2335a4b4764e2084cea3014ce45e6f08f8e55db52fb3b4b1d9ef45"
+    },
+    {
+      "kind": "policy",
+      "content": "Forecast pool rules. Answer with a probability. Do not round to 0 or 1. State the two facts that moved your number most.",
+      "sha256": "5158dcc32108d36d90234f3364913c988dbbcac85facf22b3d5a5f67dfcfa1aa"
+    }
+  ],
+  "question": {
+    "prompt": "Probability the Fed cuts rates at its March 2027 meeting?",
+    "answer": {
+      "type": "forecast",
+      "tolerance": 0.2
+    }
+  },
+  "payment": {
+    "escrow": 0.8,
+    "currency": "USDC",
+    "bar": 0.7,
+    "jury": {
+      "size": 5,
+      "minLabs": 5,
+      "quorum": 4
+    },
+    "split": {
+      "jurors": 0.8,
+      "auditors": 0.1,
+      "storage": 0.05,
+      "sealer": 0.05
+    },
+    "chain": "solana"
+  },
+  "exits": [
+    {
+      "outcome": "*forecast",
+      "effect": {
+        "type": "record",
+        "label": "forecast, scored at resolution"
+      }
+    },
+    {
+      "outcome": "*below-bar",
+      "effect": {
+        "type": "escalate",
+        "jurySize": 9
+      }
+    }
+  ]
+}

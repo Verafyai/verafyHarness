@@ -84,7 +84,9 @@ export function validate(asc) {
   if (!(pay?.bar > 0 && pay.bar <= 1)) p.push('payment.bar must be in (0, 1]')
   const j = pay?.jury
   if (!(j?.size >= 1)) p.push('payment.jury.size must be at least 1')
-  if (!(j?.minLabs >= 1 && j.minLabs <= j.size)) p.push('payment.jury.minLabs must be between 1 and jury.size')
+  const minF = j?.minFamilies ?? j?.minLabs
+  if (j?.minFamilies !== undefined && j?.minLabs !== undefined) p.push('payment.jury has minFamilies and its old name minLabs; keep one')
+  if (!(minF >= 1 && minF <= j.size)) p.push('payment.jury.minFamilies must be between 1 and jury.size')
   if (pay?.source !== undefined) {
     const s = pay.source
     if (typeof s !== 'object' || s === null) p.push('payment.source must be an object')
@@ -112,8 +114,14 @@ export function validate(asc) {
   // Batching (optional; absent fields leave a contract's hash unchanged).
   // minBatch: never seal in a block with fewer contracts. maxWaitSeconds: seal no later than this after queueing.
   if (pay?.minBatch !== undefined && !(Number.isInteger(pay.minBatch) && pay.minBatch >= 1)) p.push('payment.minBatch must be a whole number of contracts, at least 1')
+  // VIP-0007: payouts wait this many blocks for challenges. VIP-0008: a jury of one needs a window.
+  if (pay?.challengeWindow !== undefined && !(Number.isInteger(pay.challengeWindow) && pay.challengeWindow >= 0)) p.push('payment.challengeWindow must be a whole number of blocks, 0 or more')
+  if (j?.maxSeatsPerOperator !== undefined && !(Number.isInteger(j.maxSeatsPerOperator) && j.maxSeatsPerOperator >= 1)) p.push('payment.jury.maxSeatsPerOperator must be a whole number, at least 1')
+  if (j?.minOperators !== undefined && !(Number.isInteger(j.minOperators) && j.minOperators >= 1 && j.minOperators <= j.size)) p.push('payment.jury.minOperators must be between 1 and jury.size')
+  if (j?.weighting !== undefined && !['equal', 'bond'].includes(j.weighting)) p.push('payment.jury.weighting must be "equal" or "bond"')
+  if (j?.slashing !== undefined && !/^[0-9a-f]{64}$/.test(j.slashing)) p.push('payment.jury.slashing must be the slashing schedule hash')
   if (pay?.maxWaitSeconds !== undefined && !(typeof pay.maxWaitSeconds === 'number' && pay.maxWaitSeconds > 0)) p.push('payment.maxWaitSeconds must be a positive number of seconds')
-  for (const k of ['excludeLabs', 'excludeHarnesses']) {
+  for (const k of ['excludeFamilies', 'excludeLabs', 'excludeHarnesses']) {
     if (j?.[k] !== undefined && !(Array.isArray(j[k]) && j[k].every(x => typeof x === 'string'))) p.push(`payment.jury.${k} must be a list of names`)
   }
   const hex = /^[0-9a-f]{64}$/

@@ -148,7 +148,7 @@ export class HarnessDaemon {
 
   async #route(method, path, body) {
     const h = this.harness
-    if (method === 'GET' && path === '/health') return [200, { ok: true, harness: h.id, lab: h.lab, model: h.model, nodes: this.nodes.length, registered: this.registered.size, seen: this.seen.size, admitted: this.admitted.size, open: h.pending.size, lastWatch: this.lastWatch }]
+    if (method === 'GET' && path === '/health') return [200, { ok: true, harness: h.id, family: h.family, model: h.model, nodes: this.nodes.length, registered: this.registered.size, seen: this.seen.size, admitted: this.admitted.size, open: h.pending.size, lastWatch: this.lastWatch }]
     if (method === 'GET' && path === '/card') return [200, h.card]
     if (method === 'GET' && path === '/status') return [200, { harness: h.id, record: h.record, admitted: Object.fromEntries(this.admitted), refused: Object.fromEntries(this.refused), open: [...h.pending.keys()] }]
     if (method === 'POST' && path === '/commit') {

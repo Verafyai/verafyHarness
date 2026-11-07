@@ -112,14 +112,14 @@ const jury0 = (asc, pool) => drawJuryFor(asc, pool.map(p => p.harness.card), 'ge
 test('below the bar after the drop, it escalates', async () => {
   // Three NO and two YES at equal confidence: 0.6 agreement against a 0.55 bar. Drop one NO proof: 2 to 2, 0.5.
   const base = ex('market-resolution')
-  const s = { [base.id]: Object.fromEntries(Object.entries(script[base.id]).map(([lab, v]) => [lab, { ...v, confidence: 0.9, answer: ['openai', 'google'].includes(lab) ? 'YES' : 'NO' }])) }
+  const s = { [base.id]: Object.fromEntries(Object.entries(script[base.id]).map(([family, v]) => [family, { ...v, confidence: 0.9, answer: ['gpt-oss', 'gemma'].includes(family) ? 'YES' : 'NO' }])) }
   const asc = l2({ ...base, payment: { ...base.payment, bar: 0.55 } }, { quorum: 3 })
   const pool = provingPool(s)
   const full = await l2Round(asc, provingPool(s))
   assert.equal(full.ruling.passed, true)
   assert.equal(full.ruling.agreement, 0.6)
   const jury = drawJuryFor(asc, pool.map(p => p.harness.card), 'genesis')
-  const no = jury.find(c => s[base.id][c.lab].answer === 'NO').id
+  const no = jury.find(c => s[base.id][c.family].answer === 'NO').id
   const { ruling } = await l2Round(asc, pool, { withhold: new Set([no]) })
   assert.equal(ruling.agreement, 0.5)
   assert.equal(ruling.passed, false)
@@ -204,7 +204,7 @@ test('requests are proven in batches of at most proverBatch', async () => {
 
 test('routeInference for L2 uses a local prover or a proving service, never a hosted API', () => {
   const asc = l2(ex('market-resolution'))
-  const hostedClaim = { id: 'hosted', lab: 'x', model: 'm', kind: 'hosted', proofs: true, usdPerVote: 0.0001 }
+  const hostedClaim = { id: 'hosted', family: 'x', model: 'm', kind: 'hosted', proofs: true, usdPerVote: 0.0001 }
   assert.throws(() => routeInference(asc, [hostedClaim]), /no inference route meets L2; the best this harness offers is L1/)
   const routes = [hostedClaim, { id: 'local', kind: 'local-prover', proofs: true, usdPerVote: 0.05 }, { id: 'service', kind: 'proving-service', proofs: true, usdPerVote: 0.03 }]
   assert.equal(routeInference(asc, routes).route.id, 'service')
@@ -215,7 +215,7 @@ test('routeInference for L2 uses a local prover or a proving service, never a ho
 test('proving as a service: metered per proof, and the harness verifies before it counts', async () => {
   const h = config.pool[3]
   const asc = l2(ex('market-resolution'))
-  const real = mockProver({ model: h.model, complete: mockProvider(script, asc.id, h.lab).complete })
+  const real = mockProver({ model: h.model, complete: mockProvider(script, asc.id, h.family).complete })
   let corrupt = false
   const service = async (url, init) => {
     const body = JSON.parse(init.body)

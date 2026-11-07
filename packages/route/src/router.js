@@ -3,7 +3,7 @@
  * answer it safely, and move up only when needed.
  *
  *   tier 0  a fast screen (System 1, such as Jev): typed answer and probability
- *   tier 1+ panels of jurors from several labs, smallest models first
+ *   tier 1+ panels of jurors from several families, smallest models first
  *   proven  the L2 lane: set by the contract, never by difficulty
  *
  * Plain code, no model decides where a question goes. Three signals do:
@@ -47,7 +47,7 @@ export class Router {
   /**
    * @param {object} cfg
    * @param {object} [cfg.screen] - a screen ({ name, usd, ms, decide }), optional.
-   * @param {Array<{id: string, jurors: Array<{lab: string, usd?: number, ms?: number, decide: Function}>, usd?: number}>} cfg.tiers - panels, cheapest first.
+   * @param {Array<{id: string, jurors: Array<{family: string, usd?: number, ms?: number, decide: Function}>, usd?: number}>} cfg.tiers - panels, cheapest first.
    * @param {Record<string, {cutoff: number|null}>} [cfg.cutoffs] - from calibrate(); missing type means never settle on the screen.
    * @param {'shadow'|'live'} [cfg.mode='shadow'] - shadow logs what the screen would settle; live lets it settle.
    * @param {number} [cfg.auditRate=0.05] - share of screen-settled and low-tier answers re-checked at the top tier.
@@ -56,8 +56,8 @@ export class Router {
   constructor({ screen = null, tiers, cutoffs = {}, mode = 'shadow', auditRate = 0.05, sizing = [{ minP: 0.95, startTier: 0 }, { minP: 0.8, startTier: 1 }] }) {
     if (!Array.isArray(tiers) || !tiers.length) throw new Error('the router needs at least one panel tier')
     for (const t of tiers) {
-      const labs = new Set(t.jurors.map(j => j.lab))
-      if (labs.size < Math.min(2, t.jurors.length)) throw new Error(`tier ${t.id} must span labs`)
+      const families = new Set(t.jurors.map(j => j.family))
+      if (families.size < Math.min(2, t.jurors.length)) throw new Error(`tier ${t.id} must span families`)
     }
     this.screen = screen
     this.tiers = tiers
@@ -127,13 +127,13 @@ export class Router {
 
     for (let t = start; t < this.tiers.length; t++) {
       const tier = this.tiers[t]
-      const votes = await Promise.all(tier.jurors.map(async j => ({ lab: j.lab, ...(await j.decide(atom)) })))
+      const votes = await Promise.all(tier.jurors.map(async j => ({ family: j.family, ...(await j.decide(atom)) })))
       out.costUsd += tier.jurors.reduce((s, j) => s + (j.usd ?? 0), 0)
       out.ms += Math.max(...tier.jurors.map(j => j.ms ?? 0))
       const known = votes.filter(v => v.answer != null)
       const unanimous = known.length === votes.length && known.every(v => same(v.answer, known[0].answer))
       const last = t === this.tiers.length - 1
-      out.path.push({ tier: tier.id, votes: votes.map(v => ({ lab: v.lab, answer: v.answer })), unanimous })
+      out.path.push({ tier: tier.id, votes: votes.map(v => ({ family: v.family, answer: v.answer })), unanimous })
       if (unanimous) { out.answer = known[0].answer; out.settledBy = tier.id; break }
       if (last) {
         // Top tier, still split: the majority stands only if it clears the bar; else UNKNOWN goes to the contract's fallback.
@@ -149,7 +149,7 @@ export class Router {
     // Audit: a settled answer below the top tier is re-checked there, on a block-hash draw.
     if (isAudited && out.settledBy !== this.tiers.at(-1).id && out.settledBy !== 'below-bar') {
       const top = this.tiers.at(-1)
-      const votes = await Promise.all(top.jurors.map(async j => ({ lab: j.lab, ...(await j.decide(atom)) })))
+      const votes = await Promise.all(top.jurors.map(async j => ({ family: j.family, ...(await j.decide(atom)) })))
       out.costUsd += top.jurors.reduce((s, j) => s + (j.usd ?? 0), 0)
       const agree = votes.filter(v => same(v.answer, out.answer)).length / votes.length
       out.audited = { tier: top.id, agreement: agree, screen: screened ? { answer: screened.answer, p: screened.p, correct: same(screened.answer, out.answer) } : null }

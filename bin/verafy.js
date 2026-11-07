@@ -45,7 +45,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const CHAIN = chainPaths(ROOT)
 const args = process.argv.slice(2)
 const flag = f => args.includes(f)
-const VALUE_FLAGS = ['--config', '--env', '--plans', '--chain', '--rpc', '--program', '--payer', '--target', '--lab', '--model', '--kind', '--nodes', '--id', '--public-url', '--region', '--plan', '--ref', '--port']
+const VALUE_FLAGS = ['--config', '--env', '--plans', '--chain', '--rpc', '--program', '--payer', '--target', '--family', '--model', '--kind', '--nodes', '--id', '--public-url', '--region', '--plan', '--ref', '--port']
 const positional = args.filter((a, i) => !a.startsWith('--') && !VALUE_FLAGS.includes(args[i - 1]))
 const value = f => { const i = args.indexOf(f); return i >= 0 ? args[i + 1] : undefined }
 const [cmd, file, ...rest] = positional
@@ -108,8 +108,8 @@ async function doctor() {
   const config = await loadConfig()
   const major = Number(process.versions.node.split('.')[0])
   console.log(`${major >= 22 ? 'ok  ' : 'FAIL'} node ${process.versions.node} (need 22 or later)`)
-  const labs = new Set(config.pool.map(h => h.lab))
-  console.log(`ok   pool: ${config.pool.length} harnesses across ${labs.size} labs`)
+  const families = new Set(config.pool.map(h => h.family))
+  console.log(`ok   pool: ${config.pool.length} harnesses across ${families.size} families`)
   if (!flag('--live')) { console.log('skip model checks (add --live to call each model once)'); return }
   for (const h of config.pool) {
     const t = Date.now()
@@ -188,7 +188,7 @@ async function serveCommand() {
  * proof packing end to end (atomize, fidelity panel, pack, prove, verify,
  * assemble). Scripted by default (examples/packed/answers.json answers the
  * packed slots, the panel rules FAITHFUL). With --live, the first pool model
- * atomizes contracts without a plan and three labs' models sit the fidelity
+ * atomizes contracts without a plan and three families' models sit the fidelity
  * panel and answer the packed requests. The prover is the mock prover either
  * way: its proofs bind the answer to the request but are not proofs of inference.
  */
@@ -203,16 +203,16 @@ async function packedCommand() {
   const config = await loadConfig()
   let panel, complete, atomizer
   if (flag('--live')) {
-    const byLab = [...new Map(config.pool.map(h => [h.lab, h])).values()].slice(0, 3)
-    panel = byLab.map(h => ({ lab: h.lab, model: h.model, provider: providerFor(config, h) }))
+    const byLab = [...new Map(config.pool.map(h => [h.family, h])).values()].slice(0, 3)
+    panel = byLab.map(h => ({ family: h.family, model: h.model, provider: providerFor(config, h) }))
     const top = config.pool[0]
     atomizer = { provider: providerFor(config, top), model: top.model }
-    const prov = providerFor(config, config.pool.find(h => h.lab === 'meta') ?? top)
-    const model = (config.pool.find(h => h.lab === 'meta') ?? top).model
+    const prov = providerFor(config, config.pool.find(h => h.family === 'llama') ?? top)
+    const model = (config.pool.find(h => h.family === 'llama') ?? top).model
     complete = req => prov.complete({ ...req, model })
   } else {
     const truth = await readJson(join(ROOT, 'examples/packed/answers.json'))
-    panel = ['anthropic', 'openai', 'google'].map(lab => ({ lab, model: 'scripted', provider: { complete: async () => JSON.stringify({ answer: 'FAITHFUL', confidence: 0.9, reasoning: 'scripted', sources: ['c0'] }) } }))
+    panel = ['mistral', 'gpt-oss', 'gemma'].map(family => ({ family, model: 'scripted', provider: { complete: async () => JSON.stringify({ answer: 'FAITHFUL', confidence: 0.9, reasoning: 'scripted', sources: ['c0'] }) } }))
     complete = async ({ user }) => [...user.matchAll(/\[S(\d+)\] Q: (.+)/g)].map(([, n, q]) => `S${n}: ${truth[q] ?? 'UNKNOWN'}`).join('\n')
   }
   const r = await packedBlock(contracts, { plans, atomizer, panel, prover: mockProver({ model: 'llama-4-maverick', complete }), verifier: mockVerifier(), seed: (await loadChain()).at(-1)?.hash ?? 'genesis' })
@@ -225,7 +225,7 @@ async function packedCommand() {
 /**
  * `verafy testnet up [--live] [--solana] [--rpc url --program id --payer file] [--keep] [asc.json...]`
  * `verafy testnet down`
- * A whole testnet on this machine: one harness daemon per lab, a local
+ * A whole testnet on this machine: one harness daemon per family, a local
  * coordinator that draws juries, runs commit and reveal over HTTP and seals
  * blocks, and optionally settles each ruling on Solana. Scripted answers by
  * default. `--chain <dir>` runs the verafyChain devnet instead.
@@ -252,7 +252,7 @@ async function upCommand() {
   if (flag('--ui')) return upUi({ open: !flag('--no-open') })
   const nodes = value('--nodes')
   await upInteractive({
-    target: value('--target'), lab: value('--lab'), model: value('--model'), kind: value('--kind'), id: value('--id'),
+    target: value('--target'), family: value('--family'), model: value('--model'), kind: value('--kind'), id: value('--id'),
     nodes: nodes !== undefined ? nodes.split(',').filter(Boolean) : undefined, publicUrl: value('--public-url'),
     region: value('--region'), plan: value('--plan'), ref: value('--ref'), mock: flag('--mock'), yes: flag('--yes'),
   })
@@ -309,7 +309,7 @@ async function main() {
     if (!flag('--json')) console.log(c.d(`light client: ${funding.checked ? 'escrow funded' : funding.reason}`))
   }
   const script = flag('--live') ? null : await readJson(join(ROOT, 'examples', 'mock-answers.json'))
-  const pool = config.pool.map(h => new Harness({ ...h, provider: flag('--live') ? providerFor(config, h) : mockProvider(script, asc.id, h.lab) }))
+  const pool = config.pool.map(h => new Harness({ ...h, provider: flag('--live') ? providerFor(config, h) : mockProvider(script, asc.id, h.family) }))
   const chain = await loadChain()
   const parent = chain.at(-1) ?? null
   const jury = drawJuryFor(asc, pool, parent?.hash ?? 'genesis')
@@ -318,7 +318,7 @@ async function main() {
 
   if (!flag('--json')) {
     console.log(c.b(`\n${asc.title}`))
-    console.log(c.d(`mode ${flag('--live') ? 'live models' : 'mock answers'} · escrow ${asc.payment.escrow} ${asc.payment.currency} · bar ${pct(asc.payment.bar)} · jury ${asc.payment.jury.size} across ${asc.payment.jury.minLabs}+ labs`))
+    console.log(c.d(`mode ${flag('--live') ? 'live models' : 'mock answers'} · escrow ${asc.payment.escrow} ${asc.payment.currency} · bar ${pct(asc.payment.bar)} · jury ${asc.payment.jury.size} across ${asc.payment.jury.minFamilies}+ families`))
   }
   const ruling = await rule(asc, jury, sealer, log, { seed: parent?.hash ?? 'genesis' })
   const block = seal(parent, [ruling], sealer)
@@ -355,7 +355,7 @@ async function sealFromJurors(asc, dirs) {
   const parent = chain.at(-1) ?? null
   if (!flag('--json')) {
     console.log(c.b(`\n${asc.title}`))
-    console.log(c.d(`mode reveals from ${entries.length} harness processes · escrow ${asc.payment.escrow} ${asc.payment.currency} · bar ${pct(asc.payment.bar)} · jury ${asc.payment.jury.size} across ${asc.payment.jury.minLabs}+ labs`))
+    console.log(c.d(`mode reveals from ${entries.length} harness processes · escrow ${asc.payment.escrow} ${asc.payment.currency} · bar ${pct(asc.payment.bar)} · jury ${asc.payment.jury.size} across ${asc.payment.jury.minFamilies}+ families`))
   }
   const ruling = ruleFromReveals(asc, entries, sealer.id, parent?.hash ?? 'genesis', flag('--json') ? () => {} : event => print(event, asc))
   const block = seal(parent, [ruling], sealer)
@@ -374,7 +374,7 @@ function print(e, asc) {
   if (e.phase === 'propose') {
     console.log(c.b('\nPROPOSE'))
     console.log(`  asc ${short(e.ascHash)} · ${asc.context.length} context entries pinned`)
-    for (const j of e.jury) console.log(`  ${c.a('harness')} ${j.id.padEnd(15)} ${j.lab.padEnd(10)} ${c.d(j.model)}`)
+    for (const j of e.jury) console.log(`  ${c.a('harness')} ${j.id.padEnd(15)} ${j.family.padEnd(10)} ${c.d(j.model)}`)
   }
   if (e.phase === 'commit') {
     console.log(c.b('\nCOMMIT'))

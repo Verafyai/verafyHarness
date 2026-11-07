@@ -95,14 +95,15 @@ export const PROOF_HASH = /^[0-9a-f]{64}$/
  * proof of the inference. Only the hash is kept on the vote; the proof itself
  * never travels with it, and a stored hash is not a proof by itself.
  * @param {object} asc - the contract.
- * @param {{complete: (req: {model: string, system: string, user: string, ascId: string, lab?: string}) => Promise<string | {content: string, proofHash?: string}>}} provider - the model provider.
+ * @param {{complete: (req: {model: string, system: string, user: string, ascId: string, family?: string}) => Promise<string | {content: string, proofHash?: string}>}} provider - the model provider.
  * @param {string} model - the committed model id.
- * @param {{lab?: string}} [options] - the juror's lab, passed to the provider so a scripted provider can answer any contract.
+ * @param {{family?: string, lab?: string}} [options] - the juror's model family, passed to the provider so a scripted provider can answer any contract.
  * @returns {Promise<object>} the parsed vote, with `proofHash` when the route gave one.
  */
-export async function deliberate(asc, provider, model, { lab } = {}) {
+export async function deliberate(asc, provider, model, { family, lab } = {}) {
+  family ??= lab
   const { system, user } = buildPrompt(asc)
-  const out = await provider.complete({ model, system, user, ascId: asc.id, lab })
+  const out = await provider.complete({ model, system, user, ascId: asc.id, family, lab: family })
   const text = typeof out === 'string' ? out : String(out?.content ?? '')
   const vote = parseVote(asc, text)
   if (out && typeof out === 'object' && out.proofHash !== undefined) {

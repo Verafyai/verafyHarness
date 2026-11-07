@@ -43,9 +43,9 @@ export const DEFAULTS = {
   dedupePct: { value: 0, label: 'input', source: 'Share of atoms already asked by another contract in the same block' },
   screen: { value: false, label: 'design', source: 'A fast System 1 screen (for example TypeSafe Jev) answers atoms first' },
   screenPct: { value: 0, label: 'illustrative', source: 'Share of atoms the screen settles, only where the contract allows a screen to settle them' },
-  screenFidelityPct: { value: 0, label: 'illustrative', source: 'Share of brief and plan fidelity checks the screen settles; the rest go to the unproven multi-lab panel' },
+  screenFidelityPct: { value: 0, label: 'illustrative', source: 'Share of brief and plan fidelity checks the screen settles; the rest go to the unproven multi-family panel' },
   screenUsd: { value: 0.0004, label: 'vendor-reported', source: 'TypeSafe Jev, about $0.0004 a decision in 70 to 500 ms; not reproduced', url: 'https://thenewstack.io/typesafe-jev-system-one/', date: '2026-11' },
-  fidelityCheckUsd: { value: 0.0163 / 5, label: 'measured', source: 'One unproven multi-lab check per brief, from the measured live run: $0.0163 for five contracts', url: 'https://github.com/Verafyai/verafyHarness/blob/main/results/live-2026-11-06.md', date: '2026-11-06' },
+  fidelityCheckUsd: { value: 0.0163 / 5, label: 'measured', source: 'One unproven multi-family check per brief, from the measured live run: $0.0163 for five contracts', url: 'https://github.com/Verafyai/verafyHarness/blob/main/results/live-2026-11-06.md', date: '2026-11-06' },
 }
 
 /** Presets: overrides on DEFAULTS. */

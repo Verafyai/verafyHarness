@@ -137,7 +137,7 @@ Work through these parts in order, and ask me when something is missing rather t
 2. instructions: the compressed intention. Say what to decide, which sources count, and what to answer when the sources do not settle it.
 3. context: every source the jury may use. For a web page, give its url, a snapshotAt time and the snapshot text as content. Add the rules or policy as text or policy entries. The jury sees only this.
 4. question: the prompt, and the answer form. Use "verdict" with options (always include an UNCLEAR-style option), "graded" with grades, or "forecast" for a probability.
-5. payment: escrow and currency, the bar (agreement needed, such as 0.8), the jury (size, minLabs, and an optional quorum), and the split (jurors, auditors, storage, sealer, adding up to 1). Payment is in whatever asset the requester holds; there is no token.
+5. payment: escrow and currency, the bar (agreement needed, such as 0.8), the jury (size, minFamilies, and an optional quorum), and the split (jurors, auditors, storage, sealer, adding up to 1). Payment is in whatever asset the requester holds; there is no token.
 6. exits: one exit per option, plus one for "*below-bar" (escalate to a wider jury, or refund).
 
 Use verafy_examples and the verafy://schema/asc resource for the exact shape. Then:

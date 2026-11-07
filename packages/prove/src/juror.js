@@ -34,7 +34,7 @@ export function l2Provider(prover, { contextTokens = DEFAULT_CONTEXT_TOKENS } = 
     plans,
     contextTokens,
     async complete(req) {
-      const meta = { ascId: req.ascId, lab: req.lab }
+      const meta = { ascId: req.ascId, family: req.family }
       const plan = planInference({ system: req.system, user: req.user }, { contextTokens })
       const steps = []
       if (plan.single) {

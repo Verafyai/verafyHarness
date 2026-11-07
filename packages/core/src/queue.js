@@ -155,14 +155,14 @@ export function contractTokens(asc) {
  */
 export function queueMeta(asc, { escrowRef, tokens } = {}) {
   const p = asc.payment
-  const { size, minLabs, quorum, assurance, excludeLabs, excludeHarnesses } = p.jury
+  const { size, minFamilies, minLabs, quorum, assurance, excludeFamilies, excludeLabs, excludeHarnesses } = p.jury
   return JSON.parse(JSON.stringify({
     escrowRef,
     escrow: p.escrow,
     currency: p.currency,
     chain: p.chain,
     maxValuePerVote: p.maxValuePerVote,
-    jury: { size, minLabs, quorum, assurance, excludeLabs, excludeHarnesses },
+    jury: { size, minFamilies, minLabs, quorum, assurance, excludeFamilies, excludeLabs, excludeHarnesses },
     minBatch: p.minBatch,
     maxWaitSeconds: p.maxWaitSeconds,
     tokens: tokens ?? contractTokens(asc),
@@ -240,7 +240,7 @@ export function envelopeProblems(env, { nodes, t } = {}) {
   const m = env?.meta
   if (!m?.escrowRef) p.push('meta.escrowRef is required')
   if (!(m?.escrow > 0)) p.push('meta.escrow must be positive')
-  if (!(m?.jury?.size >= 1 && m.jury.minLabs >= 1 && m.jury.minLabs <= m.jury.size)) p.push('meta.jury needs size and minLabs')
+  if (!(m?.jury?.size >= 1 && (m.jury.minFamilies ?? m.jury.minLabs) >= 1 && (m.jury.minFamilies ?? m.jury.minLabs) <= m.jury.size)) p.push('meta.jury needs size and minFamilies')
   if (!(Number.isInteger(m?.tokens) && m.tokens > 0)) p.push('meta.tokens must be a positive integer')
   const c = env?.committee
   if (!(c?.t >= 1 && c.t <= c.n && c.nodes?.length === c.n)) p.push('committee needs t <= n and n node ids')

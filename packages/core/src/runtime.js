@@ -91,6 +91,32 @@ export function buildDiff(asc, exit, passed, counted, sealer) {
   return diff
 }
 
+/** The account a ruling's payouts wait in through the challenge window (VIP-0007). */
+export function heldAccount(asc) {
+  return `escrow:${asc.id}:held`
+}
+
+/** Whether a contract holds its payouts through a challenge window. */
+export function holdsPayouts(asc) {
+  return (asc.payment?.challengeWindow ?? 0) > 0
+}
+
+/**
+ * The held form of a passing ruling's diff (VIP-0007): every debit stays as
+ * it is, and every credit waits in the held account until the challenge window
+ * closes. The intended payouts are kept beside it, and `releaseHeld` applies
+ * them, or the challenge outcome, later. Totals still conserve.
+ * @param {object} asc - the contract.
+ * @param {{account: string, delta: number}[]} diff - the intended diff, from `buildDiff`.
+ * @returns {{diff: object[], held: {account: string, amount: number, window: number, payouts: object[]}}} the diff to seal now, and the hold.
+ */
+export function holdDiff(asc, diff) {
+  const credits = diff.filter(d => d.delta > 0)
+  const amount = round(credits.reduce((s, d) => s + d.delta, 0))
+  const account = heldAccount(asc)
+  return { diff: [...diff.filter(d => d.delta <= 0), { account, delta: amount }], held: { account, amount, window: asc.payment.challengeWindow, payouts: credits } }
+}
+
 /**
  * The pay rules, as a check any node can run on a ruling's diff without
  * rebuilding it:
@@ -108,6 +134,20 @@ export function buildDiff(asc, exit, passed, counted, sealer) {
  */
 export function checkPay(asc, ruling, sealer = ruling.round?.sealer) {
   const p = []
+  if (ruling.held) {
+    // A held ruling seals its debits and parks every credit; the pay rules apply to the payouts it will release.
+    const h = ruling.held
+    if (!holdsPayouts(asc)) p.push('a contract with no challenge window does not hold payouts')
+    if (!ruling.passed) p.push('only a passing ruling holds payouts')
+    const sealed = Array.isArray(ruling.diff) ? ruling.diff : []
+    if (!conserves(sealed)) p.push('diff does not conserve totals')
+    const credits = sealed.filter(d => d.delta > 0)
+    if (credits.length !== 1 || credits[0].account !== heldAccount(asc) || Math.abs(credits[0].delta - h.amount) > 1e-9) p.push('a held ruling credits only its held account, with the whole payout')
+    if (Math.abs(h.payouts.reduce((s, d) => s + d.delta, 0) - h.amount) > 1e-9) p.push('held payouts do not add up to the held amount')
+    const intended = [...sealed.filter(d => d.delta <= 0), ...h.payouts]
+    for (const x of checkPay(asc, { ...ruling, held: undefined, diff: intended }, sealer)) p.push(`held payouts: ${x}`)
+    return p
+  }
   const diff = Array.isArray(ruling.diff) ? ruling.diff : []
   if (!conserves(diff)) p.push('diff does not conserve totals')
   const pool = escrowAccount(asc)

@@ -3,7 +3,7 @@
  * environment wins, so a container or a cloud server is configured with
  * variables alone and no file:
  *
- *   VERAFY_HARNESS_ID   VERAFY_LAB   VERAFY_MODEL   VERAFY_BOND
+ *   VERAFY_HARNESS_ID   VERAFY_FAMILY   VERAFY_MODEL   VERAFY_BOND   (VERAFY_LAB is read as VERAFY_FAMILY)
  *   VERAFY_BASE_URL     any OpenAI-compatible endpoint (OpenRouter, Ollama, vLLM)
  *   VERAFY_API_KEY      the model key (read by name, never written to the config)
  *   VERAFY_NODES        comma-separated node URLs
@@ -32,11 +32,11 @@ export const DEFAULTS = Object.freeze({
  */
 export function serveConfig(file = {}, env = process.env) {
   const h = file.harness ?? {}
-  const lab = env.VERAFY_LAB ?? h.lab
+  const family = env.VERAFY_FAMILY ?? env.VERAFY_LAB ?? h.family ?? h.lab
   const model = env.VERAFY_MODEL ?? h.model
   const harness = {
     id: env.VERAFY_HARNESS_ID ?? h.id,  // when unset, startServe makes one and keeps it in the data directory
-    lab,
+    family,
     model,
     bond: Number(env.VERAFY_BOND ?? h.bond ?? DEFAULTS.bond),
   }
@@ -61,7 +61,7 @@ export function serveConfig(file = {}, env = process.env) {
  */
 export function checkServeConfig(c, env = process.env) {
   const p = []
-  if (!c.harness.lab) p.push('no lab: set VERAFY_LAB or harness.lab (anthropic, openai, google, meta, qwen, deepseek, mistral, ...)')
+  if (!c.harness.family) p.push('no model family: set VERAFY_FAMILY or harness.family to the base model your open-weight model descends from (llama, qwen, mistral, deepseek, gemma, ...)')
   if (!c.harness.model) p.push('no model: set VERAFY_MODEL or harness.model')
   if (!(c.harness.bond > 0)) p.push('bond must be a positive number')
   if (!c.mock && !env[c.provider.apiKeyEnv] && !isLocalEndpoint(c.provider.baseURL)) p.push(`no model key: set ${c.provider.apiKeyEnv} (or VERAFY_MOCK=1 to try it with scripted answers)`)

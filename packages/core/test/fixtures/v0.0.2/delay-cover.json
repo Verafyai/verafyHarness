@@ -1,0 +1,84 @@
+{
+  "kind": "verafy.asc/1",
+  "id": "delay-cover-ua1532",
+  "title": "Pay the claim if UA 1532 lands 3+ hours late",
+  "instructions": "You decide a flight-delay insurance claim. Pay if the pinned flight record shows an arrival at least three hours after the scheduled arrival. Deny if it shows less. Hold if the record is missing or contradictory.",
+  "context": [
+    {
+      "kind": "link",
+      "url": "https://example.com/flight-status/UA1532/2026-11-04",
+      "snapshotAt": "2026-11-05T06:00:00Z",
+      "content": "Example flight record. UA 1532, SFO to ORD, Nov 4, 2026. Scheduled arrival 17:05 CT. Actual arrival 21:17 CT. Status: arrived, delayed 4h 12m.",
+      "sha256": "33988f8c653970a791f3d60e2cb06e0064c46a9d01abff35c2de1cc6d82bb8d2"
+    },
+    {
+      "kind": "policy",
+      "content": "Delay cover v3. Payout 250 USDC per covered traveler when arrival is 3 hours or more after schedule. Weather and air traffic control delays are covered.",
+      "sha256": "2d8342dd475029bba9b6f8bc98c9281ef441479f06d39882fd918b0a21c4070e"
+    }
+  ],
+  "question": {
+    "prompt": "Does the claim for UA 1532 on Nov 4, 2026 qualify for payout?",
+    "answer": {
+      "type": "verdict",
+      "options": [
+        "PAY",
+        "DENY",
+        "HOLD"
+      ]
+    }
+  },
+  "payment": {
+    "escrow": 0.6,
+    "currency": "USDC",
+    "bar": 0.7,
+    "maxValuePerVote": 250,
+    "jury": {
+      "size": 5,
+      "minLabs": 4,
+      "quorum": 4
+    },
+    "split": {
+      "jurors": 0.8,
+      "auditors": 0.1,
+      "storage": 0.05,
+      "sealer": 0.05
+    },
+    "chain": "solana"
+  },
+  "exits": [
+    {
+      "outcome": "PAY",
+      "effect": {
+        "type": "call",
+        "chain": "solana",
+        "target": "delay_cover.settle",
+        "args": [
+          "PAY",
+          250
+        ]
+      }
+    },
+    {
+      "outcome": "DENY",
+      "effect": {
+        "type": "record",
+        "label": "denied"
+      }
+    },
+    {
+      "outcome": "HOLD",
+      "effect": {
+        "type": "hold",
+        "hours": 24
+      }
+    },
+    {
+      "outcome": "*below-bar",
+      "effect": {
+        "type": "escalate",
+        "jurySize": 9
+      }
+    }
+  ]
+}

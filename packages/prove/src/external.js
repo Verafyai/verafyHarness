@@ -113,7 +113,7 @@ function order(requests, results, check) {
 }
 
 /**
- * DeepProve (github.com/Lagrange-Labs/deep-prove), CPU or GPU build, behind a
+ * DeepProve (github.com/Lagrange-Families/deep-prove), CPU or GPU build, behind a
  * wrapper that meets the contract above. Its `bench-llm` binary proves and
  * verifies a random prompt in one run and has no per-request prove or verify
  * command, so the wrapper is written against the `zkml` crate. Note: the repo's

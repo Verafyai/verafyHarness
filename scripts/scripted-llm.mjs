@@ -10,10 +10,10 @@
  *   1. (with --probe) call every non-Verafy tool the headless profile mounts, once
  *      each, whether offered or not, to show the juror lock refuses them all
  *   2. call verafy_load_contract on the contract path
- *   3. call verafy_cast_vote with the lab's answer from examples/mock-answers.json
+ *   3. call verafy_cast_vote with the family's answer from examples/mock-answers.json
  *   4. reply with plain text
  *
- * The lab is read from the model id: `scripted-<lab>`. Requests without tools
+ * The family is read from the model id: `scripted-<family>`. Requests without tools
  * (auxiliary calls such as session titles) get a short text reply.
  *
  *   node scripts/scripted-llm.mjs --port 8790 --asc examples/market-resolution.json [--probe]
@@ -54,7 +54,7 @@ function history(messages) {
 function next(body) {
   const tools = (body.tools ?? []).map(t => t.function?.name).filter(Boolean)
   if (tools.length === 0) return { text: 'Verafy juror run' }
-  const lab = String(body.model).replace(/^scripted-/, '')
+  const family = String(body.model).replace(/^scripted-/, '')
   const done = history(body.messages ?? [])
   const called = name => done.some(c => c.name === name)
   if (probe) {
@@ -65,8 +65,8 @@ function next(body) {
   }
   if (!called('verafy_load_contract')) return { tool: 'verafy_load_contract', args: { path: ascPath } }
   if (!called('verafy_cast_vote')) {
-    const vote = script[asc.id]?.[lab]
-    if (!vote) return { text: `no scripted answer for ${asc.id} / ${lab}` }
+    const vote = script[asc.id]?.[family]
+    if (!vote) return { text: `no scripted answer for ${asc.id} / ${family}` }
     return { tool: 'verafy_cast_vote', args: vote }
   }
   return { text: 'Vote committed.' }

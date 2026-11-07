@@ -1,7 +1,7 @@
 /**
  * `verafy testnet`: a whole testnet on one machine.
  *
- * It starts one harness daemon per lab as its own process (the same
+ * It starts one harness daemon per family as its own process (the same
  * `verafy harness serve` an operator runs), then a local coordinator that
  * does what a Verafy Chain node does: draws each contract's jury from the
  * parent block hash, runs the commit round and the reveal round over HTTP,
@@ -68,7 +68,7 @@ export async function testnetUp({ dir = join(ROOT, '.verafy/testnet'), basePort 
     for (const [i, h] of config.pool.entries()) {
       const port = basePort + i
       const dataDir = join(dir, h.id)
-      const env = { ...process.env, VERAFY_HARNESS_ID: h.id, VERAFY_LAB: h.lab, VERAFY_MODEL: h.model, VERAFY_BOND: String(h.bond), VERAFY_PORT: String(port), VERAFY_PUBLIC_URL: `http://127.0.0.1:${port}`, VERAFY_DATA_DIR: dataDir, ...(live ? {} : { VERAFY_MOCK: '1' }) }
+      const env = { ...process.env, VERAFY_HARNESS_ID: h.id, VERAFY_FAMILY: h.family, VERAFY_MODEL: h.model, VERAFY_BOND: String(h.bond), VERAFY_PORT: String(port), VERAFY_PUBLIC_URL: `http://127.0.0.1:${port}`, VERAFY_DATA_DIR: dataDir, ...(live ? {} : { VERAFY_MOCK: '1' }) }
       delete env.VERAFY_NODES
       const p = spawn(process.execPath, [join(ROOT, 'bin/verafy.js'), 'harness', 'serve'], { env, stdio: ['ignore', 'pipe', 'pipe'] })
       const log = []
@@ -79,11 +79,11 @@ export async function testnetUp({ dir = join(ROOT, '.verafy/testnet'), basePort 
     }
     for (const h of harnesses) await waitHealthy(h.url)
     const pool = await Promise.all(harnesses.map(async h => remote(await (await fetch(`${h.url}/card`)).json(), h.url)))
-    say(`${pool.length} harnesses up: ${pool.map(p => `${p.id} (${p.lab})`).join(', ')}${live ? '' : ' (scripted answers, no model calls)'}`)
+    say(`${pool.length} harnesses up: ${pool.map(p => `${p.id} (${p.family})`).join(', ')}${live ? '' : ' (scripted answers, no model calls)'}`)
     writeFileSync(join(dir, 'pids.json'), JSON.stringify(harnesses.map(h => ({ id: h.id, pid: h.pid, url: h.url }))))
 
     // The coordinator's own key seals blocks, as a node would.
-    const sealer = new Harness({ id: 'node-local', lab: 'node', model: 'none', bond: 0, provider: mockProvider({}), identityFile: join(dir, 'node-local.identity.pem') })
+    const sealer = new Harness({ id: 'node-local', family: 'node', model: 'none', bond: 0, provider: mockProvider({}), identityFile: join(dir, 'node-local.identity.pem') })
     const chainFile = join(dir, 'chain.json')
     const chain = existsSync(chainFile) ? JSON.parse(readFileSync(chainFile, 'utf8')) : []
     const blocks = []
@@ -99,7 +99,7 @@ export async function testnetUp({ dir = join(ROOT, '.verafy/testnet'), basePort 
       const block = seal(parent, [ruling], sealer)
       chain.push(block)
       blocks.push(block)
-      say(`block ${block.height}  ${block.hash.slice(0, 12)}  ${asc.id}: ${ruling.passed ? ruling.exit ?? ruling.answer : 'below bar'}  jury ${jury.map(j => j.lab).join(',')}`)
+      say(`block ${block.height}  ${block.hash.slice(0, 12)}  ${asc.id}: ${ruling.passed ? ruling.exit ?? ruling.answer : 'below bar'}  jury ${jury.map(j => j.family).join(',')}`)
       if (sol && asc.question?.answer?.options) settled.push(await settleOnSolana(sol, asc, ruling, jury, harnesses, say))
     }
     writeFileSync(chainFile, JSON.stringify(chain, null, 2))

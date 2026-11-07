@@ -12,7 +12,7 @@ const script = JSON.parse(readFileSync(join(ROOT, 'examples/mock-answers.json'),
 const h = ascHash(asc)
 
 function harness(identity) {
-  return new Harness({ id: 'h-anthropic-1', lab: 'anthropic', model: 'mock', bond: 500, provider: mockProvider(script), ...(identity ? { identity } : {}) })
+  return new Harness({ id: 'h-mistral-1', family: 'mistral', model: 'mock', bond: 500, provider: mockProvider(script), ...(identity ? { identity } : {}) })
 }
 
 /** A fake node: records registrations, serves a one-contract mempool. */
@@ -83,7 +83,7 @@ test('serves over HTTP and stops cleanly', async () => {
   const port = await d.start()
   const health = await (await fetch(`http://127.0.0.1:${port}/health`)).json()
   assert.equal(health.ok, true)
-  assert.equal(health.harness, 'h-anthropic-1')
+  assert.equal(health.harness, 'h-mistral-1')
   const res = await fetch(`http://127.0.0.1:${port}/proof`, { method: 'POST', body: '{}' })
   assert.equal(res.status, 404)
   await d.stop()

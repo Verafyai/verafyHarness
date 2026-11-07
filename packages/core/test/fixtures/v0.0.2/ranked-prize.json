@@ -1,0 +1,95 @@
+{
+  "kind": "verafy.asc/1",
+  "id": "hackathon-agents-2026-prize",
+  "title": "Split a hackathon prize by the jury ranking",
+  "instructions": "You judge the final round of a hackathon. AWARD if at least three pinned submissions meet the rules, NO_AWARD if fewer do. When you answer AWARD, also rank the best three submissions by the published rubric, as entrant indexes 0 to 4, best first. The prize is split 50, 30 and 20 percent by that ranking.",
+  "context": [
+    {
+      "kind": "document",
+      "label": "Submissions (example)",
+      "content": "Example submissions. Entrant 0: an agent that files expense reports, working demo, tests pass, rubric notes strong on correctness. Entrant 1: a code review agent, working demo, partial tests. Entrant 2: a scheduling agent, demo crashes on the second task. Entrant 3: an agent that triages support email, working demo, full tests, best documentation. Entrant 4: a slide generator, working demo, no tests.",
+      "sha256": "d9f4c7fdc67b3a0dce9a93676120666ad52997b6056dcf69bafa9f226286db3b"
+    },
+    {
+      "kind": "policy",
+      "content": "Rubric (example): correctness 50 percent, tests 30 percent, documentation 20 percent. A submission must run end to end to place.",
+      "sha256": "b856981c906cf9816a5f143d098e0e738ee9774c44a1ab5ee15d39f5b2ca10a4"
+    }
+  ],
+  "question": {
+    "prompt": "Should the prize be awarded, and how do the top three submissions rank?",
+    "answer": {
+      "type": "verdict",
+      "options": [
+        "AWARD",
+        "NO_AWARD"
+      ]
+    }
+  },
+  "payment": {
+    "escrow": 0.9,
+    "currency": "USDC",
+    "bar": 0.7,
+    "jury": {
+      "size": 5,
+      "minLabs": 4,
+      "quorum": 4
+    },
+    "split": {
+      "jurors": 0.8,
+      "auditors": 0.1,
+      "storage": 0.05,
+      "sealer": 0.05
+    },
+    "chain": "solana"
+  },
+  "exits": [
+    {
+      "outcome": "AWARD",
+      "effect": {
+        "type": "record",
+        "label": "prize split by rank"
+      },
+      "exitProgram": {
+        "programHash": "0f31de8218bb47ab22e550b2fa6ff182f5489067f9b51d4cf5f8bbc89dd3968f",
+        "entry": "split",
+        "params": {
+          "ranking": {
+            "type": "ranking",
+            "size": 3,
+            "of": 5
+          }
+        },
+        "args": {
+          "prize": 10000000000,
+          "shares": [
+            500000,
+            300000,
+            200000
+          ],
+          "pot": "pot:hackathon-agents-2026",
+          "entrants": [
+            "wallet:entrant-0",
+            "wallet:entrant-1",
+            "wallet:entrant-2",
+            "wallet:entrant-3",
+            "wallet:entrant-4"
+          ]
+        }
+      }
+    },
+    {
+      "outcome": "NO_AWARD",
+      "effect": {
+        "type": "refund"
+      }
+    },
+    {
+      "outcome": "*below-bar",
+      "effect": {
+        "type": "escalate",
+        "jurySize": 9
+      }
+    }
+  ]
+}

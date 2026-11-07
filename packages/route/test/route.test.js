@@ -5,13 +5,13 @@ import { PLAN_KIND, atomKey } from '../../pack/src/index.js'
 
 const pin = 'a'.repeat(64)
 const yn = (id, q) => ({ id, q, answer: { type: 'yes-no' }, facts: [{ text: `fact for ${q}`, pin }] })
-const juror = (lab, answers, usd = 0.001, ms = 2000) => ({ lab, usd, ms, decide: async atom => ({ answer: answers[atom.q] ?? null }) })
-const panel = (id, labs, answers, usd, ms) => ({ id, jurors: labs.map(l => juror(l, typeof answers === 'function' ? answers(l) : answers, usd, ms)) })
+const juror = (family, answers, usd = 0.001, ms = 2000) => ({ family, usd, ms, decide: async atom => ({ answer: answers[atom.q] ?? null }) })
+const panel = (id, families, answers, usd, ms) => ({ id, jurors: families.map(l => juror(l, typeof answers === 'function' ? answers(l) : answers, usd, ms)) })
 
 const easy = yn('e', 'Was the shipment delivered by Oct 5?')
 const hard = yn('h', 'Does the delegated token bypass rule 4?')
 const truth = { [easy.q]: true, [hard.q]: false }
-const split = lab => ({ [easy.q]: true, [hard.q]: lab === 'b' ? true : false })
+const split = family => ({ [easy.q]: true, [hard.q]: family === 'b' ? true : false })
 
 function router(opts = {}) {
   return new Router({
@@ -124,6 +124,6 @@ test('the Jev adapter maps typed answers and refuses bad replies', async () => {
   assert.equal(atomType({ answer: { type: 'integer' } }), 'integer')
 })
 
-test('tiers must span labs', () => {
-  assert.throws(() => new Router({ tiers: [{ id: 'x', jurors: [juror('a', {}), juror('a', {})] }] }), /span labs/)
+test('tiers must span families', () => {
+  assert.throws(() => new Router({ tiers: [{ id: 'x', jurors: [juror('a', {}), juror('a', {})] }] }), /span families/)
 })

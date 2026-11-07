@@ -1,0 +1,91 @@
+{
+  "kind": "verafy.asc/1",
+  "id": "market-senate-bill-nov30",
+  "title": "Resolve: Will the bill pass the Senate by Nov 30?",
+  "instructions": "You resolve a prediction market. Use only the pinned roll-call snapshot and the market rules. A bill has passed the Senate only if the snapshot records a passing roll-call vote dated on or before November 30. If the snapshot does not settle the question, answer UNCLEAR. You never see the market price.",
+  "context": [
+    {
+      "kind": "link",
+      "url": "https://www.senate.gov/legislative/votes_new.htm",
+      "snapshotAt": "2026-12-01T00:00:00Z",
+      "content": "Example snapshot. Senate roll call votes, 119th Congress, 2nd session, November 2026. Vote 301 (Nov 18): cloture on a nomination, agreed 52-47. Vote 302 (Nov 19): motion to proceed to H.R. 4410, rejected 46-53. No further votes on H.R. 4410 were recorded through November 30.",
+      "sha256": "536d4a107871205583293a8daa88d1e1bf28a3ecdf7eaaa49888d4dc60698de0"
+    },
+    {
+      "kind": "text",
+      "content": "Market rules. This market resolves YES if H.R. 4410 passes the Senate by 11:59 pm ET on November 30, 2026, per the official Senate roll call record. It resolves NO otherwise. It resolves UNCLEAR only if the record is unavailable.",
+      "sha256": "3a67ad1df6621067d6e6f9acfd0f8ca66b3fa3c29930f314546aa164b3755f7e"
+    },
+    {
+      "kind": "policy",
+      "content": "Resolver policy v2. Name the deciding source before the event. Snapshot it at a set time. Never read the market price or order book. Prefer UNCLEAR to a guess.",
+      "sha256": "7678f674744d49bdc0622dd8281343270f51ba8cdfdedde8a888bf55839757ee"
+    }
+  ],
+  "question": {
+    "prompt": "Did H.R. 4410 pass the Senate by November 30, 2026?",
+    "answer": {
+      "type": "verdict",
+      "options": [
+        "YES",
+        "NO",
+        "UNCLEAR"
+      ]
+    }
+  },
+  "payment": {
+    "escrow": 1.2,
+    "currency": "USDC",
+    "bar": 0.8,
+    "jury": {
+      "size": 5,
+      "minLabs": 5,
+      "quorum": 4
+    },
+    "split": {
+      "jurors": 0.8,
+      "auditors": 0.1,
+      "storage": 0.05,
+      "sealer": 0.05
+    },
+    "chain": "solana"
+  },
+  "exits": [
+    {
+      "outcome": "YES",
+      "effect": {
+        "type": "call",
+        "chain": "solana",
+        "target": "market.settle",
+        "args": [
+          "YES"
+        ]
+      }
+    },
+    {
+      "outcome": "NO",
+      "effect": {
+        "type": "call",
+        "chain": "solana",
+        "target": "market.settle",
+        "args": [
+          "NO"
+        ]
+      }
+    },
+    {
+      "outcome": "UNCLEAR",
+      "effect": {
+        "type": "refund",
+        "to": "all-positions"
+      }
+    },
+    {
+      "outcome": "*below-bar",
+      "effect": {
+        "type": "escalate",
+        "jurySize": 9
+      }
+    }
+  ]
+}

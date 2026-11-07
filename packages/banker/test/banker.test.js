@@ -91,14 +91,14 @@ test('the ledger detects tampering', async () => {
 })
 
 test('credits: days left and top-ups; the advisor flags what needs a human', async () => {
-  const plan = await creditPlan([manualCredits({ provider: 'anthropic', usd: 10 }), manualCredits({ provider: 'openai', usd: 300 })], { anthropic: 5, openai: 5 })
+  const plan = await creditPlan([manualCredits({ provider: 'openrouter', usd: 10 }), manualCredits({ provider: 'together', usd: 300 })], { openrouter: 5, together: 5 })
   assert.equal(plan[0].status, 'low'); assert.equal(plan[0].topUpUsd, 140)
   assert.equal(plan[1].status, 'ok')
   const s = svc({ screen: async () => true })
   await s.ingest(dep('f', '2'))
   const r = advise(s, { credits: plan })
   assert.ok(r.flags.some(f => /frozen/.test(f)))
-  assert.ok(r.flags.some(f => /anthropic credits low/.test(f)))
+  assert.ok(r.flags.some(f => /openrouter credits low/.test(f)))
   const or = openRouterCredits({ apiKey: 'k', fetch: async () => ({ ok: true, json: async () => ({ data: { total_credits: 20, total_usage: 5.5 } }) }) })
   assert.deepEqual(await or.balance(), { usd: 14.5, used: 5.5, limit: 20 })
 })

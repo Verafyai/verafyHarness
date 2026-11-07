@@ -2,12 +2,12 @@
  * Milestone 3: auditors, challenges and escalation. Rulings are never erased.
  *
  *   escalate          a below-bar ruling's carried escrow funds a wider jury, drawn
- *                     from labs (and harnesses) not on the original jury
+ *                     from model families (and harnesses) not on the original jury
  *   challengeContract a sealed ruling is reviewed by a new contract, on stated grounds,
  *                     with the prior ruling and the new evidence as context
  *   resolveChallenge  the challenge ruling appends a review: affirm, overturn or
  *                     supersede, or the original stands. The original is never edited.
- *   audit             an auditor from another lab re-checks a sealed ruling: it
+ *   audit             an auditor from another model family re-checks a sealed ruling: it
  *                     re-verifies the record and re-runs the contract, and flags
  *                     disagreement, which is grounds for a challenge
  *
@@ -19,23 +19,25 @@ import { rulingId, verifyRuling } from './network.js'
 import { deliberate } from './juror.js'
 import { sha256, canonical, short } from './hash.js'
 import { verifyMessage } from './signer.js'
+import { familyOf, familyField, minFamiliesOf, excludedFamilies, familyRules } from './family.js'
 
 export const REVIEW_KIND = 'swarm.review/0'
 export const AUDIT_KIND = 'swarm.audit/0'
 export { CHALLENGE_KIND, ESCALATION_KIND, GROUNDS }
 
-const juryOf = ruling => ruling.round?.jury ?? ruling.votes.map(v => ({ id: v.harness, lab: v.lab }))
+const juryOf = ruling => ruling.round?.jury ?? ruling.votes.map(v => ({ id: v.harness, ...familyField(v) }))
 const scaledQuorum = (from, size) => from.quorum ? Math.min(size, Math.ceil(size * from.quorum / from.size)) : undefined
 
 /**
  * The escalated contract for a ruling below the bar: same context, question and
  * exits, funded by exactly the escrow the ruling carried, with a wider jury
- * drawn from labs and harnesses that did not sit on the original jury.
+ * drawn from model families and harnesses that did not sit on the original jury.
  * @param {object} asc - the contract that ruled below the bar.
  * @param {object} ruling - its sealed ruling.
- * @param {{jurySize?: number, minLabs?: number, quorum?: number, excludeLabs?: string[], excludeHarnesses?: string[], id?: string}} [options] -
- *   `jurySize` defaults to the below-bar exit's `jurySize`; `excludeLabs`
- *   defaults to every lab on the original jury (pass `[]` to widen only).
+ * @param {{jurySize?: number, minFamilies?: number, quorum?: number, excludeFamilies?: string[], excludeHarnesses?: string[], id?: string}} [options] -
+ *   `jurySize` defaults to the below-bar exit's `jurySize`; `excludeFamilies`
+ *   defaults to every model family on the original jury (pass `[]` to widen only).
+ *   The legacy names `minLabs` and `excludeLabs` are read too.
  * @returns {object} the escalated contract.
  */
 export function escalate(asc, ruling, options = {}) {
@@ -58,9 +60,8 @@ export function escalate(asc, ruling, options = {}) {
       jury: {
         ...from,
         size,
-        minLabs: options.minLabs ?? from.minLabs,
+        ...familyRules(from, options.minFamilies ?? options.minLabs ?? minFamiliesOf(from), options.excludeFamilies ?? options.excludeLabs ?? [...new Set([...excludedFamilies(from), ...jury.map(familyOf)])]),
         quorum: options.quorum ?? scaledQuorum(from, size),
-        excludeLabs: options.excludeLabs ?? [...new Set([...(from.excludeLabs ?? []), ...jury.map(j => j.lab)])],
         excludeHarnesses: options.excludeHarnesses ?? [...new Set([...(from.excludeHarnesses ?? []), ...jury.map(j => j.id)])],
       },
     },
@@ -88,12 +89,12 @@ export function priorRulingEntry(ruling, status = 'none') {
  * The challenge contract for a sealed ruling. Its context holds, in order: the
  * prior ruling, the original evidence (or the current context under
  * `changed-rules`), and the new material, labeled as new. Its jury is at least
- * as large as the original's and, by default, shares no lab and no harness with
+ * as large as the original's and, by default, shares no model family and no harness with
  * it. Exits only record an outcome: a challenge changes what the record says,
  * never past actions, so no call trigger fires again.
  * @param {object} asc - the original contract.
  * @param {object} ruling - the sealed ruling under challenge (it must have cleared the bar).
- * @param {{grounds: string, evidence?: object[], context?: object[], jurySize?: number, minLabs?: number, quorum?: number, excludeLabs?: string[], escrow?: number, id?: string, status?: string, reviewed?: string[]}} options -
+ * @param {{grounds: string, evidence?: object[], context?: object[], jurySize?: number, minFamilies?: number, quorum?: number, excludeFamilies?: string[], escrow?: number, id?: string, status?: string, reviewed?: string[]}} options -
  *   `grounds` is one of GROUNDS; `evidence` is the new material (context entries
  *   with content); `context` replaces the original context under changed-rules;
  *   `reviewed` lists evidence hashes earlier reviews of this ruling already pinned.
@@ -131,9 +132,8 @@ export function challengeContract(asc, ruling, options) {
       jury: {
         ...from,
         size,
-        minLabs: options.minLabs ?? from.minLabs,
+        ...familyRules(from, options.minFamilies ?? options.minLabs ?? minFamiliesOf(from), options.excludeFamilies ?? options.excludeLabs ?? [...new Set(jury.map(familyOf))]),
         quorum: options.quorum ?? scaledQuorum(from, size),
-        excludeLabs: options.excludeLabs ?? [...new Set(jury.map(j => j.lab))],
         excludeHarnesses: [...new Set(jury.map(j => j.id))],
       },
     },
@@ -164,7 +164,7 @@ export function sameOutcome(question, a, b) {
  * draft rulings SIMD: the same outcome affirms; a different outcome overturns
  * (grounds new-evidence, false-evidence, error) or supersedes (changed-rules);
  * a challenge ruling below the bar leaves the original standing. Checks that
- * the challenge jury shared no lab or harness the contract excluded.
+ * the challenge jury shared no model family or harness the contract excluded.
  * @param {object} challengeAsc - the challenge contract.
  * @param {object} challengeRuling - its sealed ruling.
  * @param {object} original - the challenged ruling.
@@ -175,8 +175,8 @@ export function resolveChallenge(challengeAsc, challengeRuling, original) {
   if (r?.kind !== CHALLENGE_KIND) throw new Error('not a challenge contract')
   if (r.ruling !== rulingId(original)) throw new Error('challenge names another ruling')
   if (challengeRuling.ascHash !== ascHash(challengeAsc)) throw new Error('challenge ruling is for another contract')
-  const labs = new Set(juryOf(original).map(j => j.lab))
-  for (const j of juryOf(challengeRuling)) if (labs.has(j.lab) && (challengeAsc.payment.jury.excludeLabs ?? []).includes(j.lab)) throw new Error(`challenge juror ${j.id} is from ${j.lab}, a lab on the original jury`)
+  const families = new Set(juryOf(original).map(familyOf))
+  for (const j of juryOf(challengeRuling)) if (families.has(familyOf(j)) && excludedFamilies(challengeAsc.payment.jury).includes(familyOf(j))) throw new Error(`challenge juror ${j.id} runs ${familyOf(j)}, a model family on the original jury`)
   const result = !challengeRuling.passed ? 'stands'
     : sameOutcome(challengeAsc.question, challengeRuling.answer, original.answer) ? 'affirm'
     : r.grounds === 'changed-rules' ? 'supersede' : 'overturn'
@@ -209,7 +209,7 @@ export function reviewStatus(id, log) {
 }
 
 /**
- * Draw auditors for a ruling: harnesses from labs that were not on its jury,
+ * Draw auditors for a ruling: harnesses from model families that were not on its jury,
  * in an order seeded like a jury draw.
  * @param {object[]} pool - available harnesses.
  * @param {object} ruling - the sealed ruling.
@@ -218,10 +218,10 @@ export function reviewStatus(id, log) {
  * @returns {object[]} the auditors.
  */
 export function drawAuditors(pool, ruling, seed, count = 1) {
-  const labs = new Set(juryOf(ruling).map(j => j.lab))
+  const families = new Set(juryOf(ruling).map(familyOf))
   const id = rulingId(ruling)
-  const order = pool.filter(h => !labs.has(h.lab)).sort((a, b) => sha256(seed + id + a.id).localeCompare(sha256(seed + id + b.id)))
-  if (order.length < count) throw new Error(`pool has ${order.length} harnesses outside the jury's labs; ${count} auditors needed`)
+  const order = pool.filter(h => !families.has(familyOf(h))).sort((a, b) => sha256(seed + id + a.id).localeCompare(sha256(seed + id + b.id)))
+  if (order.length < count) throw new Error(`pool has ${order.length} harnesses outside the jury's model families; ${count} auditors needed`)
   return order.slice(0, count)
 }
 
@@ -237,30 +237,30 @@ export function sampleForAudit(rulings, seed, rate) {
 }
 
 /**
- * Audit a sealed ruling. The auditor, a harness from a lab not on the jury,
+ * Audit a sealed ruling. The auditor, a harness from a model family not on the jury,
  * re-verifies the ruling from its round record and re-runs the contract with
  * its own model. A ruling that fails verification, or whose answer the auditor
  * does not reach, is flagged; a flag is grounds for a challenge ("error"), not a
  * result by itself. The report is signed by the auditor.
  * @param {object} asc - the contract, with context content.
  * @param {object} ruling - the sealed ruling.
- * @param {{id: string, lab: string, model: string, provider: object, sign: (p: unknown) => string}} auditor - a Harness.
+ * @param {{id: string, family: string, model: string, provider: object, sign: (p: unknown) => string}} auditor - a Harness.
  * @param {{cards?: Map<string, object> | object[], pool?: object[], seed?: string}} [options] - passed to `verifyRuling`.
  * @returns {Promise<object>} the signed audit report.
  */
 export async function audit(asc, ruling, auditor, options = {}) {
-  if (juryOf(ruling).some(j => j.lab === auditor.lab)) throw new Error(`auditor ${auditor.id} is from ${auditor.lab}, a lab on the jury`)
+  if (juryOf(ruling).some(j => familyOf(j) === familyOf(auditor))) throw new Error(`auditor ${auditor.id} runs ${familyOf(auditor)}, a model family on the jury`)
   const verification = verifyRuling(asc, ruling, options)
   let vote = null
   let error = null
-  try { vote = await deliberate(asc, auditor.provider, auditor.model, { lab: auditor.lab }) } catch (err) { error = String(err?.message ?? err) }
+  try { vote = await deliberate(asc, auditor.provider, auditor.model, { family: familyOf(auditor) }) } catch (err) { error = String(err?.message ?? err) }
   const agrees = vote ? sameOutcome(asc.question, vote.answer, ruling.answer) : null
   const report = {
     kind: AUDIT_KIND,
     ruling: rulingId(ruling),
     ascHash: ruling.ascHash,
     auditor: auditor.id,
-    lab: auditor.lab,
+    ...(auditor.legacyLab ? { lab: familyOf(auditor) } : { family: familyOf(auditor) }),
     model: auditor.model,
     verified: verification.ok,
     problems: verification.problems,
