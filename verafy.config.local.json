@@ -1,11 +1,11 @@
 {
   "provider": { "baseURL": "https://openrouter.ai/api/v1", "apiKeyEnv": "VERAFY_API_KEY" },
   "pool": [
-    { "id": "h-local-gptoss", "lab": "openai", "model": "openai/gpt-oss-120b", "bond": 500, "baseURL": "http://127.0.0.1:8000/v1", "apiKeyEnv": "VLLM_API_KEY" },
-    { "id": "h-anthropic-1", "lab": "anthropic", "model": "anthropic/claude-haiku-4.5", "bond": 500 },
-    { "id": "h-google-1", "lab": "google", "model": "google/gemini-2.5-flash", "bond": 500 },
-    { "id": "h-meta-1", "lab": "meta", "model": "meta-llama/llama-4-maverick", "bond": 500 },
-    { "id": "h-qwen-1", "lab": "qwen", "model": "qwen/qwen3-235b-a22b-2507", "bond": 500 },
-    { "id": "h-deepseek-1", "lab": "deepseek", "model": "deepseek/deepseek-v4-flash", "bond": 500 }
+    { "id": "h-local-gptoss", "family": "gpt-oss", "model": "openai/gpt-oss-120b", "bond": 500, "baseURL": "http://127.0.0.1:8000/v1", "apiKeyEnv": "VLLM_API_KEY" },
+    { "id": "h-mistral-1", "family": "mistral", "model": "mistralai/mistral-small-3.2-24b-instruct", "bond": 500 },
+    { "id": "h-gemma-1", "family": "gemma", "model": "google/gemma-3-27b-it", "bond": 500 },
+    { "id": "h-llama-1", "family": "llama", "model": "meta-llama/llama-4-maverick", "bond": 500 },
+    { "id": "h-qwen-1", "family": "qwen", "model": "qwen/qwen3-235b-a22b-2507", "bond": 500 },
+    { "id": "h-deepseek-1", "family": "deepseek", "model": "deepseek/deepseek-v4-flash", "bond": 500 }
   ]
 }

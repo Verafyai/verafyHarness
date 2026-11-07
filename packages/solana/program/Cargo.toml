@@ -3,7 +3,7 @@
 # programs: it reads the loader's input through `abi` and nothing else.
 [package]
 name = "verafy-ruling"
-version = "0.0.2"
+version = "0.0.3"
 edition = "2021"
 license = "MIT"
 

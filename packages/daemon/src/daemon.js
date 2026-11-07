@@ -28,6 +28,12 @@ import { ascHash } from '../../core/src/index.js'
 
 const MAX_BODY = 4 * 1024 * 1024
 
+/**
+ * Test-only misbehavior for the local testnet, so slashing can be seen end to
+ * end. Honored only with scripted answers (`VERAFY_MOCK=1`); `serve` refuses it otherwise.
+ */
+export const MISBEHAVIORS = ['no-commit', 'no-reveal', 'bad-reveal']
+
 export class HarnessDaemon {
   /**
    * @param {object} o
@@ -43,10 +49,11 @@ export class HarnessDaemon {
    * @param {Function} [o.fetch] - fetch, for tests.
    * @param {Function} [o.log] - event sink, one object per event.
    */
-  constructor({ harness, nodes = [], publicUrl, port = 7200, host = '0.0.0.0', stateFile = null, watchMs = 5000, prove = null, requireFunding = false, fetch: f = globalThis.fetch, log = e => console.log(JSON.stringify(e)) }) {
+  constructor({ harness, nodes = [], publicUrl, port = 7200, host = '0.0.0.0', stateFile = null, watchMs = 5000, prove = null, requireFunding = false, misbehave = null, fetch: f = globalThis.fetch, log = e => console.log(JSON.stringify(e)) }) {
     if (!harness) throw new Error('daemon needs a harness')
+    if (misbehave && !MISBEHAVIORS.includes(misbehave)) throw new Error(`misbehave must be one of ${MISBEHAVIORS.join(', ')}`)
     if (!publicUrl) throw new Error('daemon needs publicUrl: the address nodes call')
-    Object.assign(this, { harness, nodes, publicUrl, port, host, stateFile, watchMs, prove, requireFunding, fetch: f, log })
+    Object.assign(this, { harness, nodes, publicUrl, port, host, stateFile, watchMs, prove, requireFunding, misbehave, fetch: f, log })
     this.admitted = new Map()   // ascHash -> { at, title }
     this.refused = new Map()    // ascHash -> problems
     this.registered = new Set()
@@ -148,7 +155,7 @@ export class HarnessDaemon {
 
   async #route(method, path, body) {
     const h = this.harness
-    if (method === 'GET' && path === '/health') return [200, { ok: true, harness: h.id, lab: h.lab, model: h.model, nodes: this.nodes.length, registered: this.registered.size, seen: this.seen.size, admitted: this.admitted.size, open: h.pending.size, lastWatch: this.lastWatch }]
+    if (method === 'GET' && path === '/health') return [200, { ok: true, harness: h.id, family: h.family, model: h.model, nodes: this.nodes.length, registered: this.registered.size, seen: this.seen.size, admitted: this.admitted.size, open: h.pending.size, lastWatch: this.lastWatch }]
     if (method === 'GET' && path === '/card') return [200, h.card]
     if (method === 'GET' && path === '/status') return [200, { harness: h.id, record: h.record, admitted: Object.fromEntries(this.admitted), refused: Object.fromEntries(this.refused), open: [...h.pending.keys()] }]
     if (method === 'POST' && path === '/commit') {
@@ -156,6 +163,7 @@ export class HarnessDaemon {
       if (!(await this.inMempool(ascHash(body.asc)))) return [409, { error: 'not in any watched node\'s mempool' }]
       const d = await this.admit(body.asc)
       if (!d.admitted) return [409, { error: `not admitted: ${d.problems.join('; ')}` }]
+      if (this.misbehave === 'no-commit') return [503, { error: 'withheld: this test harness is set to skip commits (testnet misbehavior)' }]
       const c = await h.commit(body.asc)
       this.persist()
       this.log({ event: 'commit', harness: h.id, asc: body.asc.id, commitment: c.commitment })
@@ -163,7 +171,13 @@ export class HarnessDaemon {
     }
     if (method === 'POST' && path === '/reveal') {
       if (!body?.ascHash) return [400, { error: 'reveal needs { ascHash }' }]
-      const r = h.reveal(body.ascHash)
+      if (this.misbehave === 'no-reveal') return [503, { error: 'withheld: this test harness is set to skip reveals (testnet misbehavior)' }]
+      let r = h.reveal(body.ascHash)
+      if (this.misbehave === 'bad-reveal') {
+        // Reveal a different answer, signed, which cannot open the commitment: a provable fault.
+        const body2 = { harness: r.harness, ascHash: r.ascHash, vote: { ...r.vote, answer: `${r.vote.answer}-changed` }, salt: r.salt }
+        r = { ...body2, signature: h.sign(body2) }
+      }
       this.admitted.delete(body.ascHash)
       this.persist()
       this.log({ event: 'reveal', harness: h.id, ascHash: body.ascHash, answer: r.vote.answer })

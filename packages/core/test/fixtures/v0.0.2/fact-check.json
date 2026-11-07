@@ -1,0 +1,91 @@
+{
+  "kind": "verafy.asc/1",
+  "id": "factcheck-ceo-revenue-doubled",
+  "title": "Fact check: The CEO said revenue doubled",
+  "instructions": "You grade a public claim against the pinned transcript. Grade it true if the transcript supports it as stated, mostly true if it supports it with minor qualifications, misleading if it is accurate only for a part or a period the claim does not name, and false if the transcript contradicts it. Quote nothing beyond what you need.",
+  "context": [
+    {
+      "kind": "link",
+      "url": "https://example.com/q3-earnings-call-transcript",
+      "snapshotAt": "2026-10-30T20:00:00Z",
+      "content": "Example transcript. CEO: Cloud revenue doubled year over year, from 410 million to 820 million. Total company revenue grew 18 percent to 2.9 billion. CFO: Hardware revenue declined 6 percent.",
+      "sha256": "a9498f83eee430c4f2e8f735d4f267bee2c0576f690e0ab6ce942964d7568a20"
+    },
+    {
+      "kind": "text",
+      "content": "The claim, as posted on Oct 31: \"The CEO said revenue doubled this quarter.\"",
+      "sha256": "ca060f68c42e7d2860452e0ba27511124fe3e7fc433543e811f3277e35a53f92"
+    },
+    {
+      "kind": "policy",
+      "content": "Fact-check desk style guide. Grade the claim as worded, not what the speaker may have meant. Name the sentence that decides the grade.",
+      "sha256": "04c3605431544b0f94dc7938f96239687c0b5071189b80e5849d1fe2dd298959"
+    }
+  ],
+  "question": {
+    "prompt": "Grade the claim \"The CEO said revenue doubled this quarter.\"",
+    "answer": {
+      "type": "graded",
+      "options": [
+        "true",
+        "mostly true",
+        "misleading",
+        "false"
+      ]
+    }
+  },
+  "payment": {
+    "escrow": 0.9,
+    "currency": "USDC",
+    "bar": 0.7,
+    "jury": {
+      "size": 5,
+      "minLabs": 4,
+      "quorum": 4
+    },
+    "split": {
+      "jurors": 0.8,
+      "auditors": 0.1,
+      "storage": 0.05,
+      "sealer": 0.05
+    },
+    "chain": "solana"
+  },
+  "exits": [
+    {
+      "outcome": "true",
+      "effect": {
+        "type": "record",
+        "label": "true"
+      }
+    },
+    {
+      "outcome": "mostly true",
+      "effect": {
+        "type": "record",
+        "label": "mostly true"
+      }
+    },
+    {
+      "outcome": "misleading",
+      "effect": {
+        "type": "record",
+        "label": "misleading"
+      }
+    },
+    {
+      "outcome": "false",
+      "effect": {
+        "type": "record",
+        "label": "false"
+      }
+    },
+    {
+      "outcome": "*below-bar",
+      "effect": {
+        "type": "escalate",
+        "jurySize": 9
+      }
+    }
+  ]
+}

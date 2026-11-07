@@ -14,7 +14,7 @@ spec:
       instance_size_slug: apps-s-1vcpu-1gb
       instance_count: 1
       envs:
-        - key: VERAFY_LAB
+        - key: VERAFY_FAMILY
           value: anthropic
         - key: VERAFY_MODEL
           value: anthropic/claude-haiku-4.5

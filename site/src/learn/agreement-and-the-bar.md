@@ -8,7 +8,7 @@ The bar is the share of seated jurors that must give the same answer, set by the
 - **Ties never pass** unless the bar is at most one half.
 - **Below the bar is an answer too.** The contract says what happens: a wider jury, a refund, or a human.
 
-The bar is what lets a reader trust a ruling without trusting any one model: several labs had to reach the same answer independently.
+The bar is what lets a reader trust a ruling without trusting any one model: several model families had to reach the same answer independently.
 
 **Status.** Built (CORE). The Solana program counts agreement the same way, in parts per million. See the [specification](/spec).
 

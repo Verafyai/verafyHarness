@@ -24,15 +24,17 @@ A proposal is not a promise. Each one is tracked in three places:
 
 | VIP | Title | Status | Requirement |
 |---|---|---|---|
-| [0001](VIP-0001-jury-scheduler.md) | Jury scheduler: one unit owns the seed, the draw, deadlines and replacements | Idea | CONS-001 |
-| [0002](VIP-0002-randomness-beacon.md) | Randomness beacon for jury seeds | Idea | CONS-002 |
-| [0003](VIP-0003-operator-diversity.md) | Operator diversity: labs are not owners | Idea | CONS-003 |
-| [0004](VIP-0004-draw-weighting.md) | Draw weighting: equal seats or weighted by bond | Decision needed | CONS-004 |
-| [0005](VIP-0005-fault-slashing.md) | Slashing on recorded faults | Idea | CONS-005 |
-| [0006](VIP-0006-challenge-bonds.md) | Challenge bonds | Idea | JURY-006 |
-| [0007](VIP-0007-payout-hold.md) | Hold payouts until the challenge window closes | Idea | CONS-006 |
-| [0008](VIP-0008-single-harness-mode.md) | Single-harness mode: a jury of one, with a challenge window | Decision needed | CONS-007 |
+| [0001](VIP-0001-jury-scheduler.md) | Jury scheduler: one unit owns the seed, the draw, deadlines and replacements | Built | CONS-001 |
+| [0002](VIP-0002-randomness-beacon.md) | Randomness beacon for jury seeds | Built | CONS-002 |
+| [0003](VIP-0003-operator-diversity.md) | Operator diversity: model families are not owners | Building | CONS-003 |
+| [0004](VIP-0004-draw-weighting.md) | Draw weighting: equal seats or weighted by bond | Built; default needs Rex | CONS-004 |
+| [0005](VIP-0005-fault-slashing.md) | Slashing on recorded faults | Built | CONS-005 |
+| [0006](VIP-0006-challenge-bonds.md) | Challenge bonds | Built | JURY-006 |
+| [0007](VIP-0007-payout-hold.md) | Hold payouts until the challenge window closes | Built | CONS-006 |
+| [0008](VIP-0008-single-harness-mode.md) | Single-harness mode: a jury of one, with a challenge window | Built; needs Rex | CONS-007 |
 | [0009](VIP-0009-prover-placement.md) | Prover placement: each harness proves, or shared provers do | Decision needed | CONS-008 |
+
+Tracking issues: [#26 to #36](https://github.com/Verafyai/verafyHarness/issues?q=label%3Aproposal). Built in v0.0.3-alpha unless the status says otherwise; every number in them is illustrative until Rex sets it.
 
 ## How they fit together
 

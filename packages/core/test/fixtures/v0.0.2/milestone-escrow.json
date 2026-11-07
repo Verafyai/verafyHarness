@@ -1,0 +1,92 @@
+{
+  "kind": "verafy.asc/1",
+  "id": "grant-ledger-sdk-m2",
+  "title": "Release grant milestone 2 when the work is shown",
+  "instructions": "You decide whether milestone 2 of a developer grant was met. MET if the pinned release notes and repository snapshot show every deliverable the grant lists for milestone 2, NOT_MET if any is missing, HOLD if the evidence is missing or contradictory.",
+  "context": [
+    {
+      "kind": "document",
+      "label": "Grant terms (example)",
+      "content": "Example grant. Three milestones paid from one escrow: milestone 1, 2,000 USDC, design doc; milestone 2, 3,000 USDC, a TypeScript SDK with published docs and tests above 80 percent coverage; milestone 3, 5,000 USDC, a production integration.",
+      "sha256": "891c4e55f0835be4269a8660e1e0558b41001b853b673e8bd1b7eaee4e4d146a"
+    },
+    {
+      "kind": "repo",
+      "label": "Release notes v0.2.0 (example)",
+      "content": "Example release notes, v0.2.0. TypeScript SDK released. Docs site published. CI coverage report: 86 percent.",
+      "sha256": "14884c159f5e07a8988211208ccba498c104a6237d414f2f5ad2b9aea05a1ca9"
+    }
+  ],
+  "question": {
+    "prompt": "Was milestone 2 of the ledger SDK grant met?",
+    "answer": {
+      "type": "verdict",
+      "options": [
+        "MET",
+        "NOT_MET",
+        "HOLD"
+      ]
+    }
+  },
+  "payment": {
+    "escrow": 0.6,
+    "currency": "USDC",
+    "bar": 0.7,
+    "jury": {
+      "size": 5,
+      "minLabs": 4,
+      "quorum": 4
+    },
+    "split": {
+      "jurors": 0.8,
+      "auditors": 0.1,
+      "storage": 0.05,
+      "sealer": 0.05
+    },
+    "chain": "solana"
+  },
+  "exits": [
+    {
+      "outcome": "MET",
+      "effect": {
+        "type": "record",
+        "label": "milestone released"
+      },
+      "exitProgram": {
+        "programHash": "ea7421526e5170539cd9b73e28fa92a2a21e0cb29dc819d87a8d4fc131031fc2",
+        "entry": "release",
+        "args": {
+          "milestone": 1,
+          "tranches": [
+            2000000000,
+            3000000000,
+            5000000000
+          ],
+          "pot": "pot:grant-ledger-sdk",
+          "contractor": "wallet:sdk-team"
+        }
+      }
+    },
+    {
+      "outcome": "NOT_MET",
+      "effect": {
+        "type": "record",
+        "label": "not met"
+      }
+    },
+    {
+      "outcome": "HOLD",
+      "effect": {
+        "type": "hold",
+        "hours": 72
+      }
+    },
+    {
+      "outcome": "*below-bar",
+      "effect": {
+        "type": "escalate",
+        "jurySize": 9
+      }
+    }
+  ]
+}

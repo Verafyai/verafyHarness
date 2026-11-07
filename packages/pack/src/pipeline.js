@@ -5,7 +5,7 @@
  *
  *   1. Atomize: draft an atom plan for each contract (any model), validate it,
  *      and check every cited pin is real. A plan is reused when `plans` gives one.
- *   2. Fidelity: an unproven panel spanning labs rules each plan FAITHFUL,
+ *   2. Fidelity: an unproven panel spanning families rules each plan FAITHFUL,
  *      NOT_FAITHFUL or UNCLEAR. Below the bar, the contract is not packed: it
  *      goes back to a whole-contract jury (`fallback`), never guessed.
  *   3. Route (optional): the router answers the atoms it may, only for
@@ -26,9 +26,9 @@ import { pack, readReply, HEADER, roughTokens } from './packer.js'
 
 /**
  * Ask the fidelity panel about one plan.
- * @returns {Promise<{faithful: boolean, votes: object[], agree: number, labs: number}>}
+ * @returns {Promise<{faithful: boolean, votes: object[], agree: number, families: number}>}
  */
-export async function checkFidelity(contract, plan, panel, { bar = 0.8, minLabs = 3 } = {}) {
+export async function checkFidelity(contract, plan, panel, { bar = 0.8, minFamilies = 3 } = {}) {
   const q = fidelityQuestion(contract, plan)
   const asc = {
     kind: 'verafy.asc/1',
@@ -39,12 +39,12 @@ export async function checkFidelity(contract, plan, panel, { bar = 0.8, minLabs 
     question: { prompt: q.prompt, answer: { type: 'verdict', options: q.options } },
   }
   const votes = await Promise.all(panel.map(async j => {
-    try { const v = await deliberate(asc, j.provider, j.model, { lab: j.lab }); return { lab: j.lab, answer: v.answer } } catch (err) { return { lab: j.lab, answer: null, error: err.message } }
+    try { const v = await deliberate(asc, j.provider, j.model, { family: j.family }); return { family: j.family, answer: v.answer } } catch (err) { return { family: j.family, answer: null, error: err.message } }
   }))
   const yes = votes.filter(v => v.answer === 'FAITHFUL')
-  const labs = new Set(yes.map(v => v.lab)).size
+  const families = new Set(yes.map(v => v.family)).size
   const agree = yes.length / (panel.length || 1)
-  return { faithful: agree >= bar && labs >= Math.min(minLabs, new Set(panel.map(j => j.lab)).size), votes, agree, labs }
+  return { faithful: agree >= bar && families >= Math.min(minFamilies, new Set(panel.map(j => j.family)).size), votes, agree, families }
 }
 
 /**
@@ -53,14 +53,14 @@ export async function checkFidelity(contract, plan, panel, { bar = 0.8, minLabs 
  * @param {object} o
  * @param {{provider: object, model: string}} [o.atomizer] - drafts plans (not needed when `plans` covers every contract).
  * @param {Record<string, object>} [o.plans] - plans already drafted, by contract id.
- * @param {{lab: string, provider: object, model: string}[]} o.panel - the fidelity panel; must span labs.
+ * @param {{family: string, provider: object, model: string}[]} o.panel - the fidelity panel; must span families.
  * @param {object} o.prover - a Prover from @verafyharness/prove.
  * @param {object} o.verifier - a Verifier; every proof is checked before it counts.
  * @param {object} [o.router] - a Router from @verafyharness/route, for contracts below L2.
  * @param {string} [o.seed] - block hash; fixes slot order and audits.
  * @param {number} [o.contextTokens] - prover window (1,024 for FlashProve, vendor-reported).
  * @param {Function} [o.countTokens] - tokenizer.
- * @param {{bar?: number, minLabs?: number}} [o.fidelity] - panel bar.
+ * @param {{bar?: number, minFamilies?: number}} [o.fidelity] - panel bar.
  * @returns {Promise<{results: Record<string, object>, requests: object[], stats: object, fallback: string[]}>}
  */
 export async function packedBlock(contracts, { atomizer, plans = {}, panel, prover, verifier, router = null, seed = '', contextTokens = 1024, countTokens = roughTokens, fidelity = {} } = {}) {
@@ -82,7 +82,7 @@ export async function packedBlock(contracts, { atomizer, plans = {}, panel, prov
     } else errors = validatePlan(plan, c)
     if (errors.length) { fail(c, 'atomize', errors.join('; ')); continue }
     const f = await checkFidelity(c, plan, panel, fidelity)
-    if (!f.faithful) { results[c.id] = { packed: false, stage: 'fidelity', reason: `panel agreement ${Math.round(f.agree * 100)}% across ${f.labs} labs`, fidelity: f }; fallback.push(c.id); continue }
+    if (!f.faithful) { results[c.id] = { packed: false, stage: 'fidelity', reason: `panel agreement ${Math.round(f.agree * 100)}% across ${f.families} families`, fidelity: f }; fallback.push(c.id); continue }
     items.push({ id: c.id, plan, contract: c, planHash: planHash(plan), fidelity: f })
   }
 
@@ -141,7 +141,7 @@ export async function packedBlock(contracts, { atomizer, plans = {}, panel, prov
       params: d.params,
       ...(d.unknown ? { unknown: d.unknown } : {}),
       planHash: it.planHash,
-      fidelity: { agree: it.fidelity.agree, labs: it.fidelity.labs },
+      fidelity: { agree: it.fidelity.agree, families: it.fidelity.families },
       answers: ans,
       proofs: [...used].map(id => ({ request: id, ...proofs[id] })),
       routed: routed.filter(r => r.contract === it.id && r.lane !== 'proven').map(r => ({ atom: r.atom, settledBy: r.settledBy })),

@@ -1,5 +1,7 @@
 # Juror mode inside DeepSeek Harness
 
+*These milestone 2 runs (Nov 6, 2026) predate v0.0.3, when the jurors moved to open-weight models and jury diversity moved from labs to model families. The route and model names below are the ones those runs used; the routes in `config/cordis.verafy.yml` are now one per open-weight model family.*
+
 Milestone 2 on the [roadmap](../ROADMAP.md). Prototype only: not a running network, no token, nothing audited.
 
 A Verafy juror here is an ordinary DeepSeek Harness (DSH) headless process with one extra plugin, [`@verafyharness/dsh-verafy-juror`](../packages/dsh-verafy-juror/src/index.ts), and one overlay, [`config/cordis.verafy.yml`](../config/cordis.verafy.yml). The upstream tree at `upstream/deepseek-harness` is built in place and never edited.
@@ -8,10 +10,10 @@ A Verafy juror here is an ordinary DeepSeek Harness (DSH) headless process with 
 
 | Piece | What it does |
 |---|---|
-| `config/cordis.verafy.yml` | One `dsh-llm-pi-ai` route per lab, each serving exactly one model: `openrouter-<lab>` (live, key `VERAFY_API_KEY`; the launcher fills it from `SWARM_API_KEY` when only the old name is set) and `scripted-<lab>` (keyless test double). Sets the agent's default route from `VERAFY_ROUTE`, mounts the plugin, and turns off the coding persona, workspace instruction files, skills and the session title model call. |
+| `config/cordis.verafy.yml` | One `dsh-llm-pi-ai` route per model family, each serving exactly one model: `openrouter-<family>` (live, key `VERAFY_API_KEY`; the launcher fills it from `SWARM_API_KEY` when only the old name is set) and `scripted-<family>` (keyless test double). Sets the agent's default route from `VERAFY_ROUTE`, mounts the plugin, and turns off the coding persona, workspace instruction files, skills and the session title model call. |
 | `packages/dsh-verafy-juror` | Juror section (`verafy:juror`) in the system prompt; `verafy_load_contract`; `verafy_cast_vote`; the tool lock, which allows only those two; a reminder at the stop boundary when no vote was cast. Refuses to vote if the agent's route serves a different model than the harness committed to. |
-| `scripts/dsh-juror.mjs` | `setup` links the plugin and its peers; `vote` runs one juror; `jury` runs five jurors in parallel (one per lab, from `verafy.config.json`) and then runs `verafy seal`. Each juror gets its own empty working directory under `.dsh/jurors/<harness>`. |
-| `scripts/scripted-llm.mjs` | OpenAI-compatible chat completions server that answers from `examples/mock-answers.json` by lab. `--probe` makes it call every non-Verafy tool first. A test double, not a model. |
+| `scripts/dsh-juror.mjs` | `setup` links the plugin and its peers; `vote` runs one juror; `jury` runs five jurors in parallel (one per model family, from `verafy.config.json`) and then runs `verafy seal`. Each juror gets its own empty working directory under `.dsh/jurors/<harness>`. |
+| `scripts/scripted-llm.mjs` | OpenAI-compatible chat completions server that answers from `examples/mock-answers.json` by model family. `--probe` makes it call every non-Verafy tool first. A test double, not a model. |
 | `node bin/verafy.js seal` | Reads each juror's `<ascHash>.commit.json` and private `<ascHash>.reveal.json`, draws the jury from the submitted cards seeded by the parent block hash, checks every attestation signature, commitment and reveal, rules, and seals. |
 
 What a juror writes, in `.dsh/jurors/<harness>/` (gitignored):
@@ -34,7 +36,7 @@ All numbers below are measured on one laptop (Node 26.10.0, DSH 0.2.2-rc.1 at `f
 
 ### One keyless juror
 
-`node scripts/dsh-juror.mjs vote --lab openai --probe`: exit 0, about 1 s, commitment written. The scripted model saw 2 tools offered. It called the 24 other tools the headless profile mounts (bash, create_goal, edit, get_goal, glob, grep, interrupt_agent, job_kill, job_list, job_output, list_agents, read, read_image, send_message, skill, subagent, subagent_fork, todo_write, update_goal, wait_agent, web_fetch, workflow, working_directory, write); all 24 returned `Error: Juror mode allows only swarm tools.` Then `swarm_load_contract`, then `swarm_cast_vote`.
+`node scripts/dsh-juror.mjs vote --family gpt-oss --probe`: exit 0, about 1 s, commitment written. The scripted model saw 2 tools offered. It called the 24 other tools the headless profile mounts (bash, create_goal, edit, get_goal, glob, grep, interrupt_agent, job_kill, job_list, job_output, list_agents, read, read_image, send_message, skill, subagent, subagent_fork, todo_write, update_goal, wait_agent, web_fetch, workflow, working_directory, write); all 24 returned `Error: Juror mode allows only swarm tools.` Then `swarm_load_contract`, then `swarm_cast_vote`.
 
 A keyless session snapshot of a scripted juror run with the probe is in [`results/dsh-juror-session-2026-11-06.jsonl`](../results/dsh-juror-session-2026-11-06.jsonl) (home directory redacted to `~`). It records 2 tools offered to the agent, 26 tool calls, and 24 of them denied by the lock.
 
@@ -42,7 +44,7 @@ A keyless session snapshot of a scripted juror run with the probe is in [`result
 
 `node scripts/dsh-juror.mjs jury --probe`: five DSH processes on `scripted-anthropic`, `scripted-openai`, `scripted-google`, `scripted-meta`, `scripted-qwen`, all exit 0 in about 2.2 to 2.6 s each; every juror denied all 24 probe calls; `swarm seal` ruled NO at 100% agreement and sealed block 1.
 
-### Five live jurors, five labs
+### Five live jurors, five models
 
 `SWARM_API_KEY=... node scripts/dsh-juror.mjs jury --route openrouter`
 

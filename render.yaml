@@ -11,7 +11,7 @@ services:
       mountPath: /data
       sizeGB: 1
     envVars:
-      - key: VERAFY_LAB
+      - key: VERAFY_FAMILY
         value: anthropic
       - key: VERAFY_MODEL
         value: anthropic/claude-haiku-4.5

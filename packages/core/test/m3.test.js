@@ -15,7 +15,7 @@ import {
 const ex = name => JSON.parse(readFileSync(new URL(`../../../examples/${name}.json`, import.meta.url), 'utf8'))
 const mock = ex('mock-answers')
 const config = JSON.parse(readFileSync(new URL('../../../verafy.config.json', import.meta.url), 'utf8'))
-const poolFor = asc => config.pool.map(h => new Harness({ ...h, provider: mockProvider(mock, asc.id, h.lab) }))
+const poolFor = asc => config.pool.map(h => new Harness({ ...h, provider: mockProvider(mock, asc.id, h.family) }))
 const noSleep = () => Promise.resolve()
 
 /** A provider that fails `failures` times with the given error, then answers. */
@@ -179,7 +179,7 @@ test('the sealer account is configurable, and the pay rules are an exported chec
 
 test('drawJury filters by bond and draws the same jury as a caller that filtered first', () => {
   const asc = ex('delay-cover')
-  const cards = [...config.pool, { id: 'h-tiny-1', lab: 'mistral', model: 'm', bond: 10 }, { id: 'h-tiny-2', lab: 'anthropic', model: 'm', bond: 249 }]
+  const cards = [...config.pool, { id: 'h-tiny-1', family: 'mistral', model: 'm', bond: 10 }, { id: 'h-tiny-2', family: 'mistral', model: 'm', bond: 249 }]
   for (const seed of ['a', 'b', 'c', 'd', 'e', 'f', 'genesis']) {
     const jury = drawJuryFor(asc, cards, seed)
     assert.ok(jury.every(j => j.bond >= asc.payment.maxValuePerVote), seed)
@@ -209,9 +209,9 @@ test('mockProvider is not bound to one contract: one long-lived harness answers 
   for (const n of ['market-resolution', 'fact-check', 'forecast']) {
     const asc = ex(n)
     await h.commit(asc)
-    assert.equal(h.reveal(ascHash(asc)).vote.answer, mock[asc.id].anthropic.answer)
+    assert.equal(h.reveal(ascHash(asc)).vote.answer, mock[asc.id].mistral.answer)
   }
-  await assert.rejects(new Harness({ ...config.pool[0], provider: mockProvider(mock, 'nope') }).commit(ex('fact-check')), /no scripted answer for nope \/ anthropic/)
+  await assert.rejects(new Harness({ ...config.pool[0], provider: mockProvider(mock, 'nope') }).commit(ex('fact-check')), /no scripted answer for nope \/ mistral/)
 })
 
 test('verafy.trigger/1: a call trigger is released only by a quorum of counted jurors', async () => {
@@ -267,7 +267,7 @@ test('seal takes an explicit timestamp, so any node rebuilds the same header', a
 
 const OTHER_LABS = ['mistral', 'xai', 'moonshot', 'zai', 'cohere']
 
-test('escalation: below-bar escrow is carried to a wider jury drawn from labs not on the original jury', async () => {
+test('escalation: below-bar escrow is carried to a wider jury drawn from families not on the original jury', async () => {
   const asc = ex('fact-check-escalation')
   const pool = poolFor(asc)
   const jury = drawJuryFor(asc, pool, 'genesis')
@@ -281,17 +281,17 @@ test('escalation: below-bar escrow is carried to a wider jury drawn from labs no
   assert.equal(up.payment.jury.size, 9)
   assert.equal(up.escalation.from, rulingId(first))
   assert.equal(escrowAccount(up), carryAccount(asc))
-  const juryLabs = new Set(jury.map(j => j.lab))
-  assert.deepEqual(new Set(up.payment.jury.excludeLabs), juryLabs)
+  const juryLabs = new Set(jury.map(j => j.family))
+  assert.deepEqual(new Set(up.payment.jury.excludeFamilies), juryLabs)
 
-  // A wider pool: two harnesses on each of five more labs, scripted to grade the claim misleading.
-  const script = { [up.id]: Object.fromEntries([...OTHER_LABS, ...config.pool.map(p => p.lab)].map(l => [l, { answer: 'misleading', confidence: 0.9, reasoning: 'Half only in a subgroup.', sources: ['c0'] }])) }
-  const wide = [...pool, ...OTHER_LABS.flatMap(l => [1, 2].map(n => new Harness({ id: `h-${l}-${n}`, lab: l, model: `${l}/m`, bond: 500, provider: mockProvider(script) })))]
+  // A wider pool: two harnesses on each of five more families, scripted to grade the claim misleading.
+  const script = { [up.id]: Object.fromEntries([...OTHER_LABS, ...config.pool.map(p => p.family)].map(l => [l, { answer: 'misleading', confidence: 0.9, reasoning: 'Half only in a subgroup.', sources: ['c0'] }])) }
+  const wide = [...pool, ...OTHER_LABS.flatMap(l => [1, 2].map(n => new Harness({ id: `h-${l}-${n}`, family: l, model: `${l}/m`, bond: 500, provider: mockProvider(script) })))]
   for (const h of pool) h.provider = mockProvider(script)
   const seed = sha256('block 5')
   const jury2 = drawJuryFor(up, wide, seed)
   assert.equal(jury2.length, 9)
-  assert.ok(jury2.every(j => !juryLabs.has(j.lab) && !jury.includes(j)), 'no lab and no harness from the original jury')
+  assert.ok(jury2.every(j => !juryLabs.has(j.family) && !jury.includes(j)), 'no family and no harness from the original jury')
   const second = await rule(up, jury2, wide.find(h => !jury2.includes(h)), { seed })
   assert.equal(second.passed, true)
   assert.equal(second.answer, 'misleading')
@@ -317,7 +317,7 @@ function shipmentContract() {
       { kind: 'policy', content: 'Delivery means a carrier scan of delivered at the consignee address.' },
     ],
     question: { prompt: 'Was shipment 1182 delivered on or before Nov 3, 2026?', answer: { type: 'verdict', options: ['YES', 'NO'] } },
-    payment: { escrow: 1, currency: 'USDC', chain: 'solana', bar: 0.6, jury: { size: 3, minLabs: 3, quorum: 2 }, split: { jurors: 0.8, auditors: 0.1, storage: 0.05, sealer: 0.05 } },
+    payment: { escrow: 1, currency: 'USDC', chain: 'solana', bar: 0.6, jury: { size: 3, minFamilies: 3, quorum: 2 }, split: { jurors: 0.8, auditors: 0.1, storage: 0.05, sealer: 0.05 } },
     exits: [
       { outcome: 'YES', effect: { type: 'call', chain: 'solana', target: 'cover.close', args: ['delivered'] } },
       { outcome: 'NO', effect: { type: 'call', chain: 'solana', target: 'cover.pay', args: ['late'] } },
@@ -333,8 +333,8 @@ const readsEvidence = {
     return JSON.stringify({ answer: forged ? 'NO' : 'YES', confidence: 0.9, reasoning: forged ? 'The carrier says the Nov 2 page was forged; first delivery scan Nov 6.' : 'The tracking page shows delivered Nov 2.', sources: ['c0'] })
   },
 }
-const labs8 = ['anthropic', 'openai', 'google', 'meta', 'qwen', 'deepseek', 'mistral', 'xai']
-const evidencePool = () => labs8.map(l => new Harness({ id: `h-${l}`, lab: l, model: `${l}/m`, bond: 100, provider: readsEvidence }))
+const labs8 = ['mistral', 'gpt-oss', 'gemma', 'llama', 'qwen', 'deepseek', 'mistral', 'xai']
+const evidencePool = () => labs8.map(l => new Harness({ id: `h-${l}`, family: l, model: `${l}/m`, bond: 100, provider: readsEvidence }))
 const correction = { kind: 'document', url: 'https://carrier.example/notices/1182', snapshotAt: '2026-11-07T10:00:00Z', content: 'Carrier notice: the Nov 2 page for 1182 was not issued by the carrier. First delivery scan: Nov 6, 2026, 11:02.' }
 
 test('poison, then challenge, then overturned: the original ruling is never edited', async () => {
@@ -351,7 +351,7 @@ test('poison, then challenge, then overturned: the original ruling is never edit
   const frozen = canonical(original)
   const id = rulingId(original)
 
-  // An auditor from another lab re-checks it: the record verifies, and on the same evidence it agrees. Audits do not catch forged evidence; challenges do.
+  // An auditor from another family re-checks it: the record verifies, and on the same evidence it agrees. Audits do not catch forged evidence; challenges do.
   const auditor = drawAuditors(pool, original, b1.hash)[0]
   const rep = await audit(asc, original, auditor, { pool: pool.map(h => h.card), seed })
   assert.equal(rep.verified, true); assert.equal(rep.flagged, false)
@@ -368,8 +368,8 @@ test('poison, then challenge, then overturned: the original ruling is never edit
   assert.throws(() => challengeContract(asc, original, { grounds: 'new-evidence', evidence: [asc.context[0]] }), /no earlier ruling or review considered/)
 
   const jury2 = drawJuryFor(ch, pool, b1.hash)
-  const origLabs = new Set(jury.map(j => j.lab))
-  assert.ok(jury2.every(j => !origLabs.has(j.lab)), 'the challenge jury shares no lab with the original')
+  const origLabs = new Set(jury.map(j => j.family))
+  assert.ok(jury2.every(j => !origLabs.has(j.family)), 'the challenge jury shares no family with the original')
   const sealer2 = pool.find(h => !jury2.includes(h))
   const overturning = await rule(ch, jury2, sealer2, { seed: b1.hash })
   assert.equal(overturning.answer, 'NO')
@@ -409,7 +409,7 @@ test('challenge results: affirm, supersede under changed rules, and stands when 
 
   const chN = challengeContract(asc, original, { grounds: 'error' })
   const jN = drawJuryFor(chN, pool, 's3')
-  const split = { async complete({ lab }) { return JSON.stringify({ answer: lab === jN[0].lab ? 'NO' : 'YES', confidence: 0.5, reasoning: 'unsure', sources: [] }) } }
+  const split = { async complete({ family }) { return JSON.stringify({ answer: family === jN[0].family ? 'NO' : 'YES', confidence: 0.5, reasoning: 'unsure', sources: [] }) } }
   for (const h of jN) h.provider = split
   chN.payment.bar = 0.9
   const rN = await rule(chN, jN, pool.find(h => !jN.includes(h)))
@@ -423,25 +423,25 @@ test('challenge results: affirm, supersede under changed rules, and stands when 
   assert.throws(() => challengeContract(asc, rN.passed ? rN : { ...original, passed: false }, { grounds: 'error' }), /only a final ruling can be challenged/)
 })
 
-test('auditors from another lab re-check sealed rulings and flag disagreement or a bad record', async () => {
+test('auditors from another family re-check sealed rulings and flag disagreement or a bad record', async () => {
   const asc = ex('market-resolution')
   const pool = poolFor(asc)
   const jury = drawJuryFor(asc, pool, 'genesis')
   const r = await rule(asc, jury, pool.find(h => !jury.includes(h)), { seed: 'genesis' })
   const [auditor] = drawAuditors(pool, r, 'b1')
-  assert.ok(!jury.some(j => j.lab === auditor.lab))
+  assert.ok(!jury.some(j => j.family === auditor.family))
   const ok = await audit(asc, r, auditor)
   assert.equal(ok.verified, true); assert.equal(ok.agrees, true); assert.equal(ok.flagged, false)
   assert.equal(verifyAudit(ok, auditor.card), true)
   assert.equal(verifyAudit({ ...ok, agrees: false }, auditor.card), false)
 
-  const dissenter = new Harness({ id: 'h-audit-x', lab: 'mistral', model: 'm', bond: 500, provider: { async complete() { return '{"answer":"YES","confidence":0.8,"reasoning":"r"}' } } })
+  const dissenter = new Harness({ id: 'h-audit-x', family: auditor.family, model: 'm', bond: 500, provider: { async complete() { return '{"answer":"YES","confidence":0.8,"reasoning":"r"}' } } })
   const flagged = await audit(asc, r, dissenter)
   assert.equal(flagged.agrees, false); assert.equal(flagged.flagged, true)
   const tampered = structuredClone(r); tampered.votes[0].confidence = 0.1
   const bad = await audit(asc, tampered, auditor)
   assert.equal(bad.verified, false); assert.equal(bad.flagged, true)
-  await assert.rejects(audit(asc, r, jury[0]), /a lab on the jury/)
+  await assert.rejects(audit(asc, r, jury[0]), /a model family on the jury/)
 
   const rulings = Array.from({ length: 40 }, (_, i) => ({ ...r, agreement: i }))
   const s1 = sampleForAudit(rulings, 'seed', 0.25)
@@ -452,7 +452,7 @@ test('auditors from another lab re-check sealed rulings and flag disagreement or
 test('ruleFromReveals still rules from separate processes and applies the bond floor', async () => {
   const asc = ex('delay-cover')
   const entries = []
-  for (const p of [...config.pool, { id: 'h-tiny', lab: 'qwen', model: 'qwen/qwen3-235b-a22b-2507', bond: 5 }]) {
+  for (const p of [...config.pool, { id: 'h-tiny', family: 'qwen', model: 'qwen/qwen3-235b-a22b-2507', bond: 5 }]) {
     const h = new Harness({ ...p, provider: mockProvider(mock), payments: undefined })
     h.bond = 500 // intake would refuse a small bond; force it to commit so the draw is what keeps it out
     const c = await h.commit(asc)

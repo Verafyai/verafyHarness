@@ -4,14 +4,14 @@
  *
  *   node scripts/dsh-juror.mjs setup
  *       link the plugin's peers and mount it in the headless profile
- *   node scripts/dsh-juror.mjs vote --lab anthropic [--route scripted|openrouter] [--asc file] [--probe]
+ *   node scripts/dsh-juror.mjs vote --family mistral [--route scripted|openrouter] [--asc file] [--probe]
  *       one DSH juror loads the contract and casts a committed vote
  *   node scripts/dsh-juror.mjs jury [--route scripted|openrouter] [--asc file] [--probe]
- *       five DSH jurors on five labs' routes vote in parallel, then the CLI seals
+ *       five DSH jurors on five families' routes vote in parallel, then the CLI seals
  *       the block from their reveals (node bin/verafy.js seal ...)
  *
  * --route scripted (the default) uses scripts/scripted-llm.mjs and needs no key.
- * --route openrouter uses the live openrouter-<lab> routes and needs VERAFY_API_KEY
+ * --route openrouter uses the live openrouter-<family> routes and needs VERAFY_API_KEY
  * (SWARM_API_KEY is still read when only the old name is set).
  * --probe makes the scripted model try a non-Verafy tool first, to show the lock.
  *
@@ -30,7 +30,7 @@ const DSH = join(ROOT, 'upstream', 'deepseek-harness')
 const STATE = join(ROOT, '.dsh')
 const HOME = join(STATE, 'home')
 const PROFILE = join(HOME, 'profiles', 'headless')
-const LABS = ['anthropic', 'openai', 'google', 'meta', 'qwen']
+const FAMILIES = ['mistral', 'gpt-oss', 'gemma', 'llama', 'qwen']
 const PORT = 8790
 
 const argv = process.argv.slice(2)
@@ -68,19 +68,19 @@ function setup() {
   console.log(`mounted @verafyharness/dsh-verafy-juror in ${at.replace(ROOT + '/', '')}`)
 }
 
-/** The harness and route a lab's juror runs as. */
-function seat(lab) {
-  const h = config.pool.find(p => p.lab === lab)
-  if (!h) throw new Error(`no ${lab} harness in verafy.config.json`)
-  const model = route === 'scripted' ? `scripted-${lab}` : h.model
-  return { ...h, model, route: `${route}-${lab}`, out: join(STATE, 'jurors', h.id) }
+/** The harness and route a model family's juror runs as. */
+function seat(family) {
+  const h = config.pool.find(p => p.family === family)
+  if (!h) throw new Error(`no ${family} harness in verafy.config.json`)
+  const model = route === 'scripted' ? `scripted-${family}` : h.model
+  return { ...h, model, route: `${route}-${family}`, out: join(STATE, 'jurors', h.id) }
 }
 
-function vote(lab) {
-  const s = seat(lab)
+function vote(family) {
+  const s = seat(family)
   mkdirSync(join(STATE, 'logs'), { recursive: true })
   const env = {
-    VERAFY_ROUTE: s.route, VERAFY_MODEL: s.model, VERAFY_HARNESS_ID: s.id, VERAFY_HARNESS_LAB: s.lab,
+    VERAFY_ROUTE: s.route, VERAFY_MODEL: s.model, VERAFY_HARNESS_ID: s.id, VERAFY_HARNESS_FAMILY: s.family,
     VERAFY_JUROR_OUT: s.out, VERAFY_SCRIPTED_URL: `http://127.0.0.1:${PORT}/v1`, VERAFY_SCRIPTED_KEY: 'scripted',
   }
   // The overlay reads VERAFY_API_KEY; fill it from SWARM_API_KEY on an older setup.
@@ -128,15 +128,15 @@ function report(r) {
 async function main() {
   if (cmd === 'setup') return setup()
   if (!['vote', 'jury'].includes(cmd)) {
-    console.log('usage: dsh-juror.mjs setup | vote --lab <lab> [--route scripted|openrouter] [--asc file] [--probe] | jury [--route ...] [--asc file] [--probe]')
+    console.log('usage: dsh-juror.mjs setup | vote --family <family> [--route scripted|openrouter] [--asc file] [--probe] | jury [--route ...] [--asc file] [--probe]')
     process.exitCode = 2
     return
   }
   if (route === 'openrouter' && !apiKeyFromEnv()) throw new Error('--route openrouter needs VERAFY_API_KEY in the environment')
-  const labs = cmd === 'vote' ? [opt('--lab', 'anthropic')] : LABS
+  const families = cmd === 'vote' ? [opt('--family', 'mistral')] : FAMILIES
   const server = await scripted()
   try {
-    const results = await Promise.all(labs.map(vote))
+    const results = await Promise.all(families.map(vote))
     const commits = []
     for (const r of results) commits.push(report(r))
     if (cmd === 'vote' || commits.some(c => !c)) { process.exitCode = commits.every(Boolean) ? 0 : 1; return }

@@ -35,7 +35,7 @@
     "maxValuePerVote": 250,
     "jury": {
       "size": 5,
-      "minLabs": 4,
+      "minFamilies": 4,
       "quorum": 4
     },
     "split": {

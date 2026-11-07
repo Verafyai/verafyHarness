@@ -5,7 +5,7 @@
 Proving is expensive and FlashProve takes at most 1,024 tokens per request. Proof packing makes each proof count:
 
 1. **Atomize.** Each contract becomes a plan: small yes-no, choice or number questions (atoms), each with only the facts that decide it, and an exact rule that turns the atoms' answers into the contract's outcome.
-2. **Check fidelity.** A panel of models from different labs rules whether the plan reaches the same outcome as the original question. Below its bar, the contract is not packed.
+2. **Check fidelity.** A panel of models from different families rules whether the plan reaches the same outcome as the original question. Below its bar, the contract is not packed.
 3. **Dedupe and pack.** Atoms shared by many contracts become one slot. Slots fill each window, in an order set by the block hash.
 4. **Prove once, verify.** One prover proves each window; the proof is verified before any answer counts.
 5. **Assemble.** A reply that mangles any slot fails its whole window, and those contracts go back to a normal jury.

@@ -164,7 +164,7 @@
   }
 
   var tiers = CASCADE_EXAMPLE.map(function (t) { return Object.assign({}, t) })
-  var TIERNAMES = { screen: 'Fast screen (Jev)', small: 'Small models, 3 labs', mid: 'Mid models, 5 labs', frontier: 'Frontier, 5 to 7 labs' }
+  var TIERNAMES = { screen: 'Fast screen (Jev)', small: 'Small models, 3 families', mid: 'Mid models, 5 families', frontier: 'Frontier, 5 to 7 families' }
   function buildCascade() {
     var f = document.getElementById('cascadeInputs')
     tiers.forEach(function (t, i) {
@@ -241,5 +241,22 @@
     try { navigator.clipboard.writeText(location.href); this.textContent = 'Link copied' } catch (e) {}
   })
 
-  load(); build(); fill(); sources(); render(); buildCascade(); renderCascade()
+  function renderStake() {
+    var t = document.getElementById('stakeTable'); if (!t || typeof stake !== 'function') return
+    var s = stake(), m = function (x, d) { return '$' + (+x).toFixed(d === undefined ? 2 : d) }
+    var rows = [
+      ['Bond per harness', m(s.inputs.bondUsd, 0), 'illustrative; it caps the value one vote may decide'],
+      ['Seats per harness per day', Math.round(s.seatsPerDay).toLocaleString(), s.inputs.contractsPerBlock.toLocaleString() + ' contracts a block, ' + s.inputs.blocksPerDay + ' blocks a day, ' + s.inputs.jurors + ' seats each, ' + s.inputs.poolSize + ' harnesses'],
+      ['Cost of holding the bond, per 1,000-contract block', m(s.capitalPerBlockUsd), 'across every seat, at ' + s.inputs.capitalCostPct + '% a year; next to about $6.87 for the packed, proven block'],
+      ['Honest harness, ' + s.inputs.missCommitPct + '% of seats missed', m(s.honestSlashPerSeatUsd, 4) + ' a seat', 'inside the free ' + s.inputs.graceNoCommitPct + '% allowance'],
+      ['Unreliable harness, 5% missed', m(stake({ missCommitPct: 5, missRevealPct: 0.5 }).honestSlashPerSeatUsd, 4) + ' a seat', (stake({ missCommitPct: 5, missRevealPct: 0.5 }).honestSlashShareOfFees).toFixed(1) + ' times its fees: it loses money'],
+      ['One bad reveal', m(s.badRevealUsd, 0), Math.round(s.badRevealInSeatFees).toLocaleString() + ' seat fees'],
+      ['One double commit', m(s.doubleCommitUsd, 0), 'the whole bond'],
+      ['Bonds behind a majority of one jury', m(s.majorityBondsUsd, 0), Math.ceil(s.inputs.jurors / 2) + ' seats, each on its own bond and operator'],
+      ['Challenge bond', m(s.challengeBondUsd, 4), s.inputs.challengeBondFactor + ' times the challenge jury escrow'],
+    ]
+    t.innerHTML = rows.map(function (r) { return '<tr><td>' + r[0] + '</td><td class="v">' + r[1] + '</td><td>' + r[2] + '</td></tr>' }).join('')
+  }
+
+  load(); build(); fill(); sources(); render(); buildCascade(); renderCascade(); renderStake()
 })()

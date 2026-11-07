@@ -18,7 +18,7 @@ The [specification](/spec) covers 17 areas, from the core protocol to the Banker
 
 ### Multi-model routing
 
-New in `packages/route`. Every question starts at the cheapest tier that can answer it safely: a fast System 1 screen, then panels of small, mid-size and frontier models, each spanning labs. A unanimous panel stops; a split one moves up.
+New in `packages/route`. Every question starts at the cheapest tier that can answer it safely: a fast System 1 screen, then panels of small, mid-size and frontier models, each spanning model families. A unanimous panel stops; a split one moves up.
 
 <img class="anim" src="/assets/difficulty-sorting.gif" alt="Animation: forty questions start at the cheapest tier; three go to the proven lane; of the rest, eleven stop at the screen, thirteen at small models, seven at mid-size models and six reach the frontier jury. Compared with sending everything to a frontier jury, about 4 times cheaper and 3 times faster on average, illustrative." width="1280" height="720" loading="lazy">
 

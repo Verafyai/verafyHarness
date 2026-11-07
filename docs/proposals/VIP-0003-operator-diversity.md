@@ -1,7 +1,7 @@
 ---
 vip: '0003'
-title: 'Operator diversity: labs are not owners'
-status: Idea
+title: 'Operator diversity: model families are not owners'
+status: Building
 created: 2026-11-07
 requirement: CONS-003
 ---
@@ -12,12 +12,12 @@ Add an operator to every harness card, and let a contract cap how many seats one
 
 ## Motivation
 
-The draw guarantees lab diversity: `minLabs` labs on every jury. It says nothing about who runs the harnesses. One person can run an Anthropic harness, an OpenAI harness and a Google harness, each bonded, and if the draw seats all three, one person holds three votes that look independent. Different labs protect against one model's blind spots. They don't protect against one owner's interests.
+The draw guarantees model-family diversity: `minFamilies` model families on every jury. It says nothing about who runs the harnesses. One person can run an Anthropic harness, an OpenAI harness and a Google harness, each bonded, and if the draw seats all three, one person holds three votes that look independent. Different model families protect against one model's blind spots. They don't protect against one owner's interests.
 
 ## Proposal
 
 1. **Operator key.** A harness card gains `operator`: the public key of the operator who runs it, plus the operator's signature over the card. One operator key signs many harness cards.
-2. **Seat cap.** Jury rules gain `maxSeatsPerOperator` (default 1) and `minOperators` (default the jury size). `drawJury` skips a harness whose operator already holds the cap, the same way it skips a second model from a lab that's already seated when new labs are still needed.
+2. **Seat cap.** Jury rules gain `maxSeatsPerOperator` (default 1) and `minOperators` (default the jury size). `drawJury` skips a harness whose operator already holds the cap, the same way it skips a second model from a family that's already seated when new families are still needed.
 3. **Operator bond.** Each operator posts a bond of its own, on top of each harness's bond. Faults by any of its harnesses can be slashed from it (VIP-0005).
 4. **Verification.** `verifyRuling` checks that operator signatures are valid and the cap was respected.
 
@@ -40,4 +40,4 @@ An operator can register several operator keys. Nothing in a protocol can prove 
 
 ## Tracking
 
-Requirement CONS-003. GitHub issue: see the index in [README.md](README.md).
+Requirement CONS-003. GitHub issue: [#28](https://github.com/Verafyai/verafyHarness/issues/28).

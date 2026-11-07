@@ -90,7 +90,7 @@ test('every example contract: the jury pay rule agrees across runtimes, passed a
   const d = await both()
   for (const name of EXAMPLES) {
     const asc = ex(name)
-    const pool = config.pool.map(h => new Harness({ ...h, provider: mockProvider(mock, asc.id, h.lab) }))
+    const pool = config.pool.map(h => new Harness({ ...h, provider: mockProvider(mock, asc.id, h.family) }))
     const jury = drawJuryFor(asc, pool, 'genesis')
     const ruling = await rule(asc, jury, jury[0], { seed: 'genesis' })
     const counted = ruling.votes.map(v => v.harness)
@@ -111,7 +111,7 @@ test('the three exit examples settle identically on both runtimes, from a real r
   const d = await both()
   for (const name of ['graded-insurance', 'ranked-prize', 'milestone-escrow']) {
     const asc = ex(name)
-    const pool = config.pool.map(h => new Harness({ ...h, provider: mockProvider(mock, asc.id, h.lab) }))
+    const pool = config.pool.map(h => new Harness({ ...h, provider: mockProvider(mock, asc.id, h.family) }))
     const jury = drawJuryFor(asc, pool, 'genesis')
     const ruling = await rule(asc, jury, jury[0], { seed: 'genesis' })
     const s = await settle(asc, ruling, { runtime: d })
@@ -257,7 +257,7 @@ test('svmLLM: the three exit examples settle identically on every runtime, from 
   const x = await three()
   for (const name of ['graded-insurance', 'ranked-prize', 'milestone-escrow']) {
     const asc = ex(name)
-    const pool = config.pool.map(h => new Harness({ ...h, provider: mockProvider(mock, asc.id, h.lab) }))
+    const pool = config.pool.map(h => new Harness({ ...h, provider: mockProvider(mock, asc.id, h.family) }))
     const jury = drawJuryFor(asc, pool, 'genesis')
     const ruling = await rule(asc, jury, jury[0], { seed: 'genesis' })
     const s = await settle(asc, ruling, { runtime: x })

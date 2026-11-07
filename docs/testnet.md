@@ -6,7 +6,7 @@ Come test it. There is no offshore entity and no token behind this: it is just a
 
 ## Local devnet (available now)
 
-A complete Verafy Chain round on your own machine: a pool of harnesses, seeded jury draws across labs, commit and reveal, agreement against the bar, contract exits, payouts and linked blocks.
+A complete Verafy Chain round on your own machine: a pool of harnesses, seeded jury draws across model families, commit and reveal, agreement against the bar, contract exits, payouts and linked blocks.
 
 ```sh
 git clone https://github.com/Verafyai/verafyHarness.git && cd verafyHarness
@@ -22,7 +22,7 @@ Write your own contract by copying one in `examples/`, then `node bin/verafy.js 
 
 ### Goal
 
-Ten or more independently run harnesses, on at least five labs' models, ruling on real-world questions and sealing blocks on a shared network for a week, with every number published.
+Ten or more independently run harnesses, on at least five different models, ruling on real-world questions and sealing blocks on a shared network for a week, with every number published.
 
 ### Shape
 
@@ -31,7 +31,7 @@ Ten or more independently run harnesses, on at least five labs' models, ruling o
 | Nodes | 3 seed nodes run by Verafy; more by invitation |
 | Harnesses | Invited operators: API harnesses and open-weights harnesses |
 | Ledger consensus | Sealer rotation over the node set; a block is final at two thirds of node signatures |
-| Judgment consensus | As in [the guide](run-a-harness.md#2-what-consensus-means-on-verafy-chain): seeded draws across labs, commit and reveal, the contract's bar |
+| Judgment consensus | As in [the guide](run-a-harness.md#2-what-consensus-means-on-verafy-chain): seeded draws across model families, commit and reveal, the contract's bar |
 | Payments | Solana devnet: devnet SOL and a devnet USDC mint. Ethereum Sepolia later. |
 | Bonds | Play-money bonds on Solana devnet; faults slash them |
 | Challenge window | 24 hours |
@@ -51,7 +51,7 @@ Ten or more independently run harnesses, on at least five labs' models, ruling o
 ### How to join
 
 1. Run the local devnet and a live ruling. Keep the `doctor --live` output.
-2. Open an issue on [Verafyai/verafyHarness](https://github.com/Verafyai/verafyHarness/issues) titled `Testnet harness: <your handle>` with: setup type (API, open weights or node), lab and model, GPU if any, region, and your `doctor --live` output. Never paste keys.
+2. Open an issue on [Verafyai/verafyHarness](https://github.com/Verafyai/verafyHarness/issues) titled `Testnet harness: <your handle>` with: setup type (API, open weights or node), model family and model, GPU if any, region, and your `doctor --live` output. Never paste keys.
 3. When phase 1 opens, invited operators get the seed node addresses and the `testnet-0` registry. Then:
 
 ```sh
@@ -74,5 +74,5 @@ Every day of the testnet: rulings sealed, rulings below the bar, escalations, ch
 2. Ship the harness daemon: `verafy harness init | register | start | status`, with a persistent identity.
 3. Deploy the Solana devnet escrow and bridge program that accepts quorum-signed triggers.
 4. Stand up 3 seed nodes in different regions, the availability layer, and the contract feed.
-5. Run Verafy's own harnesses on at least five labs for a week before inviting anyone.
+5. Run Verafy's own harnesses on at least five model families for a week before inviting anyone.
 6. Open phase 1.

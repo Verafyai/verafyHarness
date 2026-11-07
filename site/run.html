@@ -105,7 +105,7 @@ tr:last-child td{border-bottom:0}
 </section>
 <header class="wrap top">
   <a class="brand" href="/"><svg class="mark" viewBox="0 0 64 64" width="28" height="28" aria-hidden="true"><path d="M6 20V6h14M44 6h14v14M58 44v14H44M20 58H6V44" stroke="currentColor" stroke-width="5" stroke-linecap="square" fill="none"/><path d="M32 13v7M32 44v7M13 32h7M44 32h7" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><circle cx="32" cy="32" r="11" fill="var(--accent)"/><circle cx="32" cy="32" r="4" fill="var(--paper)"/></svg>Verafy Harness</a>
-  <a class="ver" href="/blog/v0-0-2-alpha" title="Release notes for v0.0.2-alpha">v0.0.2-alpha</a>
+  <a class="ver" href="/blog/v0-0-3-alpha" title="Release notes for v0.0.3-alpha">v0.0.3-alpha</a>
   <details class="menu">
     <summary aria-label="Menu"><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><span class="lab">Menu</span></summary>
     <nav aria-label="Site"><div class="grp">Verafy Harness</div><a href="/launch">Launch a harness</a><a href="/run" aria-current="page">Run a harness</a><a href="/testnet">Testnet</a><a href="/economics">Economics</a><a href="/coin-agnostic">Coin Agnostic</a><a href="/learn">Learn</a><a href="/spec">Specification</a><a href="/blog">Release notes</a><hr><div class="grp">Verafy Chain</div><a href="https://chain.verafy.ai">Verafy Chain</a><a href="https://chain.verafy.ai/constitution">Constitution</a><a href="https://chain.verafy.ai/#roadmap">Roadmap</a><hr><div class="grp">More</div><a href="https://asc.verafy.ai">Actually Smart Contracts</a><a href="https://github.com/Verafyai/verafyHarness">GitHub</a></nav>
@@ -218,13 +218,13 @@ tr:last-child td{border-bottom:0}
 </tr>
 </tbody>
 </table></div>
-<p><strong>Naming.</strong> The software is Verafy Harness, and the thing you run to judge is called a <strong>harness</strong>. The thing that stores and relays blocks is a <strong>node</strong>. "Validator" is fine in conversation: a harness is what validates. A harness can take three roles, sometimes all at once: <strong>juror</strong> (votes), <strong>auditor</strong> (re-runs sealed rulings with a different lab's model) and <strong>storage</strong> (keeps context fetchable by hash).</p>
+<p><strong>Naming.</strong> The software is Verafy Harness, and the thing you run to judge is called a <strong>harness</strong>. The thing that stores and relays blocks is a <strong>node</strong>. "Validator" is fine in conversation: a harness is what validates. A harness can take three roles, sometimes all at once: <strong>juror</strong> (votes), <strong>auditor</strong> (re-runs sealed rulings with a model from a different family) and <strong>storage</strong> (keeps context fetchable by hash).</p>
 <h2 id="2-what-consensus-means-on-verafy-chain">2. What consensus means on Verafy Chain</h2>
 <p>Consensus has two layers. One is about judgment and one is about bookkeeping.</p>
 <h3 id="judgment-consensus-is-this-ruling-valid">Judgment consensus: is this ruling valid?</h3>
 <p>A ruling is valid when every one of these holds. Every node checks every rule.</p>
 <ol>
-<li><strong>The jury was drawn correctly.</strong> It was drawn from registered, bonded harnesses using the parent block hash as the seed, and it spans at least the contract's <code>minLabs</code> labs.</li>
+<li><strong>The jury was drawn correctly.</strong> It was drawn by the jury scheduler from registered, bonded harnesses, seeded by the beacon value in the block's header, and it spans at least the contract's <code>minFamilies</code> model families.</li>
 <li><strong>The votes are honest about order.</strong> At least <code>quorum</code> harnesses revealed, and every reveal matches the commitment it published before any vote was opened. Each commitment and reveal is signed with the harness's registered key.</li>
 <li><strong>The votes are in bounds.</strong> Each answer is one of the contract's declared options, or a probability for a forecast.</li>
 <li><strong>The bar was cleared, or not.</strong> Agreement is measured as the contract's answer type defines it. At or above the bar, the matching exit runs. Below it, the <code>*below-bar</code> exit runs, normally an escalation to a larger jury, and no juror is paid.</li>
@@ -477,65 +477,60 @@ tr:last-child td{border-bottom:0}
 </table></div>
 <p>A binary encoding would cut chain size by roughly half; the prototype uses JSON. Proofs change the picture: at about 18.78 MB per proven vote, a proving harness uploads far more than it downloads, and proofs live in the availability layer, never on chain.</p>
 <h2 id="6-acceptable-models">6. Acceptable models</h2>
-<p>A harness commits to one model. The network accepts a model when it is on the <strong>model registry</strong>: a list of model commitments, each with the lab that made it and how it can be checked. Contracts can narrow the list, for example to open-weights models only, or to L1+ and above.</p>
+<p>A harness commits to one model. The network accepts a model when it is on the <strong>model registry</strong>: a list of open-weight model commitments, each with its family (the base model it descends from) and how it can be checked. Contracts can narrow the list, for example to L1+ and above.</p>
 <p><strong>Testnet registry (proposed):</strong></p>
 <div class="tbl"><table>
 <thead>
 <tr>
-<th>Lab</th>
-<th>Model</th>
-<th>Kind</th>
+<th>Family</th>
+<th>Model (Hugging Face id)</th>
+<th>Served</th>
 <th>Highest assurance</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>OpenAI</td>
+<td>gpt-oss</td>
 <td><code>openai/gpt-oss-120b</code>, <code>openai/gpt-oss-20b</code></td>
-<td>Open weights</td>
+<td>Own weights or API</td>
 <td>L1+</td>
 </tr>
 <tr>
-<td>Qwen</td>
+<td>qwen</td>
 <td><code>Qwen/Qwen3-235B-A22B-Instruct-2507</code>, <code>Qwen/Qwen3-32B</code></td>
-<td>Open weights</td>
+<td>Own weights or API</td>
 <td>L1+</td>
 </tr>
 <tr>
-<td>Meta</td>
+<td>llama</td>
 <td><code>meta-llama/Llama-4-Maverick-17B-128E-Instruct</code></td>
-<td>Open weights</td>
+<td>Own weights or API</td>
 <td>L2 (research)</td>
 </tr>
 <tr>
-<td>DeepSeek</td>
-<td><code>deepseek/deepseek-v4-flash</code></td>
-<td>Hosted</td>
-<td>L1</td>
+<td>deepseek</td>
+<td><code>deepseek-ai/DeepSeek-V3.1</code></td>
+<td>Own weights or API</td>
+<td>L1+</td>
 </tr>
 <tr>
-<td>Anthropic</td>
-<td><code>anthropic/claude-haiku-4.5</code></td>
-<td>Hosted</td>
-<td>L1</td>
+<td>mistral</td>
+<td><code>mistralai/Mistral-Small-3.2-24B-Instruct-2506</code></td>
+<td>Own weights or API</td>
+<td>L1+</td>
 </tr>
 <tr>
-<td>Google</td>
-<td><code>google/gemini-2.5-flash</code></td>
-<td>Hosted</td>
-<td>L1</td>
-</tr>
-<tr>
-<td>OpenAI</td>
-<td><code>openai/gpt-5-mini</code></td>
-<td>Hosted</td>
-<td>L1</td>
+<td>gemma</td>
+<td><code>google/gemma-3-27b-it</code></td>
+<td>Own weights or API</td>
+<td>L1+</td>
 </tr>
 </tbody>
 </table></div>
-<p>Rules for the registry: a model needs a lab, an exact version, and for open weights a SHA-256 of the weights files. Two harnesses on the same lab's models count as the same lab for jury diversity. Retiring a model version gives harnesses a notice period before their seats stop.</p>
+<p>Any other open-weight model can be added; these are the ones the examples use.</p>
+<p>Rules for the registry: a model needs its family, an exact version, and a SHA-256 of the weights files. Two harnesses whose models descend from the same base model count as one family for jury diversity, whoever fine-tuned them. Retiring a model version gives harnesses a notice period before their seats stop.</p>
 <h2 id="7-where-to-get-the-model">7. Where to get the model</h2>
-<p><strong>Hosted models.</strong> Get an API key from the lab or from a router such as OpenRouter. The harness calls any OpenAI-compatible endpoint.</p>
+<p><strong>Open weights over an API.</strong> If you would rather not run the weights yourself, a provider such as OpenRouter serves the same open-weight models. The harness calls any OpenAI-compatible endpoint.</p>
 <p><strong>Open weights.</strong> Download from Hugging Face. vLLM fetches the weights the first time it starts:</p>
 <pre><code class="language-sh">export HF_TOKEN=...          # some repos need you to accept a license first
 MODEL=openai/gpt-oss-120b bash scripts/run-vllm.sh
@@ -563,7 +558,7 @@ docker inspect --format '{{index .RepoDigests 0}}' vllm/vllm-openai:latest
 </tr>
 <tr>
 <td><strong>L1</strong></td>
-<td>L0 plus commit-then-reveal and lab diversity. No harness can copy another, and no single lab decides.</td>
+<td>L0 plus commit-then-reveal and model-family diversity. No harness can copy another, and no single model family decides.</td>
 <td>Yes</td>
 </tr>
 <tr>
@@ -671,9 +666,9 @@ npm run demo      # five contracts, five rulings, five blocks
 <pre><code class="language-json">{
   &quot;provider&quot;: { &quot;baseURL&quot;: &quot;https://openrouter.ai/api/v1&quot;, &quot;apiKeyEnv&quot;: &quot;VERAFY_API_KEY&quot; },
   &quot;pool&quot;: [
-    { &quot;id&quot;: &quot;h-local-gptoss&quot;, &quot;lab&quot;: &quot;openai&quot;, &quot;model&quot;: &quot;openai/gpt-oss-120b&quot;, &quot;bond&quot;: 500,
+    { &quot;id&quot;: &quot;h-local-gptoss&quot;, &quot;family&quot;: &quot;gpt-oss&quot;, &quot;model&quot;: &quot;openai/gpt-oss-120b&quot;, &quot;bond&quot;: 500,
       &quot;baseURL&quot;: &quot;http://127.0.0.1:8000/v1&quot;, &quot;apiKeyEnv&quot;: &quot;VLLM_API_KEY&quot; },
-    { &quot;id&quot;: &quot;h-anthropic-1&quot;, &quot;lab&quot;: &quot;anthropic&quot;, &quot;model&quot;: &quot;anthropic/claude-haiku-4.5&quot;, &quot;bond&quot;: 500 }
+    { &quot;id&quot;: &quot;h-mistral-1&quot;, &quot;family&quot;: &quot;mistral&quot;, &quot;model&quot;: &quot;mistralai/mistral-small-3.2-24b-instruct&quot;, &quot;bond&quot;: 500 }
   ]
 }
 </code></pre>
@@ -698,8 +693,8 @@ npm run demo      # five contracts, five rulings, five blocks
 <td>The harness's name</td>
 </tr>
 <tr>
-<td><code>pool[].lab</code></td>
-<td>The lab that made the model; used for jury diversity</td>
+<td><code>pool[].family</code></td>
+<td>The base model the model descends from; used for jury diversity (<code>lab</code> is the old name and is still read)</td>
 </tr>
 <tr>
 <td><code>pool[].model</code></td>
@@ -736,7 +731,7 @@ node bin/verafy.js run examples/delay-cover.json --live --config verafy.config.l
 <pre><code class="language-sh">verafy harness init --network testnet-0          # creates ~/.verafy/identity.json (Ed25519) and harness.json
 verafy harness commit-model --model openai/gpt-oss-120b --weights weights.sha256 --runtime &lt;vllm digest&gt;
 verafy harness bond --chain solana-devnet --amount 10 --asset USDC
-verafy harness register                          # publishes identity, model commitment, lab, bond, payout addresses
+verafy harness register                          # publishes identity, model commitment, model family, bond, payout addresses
 verafy harness start                             # daemon: watches for jury seats, deliberates, commits, reveals
 verafy harness status                            # seats held, votes, audits, earnings, faults
 </code></pre>
@@ -758,7 +753,7 @@ verafy node start --peers &lt;seed nodes&gt;
   &quot;payments&quot;: {
     &quot;router&quot;: &quot;ledger&quot;,
     &quot;accept&quot;: [{ &quot;chain&quot;: &quot;solana&quot;, &quot;asset&quot;: &quot;USDC&quot; }, { &quot;chain&quot;: &quot;ethereum&quot;, &quot;asset&quot;: &quot;ETH&quot; }],
-    &quot;book&quot;: { &quot;harness:h-anthropic-1&quot;: { &quot;solana&quot;: &quot;&lt;your Solana address&gt;&quot;, &quot;ethereum&quot;: &quot;&lt;your 0x address&gt;&quot; } }
+    &quot;book&quot;: { &quot;harness:h-mistral-1&quot;: { &quot;solana&quot;: &quot;&lt;your Solana address&gt;&quot;, &quot;ethereum&quot;: &quot;&lt;your 0x address&gt;&quot; } }
   }
 }
 </code></pre>
@@ -829,7 +824,7 @@ node bin/verafy.js confirm solana &lt;signature&gt; --config config/lightclient.
 <p>On Ethereum mainnet the same quorum is used. Sync-committee verification through Helios is an optional adapter (<strong>planned</strong>: built, not yet run against a live Helios); without Helios installed it reports "not installed" and results say <code>verification: multi-rpc</code>. Solana has no light-client protocol in production yet; see <a href="https://github.com/Verafyai/verafyHarness/blob/main/ROADMAP.md">ROADMAP.md</a>.</p>
 <h2 id="15-what-it-costs">15. What it costs</h2>
 <p>All <strong>modeled</strong> or <strong>illustrative</strong> unless marked <strong>measured</strong>; check current prices.</p>
-<p><strong>Measured, Nov 6, 2026:</strong> five live rulings, one per example contract, each with a jury of five hosted models through OpenRouter, cost <strong>$0.0163 together</strong>, about <strong>$0.003 per ruling</strong> or about $0.0007 per vote. Wall time per ruling was <strong>5.9 to 30.1 seconds</strong> from a laptop. See <a href="https://github.com/Verafyai/verafyHarness/blob/main/results/live-2026-11-06.md">results/live-2026-11-06.md</a>. In a separate run, five DeepSeek Harness juror processes on five labs' models sealed a block from their reveals (<a href="https://github.com/Verafyai/verafyHarness/blob/main/docs/dsh-juror.md">docs/dsh-juror.md</a>).</p>
+<p><strong>Measured, Nov 6, 2026:</strong> five live rulings, one per example contract, each with a jury of five hosted models through OpenRouter, cost <strong>$0.0163 together</strong>, about <strong>$0.003 per ruling</strong> or about $0.0007 per vote. Wall time per ruling was <strong>5.9 to 30.1 seconds</strong> from a laptop. See <a href="https://github.com/Verafyai/verafyHarness/blob/main/results/live-2026-11-06.md">results/live-2026-11-06.md</a>. In a separate run, five DeepSeek Harness juror processes on five different models sealed a block from their reveals (<a href="https://github.com/Verafyai/verafyHarness/blob/main/docs/dsh-juror.md">docs/dsh-juror.md</a>).</p>
 <p><strong>Model cost per vote</strong>, modeled at 1,500 input and 300 output tokens with OpenRouter prices of Oct 11, 2026:</p>
 <div class="tbl"><table>
 <thead>
@@ -851,20 +846,9 @@ node bin/verafy.js confirm solana &lt;signature&gt; --config config/lightclient.
 <td><code>meta-llama/llama-4-maverick</code></td>
 <td>about $0.0005</td>
 </tr>
-<tr>
-<td><code>openai/gpt-5-mini</code></td>
-<td>about $0.0010</td>
-</tr>
-<tr>
-<td><code>google/gemini-2.5-flash</code></td>
-<td>about $0.0012</td>
-</tr>
-<tr>
-<td><code>anthropic/claude-haiku-4.5</code></td>
-<td>about $0.0030</td>
-</tr>
 </tbody>
 </table></div>
+<p>Other open-weight models in the examples (<code>mistralai/mistral-small-3.2-24b-instruct</code>, <code>openai/gpt-oss-120b</code>, <code>google/gemma-3-27b-it</code>) are priced in the same range; check the provider's page before relying on a figure.</p>
 <p>Larger contexts cost proportionally more: 15,000 tokens of context is about ten times these figures.</p>
 <p><strong>Machine cost per month</strong> (730 hours):</p>
 <div class="tbl"><table>
@@ -944,8 +928,8 @@ profit = sum of shares  +  audit fees and caught bonds  -  model cost  -  machin
 </tr>
 <tr>
 <td><code>pool cannot seat a jury</code></td>
-<td>Not enough labs in the pool for the contract's <code>minLabs</code></td>
-<td>Add harnesses from other labs, or use a contract that asks for fewer</td>
+<td>Not enough model families (or operators) in the pool for the contract's <code>minFamilies</code></td>
+<td>Add harnesses on other model families, or use a contract that asks for fewer</td>
 </tr>
 <tr>
 <td><code>bond ... is below the contract's ... per vote</code></td>

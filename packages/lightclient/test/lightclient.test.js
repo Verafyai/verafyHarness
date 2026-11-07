@@ -283,7 +283,7 @@ const funded = asc => ({ ...asc, payment: { ...asc.payment, source: { account: P
 
 test('F3: with no light client, admit is intake alone and the demo contracts still pass', async () => {
   const asc = ex('market-resolution')
-  const h = new Harness({ ...config.pool[0], provider: mockProvider(mock, asc.id, 'anthropic') })
+  const h = new Harness({ ...config.pool[0], provider: mockProvider(mock, asc.id, 'mistral') })
   const a = await h.admit(asc)
   assert.equal(a.admitted, true)
   assert.equal(a.funding.checked, false)

@@ -105,7 +105,7 @@ tr:last-child td{border-bottom:0}
 </section>
 <header class="wrap top">
   <a class="brand" href="/"><svg class="mark" viewBox="0 0 64 64" width="28" height="28" aria-hidden="true"><path d="M6 20V6h14M44 6h14v14M58 44v14H44M20 58H6V44" stroke="currentColor" stroke-width="5" stroke-linecap="square" fill="none"/><path d="M32 13v7M32 44v7M13 32h7M44 32h7" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><circle cx="32" cy="32" r="11" fill="var(--accent)"/><circle cx="32" cy="32" r="4" fill="var(--paper)"/></svg>Verafy Harness</a>
-  <a class="ver" href="/blog/v0-0-2-alpha" title="Release notes for v0.0.2-alpha">v0.0.2-alpha</a>
+  <a class="ver" href="/blog/v0-0-3-alpha" title="Release notes for v0.0.3-alpha">v0.0.3-alpha</a>
   <details class="menu">
     <summary aria-label="Menu"><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><span class="lab">Menu</span></summary>
     <nav aria-label="Site"><div class="grp">Verafy Harness</div><a href="/launch">Launch a harness</a><a href="/run">Run a harness</a><a href="/testnet" aria-current="page">Testnet</a><a href="/economics">Economics</a><a href="/coin-agnostic">Coin Agnostic</a><a href="/learn">Learn</a><a href="/spec">Specification</a><a href="/blog">Release notes</a><hr><div class="grp">Verafy Chain</div><a href="https://chain.verafy.ai">Verafy Chain</a><a href="https://chain.verafy.ai/constitution">Constitution</a><a href="https://chain.verafy.ai/#roadmap">Roadmap</a><hr><div class="grp">More</div><a href="https://asc.verafy.ai">Actually Smart Contracts</a><a href="https://github.com/Verafyai/verafyHarness">GitHub</a></nav>
@@ -132,7 +132,7 @@ tr:last-child td{border-bottom:0}
 <p><strong>Status.</strong> There is no public testnet yet. What runs today is a <strong>local devnet</strong>: a full jury on one machine. <strong>Testnet 0</strong> is the plan below. Everything on testnet is play money, and there is no token on testnet or after it.</p>
 </blockquote>
 <h2 id="local-devnet-available-now">Local devnet (available now)</h2>
-<p>A complete Verafy Chain round on your own machine: a pool of harnesses, seeded jury draws across labs, commit and reveal, agreement against the bar, contract exits, payouts and linked blocks.</p>
+<p>A complete Verafy Chain round on your own machine: a pool of harnesses, seeded jury draws across model families, commit and reveal, agreement against the bar, contract exits, payouts and linked blocks.</p>
 <pre><code class="language-sh">git clone https://github.com/Verafyai/verafyHarness.git &amp;&amp; cd verafyHarness
 npm run demo                                    # scripted answers, five blocks
 export VERAFY_API_KEY=...                       # OpenRouter key
@@ -142,7 +142,7 @@ node bin/verafy.js chain
 <p>Write your own contract by copying one in <code>examples/</code>, then <code>node bin/verafy.js pin &lt;file&gt;</code> and <code>node bin/verafy.js validate &lt;file&gt;</code>.</p>
 <h2 id="testnet-0-planned">Testnet 0 (planned)</h2>
 <h3 id="goal">Goal</h3>
-<p>Ten or more independently run harnesses, on at least five labs' models, ruling on real-world questions and sealing blocks on a shared network for a week, with every number published.</p>
+<p>Ten or more independently run harnesses, on at least five different models, ruling on real-world questions and sealing blocks on a shared network for a week, with every number published.</p>
 <h3 id="shape">Shape</h3>
 <div class="tbl"><table>
 <thead>
@@ -166,7 +166,7 @@ node bin/verafy.js chain
 </tr>
 <tr>
 <td>Judgment consensus</td>
-<td>As in <a href="/run#2-what-consensus-means-on-verafy-chain">the guide</a>: seeded draws across labs, commit and reveal, the contract's bar</td>
+<td>As in <a href="/run#2-what-consensus-means-on-verafy-chain">the guide</a>: seeded draws across model families, commit and reveal, the contract's bar</td>
 </tr>
 <tr>
 <td>Payments</td>
@@ -230,7 +230,7 @@ node bin/verafy.js chain
 <h3 id="how-to-join">How to join</h3>
 <ol>
 <li>Run the local devnet and a live ruling. Keep the <code>doctor --live</code> output.</li>
-<li>Open an issue on <a href="https://github.com/Verafyai/verafyHarness/issues">Verafyai/verafyHarness</a> titled <code>Testnet harness: &lt;your handle&gt;</code> with: setup type (API, open weights or node), lab and model, GPU if any, region, and your <code>doctor --live</code> output. Never paste keys.</li>
+<li>Open an issue on <a href="https://github.com/Verafyai/verafyHarness/issues">Verafyai/verafyHarness</a> titled <code>Testnet harness: &lt;your handle&gt;</code> with: setup type (API, open weights or node), model family and model, GPU if any, region, and your <code>doctor --live</code> output. Never paste keys.</li>
 <li>When phase 1 opens, invited operators get the seed node addresses and the <code>testnet-0</code> registry. Then:</li>
 </ol>
 <pre><code class="language-sh">verafy harness init --network testnet-0
@@ -248,7 +248,7 @@ verafy harness start
 <li>Ship the harness daemon: <code>verafy harness init | register | start | status</code>, with a persistent identity.</li>
 <li>Deploy the Solana devnet escrow and bridge program that accepts quorum-signed triggers.</li>
 <li>Stand up 3 seed nodes in different regions, the availability layer, and the contract feed.</li>
-<li>Run Verafy's own harnesses on at least five labs for a week before inviting anyone.</li>
+<li>Run Verafy's own harnesses on at least five model families for a week before inviting anyone.</li>
 <li>Open phase 1.</li>
 </ol></article></div>
 <footer class="wrap foot">

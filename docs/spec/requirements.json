@@ -1,7 +1,7 @@
 {
   "spec": "Verafy Harness and Verafy Chain",
-  "version": "0.0.2-alpha",
-  "date": "2026-11-06",
+  "version": "0.0.3-alpha",
+  "date": "2026-11-07",
   "levels": {
     "verified": {
       "points": 1,
@@ -180,7 +180,7 @@
       "area": "JURY",
       "weight": 3,
       "status": "verified",
-      "title": "Live juries across five labs; measured Nov 6, 2026: five contracts, 5.9 to 30.1 s each, $0.0163 in total",
+      "title": "Live juries across five different models; measured Nov 6, 2026: five contracts, 5.9 to 30.1 s each, $0.0163 in total",
       "checks": [
         {
           "file": "results/live-2026-11-06.md"
@@ -192,7 +192,7 @@
       "area": "JURY",
       "weight": 3,
       "status": "verified",
-      "title": "Juror mode inside DeepSeek Harness: five labs sealed a block from their reveals",
+      "title": "Juror mode inside DeepSeek Harness: five different models sealed a block from their reveals",
       "checks": [
         {
           "file": "packages/dsh-verafy-juror/src/index.ts"
@@ -220,7 +220,7 @@
       "area": "JURY",
       "weight": 2,
       "status": "built",
-      "title": "Auditors from other labs re-check sealed rulings",
+      "title": "Auditors from other model families re-check sealed rulings",
       "checks": [
         {
           "grep": "packages/core/src/challenge.js",
@@ -245,15 +245,18 @@
       "id": "JURY-006",
       "area": "JURY",
       "weight": 2,
-      "status": "designed",
-      "title": "Challenge bonds: lock on open, return on overturn, forfeit on affirm",
+      "status": "built",
+      "title": "Challenge bonds: lock on open, return on overturn or supersede, forfeit on affirm",
       "checks": [
         {
-          "grep": "docs/proposals/VIP-0006-challenge-bonds.md",
-          "re": "vip: .?0006"
+          "grep": "packages/core/src/hold.js",
+          "re": "export function settleChallengeBond"
+        },
+        {
+          "test": "packages/core/test/consensus.test.js"
         }
       ],
-      "gap": "Designed in VIP-0006; not built"
+      "gap": "Bond factor illustrative; not on a chain"
     },
     {
       "id": "JURY-007",
@@ -297,99 +300,127 @@
       "id": "CONS-001",
       "area": "CONS",
       "weight": 3,
-      "status": "designed",
+      "status": "built",
       "title": "Jury scheduler: beacon seed, draw, alternates, block-height deadlines, commit-phase replacement",
       "checks": [
         {
-          "grep": "docs/proposals/VIP-0001-jury-scheduler.md",
-          "re": "vip: .?0001"
+          "grep": "packages/core/src/scheduler.js",
+          "re": "export function replaceNoShows"
+        },
+        {
+          "test": "packages/core/test/consensus.test.js"
+        },
+        {
+          "grep": "packages/deploy/src/testnet.js",
+          "re": "scheduler\\.draw"
         }
       ],
-      "gap": "Designed; not built"
+      "gap": "Deadlines and alternate counts are illustrative; the verafyChain node does not call the scheduler yet"
     },
     {
       "id": "CONS-002",
       "area": "CONS",
       "weight": 3,
-      "status": "designed",
+      "status": "built",
       "title": "Randomness beacon with lookahead; a withheld reveal is a slashable fault",
       "checks": [
         {
-          "grep": "docs/proposals/VIP-0002-randomness-beacon.md",
-          "re": "vip: .?0002"
+          "grep": "packages/core/src/beacon.js",
+          "re": "export function verifyBeacon"
+        },
+        {
+          "test": "packages/core/test/consensus.test.js"
         }
       ],
-      "gap": "Designed; not built"
+      "gap": "A hash-chain beacon with one bit of withholding bias, slashed; drand or a VRF would remove it (decision for Rex)"
     },
     {
       "id": "CONS-003",
       "area": "CONS",
       "weight": 2,
-      "status": "designed",
+      "status": "partial",
       "title": "Operator keys on harness cards, a seat cap per operator, operator bonds",
       "checks": [
         {
-          "grep": "docs/proposals/VIP-0003-operator-diversity.md",
-          "re": "vip: .?0003"
+          "grep": "packages/core/src/network.js",
+          "re": "maxSeatsPerOperator"
+        },
+        {
+          "test": "packages/core/test/consensus.test.js"
         }
       ],
-      "gap": "Designed; not built"
+      "gap": "The cap and alternates are built; operator signatures are carried on cards but not yet checked, and operator bonds are not posted anywhere yet"
     },
     {
       "id": "CONS-004",
       "area": "CONS",
       "weight": 1,
-      "status": "designed",
+      "status": "built",
       "title": "Draw weighting: equal by default, bond-weighted with a cap as an option",
       "checks": [
         {
-          "grep": "docs/proposals/VIP-0004-draw-weighting.md",
-          "re": "vip: .?0004"
+          "grep": "packages/core/src/network.js",
+          "re": "export function drawOrder"
+        },
+        {
+          "test": "packages/core/test/consensus.test.js"
         }
       ],
-      "gap": "Network default waits on Rex"
+      "gap": "Equal is the default; whether the network allows bond weighting waits on Rex"
     },
     {
       "id": "CONS-005",
       "area": "CONS",
       "weight": 3,
-      "status": "designed",
+      "status": "built",
       "title": "Slashing: a published schedule applied to recorded faults as conserving bond diffs",
       "checks": [
         {
-          "grep": "docs/proposals/VIP-0005-fault-slashing.md",
-          "re": "vip: .?0005"
+          "grep": "packages/core/src/slashing.js",
+          "re": "export function slashDiff"
+        },
+        {
+          "test": "packages/core/test/consensus.test.js"
+        },
+        {
+          "test": "packages/deploy/test/deploy.test.js"
         }
       ],
-      "gap": "Designed; not built"
+      "gap": "Every rate is illustrative; slashes apply on the local testnet, not on a chain"
     },
     {
       "id": "CONS-006",
       "area": "CONS",
       "weight": 3,
-      "status": "designed",
+      "status": "built",
       "title": "Payouts held until the challenge window closes; an overturn redirects the held escrow",
       "checks": [
         {
-          "grep": "docs/proposals/VIP-0007-payout-hold.md",
-          "re": "vip: .?0007"
+          "grep": "packages/core/src/hold.js",
+          "re": "export function releaseHeld"
+        },
+        {
+          "test": "packages/core/test/consensus.test.js"
         }
       ],
-      "gap": "Designed; not built"
+      "gap": "Window lengths are illustrative; the verafyChain node does not release held payouts yet"
     },
     {
       "id": "CONS-007",
       "area": "CONS",
       "weight": 1,
-      "status": "designed",
+      "status": "built",
       "title": "Single-harness mode: a jury of one with a mandatory window and an automatic audit",
       "checks": [
         {
-          "grep": "docs/proposals/VIP-0008-single-harness-mode.md",
-          "re": "vip: .?0008"
+          "grep": "packages/core/src/scheduler.js",
+          "re": "singleHarness"
+        },
+        {
+          "test": "packages/core/test/consensus.test.js"
         }
       ],
-      "gap": "Whether to offer it waits on Rex"
+      "gap": "Allowed only with a window and an automatic audit; whether to offer it waits on Rex; cost not modeled"
     },
     {
       "id": "CONS-008",
@@ -403,25 +434,45 @@
           "re": "vip: .?0009"
         }
       ],
-      "gap": "Default waits on Rex"
+      "gap": "Default waits on Rex; the proof record does not name its prover yet"
     },
     {
       "id": "CONS-009",
       "area": "CONS",
       "weight": 2,
-      "status": "planned",
+      "status": "partial",
       "title": "verafy_ruling: a reveal deadline slot, and a releasable-after slot",
-      "checks": [],
-      "gap": "Program change; not built"
+      "checks": [
+        {
+          "grep": "packages/solana/program/src/lib.rs",
+          "re": "DEADLINE_AT"
+        },
+        {
+          "test": "packages/solana/test/solana.test.js"
+        },
+        {
+          "grep": "docs/solana/localnet-run-v0.0.3.md",
+          "re": "sealed, NO, 4 of 5"
+        }
+      ],
+      "gap": "Measured on a local validator only; not on devnet"
     },
     {
       "id": "CONS-010",
       "area": "CONS",
       "weight": 1,
-      "status": "planned",
+      "status": "built",
       "title": "Economics: bond capital cost, expected slashing, challenge cost",
-      "checks": [],
-      "gap": "Not modeled"
+      "checks": [
+        {
+          "grep": "packages/economics/src/index.js",
+          "re": "export function stake"
+        },
+        {
+          "test": "packages/economics/test/economics.test.js"
+        }
+      ],
+      "gap": "Every input is illustrative"
     },
     {
       "id": "CHAIN-001",
@@ -496,7 +547,7 @@
       "weight": 1,
       "status": "planned",
       "repo": "chain",
-      "title": "Escalated juries accepted by the chain; challenge juries that share no lab",
+      "title": "Escalated juries accepted by the chain; challenge juries that share no model family",
       "checks": []
     },
     {
@@ -867,7 +918,7 @@
       "area": "PACK",
       "weight": 3,
       "status": "built",
-      "title": "Fidelity check: an unproven multi-lab panel rules a plan FAITHFUL before it is used",
+      "title": "Fidelity check: an unproven multi-family panel rules a plan FAITHFUL before it is used",
       "checks": [
         {
           "grep": "packages/pack/src/pipeline.js",
@@ -1685,7 +1736,7 @@
     {
       "id": "DEPLOY-007",
       "area": "DEPLOY",
-      "title": "verafy testnet: a local testnet on one machine (a daemon per lab, juries over HTTP, sealed blocks), scripted or live, with optional Solana settlement",
+      "title": "verafy testnet: a local testnet on one machine (a daemon per model family, juries over HTTP, sealed blocks), scripted or live, with optional Solana settlement",
       "status": "built",
       "weight": 3,
       "checks": [

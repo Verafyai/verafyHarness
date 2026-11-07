@@ -9,17 +9,17 @@
 
 **Project site: [harness.verafy.ai](https://harness.verafy.ai)** · [Concept site](https://chain.verafy.ai) · [Run a harness](docs/run-a-harness.md) · [Testnet](docs/testnet.md) · [Coin Agnostic](docs/coin-agnostic.md) · [The essay](docs/blog/bringing-inference-programs-to-solana.md) · [The three draft SIMDs](docs/simds) · [SIMD discussion #724](https://github.com/solana-foundation/solana-improvement-documents/discussions/724) · [Roadmap](ROADMAP.md)
 
-> **Status.** A working prototype, not a running network. Nothing here has been audited. What is real today: a full jury on one machine, live rulings by five labs' models, and juror mode inside DeepSeek Harness. See [what has been measured](#what-runs-today).
+> **Status.** A working prototype, not a running network. Nothing here has been audited. What is real today: a full jury on one machine, live rulings by five different models, and juror mode inside DeepSeek Harness. See [what has been measured](#what-runs-today).
 
 <p align="center">
-  <img src="docs/assets/verafy-chain.gif" alt="Animation: intentions written in words go to five harnessed validators from different labs, who commit and reveal votes; agreement is measured against the contract's bar, and the ruling seals a new block." width="100%">
+  <img src="docs/assets/verafy-chain.gif" alt="Animation: intentions written in words go to five harnessed validators from different model families, who commit and reveal votes; agreement is measured against the contract's bar, and the ruling seals a new block." width="100%">
 </p>
 
 ## Why this exists
 
 Smart contracts can only enforce what someone can write as math. Most of what people actually want enforced isn't math: a policy, a promise, a claim, a condition about the world. Today those decisions leave the chain and come back as somebody's word.
 
-AI models can now read and weigh almost anything, and there is early research on proving which model produced an answer. Verafy Harness puts the two together: a contract written in words, ruled on by a jury of AI models from different labs, with every vote committed, revealed, signed and open to challenge.
+AI models can now read and weigh almost anything, and there is early research on proving which model produced an answer. Verafy Harness puts the two together: a contract written in words, ruled on by a jury of open-weight models from different families, with every vote committed, revealed, signed and open to challenge.
 
 Three choices shape the project:
 
@@ -70,11 +70,11 @@ Verafy Harness does two things.
 | | Status | Evidence |
 |---|---|---|
 | A full jury on one machine: contracts, pinned context, commit and reveal, agreement against the bar, exits, payouts, linked blocks | Works | `npm test` (167 tests), `npm run demo` |
-| Live rulings by five labs' models through OpenRouter | **Measured** Nov 6, 2026: five contracts, 5.9 to 30.1 s each, $0.0163 in total | [results/live-2026-11-06.md](results/live-2026-11-06.md) |
-| Juror mode inside DeepSeek Harness: five DSH processes on five labs' models, block sealed from their reveals | **Measured** Nov 6, 2026: all five voted NO, 100% against an 80% bar; 24 of 24 other tools denied | [docs/dsh-juror.md](docs/dsh-juror.md) |
+| Live rulings by five different models through OpenRouter | **Measured** Nov 6, 2026: five contracts, 5.9 to 30.1 s each, $0.0163 in total | [results/live-2026-11-06.md](results/live-2026-11-06.md) |
+| Juror mode inside DeepSeek Harness: five DSH processes on five different models, block sealed from their reveals | **Measured** Nov 6, 2026: all five voted NO, 100% against an 80% bar; 24 of 24 other tools denied | [docs/dsh-juror.md](docs/dsh-juror.md) |
 | Payment router: accept lists, a local payout ledger | Works; on-chain routers planned | `verafy.config.json`, `.verafy/payouts.jsonl` |
 | Routing agent: keyblock, banker, API router, payment wallet | Works with test venues and test APIs; real venues and on-chain signing planned | `npm test`, `packages/core/test/core.test.js` |
-| Auditors, challenges and escalation in core: an auditor from another lab re-checks a sealed ruling; a challenge appends affirm, overturn or supersede and never edits the ruling; a below-bar ruling's escrow funds a wider jury from other labs | Works with scripted models; not yet run live or on a network | `packages/core/src/challenge.js`, `packages/core/test/m3.test.js` |
+| Auditors, challenges and escalation in core: an auditor from another model family re-checks a sealed ruling; a challenge appends affirm, overturn or supersede and never edits the ruling; a below-bar ruling's escrow funds a wider jury from other model families | Works with scripted models; not yet run live or on a network | `packages/core/src/challenge.js`, `packages/core/test/m3.test.js` |
 | Retry for rate-limited models: each harness backs off on 429, 5xx and network errors, then is dropped if it still fails | Works with fake providers; not yet measured live | `packages/core/src/providers.js` |
 | Light client: reads the source chain across 3 RPC endpoints from 2 or more operators at `finalized`; disagreement is unknown and pauses the contract; intake checks escrow, the outbox confirms triggers landed | Works with mocked RPCs; **measured** read-only on Solana devnet Nov 6, 2026 (3 endpoints, 3 operators). Ethereum sync-committee verification (Helios) is an optional adapter, not yet run | `packages/lightclient`, `config/lightclient.devnet.json` |
 | Proof packing: an atomizer that drafts atom plans with a model, exact composition rules, dedupe across contracts, first-fit packing into 1,024-token requests, strict reply reading | Works with mock models; prove-once and the fidelity panel on devnet are planned | `packages/pack`, `packages/pack/test/pack.test.js` |
@@ -93,7 +93,7 @@ git clone https://github.com/Verafyai/verafyHarness.git
 cd verafyHarness
 npm test          # 198 tests, plus the spec check
 npm run demo      # five contracts, five rulings, five blocks, scripted answers
-npm run testnet   # a whole testnet on this machine: a daemon per lab, juries over HTTP, sealed blocks
+npm run testnet   # a whole testnet on this machine: a daemon per model family, juries over HTTP, sealed blocks
 ```
 
 <p align="center">
@@ -176,7 +176,7 @@ Every Actually Smart Contract has four parts. The schema is [`schemas/asc.schema
 |---|---|---|
 | **Context** | Links, text, policies, documents or repos, each pinned by SHA-256 so every juror reads the same bytes. Links are snapshotted at a set time. | senate.gov roll call, snapshot Dec 1; market rules; resolver policy v2 |
 | **Question** | The intention compressed to what must be decided, and the form of the answer: a `verdict` from options, a `forecast` probability, or a `graded` answer on an ordered scale. | Did H.R. 4410 pass the Senate by Nov 30? `YES`, `NO`, `UNCLEAR` |
-| **Payment** | Escrow in any asset on any chain, the jury's size, how many labs it must span, the quorum, the bar it must clear, and how the escrow splits. | 1.20 USDC on Solana · jury of 5 across 5 labs · bar 80% |
+| **Payment** | Escrow in any asset on any chain, the jury's size, how many model families it must span, the quorum, the bar it must clear, and how the escrow splits. | 1.20 USDC on Solana · jury of 5 across 5 model families · bar 80% |
 | **Exits** | The only things the contract can do with an answer: `pay`, `refund`, `hold`, `record`, `call` a contract on another chain, or `escalate`. A `*below-bar` exit is required. | `NO` → call `market.settle(NO)` on Solana |
 
 ```json
@@ -186,7 +186,7 @@ Every Actually Smart Contract has four parts. The schema is [`schemas/asc.schema
   "instructions": "You resolve a prediction market. Use only the pinned roll-call snapshot...",
   "context": [{ "kind": "link", "url": "https://www.senate.gov/...", "snapshotAt": "2026-12-01T00:00:00Z", "sha256": "..." }],
   "question": { "prompt": "Did H.R. 4410 pass the Senate by November 30, 2026?", "answer": { "type": "verdict", "options": ["YES", "NO", "UNCLEAR"] } },
-  "payment": { "escrow": 1.2, "currency": "USDC", "chain": "solana", "bar": 0.8, "jury": { "size": 5, "minLabs": 5, "quorum": 4 }, "split": { "jurors": 0.8, "auditors": 0.1, "storage": 0.05, "sealer": 0.05 } },
+  "payment": { "escrow": 1.2, "currency": "USDC", "chain": "solana", "bar": 0.8, "jury": { "size": 5, "minFamilies": 5, "quorum": 4 }, "split": { "jurors": 0.8, "auditors": 0.1, "storage": 0.05, "sealer": 0.05 } },
   "exits": [
     { "outcome": "NO", "effect": { "type": "call", "chain": "solana", "target": "market.settle", "args": ["NO"] } },
     { "outcome": "*below-bar", "effect": { "type": "escalate", "jurySize": 9 } }
@@ -219,7 +219,7 @@ Payment may also say when the contract is willing to seal: `minBatch` (never in 
 
 ## How a ruling works
 
-1. **Propose.** A funded contract is drawn into the next block. A jury is drawn from the pool using the parent block hash as the seed, filling seats until it spans the required labs.
+1. **Propose.** A funded contract is drawn into the next block. The jury scheduler draws a jury from the pool, seeded by a randomness beacon that the block's sealer fixed in advance, filling seats until it spans the required model families without giving any operator more than its share of seats.
 2. **Commit.** Each harness validates the contract, checks every context hash, deliberates, and publishes only a SHA-256 commitment of its vote and a salt, signed with its Ed25519 key.
 3. **Reveal.** Each harness opens its vote. A reveal that does not match its commitment, or whose signature fails, is not counted.
 4. **Rule.** Agreement is measured and compared with the bar. Dissent is recorded with its reasoning.
@@ -229,7 +229,7 @@ Payment may also say when the contract is willing to seal: `minBatch` (never in 
 
 Consensus has two layers. The full definition is in [the guide](docs/run-a-harness.md#2-what-consensus-means-on-verafy-chain).
 
-- **Judgment consensus** decides whether a ruling is valid: the jury was drawn correctly across labs, at least a quorum revealed votes that match their commitments, every answer is in bounds, the bar was or was not cleared, and the diff matches the exit and conserves totals. Every node checks every rule.
+- **Judgment consensus** decides whether a ruling is valid: the jury was drawn correctly across model families, at least a quorum revealed votes that match their commitments, every answer is in bounds, the bar was or was not cleared, and the diff matches the exit and conserves totals. Every node checks every rule.
 - **Ledger consensus** decides block order: a sealer rotation over the node set, with a block final at two thirds of node signatures (proposed for testnet). Rulings inside a final block can still be challenged during their window; a challenge appends a new ruling and never erases the old one.
 
 ## Close enough: agreement and the bar
@@ -242,7 +242,7 @@ Judgment is fuzzy, so a ruling does not have to be exact. It has to clear the co
 | `forecast` | `1 - min(1, meanAbsDeviation / tolerance)` around the median | Live, Nov 6: forecasts 0.35 to 0.65, 55% against a bar of 70%, below the bar |
 | `graded` | A vote on the winning grade counts fully, one step away counts half | 4 misleading, 1 false: 90% against 70%, final |
 
-Below the bar, the `*below-bar` exit runs. In the examples it escalates to a 9-harness jury in the next block and moves the escrow to fund it; no juror is paid. Rulings are also checked after the fact: auditor harnesses re-run a sample with different labs, anyone can challenge with new evidence, and forecasts are scored when the outcome arrives.
+Below the bar, the `*below-bar` exit runs. In the examples it escalates to a 9-harness jury in the next block and moves the escrow to fund it; no juror is paid. Rulings are also checked after the fact: auditor harnesses re-run a sample with different model families, anyone can challenge with new evidence, and forecasts are scored when the outcome arrives.
 
 ## Proof of Judgment
 
@@ -270,7 +270,7 @@ Each harness plugs in a **payment router** that decides which payments it accept
   "payments": {
     "router": "ledger",
     "accept": [{ "chain": "solana", "asset": "USDC" }],
-    "book": { "harness:h-anthropic-1": { "solana": "<your Solana address>" } }
+    "book": { "harness:h-mistral-1": { "solana": "<your Solana address>" } }
   }
 }
 ```
@@ -292,7 +292,7 @@ Requesters pay because they need decisions: prediction markets need resolutions,
 | Role | Does | Earns, in the contract's asset | Risks |
 |---|---|---|---|
 | Juror | Rules with its committed model | A share of `split.jurors` per counted vote | Its bond, for running another model, missing a reveal, or failing audit |
-| Auditor | Re-runs sampled rulings with a different lab | `split.auditors`, plus the bond of any juror it catches | A smaller bond, for a false accusation |
+| Auditor | Re-runs sampled rulings with a model from a different family | `split.auditors`, plus the bond of any juror it catches | A smaller bond, for a false accusation |
 | Storage | Keeps context and evidence fetchable by hash | `split.storage` for the challenge window | Its bond, if a file cannot be produced |
 | Sealer | Collects reveals, checks quorum and diffs, signs the block | The remainder of the escrow | Rejection of the block |
 
@@ -302,14 +302,25 @@ Every counted vote is paid, including dissent, so no juror is rewarded for follo
 
 A block stores the short request inline and every piece of context as a hash. Full text sits in an availability layer kept by storage harnesses, and every juror's context loader fetches it and checks each hash before the model reads it. In the prototype, snapshot content travels in the contract file under `content`; the hash check is the same either way.
 
+## Bonds and slashing
+
+Running a harness means posting a bond that can be taken for misbehavior. Every ruling records its faults, with signed evidence where a fault can be proven, and a published schedule prices them:
+
+- **Provable misbehavior costs a share of the bond:** two different signed commitments for one contract (100%), a proof that does not verify (50%), a signed reveal that does not open its own commitment (25%).
+- **Missed seats cost a small fixed amount** past a free allowance (2% of seats for commits), doubling in a streak, because honest machines go offline.
+- **Slashed money** goes half to whoever proved the fault and the rest to the network pool. Nothing is burned or minted.
+- **Payouts wait out a challenge window** when a contract sets one, so a challenge that overturns a ruling redirects the money, not just the record. Challengers lock a bond too.
+
+Every price is illustrative until Rex sets it. Watch it happen: `node examples/slashing/walkthrough.mjs`, or `node bin/verafy.js testnet up --misbehave h-llama-1:no-reveal`. Designs: [docs/proposals](docs/proposals/README.md).
+
 ## Swapping the AI
 
 A harness commits to one model. Swapping the AI means changing the provider and model id, nothing else.
 
-- **This prototype:** edit `verafy.config.json`. Each pool entry names a lab and a model, routed through an OpenAI-compatible endpoint, which can be a local vLLM server (`verafy.config.local.json`).
-- **Inside DeepSeek Harness:** pick a route in [`config/cordis.verafy.yml`](config/cordis.verafy.yml). DSH's `@deepseek-ai/dsh-llm-pi-ai` adapter serves Anthropic, OpenAI, Google, OpenRouter, any OpenAI-compatible gateway, or a self-hosted server, with keys as credential references.
+- **This prototype:** edit `verafy.config.json`. Each pool entry names an open-weight model and its family (the base model it descends from), served through an OpenAI-compatible endpoint: a local vLLM or Ollama server (`verafy.config.local.json`), or a provider that serves the same open weights.
+- **Inside DeepSeek Harness:** pick a route in [`config/cordis.verafy.yml`](config/cordis.verafy.yml). DSH's `@deepseek-ai/dsh-llm-pi-ai` adapter serves any OpenAI-compatible gateway, such as OpenRouter, or a self-hosted server, with keys as credential references.
 
-The network does not care which lab a harness uses. It requires that each jury spans several labs.
+Any open-weight model from Hugging Face will do; the network does not care which. It requires that each jury spans several model families and several operators, and that every harness posts a bond it can lose.
 
 ## Running inside DeepSeek Harness
 
@@ -330,26 +341,26 @@ CI=true npx -y pnpm@11.28.5 install --frozen-lockfile   # needs Node 24.9 or lat
 CI=true npx -y pnpm@11.28.5 run build
 cd ../..
 node scripts/dsh-juror.mjs setup                        # link the plugin into the headless profile
-node scripts/dsh-juror.mjs vote --lab anthropic         # one DSH juror, scripted model, no key
+node scripts/dsh-juror.mjs vote --family mistral        # one DSH juror, scripted model, no key
 node scripts/dsh-juror.mjs jury                         # five DSH jurors, then verafy seal
-VERAFY_API_KEY=... node scripts/dsh-juror.mjs jury --route openrouter  # five labs' live models
+VERAFY_API_KEY=... node scripts/dsh-juror.mjs jury --route openrouter  # five different live models
 ```
 
-Status: milestone 2 is met. Five DeepSeek Harness processes on five labs' models (one `dsh-llm-pi-ai` route each, through OpenRouter) ruled on `examples/market-resolution.json` and `swarm seal` (now `verafy seal`) sealed the block from their reveals. See [docs/dsh-juror.md](docs/dsh-juror.md) for the run, and [docs/dsh-gaps.md](docs/dsh-gaps.md) for what DSH does not expose.
+Status: milestone 2 is met. Five DeepSeek Harness processes on five different models (one `dsh-llm-pi-ai` route each, through OpenRouter) ruled on `examples/market-resolution.json` and `swarm seal` (now `verafy seal`) sealed the block from their reveals. See [docs/dsh-juror.md](docs/dsh-juror.md) for the run, and [docs/dsh-gaps.md](docs/dsh-gaps.md) for what DSH does not expose.
 
 ## Networks of harnesses
 
 <p align="center">
-  <img src="docs/assets/network.png" alt="A pool of eighteen independent harnesses; a request from a prediction market draws a jury of five from five labs; two auditors; the ruling seals into Verafy Chain and triggers market.settle on Solana" width="100%">
+  <img src="docs/assets/network.png" alt="A pool of eighteen independent harnesses; a request from a prediction market draws a jury of five from five model families; two auditors; the ruling seals into Verafy Chain and triggers market.settle on Solana" width="100%">
 </p>
 
-Many independent harnesses form a pool. Each request draws a random jury that meets the contract's rules: enough labs, enough bond, the right specialty, an accepted payment. The first networks:
+Many independent harnesses form a pool. Each request draws a random jury that meets the contract's rules: enough model families, enough operators, enough bond, the right specialty, an accepted payment. The first networks:
 
 | Network | Request | Jury | Exit |
 |---|---|---|---|
-| Market resolution | Did the bill pass the Senate by Nov 30? | 5 harnesses, 5 labs, bar 80% | `market.settle(NO)` on Solana |
-| Fact checking | Did the CEO say revenue doubled? | 5 harnesses, 4+ labs, bar 70% | Graded verdict, misleading, with dissent |
-| Forecasting | Probability of a rate cut in March? | 5 harnesses, 5 labs, bar 70% | Forecast, scored at resolution |
+| Market resolution | Did the bill pass the Senate by Nov 30? | 5 harnesses, 5 families, bar 80% | `market.settle(NO)` on Solana |
+| Fact checking | Did the CEO say revenue doubled? | 5 harnesses, 4+ families, bar 70% | Graded verdict, misleading, with dissent |
+| Forecasting | Probability of a rate cut in March? | 5 harnesses, 5 families, bar 70% | Forecast, scored at resolution |
 | Triggers | Pay if UA 1532 lands 3+ hours late | 5 harnesses, bonds of 250+ | `delay_cover.settle(PAY, 250)` on Solana |
 
 ## Performance and state size
@@ -379,7 +390,7 @@ Security is economic: lying has to cost an operator more than it pays.
 | Attack | Defense | Strength |
 |---|---|---|
 | A juror copies the others | Commit-then-reveal | Strong |
-| One lab's blind spot decides | Juries must span distinct labs | Strong |
+| One model family's blind spot decides | Juries must span distinct model families | Strong |
 | Tampered context | Every pin is checked before the model reads it | Strong |
 | A vote outside the declared options | Rejected at parse; the jury can only pick declared exits | Strong |
 | An operator runs a cheaper model than committed | Bonds, audits, attestation; proofs where available | Moderate today, strong with proofs |
@@ -396,7 +407,7 @@ Security is economic: lying has to cost an operator more than it pays.
 - **Liveness.** If several providers fail at once, juries cannot reach quorum. The live runs already saw one rate-limited harness drop out; the jury sealed without it.
 - **Model drift.** A model update can read the same words differently. Harnesses pin versions; the network needs a retirement rule.
 - **Weighting without a coin.** With no native token to stake, how nodes are weighted for ledger consensus, and how bonds in different assets compare, are open. Testnet keeps the node set permissioned.
-- **Who makes the models.** Anyone can run a harness, but a few labs make the strongest models.
+- **Model diversity.** Anyone can run a harness on any open-weight model, but many models descend from a handful of base models, so the number of truly independent families is small.
 - **Setting the bar.** Too low and wrong rulings pass; too high and nothing settles. The live forecast fell below its bar.
 
 ## Verafy Harness and Verafy Chain
@@ -462,7 +473,7 @@ packages/dsh-verafy-juror/        juror mode as a DeepSeek Harness plugin
 packages/mcp/                     zero-dependency MCP server: eight tools, resources, prompts
 integrations/                     one plugin or config folder per agent; _shared/ holds the skill and launch command
 .claude-plugin/marketplace.json   Claude Code marketplace listing integrations/claude-code
-config/cordis.verafy.yml          DSH profile overlay: one model route per lab, juror mode
+config/cordis.verafy.yml          DSH profile overlay: one model route per model family, juror mode
 config/lightclient.devnet.json    three public Solana devnet endpoints for the light client
 scripts/                          setup-ubuntu.sh, run-vllm.sh, dsh-juror.mjs, dsh-link.mjs, scripted-llm.mjs,
                                   sync-integrations.mjs, mcp-smoke.mjs
@@ -481,4 +492,4 @@ upstream/deepseek-harness         DeepSeek Harness, pinned submodule
 
 ## License and credits
 
-MIT. Verafy Harness is built on [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) by DeepSeek-AI, also MIT; its license and notices are in the submodule. Verafy Harness is a Verafy research project by Rex St John and is not affiliated with or endorsed by DeepSeek, OpenRouter, or any model lab.
+MIT. Verafy Harness is built on [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) by DeepSeek-AI, also MIT; its license and notices are in the submodule. Verafy Harness is a Verafy research project by Rex St John and is not affiliated with or endorsed by DeepSeek, OpenRouter, or any model provider.

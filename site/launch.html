@@ -132,7 +132,7 @@ article section{scroll-margin-top:16px}
 </section>
 <header class="wrap top">
   <a class="brand" href="/"><svg class="mark" viewBox="0 0 64 64" width="28" height="28" aria-hidden="true"><path d="M6 20V6h14M44 6h14v14M58 44v14H44M20 58H6V44" stroke="currentColor" stroke-width="5" stroke-linecap="square" fill="none"/><path d="M32 13v7M32 44v7M13 32h7M44 32h7" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><circle cx="32" cy="32" r="11" fill="var(--accent)"/><circle cx="32" cy="32" r="4" fill="var(--paper)"/></svg>Verafy Harness</a>
-  <a class="ver" href="/blog/v0-0-2-alpha" title="Release notes for v0.0.2-alpha">v0.0.2-alpha</a>
+  <a class="ver" href="/blog/v0-0-3-alpha" title="Release notes for v0.0.3-alpha">v0.0.3-alpha</a>
   <details class="menu">
     <summary aria-label="Menu"><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><span class="lab">Menu</span></summary>
     <nav aria-label="Site"><div class="grp">Verafy Harness</div><a href="/launch" aria-current="page">Launch a harness</a><a href="/run">Run a harness</a><a href="/testnet">Testnet</a><a href="/economics">Economics</a><a href="/coin-agnostic">Coin Agnostic</a><a href="/learn">Learn</a><a href="/spec">Specification</a><a href="/blog">Release notes</a><hr><div class="grp">Verafy Chain</div><a href="https://chain.verafy.ai">Verafy Chain</a><a href="https://chain.verafy.ai/constitution">Constitution</a><a href="https://chain.verafy.ai/#roadmap">Roadmap</a><hr><div class="grp">More</div><a href="https://asc.verafy.ai">Actually Smart Contracts</a><a href="https://github.com/Verafyai/verafyHarness">GitHub</a></nav>
@@ -153,11 +153,12 @@ verafy up --ui     # the same questions as a page on your own machine</code></pr
 
 <section id="try">
 <h2>Try it for free: a testnet on your machine</h2>
-<p>One harness per lab, a local coordinator that draws juries and seals blocks, and scripted AI answers, so it costs nothing. Add <code>--solana</code> to settle every ruling on a local Solana validator too (needs the Solana CLI).</p>
+<p>One harness per open-weight model family, a local coordinator that draws juries from its beacon, slashes faults and seals blocks, and scripted AI answers, so it costs nothing. Add <code>--solana</code> to settle every ruling on a local Solana validator too (needs the Solana CLI).</p>
 <pre><code>git clone https://github.com/Verafyai/verafyHarness.git && cd verafyHarness
 npm run testnet                         # scripted answers, no keys
 node bin/verafy.js testnet up --solana  # plus Solana settlement
-node bin/verafy.js testnet up --live    # real models, with VERAFY_API_KEY</code></pre>
+node bin/verafy.js testnet up --live    # real models, with VERAFY_API_KEY
+node bin/verafy.js testnet up --misbehave h-llama-1:no-reveal   # watch a harness get slashed</code></pre>
 </section>
 
 <section id="configure">
@@ -176,7 +177,7 @@ node bin/verafy.js testnet up --live    # real models, with VERAFY_API_KEY</code
     </fieldset>
     <fieldset><legend>Model</legend>
       <div class="opts" role="radiogroup" aria-label="Model kind">
-        <label><input type="radio" name="kind" value="hosted" checked> Hosted, with an API key</label>
+        <label><input type="radio" name="kind" value="hosted" checked> Open weights over an API, with a key</label>
         <label><input type="radio" name="kind" value="local"> Open weights on the same machine</label>
       </div>
       <label class="row" for="model">Which model</label>
@@ -187,7 +188,7 @@ node bin/verafy.js testnet up --live    # real models, with VERAFY_API_KEY</code
       <label class="row" for="nodes">Node URLs, comma-separated (empty to start without)</label>
       <input id="nodes" placeholder="https://node1.example:7101">
       <label class="row" for="hid">Harness id (optional)</label>
-      <input id="hid" placeholder="h-anthropic-1">
+      <input id="hid" placeholder="h-mistral-1">
     </fieldset>
   </div>
   <div class="outputs">
@@ -199,8 +200,8 @@ node bin/verafy.js testnet up --live    # real models, with VERAFY_API_KEY</code
 
 <section id="hardware">
 <h2>Which model fits which machine</h2>
-<p>Any machine, even the smallest server, can run a harness that calls a hosted model. To run open weights yourself, memory decides. These needs are modeled, not measured: 4-bit weights at about 0.6 GB per billion parameters, plus about 25% for the context cache and runtime. Check a model on your machine before you put a bond behind it.</p>
-<div class="tbl"><table><thead><tr><th>Model</th><th>Lab</th><th>Ollama tag</th><th>Memory needed (modeled)</th><th>Router tier</th></tr></thead><tbody id="hwTable"></tbody></table></div>
+<p>Any machine, even the smallest server, can run a harness that calls an open-weight model served over an API. To run the weights yourself, memory decides. These needs are modeled, not measured: 4-bit weights at about 0.6 GB per billion parameters, plus about 25% for the context cache and runtime. Check a model on your machine before you put a bond behind it.</p>
+<div class="tbl"><table><thead><tr><th>Model</th><th>Family</th><th>Ollama tag</th><th>Memory needed (modeled)</th><th>Router tier</th></tr></thead><tbody id="hwTable"></tbody></table></div>
 </section>
 
 <section id="hosted">
@@ -213,6 +214,7 @@ node bin/verafy.js testnet up --live    # real models, with VERAFY_API_KEY</code
 <ul>
 <li><strong>Your model key</strong> lives where the harness runs: a mode-600 file on your machine, or the server's user data in the cloud. Cloud providers keep user data in the server's metadata, so use a key for this harness alone, with a spending limit.</li>
 <li><strong>A cloud API token</strong> is used once, by <code>verafy up</code> on your machine, to create the server. It is never written anywhere.</li>
+<li><strong>Your bond</strong> is at stake. Every harness posts one; it caps the value one vote can decide, and the network takes part of it for misbehavior: a share for provable faults such as a reveal that does not match its commitment, a small fixed amount for missed seats past a free allowance. Keep the machine up. <a href="/learn/bonds-and-slashing">How slashing works</a>.</li>
 <li><strong>The harness signing key</strong> is made on first start and never leaves the machine. Keep its data directory (or Docker volume): it is the harness's identity and its open commitments.</li>
 <li><strong>The harness refuses</strong> to commit on any contract no node it watches holds, so nobody can spend your model budget by calling it directly.</li>
 <li><strong>Vercel and other serverless hosts</strong> cannot run a harness: it is a long-running process that holds a key. Use a server, a container host or your own machine.</li>
@@ -226,9 +228,11 @@ node bin/verafy.js testnet up --live    # real models, with VERAFY_API_KEY</code
 <script>(function(){var links=[].slice.call(document.querySelectorAll('.side a[href^="#"]'));var hs=links.map(function(a){return document.getElementById(decodeURIComponent(a.hash.slice(1)))}).filter(Boolean);function on(){var y=window.scrollY+120,cur=null;hs.forEach(function(h){if(h.offsetTop<=y)cur=h.id});links.forEach(function(a){a.classList.toggle('on',decodeURIComponent(a.hash.slice(1))===cur)})}window.addEventListener('scroll',on,{passive:true});on()})();</script>
 <script>
 /**
- * Which model a machine can run. A harness either calls a hosted model over an
- * API (any machine, even the smallest server, can do that) or runs open
- * weights itself through an OpenAI-compatible local server such as Ollama.
+ * Which model a machine can run. Every harness runs an open-weight model: any
+ * model from Hugging Face. It either runs the weights itself through an
+ * OpenAI-compatible local server such as Ollama, or calls a provider that
+ * serves those same open weights over an API (any machine, even the smallest
+ * server, can do that). A model's family is the base model it descends from.
  *
  * Memory needs are modeled, not measured: 4-bit weights at about 0.6 GB per
  * billion parameters, plus about 25% for the context cache and the runtime.
@@ -237,29 +241,29 @@ node bin/verafy.js testnet up --live    # real models, with VERAFY_API_KEY</code
  * @module @verafyharness/deploy/profiles
  */
 
-/** Open-weights models by lab, smallest first. `tag` is the Ollama tag; check it exists before pulling. */
+/** Open-weight models by family, smallest first. `tag` is the Ollama tag; check it exists before pulling. */
 const OPEN_WEIGHTS = Object.freeze([
-  { lab: 'qwen', model: 'Qwen3 4B', tag: 'qwen3:4b', paramsB: 4 },
-  { lab: 'google', model: 'Gemma 3 4B', tag: 'gemma3:4b', paramsB: 4 },
-  { lab: 'meta', model: 'Llama 3.1 8B', tag: 'llama3.1:8b', paramsB: 8 },
-  { lab: 'qwen', model: 'Qwen3 8B', tag: 'qwen3:8b', paramsB: 8 },
-  { lab: 'deepseek', model: 'DeepSeek R1 8B (distilled)', tag: 'deepseek-r1:8b', paramsB: 8 },
-  { lab: 'google', model: 'Gemma 3 12B', tag: 'gemma3:12b', paramsB: 12 },
-  { lab: 'qwen', model: 'Qwen3 14B', tag: 'qwen3:14b', paramsB: 14 },
-  { lab: 'mistral', model: 'Mistral Small 24B', tag: 'mistral-small:24b', paramsB: 24 },
-  { lab: 'google', model: 'Gemma 3 27B', tag: 'gemma3:27b', paramsB: 27 },
-  { lab: 'qwen', model: 'Qwen3 32B', tag: 'qwen3:32b', paramsB: 32 },
-  { lab: 'meta', model: 'Llama 3.3 70B', tag: 'llama3.3:70b', paramsB: 70 },
+  { family: 'qwen', model: 'Qwen3 4B', tag: 'qwen3:4b', paramsB: 4 },
+  { family: 'gemma', model: 'Gemma 3 4B', tag: 'gemma3:4b', paramsB: 4 },
+  { family: 'llama', model: 'Llama 3.1 8B', tag: 'llama3.1:8b', paramsB: 8 },
+  { family: 'qwen', model: 'Qwen3 8B', tag: 'qwen3:8b', paramsB: 8 },
+  { family: 'deepseek', model: 'DeepSeek R1 8B (distilled)', tag: 'deepseek-r1:8b', paramsB: 8 },
+  { family: 'gemma', model: 'Gemma 3 12B', tag: 'gemma3:12b', paramsB: 12 },
+  { family: 'qwen', model: 'Qwen3 14B', tag: 'qwen3:14b', paramsB: 14 },
+  { family: 'mistral', model: 'Mistral Small 24B', tag: 'mistral-small:24b', paramsB: 24 },
+  { family: 'gemma', model: 'Gemma 3 27B', tag: 'gemma3:27b', paramsB: 27 },
+  { family: 'qwen', model: 'Qwen3 32B', tag: 'qwen3:32b', paramsB: 32 },
+  { family: 'llama', model: 'Llama 3.3 70B', tag: 'llama3.3:70b', paramsB: 70 },
 ])
 
-/** Hosted models through OpenRouter, one per lab, as in verafy.config.json. */
+/** Open-weight models served over an API (OpenRouter), one per family, as in verafy.config.json. */
 const HOSTED = Object.freeze([
-  { lab: 'anthropic', model: 'anthropic/claude-haiku-4.5' },
-  { lab: 'openai', model: 'openai/gpt-5-mini' },
-  { lab: 'google', model: 'google/gemini-2.5-flash' },
-  { lab: 'meta', model: 'meta-llama/llama-4-maverick' },
-  { lab: 'qwen', model: 'qwen/qwen3-235b-a22b-2507' },
-  { lab: 'deepseek', model: 'deepseek/deepseek-v4-flash' },
+  { family: 'mistral', model: 'mistralai/mistral-small-3.2-24b-instruct' },
+  { family: 'gpt-oss', model: 'openai/gpt-oss-120b' },
+  { family: 'gemma', model: 'google/gemma-3-27b-it' },
+  { family: 'llama', model: 'meta-llama/llama-4-maverick' },
+  { family: 'qwen', model: 'qwen/qwen3-235b-a22b-2507' },
+  { family: 'deepseek', model: 'deepseek/deepseek-v4-flash' },
 ])
 
 /** Modeled memory a 4-bit model needs, in GB. */
@@ -293,14 +297,14 @@ function fits(hw, { headroomGb = 2 } = {}) {
  * the GPU, or a hosted model when nothing fits well. A CPU-only machine can
  * run a small model, slowly; it is offered but not recommended over hosted.
  * @param {{memGb: number, gpuMemGb?: number, cpus?: number}} hw - the machine.
- * @param {{lab?: string}} [o] - prefer this lab.
+ * @param {{family?: string}} [o] - prefer this family.
  * @returns {{kind: 'local'|'hosted', model: object, why: string, options: object[]}} the pick.
  */
-function recommend(hw, { lab } = {}) {
-  const options = fits(hw).filter(m => !lab || m.lab === lab)
+function recommend(hw, { family } = {}) {
+  const options = fits(hw).filter(m => !family || m.family === family)
   const gpu = options.find(m => m.on === 'gpu')
   if (gpu) return { kind: 'local', model: gpu, why: `${gpu.model} needs about ${gpu.needGb} GB (modeled) and fits in ${hw.gpuMemGb} GB of GPU memory`, options }
-  const hosted = HOSTED.find(m => !lab || m.lab === lab) ?? HOSTED[0]
+  const hosted = HOSTED.find(m => !family || m.family === family) ?? HOSTED[0]
   const cpu = options[0]
   const why = cpu
     ? `no GPU: ${cpu.model} fits in RAM but runs slowly on a CPU, so a hosted model is the default`
@@ -414,8 +418,8 @@ systemctl enable --now verafy-harness
 
   function fillModels() {
     var kind = val('kind')
-    var list = kind === 'local' ? OPEN_WEIGHTS.map(function (m) { return { v: m.lab + '|' + m.tag, t: m.tag + '  (' + m.lab + ', about ' + memoryNeededGb(m.paramsB) + ' GB)' } })
-      : HOSTED.map(function (m) { return { v: m.lab + '|' + m.model, t: m.lab + ': ' + m.model } })
+    var list = kind === 'local' ? OPEN_WEIGHTS.map(function (m) { return { v: m.family + '|' + m.tag, t: m.tag + '  (' + m.family + ', about ' + memoryNeededGb(m.paramsB) + ' GB)' } })
+      : HOSTED.map(function (m) { return { v: m.family + '|' + m.model, t: m.family + ': ' + m.model } })
     $('model').innerHTML = list.map(function (o) { return '<option value="' + esc(o.v) + '">' + esc(o.t) + '</option>' }).join('')
   }
 
@@ -432,15 +436,15 @@ systemctl enable --now verafy-harness
 
   function render() {
     var target = val('target'), kind = val('kind')
-    var parts = $('model').value.split('|'), lab = parts[0], model = parts[1]
+    var parts = $('model').value.split('|'), family = parts[0], model = parts[1]
     var nodes = $('nodes').value.split(',').map(function (s) { return s.trim() }).filter(Boolean)
-    var id = ($('hid').value.trim() || 'h-' + lab + '-1').replace(/[^\w.-]/g, '-')
+    var id = ($('hid').value.trim() || 'h-' + family + '-1').replace(/[^\w.-]/g, '-')
     $('where').textContent = NAMES[target]
     var m = OPEN_WEIGHTS.filter(function (x) { return x.tag === model })[0]
-    $('modelNote').textContent = kind === 'local' && m ? 'Needs about ' + memoryNeededGb(m.paramsB) + ' GB of memory (modeled); router tier: ' + tierFor(m.paramsB) + '.' : 'Any machine can call a hosted model.'
-    var flags = ['--target ' + (target === 'buttons' ? 'local' : target), '--kind ' + kind, '--lab ' + lab, '--model ' + model, '--id ' + id]
+    $('modelNote').textContent = kind === 'local' && m ? 'Needs about ' + memoryNeededGb(m.paramsB) + ' GB of memory (modeled); router tier: ' + tierFor(m.paramsB) + '.' : 'Any machine can call an open-weight model served over an API.'
+    var flags = ['--target ' + (target === 'buttons' ? 'local' : target), '--kind ' + kind, '--family ' + family, '--model ' + model, '--id ' + id]
     if (nodes.length) flags.push('--nodes ' + nodes.join(','))
-    var envBase = { VERAFY_HARNESS_ID: id, VERAFY_LAB: lab, VERAFY_MODEL: model, VERAFY_BOND: '500', VERAFY_PORT: '7200' }
+    var envBase = { VERAFY_HARNESS_ID: id, VERAFY_FAMILY: family, VERAFY_MODEL: model, VERAFY_BOND: '500', VERAFY_PORT: '7200' }
     if (nodes.length) envBase.VERAFY_NODES = nodes.join(',')
     var html = ''
     if (target === 'local' || target === 'docker') {
@@ -472,13 +476,13 @@ systemctl enable --now verafy-harness
     } else {
       html += '<p>Both build the Dockerfile from the repo and ask for your key as an encrypted secret.</p>'
       html += '<p class="btns"><a class="btn" href="https://render.com/deploy?repo=https://github.com/Verafyai/verafyHarness">Deploy to Render</a> <a class="btn" href="https://cloud.digitalocean.com/apps/new?repo=https://github.com/Verafyai/verafyHarness/tree/main">Deploy to DigitalOcean</a></p>'
-      html += '<p class="note">Set VERAFY_LAB to <code>' + esc(lab) + '</code> and VERAFY_MODEL to <code>' + esc(model) + '</code> in the form. One-click hosts suit hosted models; open weights need a GPU server.</p>'
+      html += '<p class="note">Set VERAFY_FAMILY to <code>' + esc(family) + '</code> and VERAFY_MODEL to <code>' + esc(model) + '</code> in the form. One-click hosts suit hosted models; open weights need a GPU server.</p>'
     }
     $('out').innerHTML = html
   }
 
   function table() {
-    $('hwTable').innerHTML = OPEN_WEIGHTS.map(function (m) { return '<tr><td>' + esc(m.model) + '</td><td>' + esc(m.lab) + '</td><td><code>' + esc(m.tag) + '</code></td><td class="v">' + memoryNeededGb(m.paramsB) + ' GB</td><td>' + tierFor(m.paramsB) + '</td></tr>' }).join('')
+    $('hwTable').innerHTML = OPEN_WEIGHTS.map(function (m) { return '<tr><td>' + esc(m.model) + '</td><td>' + esc(m.family) + '</td><td><code>' + esc(m.tag) + '</code></td><td class="v">' + memoryNeededGb(m.paramsB) + ' GB</td><td>' + tierFor(m.paramsB) + '</td></tr>' }).join('')
   }
 
   document.addEventListener('change', function (e) { if (e.target.name === 'kind') fillModels(); render() })

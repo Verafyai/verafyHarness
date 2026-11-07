@@ -1,5 +1,5 @@
 /**
- * A network of harnesses: draw a jury that spans enough labs, run commit and
+ * A network of harnesses: draw a jury that spans enough model families, run commit and
  * reveal, measure agreement, run the contract, and seal the ruling into a block.
  * This is Proof of Judgment: a block exists only because a jury ruled.
  *
@@ -12,16 +12,17 @@
 import { ascHash, validate } from './asc.js'
 import { checkReveal, verifyMessage } from './signer.js'
 import { measure } from './agreement.js'
-import { chooseExit, buildDiff, conserves, triggers, accountFor, checkPay } from './runtime.js'
+import { chooseExit, buildDiff, conserves, triggers, accountFor, checkPay, holdsPayouts, holdDiff } from './runtime.js'
 import { aggregateParams } from './exitprogram.js'
 import { PROOF_HASH } from './juror.js'
 import { sha256, canonical } from './hash.js'
 import { needsProofs, gateProofs, finality, checkProofCheck } from './proving.js'
+import { familyOf, familyField, minFamiliesOf, excludedFamilies } from './family.js'
 
 /**
  * Harnesses a contract may seat: bonded for the most value one vote can decide
  * (`payment.maxValuePerVote`), and not excluded by the jury rules
- * (`excludeLabs`, `excludeHarnesses`, used by escalated and challenge juries).
+ * (`excludeFamilies`, `excludeHarnesses`, used by escalated and challenge juries).
  * @param {object[]} pool - harnesses or harness cards.
  * @param {object} asc - the contract.
  * @returns {object[]} the eligible harnesses, in the order given.
@@ -31,36 +32,120 @@ export function eligibleJurors(pool, asc) {
 }
 
 function filterPool(pool, rules, minBond) {
-  const labs = new Set(rules.excludeLabs ?? [])
+  const families = new Set(excludedFamilies(rules))
   const ids = new Set(rules.excludeHarnesses ?? [])
-  return pool.filter(h => !labs.has(h.lab) && !ids.has(h.id) && (minBond > 0 ? Number(h.bond) >= minBond : true))
+  return pool.filter(h => !families.has(familyOf(h)) && !ids.has(h.id) && (minBond > 0 ? Number(h.bond) >= minBond : true))
+}
+
+/**
+ * The draw order: every eligible harness ranked by the seed. With equal
+ * weighting (the default) the rank is sha256(seed + id), so every harness is
+ * equally likely to come first. With `weighting: 'bond'` (VIP-0004) the rank is
+ * -ln(u) / w, weighted sampling without replacement, where u comes from the same
+ * hash and w is the harness's bond, capped at `weightCap` times the bond floor.
+ * @param {object[]} eligible - harnesses that passed the filters.
+ * @param {object} rules - the jury rules.
+ * @param {string} seed - the draw seed.
+ * @param {number} minBond - the bond floor.
+ * @returns {object[]} the harnesses, in draw order.
+ */
+export function drawOrder(eligible, rules, seed, minBond = 0) {
+  if ((rules.weighting ?? 'equal') === 'equal') return [...eligible].sort((a, b) => sha256(seed + a.id).localeCompare(sha256(seed + b.id)))
+  if (rules.weighting !== 'bond') throw new Error(`unknown jury weighting "${rules.weighting}"`)
+  const base = minBond > 0 ? minBond : Math.min(...eligible.map(h => Number(h.bond) || 1))
+  const cap = (rules.weightCap ?? 4) * base
+  const key = h => {
+    const u = (parseInt(sha256(seed + h.id).slice(0, 13), 16) + 1) / (2 ** 52 + 2)
+    return -Math.log(u) / Math.max(Math.min(Number(h.bond) || 0, cap), 1e-9)
+  }
+  return [...eligible].map(h => [key(h), h]).sort((a, b) => a[0] - b[0] || a[1].id.localeCompare(b[1].id)).map(x => x[1])
+}
+
+/** The operator a harness answers to: its card's `operator`, or itself when it names none. */
+export const operatorOf = h => h.operator ?? `self:${h.id}`
+
+/**
+ * Seat harnesses in draw order until the jury is full, spans `minFamilies` model families and
+ * respects `maxSeatsPerOperator` (VIP-0003); the rest of the order, in turn,
+ * are the alternates.
+ * @param {object[]} order - from `drawOrder`.
+ * @param {object} rules - the jury rules.
+ * @returns {{jury: object[], rest: object[]}} the seated jury and the unseated harnesses, in order.
+ */
+export function seat(order, rules) {
+  const jury = []
+  const rest = []
+  const families = new Set()
+  const perOperator = new Map()
+  const cap = rules.maxSeatsPerOperator ?? Infinity
+  const minFamilies = minFamiliesOf(rules)
+  for (const h of order) {
+    const op = operatorOf(h)
+    const full = jury.length >= rules.size
+    const needFamilies = minFamilies - families.size
+    const seatsLeft = rules.size - jury.length
+    if (!full && (perOperator.get(op) ?? 0) < cap && (!families.has(familyOf(h)) || seatsLeft > needFamilies)) {
+      jury.push(h); families.add(familyOf(h)); perOperator.set(op, (perOperator.get(op) ?? 0) + 1)
+    } else rest.push(h)
+  }
+  return { jury, rest }
 }
 
 /**
  * Draw a jury from the pool: drop harnesses whose bond is below `minBond` or
- * that the rules exclude, shuffle with a seed, then take harnesses until the
- * jury is full and spans at least `minLabs` labs. Filtering does not change the
- * order of the harnesses that remain, so a caller that filters first draws the
- * same jury.
+ * that the rules exclude, order them with the seed (`drawOrder`), then take
+ * harnesses until the jury is full, spans at least `minFamilies` model families, and holds no
+ * more than `maxSeatsPerOperator` seats per operator. Filtering does not change
+ * the order of the harnesses that remain, so a caller that filters first draws
+ * the same jury. Contracts without the newer rules draw exactly as before.
  * @param {object[]} pool - available harnesses.
- * @param {{size: number, minLabs: number, excludeLabs?: string[], excludeHarnesses?: string[]}} rules - jury rules from the contract.
- * @param {string} seed - randomness, such as the parent block hash.
- * @param {{minBond?: number}} [options] - the contract's `payment.maxValuePerVote`.
- * @returns {object[]} the jury.
+ * @param {{size: number, minFamilies: number, excludeFamilies?: string[], excludeHarnesses?: string[], maxSeatsPerOperator?: number, minOperators?: number, weighting?: 'equal' | 'bond', weightCap?: number}} rules - jury rules from the contract.
+ * @param {string} seed - randomness: a beacon value (VIP-0002), or for older chains the parent block hash.
+ * @param {{minBond?: number, alternates?: number}} [options] - the contract's `payment.maxValuePerVote`; how many alternates to return.
+ * @returns {object[]} the jury. With `alternates`, the array also carries `.alternates`.
  */
-export function drawJury(pool, rules, seed, { minBond = 0 } = {}) {
+export function drawJury(pool, rules, seed, { minBond = 0, alternates = 0 } = {}) {
   const eligible = filterPool(pool, rules, minBond)
-  const order = [...eligible].sort((a, b) => sha256(seed + a.id).localeCompare(sha256(seed + b.id)))
-  const jury = []
-  const labs = new Set()
-  for (const h of order) {
-    if (jury.length >= rules.size) break
-    const needLabs = rules.minLabs - labs.size
-    const seatsLeft = rules.size - jury.length
-    if (!labs.has(h.lab) || seatsLeft > needLabs) { jury.push(h); labs.add(h.lab) }
-  }
-  if (jury.length < rules.size || labs.size < rules.minLabs) throw new Error(`pool cannot seat a jury of ${rules.size} across ${rules.minLabs} labs${minBond > 0 ? ` bonded for ${minBond}` : ''}`)
+  const { jury, rest } = seat(drawOrder(eligible, rules, seed, minBond), rules)
+  const families = new Set(jury.map(familyOf))
+  const operators = new Set(jury.map(operatorOf))
+  if (jury.length < rules.size || families.size < minFamiliesOf(rules)) throw new Error(`pool cannot seat a jury of ${rules.size} across ${minFamiliesOf(rules)} model families${minBond > 0 ? ` bonded for ${minBond}` : ''}${rules.maxSeatsPerOperator ? ` with at most ${rules.maxSeatsPerOperator} per operator` : ''}`)
+  if (rules.minOperators && operators.size < rules.minOperators) throw new Error(`pool cannot seat a jury across ${rules.minOperators} operators`)
+  if (alternates > 0) Object.defineProperty(jury, 'alternates', { value: rest.slice(0, alternates), enumerable: false })
   return jury
+}
+
+/**
+ * Replace seats from the draw's alternates (VIP-0001). Each replaced seat takes
+ * the first alternate, in draw order, that keeps the jury within its family and
+ * operator rules. Only seats that missed the commit deadline are replaced: a
+ * replacement after reveals are public could copy them.
+ * @param {object[]} jury - the drawn jury, in draw order.
+ * @param {object[]} alternates - the draw's alternates, in order.
+ * @param {string[]} missing - ids of seats to replace.
+ * @param {object} rules - the jury rules.
+ * @returns {{jury: object[], replaced: {seat: string, by: string}[]}} the new jury and what changed.
+ */
+export function replaceSeats(jury, alternates, missing, rules) {
+  const out = jury.slice()
+  const pool = alternates.slice()
+  const replaced = []
+  const cap = rules.maxSeatsPerOperator ?? Infinity
+  for (const id of missing) {
+    const i = out.findIndex(h => h.id === id)
+    if (i < 0) continue
+    const rest = out.filter((_, k) => k !== i)
+    const k = pool.findIndex(h => {
+      const families = new Set([...rest.map(familyOf), familyOf(h)])
+      const sameOp = rest.filter(x => operatorOf(x) === operatorOf(h)).length
+      return families.size >= minFamiliesOf(rules) && sameOp < cap
+    })
+    if (k < 0) continue
+    replaced.push({ seat: id, by: pool[k].id })
+    out[i] = pool[k]
+    pool.splice(k, 1)
+  }
+  return { jury: out, replaced }
 }
 
 /**
@@ -70,13 +155,13 @@ export function drawJury(pool, rules, seed, { minBond = 0 } = {}) {
  * @param {string} seed - the parent block hash, or 'genesis'.
  * @returns {object[]} the jury.
  */
-export function drawJuryFor(asc, pool, seed) {
-  return drawJury(pool, asc.payment.jury, seed, { minBond: asc.payment.maxValuePerVote ?? 0 })
+export function drawJuryFor(asc, pool, seed, { alternates = 0 } = {}) {
+  return drawJury(pool, asc.payment.jury, seed, { minBond: asc.payment.maxValuePerVote ?? 0, alternates })
 }
 
 /**
  * Check one recorded commitment against the juror's card.
- * @param {{id: string, lab: string, model: string, publicKey: string}} card - the juror.
+ * @param {{id: string, family: string, model: string, publicKey: string}} card - the juror.
  * @param {{harness: string, commitment: string, attestation: object, signature: string}} c - the commitment.
  * @param {string} h - the contract hash.
  * @returns {string | null} the problem, or null when it checks.
@@ -85,7 +170,7 @@ export function checkCommit(card, c, h) {
   const a = c?.attestation ?? {}
   return !c ? 'no commitment'
     : c.harness !== card.id ? 'commitment names another harness'
-    : a.harness !== card.id || a.lab !== card.lab || a.model !== card.model ? 'attestation does not match the harness card'
+    : a.harness !== card.id || familyOf(a) !== familyOf(card) || a.model !== card.model ? 'attestation does not match the harness card'
     : a.ascHash !== h ? 'commitment is for another contract'
     : a.commitment !== c.commitment ? 'attestation does not carry the commitment'
     : !safeVerify(card.publicKey, a, c.signature) ? 'bad signature'
@@ -112,6 +197,9 @@ export function checkRevealRecord(card, c, r, h) {
   if (!safeVerify(card.publicKey, { harness: r.harness, ascHash: h, vote: r.vote, salt: r.salt }, r.signature)) return 'bad reveal signature'
   return null
 }
+
+/** The fields a reveal signature covers. */
+const revealBody = r => ({ harness: r.harness, ascHash: r.ascHash, vote: r.vote, salt: r.salt })
 
 /** A signed decline: a seated juror refuses its seat on ethics grounds (Constitution Article 3.4). */
 export const DECLINE_KIND = 'verafy.decline/1'
@@ -142,23 +230,23 @@ function safeVerify(publicKey, message, signature) {
 }
 
 /**
- * The quorum and labs-revealed checks: a jury rules only when at least the
- * contract's quorum revealed, from at least min(minLabs, quorum) labs. Below
+ * The quorum and families-revealed checks: a jury rules only when at least the
+ * contract's quorum revealed, from at least min(minFamilies, quorum) model families. Below
  * that, the ruling's agreement is 0 and it takes the below-bar exit.
  * @param {object} asc - the contract.
- * @param {{lab: string}[]} reveals - counted reveals, each with its juror's lab.
+ * @param {{family: string}[]} reveals - counted reveals, each with its juror's model family.
  * @returns {{ok: boolean, quorum: number, revealed: number, labsRevealed: number, labsNeeded: number, problems: string[]}} the result.
  */
 export function checkQuorum(asc, reveals) {
   const j = asc.payment.jury
   const quorum = j.quorum ?? Math.ceil(j.size / 2)
   const revealed = reveals.length
-  const labsRevealed = new Set(reveals.map(r => r.lab)).size
-  const labsNeeded = Math.min(j.minLabs, quorum)
+  const labsRevealed = new Set(reveals.map(familyOf)).size
+  const labsNeeded = Math.min(minFamiliesOf(j), quorum)
   const problems = []
   if (revealed < quorum) problems.push(`${revealed} of ${j.size} revealed; the quorum is ${quorum}`)
-  if (labsRevealed < labsNeeded) problems.push(`reveals span ${labsRevealed} labs; ${labsNeeded} are needed`)
-  return { ok: problems.length === 0, quorum, revealed, labsRevealed, labsNeeded, problems }
+  if (labsRevealed < labsNeeded) problems.push(`reveals span ${labsRevealed} model families; ${labsNeeded} are needed`)
+  return { ok: problems.length === 0, quorum, revealed, familiesRevealed: labsRevealed, familiesNeeded: labsNeeded, labsRevealed, labsNeeded, problems }
 }
 
 /**
@@ -185,7 +273,7 @@ export function rulingId(ruling) {
  * @param {object[]} commits - recorded commitments, `{harness, commitment, attestation, signature}`.
  * @param {object[]} reveals - recorded reveals, `{harness, ascHash, vote, salt, signature}`.
  * @param {{jury: object[], sealer: string | object, seed?: string | null, onEvent?: (event: object) => void}} options -
- *   `jury` is the seated jurors' cards (`id`, `lab`, `model`, `bond`, `publicKey`), in draw order;
+ *   `jury` is the seated jurors' cards (`id`, `family`, `model`, `bond`, `publicKey`), in draw order;
  *   `sealer` is a harness id, an account such as `node:node-1`, or a card (see `accountFor`);
  *   `seed` is the parent block hash the jury was drawn with.
  *   For an L2 contract, also `proofRecords` (proof records received before the
@@ -201,11 +289,11 @@ export function ruleFromRecords(asc, commits, reveals, options) {
   return recordRound(asc, commits, reveals, { ...options, announce: true })
 }
 
-function recordRound(asc, commits, reveals, { jury, sealer, seed = null, onEvent = () => {}, announce, proofRecords = [], proofChecks = [], declines = [] }) {
+function recordRound(asc, commits, reveals, { jury, sealer, seed = null, onEvent = () => {}, announce, proofRecords = [], proofChecks = [], declines = [], schedule = null }) {
   if (!Array.isArray(jury) || jury.length === 0) throw new Error('ruleFromRecords needs the jury cards')
   if (sealer === undefined || sealer === null) throw new Error('ruleFromRecords needs a sealer')
   const h = ascHash(asc)
-  const cards = jury.map(j => ({ id: j.id, lab: j.lab, model: j.model, bond: j.bond, publicKey: j.publicKey, ...(j.modelCommitment ? { modelCommitment: j.modelCommitment } : {}) }))
+  const cards = jury.map(j => ({ id: j.id, ...familyField(j), model: j.model, bond: j.bond, publicKey: j.publicKey, ...(j.modelCommitment ? { modelCommitment: j.modelCommitment } : {}), ...(j.operator ? { operator: j.operator, operatorSignature: j.operatorSignature } : {}) }))
   const seated = new Map(cards.map(c => [c.id, c]))
   if (announce) onEvent({ phase: 'propose', ascHash: h, jury: cards })
 
@@ -238,7 +326,11 @@ function recordRound(asc, commits, reveals, { jury, sealer, seed = null, onEvent
       : checkCommit(card, list[0], h)
     if (list.length === 0 || problem) {
       if (problem) onEvent({ phase: 'commit-failed', harness: card.id, error: problem })
-      faults.push({ harness: card.id, fault: 'no-commit' })
+      // Two valid, signed, different commitments for one contract are equivocation (VIP-0005):
+      // the evidence is the two signed messages, kept so the fault can be proven.
+      const signed = distinct.size > 1 ? list.filter(c => checkCommit(card, c, h) === null) : []
+      const proven = new Set(signed.map(c => c.commitment)).size > 1
+      faults.push(proven ? { harness: card.id, fault: 'double-commit', evidence: signed.slice(0, 2).map(({ harness, commitment, attestation, signature }) => ({ harness, commitment, attestation, signature })) } : { harness: card.id, fault: 'no-commit' })
       continue
     }
     const { harness, commitment, attestation, signature } = list[0]
@@ -255,7 +347,10 @@ function recordRound(asc, commits, reveals, { jury, sealer, seed = null, onEvent
       counted.push({ harness: r.harness, ascHash: r.ascHash, vote: r.vote, salt: r.salt, signature: r.signature })
     } else {
       onEvent({ phase: 'reveal-failed', harness: c.harness, error: checkRevealRecord(card, c, candidates[0], h) })
-      faults.push({ harness: c.harness, fault: 'no-reveal' })
+      // A signed reveal that does not open its own commitment is provable (bad-reveal);
+      // anything else, including silence, is a missing reveal.
+      const signedWrong = candidates.find(x => x && x.harness === card.id && x.ascHash === h && safeVerify(card.publicKey, revealBody(x), x.signature))
+      faults.push(signedWrong ? { harness: c.harness, fault: 'bad-reveal', evidence: [{ harness: signedWrong.harness, ascHash: signedWrong.ascHash, vote: signedWrong.vote, salt: signedWrong.salt, signature: signedWrong.signature }] } : { harness: c.harness, fault: 'no-reveal' })
     }
   }
   let proven = counted
@@ -270,9 +365,9 @@ function recordRound(asc, commits, reveals, { jury, sealer, seed = null, onEvent
   const order = new Map(cards.map((c, i) => [c.id, i]))
   faults.sort((a, b) => order.get(a.harness) - order.get(b.harness))
   declined.sort((a, b) => order.get(a.harness) - order.get(b.harness))
-  const round = { seed, sealer: accountFor(sealer), jury: cards, commits: accepted, reveals: counted, faults, ...(declined.length ? { declines: declined } : {}), ...(proving ?? {}) }
-  const withLabs = proven.map(r => ({ ...r, lab: seated.get(r.harness).lab, model: seated.get(r.harness).model }))
-  return tally(asc, withLabs, sealer, onEvent, round)
+  const round = { seed, sealer: accountFor(sealer), jury: cards, commits: accepted, reveals: counted, faults, ...(declined.length ? { declines: declined } : {}), ...(proving ?? {}), ...(schedule ? { schedule } : {}) }
+  const withFamilies = proven.map(r => ({ ...r, ...familyField(seated.get(r.harness)), model: seated.get(r.harness).model }))
+  return tally(asc, withFamilies, sealer, onEvent, round)
 }
 
 /**
@@ -316,6 +411,7 @@ export async function rule(asc, jury, sealer, onEvent, options = {}) {
     jury: cards,
     sealer: opts.sealerAccount ?? sealer,
     seed: opts.seed ?? null,
+    schedule: opts.schedule ?? null,
     announce: false,
     // A reveal that threw was already reported above; do not report it twice.
     onEvent: e => { if (!(e.phase === 'reveal-failed' && thrown.has(e.harness))) emit(e) },
@@ -326,7 +422,7 @@ export async function rule(asc, jury, sealer, onEvent, options = {}) {
  * Measure agreement over verified reveals, run the contract, and build the ruling.
  * Shared by every ruling path. Callers normally use `ruleFromRecords`.
  * @param {object} asc - the contract.
- * @param {object[]} reveals - verified reveals, each with `harness`, `lab`, `model`, `vote`, `signature`.
+ * @param {object[]} reveals - verified reveals, each with `harness`, `family`, `model`, `vote`, `signature`.
  * @param {string | object} sealer - the sealer: a harness id, an account, or a card (see `accountFor`).
  * @param {(event: object) => void} [onEvent] - progress callback for UIs.
  * @param {object} [round] - the round record to keep with the ruling.
@@ -334,12 +430,14 @@ export async function rule(asc, jury, sealer, onEvent, options = {}) {
  */
 export function tally(asc, reveals, sealer, onEvent = () => {}, round) {
   const h = ascHash(asc)
-  onEvent({ phase: 'reveal', votes: reveals.map(r => ({ harness: r.harness, lab: r.lab, answer: r.vote.answer, confidence: r.vote.confidence })) })
+  onEvent({ phase: 'reveal', votes: reveals.map(r => ({ harness: r.harness, ...familyField(r), answer: r.vote.answer, confidence: r.vote.confidence })) })
   const q = checkQuorum(asc, reveals)
   const result = q.ok ? measure(asc.question, reveals.map(r => r.vote)) : { answer: null, agreement: 0 }
   const { exit, passed } = chooseExit(asc, result)
-  const diff = buildDiff(asc, exit, passed, reveals.map(r => r.harness), sealer)
-  if (!conserves(diff)) throw new Error('diff does not conserve totals; block rejected')
+  const intended = buildDiff(asc, exit, passed, reveals.map(r => r.harness), sealer)
+  if (!conserves(intended)) throw new Error('diff does not conserve totals; block rejected')
+  // VIP-0007: a contract with a challenge window seals its debits now and pays out when the window closes.
+  const { diff, held } = passed && holdsPayouts(asc) ? holdDiff(asc, intended) : { diff: intended, held: undefined }
   const ruling = {
     ascHash: h,
     asc: asc.id,
@@ -351,10 +449,12 @@ export function tally(asc, reveals, sealer, onEvent = () => {}, round) {
     passed,
     exit: exit.outcome,
     effect: exit.effect,
-    votes: reveals.map(r => ({ harness: r.harness, lab: r.lab, model: r.model, answer: r.vote.answer, confidence: r.vote.confidence, reasoningHash: sha256(r.vote.reasoning), proofHash: r.vote.proofHash ?? r.proofHash, signature: r.signature })),
+    votes: reveals.map(r => ({ harness: r.harness, ...familyField(r), model: r.model, answer: r.vote.answer, confidence: r.vote.confidence, reasoningHash: sha256(r.vote.reasoning), proofHash: r.vote.proofHash ?? r.proofHash, signature: r.signature })),
     dissent: reveals.filter(r => isDissent(asc.question, r.vote.answer, result.answer)).map(r => ({ harness: r.harness, answer: r.vote.answer, reasoning: r.vote.reasoning })),
     diff,
-    triggers: triggers(exit, passed),
+    // A held ruling's calls on other chains wait for release too.
+    held: held && { ...held, triggers: triggers(exit, passed) },
+    triggers: held ? [] : triggers(exit, passed),
     params: exit.exitProgram && passed && Object.keys(exit.exitProgram.params ?? {}).length ? aggregateParams(exit.exitProgram.params, reveals.map(r => r.vote), result.answer) : undefined,
     round,
   }
@@ -401,10 +501,10 @@ export function ruleFromReveals(asc, entries, sealer, seed, onEvent = () => {}) 
  *
  *   contract hash, context pins, and a valid contract
  *   no proofs on chain, and a round record is present
- *   jury: size, labs, bond floor, exclusions, registered cards, and the seeded draw
+ *   jury: size, model families, bond floor, exclusions, registered cards, and the seeded draw
  *   every commitment and counted reveal (signatures, salts, proof hashes)
  *   declared exit and declared options only
- *   quorum and labs revealed (`checkQuorum`)
+ *   quorum and families revealed (`checkQuorum`)
  *   pay rules (`checkPay`)
  *   the ruling is exactly what `ruleFromRecords` computes from its round
  *
@@ -434,12 +534,12 @@ export function verifyRuling(asc, ruling, { cards, pool, seed, verifiers } = {})
   const rules = asc.payment.jury
   const jury = round.jury
   if (jury.length !== rules.size) p.push(`jury has ${jury.length} seats; the contract asks for ${rules.size}`)
-  const labs = new Set(jury.map(c => c.lab))
-  if (labs.size < rules.minLabs) p.push(`jury spans ${labs.size} labs; the contract requires ${rules.minLabs}`)
+  const families = new Set(jury.map(familyOf))
+  if (families.size < minFamiliesOf(rules)) p.push(`jury spans ${families.size} model families; the contract requires ${minFamiliesOf(rules)}`)
   const minBond = asc.payment.maxValuePerVote ?? 0
   for (const c of jury) {
     if (minBond > 0 && !(Number(c.bond) >= minBond)) p.push(`${c.id} bonds ${c.bond}, below ${minBond} per vote`)
-    if ((rules.excludeLabs ?? []).includes(c.lab)) p.push(`${c.id} is from ${c.lab}, a lab this jury excludes`)
+    if (excludedFamilies(rules).includes(familyOf(c))) p.push(`${c.id} runs ${familyOf(c)}, a model family this jury excludes`)
     if ((rules.excludeHarnesses ?? []).includes(c.id)) p.push(`${c.id} is excluded from this jury`)
   }
   if (cards) {
@@ -447,13 +547,20 @@ export function verifyRuling(asc, ruling, { cards, pool, seed, verifiers } = {})
     for (const c of jury) {
       const r = reg.get(c.id)
       if (!r) p.push(`juror ${c.id} is not registered`)
-      else if (r.publicKey !== c.publicKey || r.lab !== c.lab || r.model !== c.model || (r.modelCommitment ?? null) !== (c.modelCommitment ?? null)) p.push(`juror ${c.id} card does not match its registration`)
+      else if (r.publicKey !== c.publicKey || familyOf(r) !== familyOf(c) || r.model !== c.model || (r.modelCommitment ?? null) !== (c.modelCommitment ?? null)) p.push(`juror ${c.id} card does not match its registration`)
     }
   }
   if (seed !== undefined && round.seed !== seed) p.push('jury seed is not the expected parent hash')
   if (pool) {
     try {
-      const drawn = drawJuryFor(asc, pool, round.seed).map(x => x.id)
+      const sch = round.schedule
+      const first = drawJuryFor(asc, pool, round.seed, { alternates: sch?.alternates ?? 0 })
+      let drawn = first.map(x => x.id)
+      if (sch?.replaced?.length) {
+        const again = replaceSeats(first, first.alternates ?? [], sch.replaced.map(r => r.seat), asc.payment.jury)
+        if (canonical(again.replaced) !== canonical(sch.replaced)) p.push('jury replacements are not the ones the alternates give')
+        drawn = again.jury.map(x => x.id)
+      }
       if (canonical(drawn) !== canonical(jury.map(c => c.id))) p.push(`jury is not the seeded draw (expected ${drawn.join(', ')})`)
     } catch (err) { p.push(`jury cannot be redrawn: ${err.message}`) }
   }
@@ -481,7 +588,7 @@ export function verifyRuling(asc, ruling, { cards, pool, seed, verifiers } = {})
     for (const r of round.reveals) if (!asc.question.answer.options.includes(r.vote?.answer)) p.push(`${r.harness} voted "${r.vote?.answer}", not a declared option`)
   }
   const countedIds = new Set((ruling.votes ?? []).map(v => v.harness))
-  const q = checkQuorum(asc, round.reveals.filter(r => !needsProofs(asc) || countedIds.has(r.harness)).map(r => ({ lab: byId.get(r.harness)?.lab })))
+  const q = checkQuorum(asc, round.reveals.filter(r => !needsProofs(asc) || countedIds.has(r.harness)).map(r => ({ family: familyOf(byId.get(r.harness)) })))
   if (needsProofs(asc)) {
     const f = finality(asc, ruling)
     if (!f.final) p.push(...f.problems.map(x => `not final: ${x}`))
@@ -491,7 +598,10 @@ export function verifyRuling(asc, ruling, { cards, pool, seed, verifiers } = {})
   for (const x of checkPay(asc, ruling, round.sealer)) p.push(x)
 
   try {
-    const again = ruleFromRecords(asc, round.commits, round.reveals, { jury, sealer: round.sealer, seed: round.seed, proofRecords: round.proofRecords, proofChecks: round.proofChecks, declines: round.declines })
+    // Faults that carry signed evidence (double-commit, bad-reveal) are recomputed from that evidence.
+    const evidence = kind => (round.faults ?? []).filter(f => f.fault === kind).flatMap(f => f.evidence ?? [])
+    const doubled = new Set((round.faults ?? []).filter(f => f.fault === 'double-commit').map(f => f.harness))
+    const again = ruleFromRecords(asc, [...round.commits.filter(c => !doubled.has(c.harness)), ...evidence('double-commit')], [...round.reveals, ...evidence('bad-reveal')], { jury, sealer: round.sealer, seed: round.seed, proofRecords: round.proofRecords, proofChecks: round.proofChecks, declines: round.declines, schedule: round.schedule })
     const differs = Object.keys(again).filter(k => canonical(again[k]) !== canonical(ruling[k]))
     if (differs.length) p.push(`ruling does not match what its round computes (${differs.join(', ')})`)
   } catch (err) {
@@ -509,7 +619,8 @@ export function verifyRuling(asc, ruling, { cards, pool, seed, verifiers } = {})
  * @param {{height: number, hash: string} | null} parent - the previous block.
  * @param {object[]} rulings - rulings to include.
  * @param {{id: string, sign: (payload: unknown) => string}} sealer - the sealing harness or node.
- * @param {string | Date | {time?: string | Date, reviews?: object[], screenings?: object[], governance?: object[]}} [options] - a timestamp, or options.
+ * @param {string | Date | {time?: string | Date, reviews?: object[], screenings?: object[], governance?: object[], beacon?: object, slashings?: object[], releases?: object[]}} [options] - a timestamp, or options.
+ *   `beacon` is the block's beacon entry (`beaconEntry`); `slashings` are slash records applied in this block; `releases` are held payouts released in it.
  * @returns {object} the block.
  */
 export function seal(parent, rulings, sealer, options = {}) {
@@ -533,9 +644,15 @@ export function seal(parent, rulings, sealer, options = {}) {
     for (const r of reviews) if (!ids.has(r.by)) throw new Error('a review is sealed only with the challenge ruling that decided it')
     header.reviewsRoot = sha256(reviews.map(r => sha256(r)).join(''))
   }
+  // VIP-0002, VIP-0005, VIP-0007: present only on blocks that carry them, so older blocks hash as before.
+  if (opts.beacon) header.beacon = opts.beacon
+  const slashings = opts.slashings ?? []
+  const releases = opts.releases ?? []
+  if (slashings.length) header.slashingsRoot = sha256(slashings.map(r => sha256(r)).join(''))
+  if (releases.length) header.releasesRoot = sha256(releases.map(r => sha256(r)).join(''))
   if (screenings.length) header.screeningsRoot = sha256(screenings.map(r => sha256(r)).join(''))
   if (governance.length) header.governanceRoot = sha256(governance.map(r => sha256(r)).join(''))
-  return { ...header, hash: sha256(header), signature: sealer.sign(header), rulings, ...(reviews.length ? { reviews } : {}), ...(screenings.length ? { screenings } : {}), ...(governance.length ? { governance } : {}) }
+  return { ...header, hash: sha256(header), signature: sealer.sign(header), rulings, ...(reviews.length ? { reviews } : {}), ...(screenings.length ? { screenings } : {}), ...(governance.length ? { governance } : {}), ...(slashings.length ? { slashings } : {}), ...(releases.length ? { releases } : {}) }
 }
 
 /**
@@ -547,8 +664,8 @@ export function seal(parent, rulings, sealer, options = {}) {
  * @returns {object} its header.
  */
 export function blockHeader(block) {
-  const { height, parent, rulingsRoot, sealer, time, reviewsRoot, screeningsRoot, governanceRoot } = block
-  return { height, parent, rulingsRoot, sealer, time, reviewsRoot, screeningsRoot, governanceRoot }
+  const { height, parent, rulingsRoot, sealer, time, reviewsRoot, screeningsRoot, governanceRoot, beacon, slashingsRoot, releasesRoot } = block
+  return { height, parent, rulingsRoot, sealer, time, reviewsRoot, screeningsRoot, governanceRoot, beacon, slashingsRoot, releasesRoot }
 }
 
 /**

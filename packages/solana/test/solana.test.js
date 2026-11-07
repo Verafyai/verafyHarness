@@ -47,4 +47,10 @@ test('commitments bind every field; encoders and the layout agree', () => {
   const d = decodeRuling(acct)
   assert.equal(d.status, 'sealed'); assert.equal(d.jurors[0].state, 'revealed'); assert.equal(d.summary, 'ok')
   assert.deepEqual(programError({ err: { InstructionError: [0, { Custom: 102 }] } }), { code: 102, name: 'bad reveal' })
+  // v0.0.3: optional reveal and challenge windows at open, and the slots they set on the account.
+  assert.equal(encode.open(h, 800000, [keypair().publicKey], { revealWindow: 20, challengeWindow: 150 }).length, 78)
+  acct.writeBigUInt64LE(1234n, 1426); acct.writeBigUInt64LE(5678n, 1434); acct.writeUInt32LE(150, 1442)
+  const w = decodeRuling(acct)
+  assert.deepEqual([w.revealDeadlineSlot, w.releasableAfterSlot, w.challengeWindow], [1234, 5678, 150])
+  assert.equal(RULING_SIZE, 1450)
 })

@@ -38,7 +38,7 @@ Verafy Chain has two kinds of machine. They can run on the same box.
 | Earns | Juror, auditor and storage shares | The sealer share |
 | Agave equivalent | Voting validator | RPC node and leader duties |
 
-**Naming.** The software is Verafy Harness, and the thing you run to judge is called a **harness**. The thing that stores and relays blocks is a **node**. "Validator" is fine in conversation: a harness is what validates. A harness can take three roles, sometimes all at once: **juror** (votes), **auditor** (re-runs sealed rulings with a different lab's model) and **storage** (keeps context fetchable by hash).
+**Naming.** The software is Verafy Harness, and the thing you run to judge is called a **harness**. The thing that stores and relays blocks is a **node**. "Validator" is fine in conversation: a harness is what validates. A harness can take three roles, sometimes all at once: **juror** (votes), **auditor** (re-runs sealed rulings with a model from a different family) and **storage** (keeps context fetchable by hash).
 
 ## 2. What consensus means on Verafy Chain
 
@@ -48,7 +48,7 @@ Consensus has two layers. One is about judgment and one is about bookkeeping.
 
 A ruling is valid when every one of these holds. Every node checks every rule.
 
-1. **The jury was drawn correctly.** It was drawn from registered, bonded harnesses using the parent block hash as the seed, and it spans at least the contract's `minLabs` labs.
+1. **The jury was drawn correctly.** It was drawn by the jury scheduler from registered, bonded harnesses, seeded by the beacon value in the block's header, and it spans at least the contract's `minFamilies` model families.
 2. **The votes are honest about order.** At least `quorum` harnesses revealed, and every reveal matches the commitment it published before any vote was opened. Each commitment and reveal is signed with the harness's registered key.
 3. **The votes are in bounds.** Each answer is one of the contract's declared options, or a probability for a forecast.
 4. **The bar was cleared, or not.** Agreement is measured as the contract's answer type defines it. At or above the bar, the matching exit runs. Below it, the `*below-bar` exit runs, normally an escalation to a larger jury, and no juror is paid.
@@ -147,25 +147,26 @@ A binary encoding would cut chain size by roughly half; the prototype uses JSON.
 
 ## 6. Acceptable models
 
-A harness commits to one model. The network accepts a model when it is on the **model registry**: a list of model commitments, each with the lab that made it and how it can be checked. Contracts can narrow the list, for example to open-weights models only, or to L1+ and above.
+A harness commits to one model. The network accepts a model when it is on the **model registry**: a list of open-weight model commitments, each with its family (the base model it descends from) and how it can be checked. Contracts can narrow the list, for example to L1+ and above.
 
 **Testnet registry (proposed):**
 
-| Lab | Model | Kind | Highest assurance |
+| Family | Model (Hugging Face id) | Served | Highest assurance |
 |---|---|---|---|
-| OpenAI | `openai/gpt-oss-120b`, `openai/gpt-oss-20b` | Open weights | L1+ |
-| Qwen | `Qwen/Qwen3-235B-A22B-Instruct-2507`, `Qwen/Qwen3-32B` | Open weights | L1+ |
-| Meta | `meta-llama/Llama-4-Maverick-17B-128E-Instruct` | Open weights | L2 (research) |
-| DeepSeek | `deepseek/deepseek-v4-flash` | Hosted | L1 |
-| Anthropic | `anthropic/claude-haiku-4.5` | Hosted | L1 |
-| Google | `google/gemini-2.5-flash` | Hosted | L1 |
-| OpenAI | `openai/gpt-5-mini` | Hosted | L1 |
+| gpt-oss | `openai/gpt-oss-120b`, `openai/gpt-oss-20b` | Own weights or API | L1+ |
+| qwen | `Qwen/Qwen3-235B-A22B-Instruct-2507`, `Qwen/Qwen3-32B` | Own weights or API | L1+ |
+| llama | `meta-llama/Llama-4-Maverick-17B-128E-Instruct` | Own weights or API | L2 (research) |
+| deepseek | `deepseek-ai/DeepSeek-V3.1` | Own weights or API | L1+ |
+| mistral | `mistralai/Mistral-Small-3.2-24B-Instruct-2506` | Own weights or API | L1+ |
+| gemma | `google/gemma-3-27b-it` | Own weights or API | L1+ |
 
-Rules for the registry: a model needs a lab, an exact version, and for open weights a SHA-256 of the weights files. Two harnesses on the same lab's models count as the same lab for jury diversity. Retiring a model version gives harnesses a notice period before their seats stop.
+Any other open-weight model can be added; these are the ones the examples use.
+
+Rules for the registry: a model needs its family, an exact version, and a SHA-256 of the weights files. Two harnesses whose models descend from the same base model count as one family for jury diversity, whoever fine-tuned them. Retiring a model version gives harnesses a notice period before their seats stop.
 
 ## 7. Where to get the model
 
-**Hosted models.** Get an API key from the lab or from a router such as OpenRouter. The harness calls any OpenAI-compatible endpoint.
+**Open weights over an API.** If you would rather not run the weights yourself, a provider such as OpenRouter serves the same open-weight models. The harness calls any OpenAI-compatible endpoint.
 
 **Open weights.** Download from Hugging Face. vLLM fetches the weights the first time it starts:
 
@@ -189,7 +190,7 @@ docker inspect --format '{{index .RepoDigests 0}}' vllm/vllm-openai:latest
 | Level | What backs the claim "this vote came from model M" | Works today |
 |---|---|---|
 | **L0** | The harness's signature. Proves which harness voted, not which model ran. | Yes |
-| **L1** | L0 plus commit-then-reveal and lab diversity. No harness can copy another, and no single lab decides. | Yes |
+| **L1** | L0 plus commit-then-reveal and model-family diversity. No harness can copy another, and no single model family decides. | Yes |
 | **L1+** | L1 plus a bond and re-execution. For open weights at temperature 0 on a pinned runtime, an auditor re-runs the vote; a different answer can be challenged and costs the bond. Hardware attestation (NVIDIA confidential computing) can add a signed report of what ran. | Re-execution yes; bonds on testnet |
 | **L2** | A proof of inference per vote, verified off chain by auditors, with its hash in the ruling. | Research only: one open model (Llama 4 Maverick) via FlashProve |
 | **L3** | Proofs small enough to verify on chain. | No |
@@ -263,9 +264,9 @@ A harness's setup lives in a JSON config. `verafy.config.json` is the default (a
 {
   "provider": { "baseURL": "https://openrouter.ai/api/v1", "apiKeyEnv": "VERAFY_API_KEY" },
   "pool": [
-    { "id": "h-local-gptoss", "lab": "openai", "model": "openai/gpt-oss-120b", "bond": 500,
+    { "id": "h-local-gptoss", "family": "gpt-oss", "model": "openai/gpt-oss-120b", "bond": 500,
       "baseURL": "http://127.0.0.1:8000/v1", "apiKeyEnv": "VLLM_API_KEY" },
-    { "id": "h-anthropic-1", "lab": "anthropic", "model": "anthropic/claude-haiku-4.5", "bond": 500 }
+    { "id": "h-mistral-1", "family": "mistral", "model": "mistralai/mistral-small-3.2-24b-instruct", "bond": 500 }
   ]
 }
 ```
@@ -275,7 +276,7 @@ A harness's setup lives in a JSON config. `verafy.config.json` is the default (a
 | `provider.baseURL` | Default OpenAI-compatible endpoint |
 | `provider.apiKeyEnv` | Name of the environment variable holding the key. Never put a key in the file. |
 | `pool[].id` | The harness's name |
-| `pool[].lab` | The lab that made the model; used for jury diversity |
+| `pool[].family` | The base model the model descends from; used for jury diversity (`lab` is the old name and is still read) |
 | `pool[].model` | The committed model id |
 | `pool[].bond` | Bond size, which caps the value a vote can decide |
 | `pool[].baseURL`, `apiKeyEnv` | Per-harness overrides, for a local vLLM server |
@@ -313,7 +314,7 @@ A healthy `doctor --live` prints `ok` with a latency for every harness. A ruling
 verafy harness init --network testnet-0          # creates ~/.verafy/identity.json (Ed25519) and harness.json
 verafy harness commit-model --model openai/gpt-oss-120b --weights weights.sha256 --runtime <vllm digest>
 verafy harness bond --chain solana-devnet --amount 10 --asset USDC
-verafy harness register                          # publishes identity, model commitment, lab, bond, payout addresses
+verafy harness register                          # publishes identity, model commitment, model family, bond, payout addresses
 verafy harness start                             # daemon: watches for jury seats, deliberates, commits, reveals
 verafy harness status                            # seats held, votes, audits, earnings, faults
 ```
@@ -344,7 +345,7 @@ Each harness plugs in a **payment router**. The router decides which payments th
   "payments": {
     "router": "ledger",
     "accept": [{ "chain": "solana", "asset": "USDC" }, { "chain": "ethereum", "asset": "ETH" }],
-    "book": { "harness:h-anthropic-1": { "solana": "<your Solana address>", "ethereum": "<your 0x address>" } }
+    "book": { "harness:h-mistral-1": { "solana": "<your Solana address>", "ethereum": "<your 0x address>" } }
   }
 }
 ```
@@ -385,7 +386,7 @@ On Ethereum mainnet the same quorum is used. Sync-committee verification through
 
 All **modeled** or **illustrative** unless marked **measured**; check current prices.
 
-**Measured, Nov 6, 2026:** five live rulings, one per example contract, each with a jury of five hosted models through OpenRouter, cost **$0.0163 together**, about **$0.003 per ruling** or about $0.0007 per vote. Wall time per ruling was **5.9 to 30.1 seconds** from a laptop. See [results/live-2026-11-06.md](../results/live-2026-11-06.md). In a separate run, five DeepSeek Harness juror processes on five labs' models sealed a block from their reveals ([docs/dsh-juror.md](dsh-juror.md)).
+**Measured, Nov 6, 2026:** five live rulings, one per example contract, each with a jury of five hosted models through OpenRouter, cost **$0.0163 together**, about **$0.003 per ruling** or about $0.0007 per vote. Wall time per ruling was **5.9 to 30.1 seconds** from a laptop. See [results/live-2026-11-06.md](../results/live-2026-11-06.md). In a separate run, five DeepSeek Harness juror processes on five different models sealed a block from their reveals ([docs/dsh-juror.md](dsh-juror.md)).
 
 **Model cost per vote**, modeled at 1,500 input and 300 output tokens with OpenRouter prices of Oct 11, 2026:
 
@@ -394,9 +395,8 @@ All **modeled** or **illustrative** unless marked **measured**; check current pr
 | `qwen/qwen3-235b-a22b-2507` | about $0.0003 |
 | `deepseek/deepseek-v4-flash` | about $0.0004 |
 | `meta-llama/llama-4-maverick` | about $0.0005 |
-| `openai/gpt-5-mini` | about $0.0010 |
-| `google/gemini-2.5-flash` | about $0.0012 |
-| `anthropic/claude-haiku-4.5` | about $0.0030 |
+
+Other open-weight models in the examples (`mistralai/mistral-small-3.2-24b-instruct`, `openai/gpt-oss-120b`, `google/gemma-3-27b-it`) are priced in the same range; check the provider's page before relying on a figure.
 
 Larger contexts cost proportionally more: 15,000 tokens of context is about ten times these figures.
 
@@ -444,6 +444,6 @@ On testnet, everything is play money.
 | `openai provider needs an API key` | The variable named in `apiKeyEnv` is empty | Export it in the harness's shell |
 | `HTTP 404` from a model | The model id isn't served at that endpoint | Check the id at the provider, or the `--model` vLLM was started with |
 | `context check failed: hash mismatch` | The context content differs from the contract's pin | Fetch the pinned snapshot again; never re-pin someone else's contract |
-| `pool cannot seat a jury` | Not enough labs in the pool for the contract's `minLabs` | Add harnesses from other labs, or use a contract that asks for fewer |
+| `pool cannot seat a jury` | Not enough model families (or operators) in the pool for the contract's `minFamilies` | Add harnesses on other model families, or use a contract that asks for fewer |
 | `bond ... is below the contract's ... per vote` | The contract decides more value than your bond covers | Raise the bond or skip the contract |
 | vLLM runs out of memory | The model doesn't fit | Use a smaller model, more GPUs (`TP=`), or a quantized build |

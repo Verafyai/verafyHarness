@@ -39,7 +39,7 @@
     "bar": 0.8,
     "jury": {
       "size": 5,
-      "minLabs": 5,
+      "minFamilies": 5,
       "quorum": 4
     },
     "split": {

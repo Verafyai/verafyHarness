@@ -7,14 +7,14 @@
 # scripts/dsh-juror.mjs links the plugin into the profile, sets the environment
 # below, and runs exactly that. See docs/dsh-juror.md.
 #
-# Swapping the AI: there is one dsh-llm-pi-ai route per lab, each serving exactly
+# Swapping the AI: there is one dsh-llm-pi-ai route per open-weight model family, each serving exactly
 # one model, so a harness that picks a route has committed to that model. One
 # file serves every harness; the process picks its route through:
 #
-#   VERAFY_ROUTE         route name below, such as openrouter-anthropic or scripted-anthropic
+#   VERAFY_ROUTE         route name below, such as openrouter-mistral or scripted-mistral
 #   VERAFY_MODEL         the one model id on that route
-#   VERAFY_HARNESS_ID    harness id, such as h-anthropic-1
-#   VERAFY_HARNESS_LAB   the lab whose model the route serves
+#   VERAFY_HARNESS_ID    harness id, such as h-mistral-1
+#   VERAFY_HARNESS_FAMILY   the model family the route serves
 #   VERAFY_JUROR_OUT     where the key, commitment and private reveal are written
 #   VERAFY_SCRIPTED_URL  base URL of scripts/scripted-llm.mjs (scripted routes only)
 #
@@ -27,22 +27,22 @@
 - id: llm-pi-ai
   config:
     providers:
-      openrouter-anthropic:
+      openrouter-mistral:
         apiKeyEnv: VERAFY_API_KEY
         api: openai-completions
         baseURL: https://openrouter.ai/api/v1
-        models: [{ id: anthropic/claude-haiku-4.5 }]
-      openrouter-openai:
+        models: [{ id: mistralai/mistral-small-3.2-24b-instruct }]
+      openrouter-gpt-oss:
         apiKeyEnv: VERAFY_API_KEY
         api: openai-completions
         baseURL: https://openrouter.ai/api/v1
-        models: [{ id: openai/gpt-5-mini }]
-      openrouter-google:
+        models: [{ id: openai/gpt-oss-120b }]
+      openrouter-gemma:
         apiKeyEnv: VERAFY_API_KEY
         api: openai-completions
         baseURL: https://openrouter.ai/api/v1
-        models: [{ id: google/gemini-2.5-flash }]
-      openrouter-meta:
+        models: [{ id: google/gemma-3-27b-it }]
+      openrouter-llama:
         apiKeyEnv: VERAFY_API_KEY
         api: openai-completions
         baseURL: https://openrouter.ai/api/v1
@@ -58,27 +58,27 @@
         baseURL: https://openrouter.ai/api/v1
         models: [{ id: deepseek/deepseek-v4-flash }]
       # Keyless test doubles: scripts/scripted-llm.mjs answers from
-      # examples/mock-answers.json by lab, over the same protocol.
-      scripted-anthropic:
+      # examples/mock-answers.json by model family, over the same protocol.
+      scripted-mistral:
         apiKeyEnv: VERAFY_SCRIPTED_KEY
         api: openai-completions
         baseURL: !!js process.env.VERAFY_SCRIPTED_URL ?? 'http://127.0.0.1:8790/v1'
-        models: [{ id: scripted-anthropic }]
-      scripted-openai:
+        models: [{ id: scripted-mistral }]
+      scripted-gpt-oss:
         apiKeyEnv: VERAFY_SCRIPTED_KEY
         api: openai-completions
         baseURL: !!js process.env.VERAFY_SCRIPTED_URL ?? 'http://127.0.0.1:8790/v1'
-        models: [{ id: scripted-openai }]
-      scripted-google:
+        models: [{ id: scripted-gpt-oss }]
+      scripted-gemma:
         apiKeyEnv: VERAFY_SCRIPTED_KEY
         api: openai-completions
         baseURL: !!js process.env.VERAFY_SCRIPTED_URL ?? 'http://127.0.0.1:8790/v1'
-        models: [{ id: scripted-google }]
-      scripted-meta:
+        models: [{ id: scripted-gemma }]
+      scripted-llama:
         apiKeyEnv: VERAFY_SCRIPTED_KEY
         api: openai-completions
         baseURL: !!js process.env.VERAFY_SCRIPTED_URL ?? 'http://127.0.0.1:8790/v1'
-        models: [{ id: scripted-meta }]
+        models: [{ id: scripted-llama }]
       scripted-qwen:
         apiKeyEnv: VERAFY_SCRIPTED_KEY
         api: openai-completions
@@ -130,6 +130,6 @@
         outDir: !!js process.env.VERAFY_JUROR_OUT
         harness:
           id: !!js process.env.VERAFY_HARNESS_ID
-          lab: !!js process.env.VERAFY_HARNESS_LAB
+          family: !!js process.env.VERAFY_HARNESS_FAMILY
           model: !!js process.env.VERAFY_MODEL
           bond: 500

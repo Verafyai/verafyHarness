@@ -1,6 +1,6 @@
 {
   "market-senate-bill-nov30": {
-    "anthropic": {
+    "mistral": {
       "answer": "NO",
       "confidence": 0.95,
       "reasoning": "The snapshot records only a failed motion to proceed on Nov 19 and no later votes through Nov 30.",
@@ -9,7 +9,7 @@
         "c1"
       ]
     },
-    "openai": {
+    "gpt-oss": {
       "answer": "NO",
       "confidence": 0.93,
       "reasoning": "Vote 302 rejected the motion to proceed; nothing after it.",
@@ -17,7 +17,7 @@
         "c0"
       ]
     },
-    "google": {
+    "gemma": {
       "answer": "NO",
       "confidence": 0.9,
       "reasoning": "No passing roll call for H.R. 4410 by the deadline.",
@@ -26,7 +26,7 @@
         "c1"
       ]
     },
-    "meta": {
+    "llama": {
       "answer": "NO",
       "confidence": 0.88,
       "reasoning": "The record shows the bill stalled at the motion to proceed.",
@@ -53,7 +53,7 @@
     }
   },
   "factcheck-ceo-revenue-doubled": {
-    "anthropic": {
+    "mistral": {
       "answer": "misleading",
       "confidence": 0.9,
       "reasoning": "Cloud revenue doubled; total revenue grew 18 percent. The claim drops the segment.",
@@ -62,7 +62,7 @@
         "c1"
       ]
     },
-    "openai": {
+    "gpt-oss": {
       "answer": "misleading",
       "confidence": 0.85,
       "reasoning": "Accurate for cloud only.",
@@ -70,7 +70,7 @@
         "c0"
       ]
     },
-    "google": {
+    "gemma": {
       "answer": "false",
       "confidence": 0.7,
       "reasoning": "The CEO did not say revenue doubled; he said cloud revenue doubled.",
@@ -78,7 +78,7 @@
         "c0"
       ]
     },
-    "meta": {
+    "llama": {
       "answer": "misleading",
       "confidence": 0.8,
       "reasoning": "True of one segment, not the company.",
@@ -105,7 +105,7 @@
     }
   },
   "forecast-march-rate-cut": {
-    "anthropic": {
+    "mistral": {
       "answer": 0.6,
       "confidence": 0.7,
       "reasoning": "Rising unemployment and softer inflation favor a cut; December hold delays it.",
@@ -113,7 +113,7 @@
         "c0"
       ]
     },
-    "openai": {
+    "gpt-oss": {
       "answer": 0.64,
       "confidence": 0.7,
       "reasoning": "Labor data is weakening.",
@@ -121,7 +121,7 @@
         "c0"
       ]
     },
-    "google": {
+    "gemma": {
       "answer": 0.68,
       "confidence": 0.65,
       "reasoning": "Unemployment at 4.6 percent is the main driver.",
@@ -129,7 +129,7 @@
         "c0"
       ]
     },
-    "meta": {
+    "llama": {
       "answer": 0.55,
       "confidence": 0.6,
       "reasoning": "Core inflation is still above target.",
@@ -155,7 +155,7 @@
     }
   },
   "delay-cover-ua1532": {
-    "anthropic": {
+    "mistral": {
       "answer": "PAY",
       "confidence": 0.98,
       "reasoning": "Arrived 4h 12m late, over the 3 hour threshold.",
@@ -164,7 +164,7 @@
         "c1"
       ]
     },
-    "openai": {
+    "gpt-oss": {
       "answer": "PAY",
       "confidence": 0.97,
       "reasoning": "Delay exceeds 3 hours.",
@@ -172,7 +172,7 @@
         "c0"
       ]
     },
-    "google": {
+    "gemma": {
       "answer": "PAY",
       "confidence": 0.96,
       "reasoning": "21:17 against 17:05 scheduled.",
@@ -180,7 +180,7 @@
         "c0"
       ]
     },
-    "meta": {
+    "llama": {
       "answer": "PAY",
       "confidence": 0.95,
       "reasoning": "Covered delay.",
@@ -207,7 +207,7 @@
     }
   },
   "factcheck-drug-halved-deaths": {
-    "anthropic": {
+    "mistral": {
       "answer": "true",
       "confidence": 0.8,
       "reasoning": "Deaths fell from 12 to 6 percent in the reported group.",
@@ -215,7 +215,7 @@
         "c0"
       ]
     },
-    "openai": {
+    "gpt-oss": {
       "answer": "false",
       "confidence": 0.8,
       "reasoning": "Across the full trial the effect was small and not significant.",
@@ -223,7 +223,7 @@
         "c0"
       ]
     },
-    "google": {
+    "gemma": {
       "answer": "true",
       "confidence": 0.7,
       "reasoning": "The summary reports deaths halving.",
@@ -231,7 +231,7 @@
         "c0"
       ]
     },
-    "meta": {
+    "llama": {
       "answer": "false",
       "confidence": 0.7,
       "reasoning": "The full population result contradicts the claim.",
@@ -257,7 +257,7 @@
     }
   },
   "hail-cover-farm117-2026-07": {
-    "anthropic": {
+    "mistral": {
       "answer": "PAY",
       "confidence": 0.9,
       "reasoning": "Hail confirmed on July 12; the report estimates about 43 percent of the insured crop destroyed.",
@@ -269,7 +269,7 @@
         "percent": 43
       }
     },
-    "openai": {
+    "gpt-oss": {
       "answer": "PAY",
       "confidence": 0.9,
       "reasoning": "Hail confirmed on July 12; the report estimates about 43 percent of the insured crop destroyed.",
@@ -281,7 +281,7 @@
         "percent": 43
       }
     },
-    "google": {
+    "gemma": {
       "answer": "PAY",
       "confidence": 0.9,
       "reasoning": "Hail confirmed on July 12; the report estimates about 40 percent of the insured crop destroyed.",
@@ -293,7 +293,7 @@
         "percent": 40
       }
     },
-    "meta": {
+    "llama": {
       "answer": "PAY",
       "confidence": 0.9,
       "reasoning": "Hail confirmed on July 12; the report estimates about 45 percent of the insured crop destroyed.",
@@ -331,7 +331,7 @@
     }
   },
   "hackathon-agents-2026-prize": {
-    "anthropic": {
+    "mistral": {
       "answer": "AWARD",
       "confidence": 0.85,
       "reasoning": "Four submissions run end to end; by the rubric entrant 3 leads on tests and docs, then entrant 0.",
@@ -347,7 +347,7 @@
         ]
       }
     },
-    "openai": {
+    "gpt-oss": {
       "answer": "AWARD",
       "confidence": 0.85,
       "reasoning": "Four submissions run end to end; by the rubric entrant 3 leads on tests and docs, then entrant 0.",
@@ -363,7 +363,7 @@
         ]
       }
     },
-    "google": {
+    "gemma": {
       "answer": "AWARD",
       "confidence": 0.85,
       "reasoning": "Four submissions run end to end; by the rubric entrant 3 leads on tests and docs, then entrant 0.",
@@ -379,7 +379,7 @@
         ]
       }
     },
-    "meta": {
+    "llama": {
       "answer": "AWARD",
       "confidence": 0.85,
       "reasoning": "Four submissions run end to end; by the rubric entrant 3 leads on tests and docs, then entrant 0.",
@@ -429,7 +429,7 @@
     }
   },
   "grant-ledger-sdk-m2": {
-    "anthropic": {
+    "mistral": {
       "answer": "MET",
       "confidence": 0.92,
       "reasoning": "SDK released with docs and 86 percent coverage, above the 80 percent bar.",
@@ -438,7 +438,7 @@
         "c1"
       ]
     },
-    "openai": {
+    "gpt-oss": {
       "answer": "MET",
       "confidence": 0.92,
       "reasoning": "SDK released with docs and 86 percent coverage, above the 80 percent bar.",
@@ -447,7 +447,7 @@
         "c1"
       ]
     },
-    "google": {
+    "gemma": {
       "answer": "MET",
       "confidence": 0.92,
       "reasoning": "SDK released with docs and 86 percent coverage, above the 80 percent bar.",
@@ -456,7 +456,7 @@
         "c1"
       ]
     },
-    "meta": {
+    "llama": {
       "answer": "MET",
       "confidence": 0.92,
       "reasoning": "SDK released with docs and 86 percent coverage, above the 80 percent bar.",

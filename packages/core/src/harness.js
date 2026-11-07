@@ -12,7 +12,7 @@ import { DECLINE_KIND } from './network.js'
 
 export class Harness {
   /**
-   * @param {{id: string, lab: string, model: string, bond: number, provider: object, payments?: object, identity?: object | string, identityFile?: string}} options -
+   * @param {{id: string, family: string, model: string, bond: number, provider: object, payments?: object, identity?: object | string, identityFile?: string}} options -
    *   the harness setup. `payments` is the harness's payment router config.
    *   `identity` keeps a key the caller already holds (an identity, KeyObject or
    *   PKCS#8 PEM); `identityFile` loads the key from a PEM file, creating it on
@@ -26,13 +26,18 @@ export class Harness {
    *   the contract that returns a reason to decline the seat, or null to sit.
    *   A decline on ethics grounds is never a fault (Constitution Article 3.4).
    */
-  constructor({ id, lab, model, bond, provider, payments, identity, identityFile, sourceChain = null, pauses = null, modelCommitment = null, declines = null }) {
+  constructor({ id, family, lab, model, operator = null, bond, provider, payments, identity, identityFile, sourceChain = null, pauses = null, modelCommitment = null, declines = null }) {
     this.declines = declines
     this.sourceChain = sourceChain
     this.pauses = pauses
     this.id = id
     this.payments = payments
-    this.lab = lab
+    /** The open-weight model family this harness runs (`lab` is the pre-0.0.3 name, read the same way). */
+    this.family = family ?? lab
+    this.lab = this.family
+    this.legacyLab = family === undefined && lab !== undefined
+    /** The operator key that runs this harness (VIP-0003), or null. */
+    this.operator = operator
     this.model = model
     this.bond = bond
     this.provider = provider
@@ -46,7 +51,7 @@ export class Harness {
 
   /** The public description other harnesses and sealers see. */
   get card() {
-    return { id: this.id, lab: this.lab, model: this.model, bond: this.bond, publicKey: this.identity.publicKey, ...(this.modelCommitment ? { modelCommitment: this.modelCommitment } : {}) }
+    return { id: this.id, ...(this.legacyLab ? { lab: this.family } : { family: this.family }), model: this.model, bond: this.bond, publicKey: this.identity.publicKey, ...(this.modelCommitment ? { modelCommitment: this.modelCommitment } : {}), ...(this.operator ? { operator: this.operator.key ?? this.operator, ...(this.operator.signature ? { operatorSignature: this.operator.signature } : {}) } : {}) }
   }
 
   /**
@@ -93,10 +98,10 @@ export class Harness {
     const loaded = loadContext(asc)
     if (!loaded.ok) throw new Error(`${this.id} context check failed: ${loaded.problems.join('; ')}`)
     const h = ascHash(asc)
-    const vote = await deliberate(asc, this.provider, this.model, { lab: this.lab })
+    const vote = await deliberate(asc, this.provider, this.model, { family: this.family })
     const { commitment, salt } = commit(h, vote)
     this.pending.set(h, { vote, salt, commitment })
-    const attestation = { harness: this.id, lab: this.lab, model: this.model, ascHash: h, commitment }
+    const attestation = { harness: this.id, ...(this.legacyLab ? { lab: this.family } : { family: this.family }), model: this.model, ascHash: h, commitment }
     return { harness: this.id, commitment, attestation, signature: signMessage(this.identity.privateKey, attestation) }
   }
 

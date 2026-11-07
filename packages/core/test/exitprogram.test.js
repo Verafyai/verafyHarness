@@ -12,7 +12,7 @@ const ROOT = new URL('../../../', import.meta.url)
 const ex = name => JSON.parse(readFileSync(new URL(`examples/${name}.json`, ROOT), 'utf8'))
 const mock = ex('mock-answers')
 const config = JSON.parse(readFileSync(new URL('verafy.config.json', ROOT), 'utf8'))
-const poolFor = asc => config.pool.map(h => new Harness({ ...h, provider: mockProvider(mock, asc.id, h.lab) }))
+const poolFor = asc => config.pool.map(h => new Harness({ ...h, provider: mockProvider(mock, asc.id, h.family) }))
 const ruleOn = async asc => { const jury = drawJuryFor(asc, poolFor(asc), 'genesis'); return rule(asc, jury, jury[0], { seed: 'genesis' }) }
 const EXITS = ['graded-insurance', 'ranked-prize', 'milestone-escrow']
 
@@ -26,8 +26,9 @@ const HASHES_BEFORE = {
 }
 
 test('exitProgram is optional: every existing contract keeps its hash and still validates', () => {
+  const fixture = name => JSON.parse(readFileSync(new URL(`packages/core/test/fixtures/v0.0.2/${name}.json`, ROOT), 'utf8'))
   for (const [name, h] of Object.entries(HASHES_BEFORE)) {
-    assert.equal(ascHash(ex(name)), h, name)
+    assert.equal(ascHash(fixture(name)), h, `${name}, as written with the pre-0.0.3 names`)
     assert.deepEqual(validate(ex(name)), [], name)
     assert.ok(!ex(name).exits.some(e => 'exitProgram' in e), `${name} declares no exit program`)
   }

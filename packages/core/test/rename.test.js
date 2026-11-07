@@ -20,7 +20,7 @@ const ROOT = fileURLToPath(new URL('../../../', import.meta.url))
 const read = p => JSON.parse(readFileSync(join(ROOT, p), 'utf8'))
 const mock = read('examples/mock-answers.json')
 const config = read('verafy.config.json')
-const poolFor = asc => config.pool.map(h => new Harness({ ...h, provider: mockProvider(mock, asc.id, h.lab) }))
+const poolFor = asc => config.pool.map(h => new Harness({ ...h, provider: mockProvider(mock, asc.id, h.family) }))
 const tmp = () => mkdtempSync(join(tmpdir(), 'verafy-rename-'))
 
 // ---- Contract kinds ---------------------------------------------------------

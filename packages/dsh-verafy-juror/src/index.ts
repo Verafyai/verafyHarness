@@ -33,7 +33,8 @@ export const inject = ['tools', 'systemPrompt']
 /** The harness this DSH process runs as. */
 export interface HarnessCard {
   id: string
-  lab: string
+  /** The open-weight model family this harness runs. */
+  family: string
   /** The model id this harness commits to; it must match the profile's route. */
   model: string
   bond: number
@@ -57,7 +58,7 @@ export const Config: z<Config> = z.object({
   sectionOrder: z.number().default(50),
   harness: z.object({
     id: z.string().required(),
-    lab: z.string().required(),
+    family: z.string().required(),
     model: z.string().required(),
     bond: z.number().default(0),
   }).required(),
@@ -161,8 +162,8 @@ export function apply(ctx: Context, config: Config) {
       await mkdir(outDir, { recursive: true, mode: 0o700 })
       const key = await identity(outDir)
       const h = config.harness
-      const card = { id: h.id, lab: h.lab, model: h.model, bond: h.bond, publicKey: key.publicKey }
-      const attestation = { harness: h.id, lab: h.lab, model: h.model, ascHash: loaded.hash, commitment }
+      const card = { id: h.id, family: h.family, model: h.model, bond: h.bond, publicKey: key.publicKey }
+      const attestation = { harness: h.id, family: h.family, model: h.model, ascHash: loaded.hash, commitment }
       const reveal = { harness: h.id, ascHash: loaded.hash, vote, salt }
       await writeFile(join(outDir, `${loaded.hash}.reveal.json`), JSON.stringify({ ...reveal, signature: signMessage(key.privateKey, reveal) }, null, 2) + '\n', { mode: 0o600 })
       await writeFile(join(outDir, `${loaded.hash}.commit.json`), JSON.stringify({ card, route: routed?.provider ?? null, harness: h.id, commitment, attestation, signature: signMessage(key.privateKey, attestation) }, null, 2) + '\n')

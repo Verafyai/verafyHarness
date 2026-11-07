@@ -3,7 +3,7 @@
 **Version 0.0.2-alpha**, November 6, 2026. Covers Verafy Harness (this repo) and Verafy Chain ([Verafyai/verafyChain](https://github.com/Verafyai/verafyChain)).
 
 <!-- score -->
-**Scored 63% overall** at v0.0.2-alpha (see [SCORECARD.md](SCORECARD.md)).
+**Scored 67% overall** at v0.0.3-alpha (see [SCORECARD.md](SCORECARD.md)).
 <!-- /score -->
 
 This is an alpha spec for a prototype. Nothing here describes a running network, and there is no token. Every number is labeled **measured** (our own runs, with a date), **vendor-reported** (by whoever built the tool), **modeled** (computed from those, in `packages/economics`) or **illustrative** (an assumption to replace).
@@ -36,7 +36,7 @@ This is an alpha spec for a prototype. Nothing here describes a running network,
 
 ## Principles that bind every part
 
-From [PRINCIPLES.md](https://github.com/Verafyai/verafyChain/blob/main/PRINCIPLES.md): payment agnostic (no token, ever); natural language first; embedded ethics; checkable and verifiable; agent friendly; context is evidence; no single model or lab; nothing is erased; legible to people; open and forkable; honest about what runs. A design that conflicts with a principle loses, or goes through the amendment process.
+From [PRINCIPLES.md](https://github.com/Verafyai/verafyChain/blob/main/PRINCIPLES.md): payment agnostic (no token, ever); natural language first; embedded ethics; checkable and verifiable; agent friendly; context is evidence; no single model or operator; nothing is erased; legible to people; open and forkable; honest about what runs. A design that conflicts with a principle loses, or goes through the amendment process.
 
 ## CORE: the protocol
 
@@ -58,17 +58,17 @@ A contract is a compressed intention: instructions, pinned context, a question w
 
 ## JURY: juries, live runs, audits and challenges
 
-Juries span labs and are drawn from the parent block hash. Auditors from other labs re-check sealed rulings; challenges append, never erase; a below-bar ruling's escrow funds a wider jury.
+Juries span open-weight model families and operators, and are drawn by the jury scheduler from a randomness beacon. Auditors from other model families re-check sealed rulings; challenges append, never erase; a below-bar ruling's escrow funds a wider jury.
 
 <!-- reqs:JURY -->
 | ID | Status | Requirement |
 |---|---|---|
-| JURY-001 | verified | Live juries across five labs; measured Nov 6, 2026: five contracts, 5.9 to 30.1 s each, $0.0163 in total |
-| JURY-002 | verified | Juror mode inside DeepSeek Harness: five labs sealed a block from their reveals |
+| JURY-001 | verified | Live juries across five different models; measured Nov 6, 2026: five contracts, 5.9 to 30.1 s each, $0.0163 in total |
+| JURY-002 | verified | Juror mode inside DeepSeek Harness: five different models sealed a block from their reveals |
 | JURY-003 | built | Retry and back-off for rate-limited models |
-| JURY-004 | built | Auditors from other labs re-check sealed rulings |
+| JURY-004 | built | Auditors from other model families re-check sealed rulings |
 | JURY-005 | built | Challenges append affirm, overturn or supersede; escalation funds a wider jury |
-| JURY-006 | designed | Challenge bonds: lock on open, return on overturn, forfeit on affirm. *Gap: Designed in VIP-0006; not built.* |
+| JURY-006 | built | Challenge bonds: lock on open, return on overturn or supersede, forfeit on affirm. *Gap: Bond factor illustrative; not on a chain.* |
 | JURY-007 | planned | Track record: agreement with final rulings and forecast scores per harness. *Gap: No per-harness history yet; needed for bonds and for routing weights.* |
 | JURY-008 | partial | 100 live rulings across the four market types, with audits and costs published. *Gap: Only the first five live rulings are published.* |
 | JURY-009 | built | Harness daemon: a long-running process that watches for funded contracts and takes seats |
@@ -81,16 +81,16 @@ Running a harness means posting a bond that can be slashed for misbehavior. A ju
 <!-- reqs:CONS -->
 | ID | Status | Requirement |
 |---|---|---|
-| CONS-001 | designed | Jury scheduler: beacon seed, draw, alternates, block-height deadlines, commit-phase replacement. *Gap: Designed; not built.* |
-| CONS-002 | designed | Randomness beacon with lookahead; a withheld reveal is a slashable fault. *Gap: Designed; not built.* |
-| CONS-003 | designed | Operator keys on harness cards, a seat cap per operator, operator bonds. *Gap: Designed; not built.* |
-| CONS-004 | designed | Draw weighting: equal by default, bond-weighted with a cap as an option. *Gap: Network default waits on Rex.* |
-| CONS-005 | designed | Slashing: a published schedule applied to recorded faults as conserving bond diffs. *Gap: Designed; not built.* |
-| CONS-006 | designed | Payouts held until the challenge window closes; an overturn redirects the held escrow. *Gap: Designed; not built.* |
-| CONS-007 | designed | Single-harness mode: a jury of one with a mandatory window and an automatic audit. *Gap: Whether to offer it waits on Rex.* |
-| CONS-008 | designed | Prover placement: each harness or shared provers, with the prover named in the proof record. *Gap: Default waits on Rex.* |
-| CONS-009 | planned | verafy_ruling: a reveal deadline slot, and a releasable-after slot. *Gap: Program change; not built.* |
-| CONS-010 | planned | Economics: bond capital cost, expected slashing, challenge cost. *Gap: Not modeled.* |
+| CONS-001 | built | Jury scheduler: beacon seed, draw, alternates, block-height deadlines, commit-phase replacement. *Gap: Deadlines and alternate counts are illustrative; the verafyChain node does not call the scheduler yet.* |
+| CONS-002 | built | Randomness beacon with lookahead; a withheld reveal is a slashable fault. *Gap: A hash-chain beacon with one bit of withholding bias, slashed; drand or a VRF would remove it (decision for Rex).* |
+| CONS-003 | partial | Operator keys on harness cards, a seat cap per operator, operator bonds. *Gap: The cap and alternates are built; operator signatures are carried on cards but not yet checked, and operator bonds are not posted anywhere yet.* |
+| CONS-004 | built | Draw weighting: equal by default, bond-weighted with a cap as an option. *Gap: Equal is the default; whether the network allows bond weighting waits on Rex.* |
+| CONS-005 | built | Slashing: a published schedule applied to recorded faults as conserving bond diffs. *Gap: Every rate is illustrative; slashes apply on the local testnet, not on a chain.* |
+| CONS-006 | built | Payouts held until the challenge window closes; an overturn redirects the held escrow. *Gap: Window lengths are illustrative; the verafyChain node does not release held payouts yet.* |
+| CONS-007 | built | Single-harness mode: a jury of one with a mandatory window and an automatic audit. *Gap: Allowed only with a window and an automatic audit; whether to offer it waits on Rex; cost not modeled.* |
+| CONS-008 | designed | Prover placement: each harness or shared provers, with the prover named in the proof record. *Gap: Default waits on Rex; the proof record does not name its prover yet.* |
+| CONS-009 | partial | verafy_ruling: a reveal deadline slot, and a releasable-after slot. *Gap: Measured on a local validator only; not on devnet.* |
+| CONS-010 | built | Economics: bond capital cost, expected slashing, challenge cost. *Gap: Every input is illustrative.* |
 <!-- /reqs:CONS -->
 
 ## CHAIN: the Verafy Chain node
@@ -105,7 +105,7 @@ A block exists only when a jury rules. The node keeps a mempool of funded contra
 | CHAIN-003 | built | Batching: blocks close by value or by time, with a pro rata cost split |
 | CHAIN-004 | partial | Encrypted queue: contracts sealed t of n until the jury is drawn. *Gap: Prototype: each author deals the shares; real distributed key generation and verifiable shares are planned.* |
 | CHAIN-005 | planned | Registry on chain, sealer liveness, bonds and slashing, libp2p gossip. *Gap: Needed for a network of independently operated harnesses.* |
-| CHAIN-006 | planned | Escalated juries accepted by the chain; challenge juries that share no lab |
+| CHAIN-006 | planned | Escalated juries accepted by the chain; challenge juries that share no model family |
 <!-- /reqs:CHAIN -->
 
 ## SETTLE: TinySVM
@@ -166,7 +166,7 @@ FlashProve proves at most 1,024 tokens, about 750 words, per request; each proof
 2. **Dedupe.** The same question over the same evidence has the same hash, so contracts that share a question share one slot and one proof.
 3. **Pack.** Atoms fill 1,024-token requests first-fit, about 16 to 18 per request in tests; slot order is shuffled by the block hash; a reply that misses or mangles any slot is rejected whole.
 4. **Compress what can't be atomized.** A brief (the question, the exits and only the deciding facts, each cited) stands in for a long contract. Plain dense English, never invented shorthand: models read English tokens best.
-5. **Check fidelity.** A proof covers the atoms, not whether they capture the contract. Every plan or brief is agreed by the parties or ruled FAITHFUL by an unproven panel from several labs before it is used.
+5. **Check fidelity.** A proof covers the atoms, not whether they capture the contract. Every plan or brief is agreed by the parties or ruled FAITHFUL by an unproven panel from several model families before it is used.
 
 In a test block, 60 contracts became 120 atoms, 61 after dedupe, in 4 requests at 85% fill (measured on the packer with mock models).
 
@@ -178,7 +178,7 @@ In a test block, 60 contracts became 120 atoms, 61 after dedupe, in 4 requests a
 | PACK-003 | built | Dedupe across contracts by atom hash; first-fit packing into 1,024-token requests; block-hash slot order (library, tested with mocks) |
 | PACK-004 | built | Strict reply reading: every slot exactly once, typed answers, nothing else |
 | PACK-005 | built | Atomizer: drafts a plan with any model and checks every cited pin is real |
-| PACK-006 | built | Fidelity check: an unproven multi-lab panel rules a plan FAITHFUL before it is used |
+| PACK-006 | built | Fidelity check: an unproven multi-family panel rules a plan FAITHFUL before it is used |
 | PACK-007 | planned | Real token counts with the target model's tokenizer. *Gap: The packer estimates about four characters per token.* |
 | PACK-008 | designed | Prompt compressor: briefs for contracts that cannot be atomized; party-agreed or checked. *Gap: Brief mode is modeled in economics, not built in the packer.* |
 | PACK-009 | designed | Long contracts split by claims with a proven combine step |
@@ -188,7 +188,7 @@ In a test block, 60 contracts became 120 atoms, 61 after dedupe, in 4 requests a
 
 ## ROUTE: multi-model routing
 
-Every question starts at the cheapest tier that can answer it safely: a fast System 1 screen (such as Jev), then panels of small, mid-size and frontier models, each spanning labs. A unanimous panel stops; a split one moves up. Three signals decide where a question goes: the screen's probability, juror disagreement, and the question itself (its stakes, type and the contract's floor). The router is plain code; no model decides routing.
+Every question starts at the cheapest tier that can answer it safely: a fast System 1 screen (such as Jev), then panels of small, mid-size and frontier models, each spanning model families. A unanimous panel stops; a split one moves up. Three signals decide where a question goes: the screen's probability, juror disagreement, and the question itself (its stakes, type and the contract's floor). The router is plain code; no model decides routing.
 
 Guardrails:
 
@@ -215,7 +215,7 @@ What a screen is worth is not known yet. Jev's figures are its maker's (70 to 50
 
 ## PROVE: proofs of inference
 
-The proven lane is set by the contract, never by difficulty. While only one model is provable, each packed request is proven once by a prover drawn from the block hash, and other jurors verify; lab diversity returns when a second model is provable. Proofs are attached after the reveal; an L2 ruling is final only when every counted proof verifies; a missing or failed proof drops the vote and records a fault. Proofs and their data stay off chain; a block carries one Merkle root over them.
+The proven lane is set by the contract, never by difficulty. While only one model is provable, each packed request is proven once by a prover drawn from the block hash, and other jurors verify; model-family diversity returns when a second model is provable. Proofs are attached after the reveal; an L2 ruling is final only when every counted proof verifies; a missing or failed proof drops the vote and records a fault. Proofs and their data stay off chain; a block carries one Merkle root over them.
 
 <!-- reqs:PROVE -->
 | ID | Status | Requirement |
@@ -322,7 +322,7 @@ Releases ship as a source tarball, single-file binaries, a container image and a
 | DEPLOY-004 | built | Hardware profiles: which open-weights model a machine can hold, by modeled memory, and its router tier |
 | DEPLOY-005 | partial | Container image, compose file, and one-click Render and DigitalOcean App Platform buttons. *Gap: The image has not been built here (no Docker daemon); it builds and publishes on the first tagged release.* |
 | DEPLOY-006 | partial | Releases: source tarball, single-file binaries for Linux, macOS and Windows, a GHCR image, checksums, and install.sh. *Gap: The workflow has not run yet; it runs on the first pushed version tag.* |
-| DEPLOY-007 | built | verafy testnet: a local testnet on one machine (a daemon per lab, juries over HTTP, sealed blocks), scripted or live, with optional Solana settlement |
+| DEPLOY-007 | built | verafy testnet: a local testnet on one machine (a daemon per model family, juries over HTTP, sealed blocks), scripted or live, with optional Solana settlement |
 | DEPLOY-008 | built | verafy up --ui: the launcher as a page on 127.0.0.1, with a one-time token in its URL |
 | DEPLOY-009 | built | Launch page on harness.verafy.ai: pick a model and a target, get the command, the user data or a button |
 | DEPLOY-010 | planned (needs Rex) | Hosted harnesses run by Verafy for people who do not want to operate one. *Gap: Needs Rex: billing, servers and terms.* |
@@ -365,4 +365,4 @@ Muse (semantic version control) proposed two small experiments: targeted certifi
 
 ## Decisions waiting on Rex
 
-Requirements marked *needs Rex* in the tables, plus: the block-close defaults, prove-once for L2, packing defaults, allowed brief modes, the Banker's target token, treasury, chains, caps and screening, whether to rent a FlashProve machine, and whether to publish the MCP server. From v0.0.2-alpha: whether Verafy runs hosted harnesses (DEPLOY-010), devnet SOL for the Solana program (SOL-002), Jev access for the calibration run (ROUTE-007), turning on Banker execution with a funded scoped wallet, and the illustrative defaults: block close (10% warm-up, 1-hour maximum wait), the 600-second proof deadline, the ethics panel sizes, bar and screening fee, and the amendment escrow shares.
+Requirements marked *needs Rex* in the tables, plus: the block-close defaults, prove-once for L2, packing defaults, allowed brief modes, the Banker's target token, treasury, chains, caps and screening, whether to rent a FlashProve machine, and whether to publish the MCP server. From v0.0.2-alpha: whether Verafy runs hosted harnesses (DEPLOY-010), devnet SOL for the Solana program (SOL-002), Jev access for the calibration run (ROUTE-007), turning on Banker execution with a funded scoped wallet, and the illustrative defaults: block close (10% warm-up, 1-hour maximum wait), the 600-second proof deadline, the ethics panel sizes, bar and screening fee, and the amendment escrow shares. From v0.0.3-alpha: every slashing price and grace allowance (CONS-005), the challenge window and challenge bond factor (CONS-006, JURY-006), whether the network allows bond-weighted draws (CONS-004), whether to offer a jury of one (CONS-007), the seats-per-operator defaults and operator bond (CONS-003), the beacon lookahead and whether to add drand (CONS-002), and where proving runs (CONS-008).

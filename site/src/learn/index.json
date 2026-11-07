@@ -13,7 +13,7 @@
  "harness": {
   "title": "A harness",
   "desc": "One AI model wrapped with everything a validator needs: intake, context checks, a signer, a bond, a runtime and a routing agent.",
-  "status": "Built and run live with five labs (JURY-001, measured Nov 6, 2026).",
+  "status": "Built and run live with five different models (JURY-001, measured Nov 6, 2026).",
   "related": [
    "harness-daemon",
    "jury",
@@ -23,12 +23,23 @@
  },
  "jury": {
   "title": "Juries, commit and reveal",
-  "desc": "How a jury of harnesses from different labs rules: drawn from the block hash, commit first, reveal second, agreement against a bar.",
+  "desc": "How a jury of harnesses from different model families rules: drawn from the beacon, commit first, reveal second, agreement against a bar.",
   "status": "Built and verified with live models (JURY-001, JURY-002). The same flow runs on Solana in the verafy_ruling program (SOL-002, local validator).",
   "related": [
    "agreement-and-the-bar",
    "proof-of-judgment",
    "solana-settlement"
+  ],
+  "group": "Basics"
+ },
+ "model-families": {
+  "title": "Open-weight models and model families",
+  "desc": "Any open-weight model from Hugging Face can sit on a jury. Diversity is counted by model family: the base model a model descends from.",
+  "status": "Built (CONS-003 and the core draw).",
+  "related": [
+   "jury",
+   "operators",
+   "harness"
   ],
   "group": "Basics"
  },
@@ -285,5 +296,58 @@
    "multi-model-routing"
   ],
   "group": "Basics"
+ },
+ "jury-scheduler": {
+  "title": "The jury scheduler",
+  "desc": "The one place that decides who sits on a jury, when each step is due, and what happens when a juror does not show.",
+  "status": "Built (CONS-001); the local testnet runs every jury through it.",
+  "related": [
+   "randomness-beacon",
+   "jury",
+   "operators"
+  ],
+  "group": "Stake"
+ },
+ "randomness-beacon": {
+  "title": "The randomness beacon",
+  "desc": "Jury seeds that no block sealer can steer: a hash chain each sealer fixes in advance.",
+  "status": "Built (CONS-002).",
+  "related": [
+   "jury-scheduler",
+   "bonds-and-slashing"
+  ],
+  "group": "Stake"
+ },
+ "operators": {
+  "title": "Operators",
+  "desc": "Model families keep one model's blind spots from deciding. Operators keep one owner from holding several seats.",
+  "status": "Built in the draw (CONS-003); defaults wait on Rex.",
+  "related": [
+   "model-families",
+   "bonds-and-slashing",
+   "jury-scheduler"
+  ],
+  "group": "Stake"
+ },
+ "bonds-and-slashing": {
+  "title": "Bonds and slashing",
+  "desc": "Running a harness means posting a bond that can be taken for misbehavior. What each fault costs, and where the money goes.",
+  "status": "Built (CONS-005); every rate is illustrative.",
+  "related": [
+   "challenge-window",
+   "operators",
+   "launching-a-harness"
+  ],
+  "group": "Stake"
+ },
+ "challenge-window": {
+  "title": "The challenge window and challenge bonds",
+  "desc": "Payouts wait until a ruling can no longer be overturned cheaply, so an overturn moves money, not just the record.",
+  "status": "Built (CONS-006, JURY-006 in core).",
+  "related": [
+   "audits-and-challenges",
+   "bonds-and-slashing"
+  ],
+  "group": "Stake"
  }
 }

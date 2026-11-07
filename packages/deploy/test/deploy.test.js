@@ -9,8 +9,8 @@ import {
 } from '../src/index.js'
 
 test('serve config comes from the environment, which wins over the file', () => {
-  const c = serveConfig({ harness: { lab: 'openai', model: 'x', bond: 9 }, nodes: ['http://a'] }, { VERAFY_LAB: 'qwen', VERAFY_NODES: 'http://b, http://c', VERAFY_PORT: '8000' })
-  assert.equal(c.harness.lab, 'qwen')
+  const c = serveConfig({ harness: { family: 'gpt-oss', model: 'x', bond: 9 }, nodes: ['http://a'] }, { VERAFY_FAMILY: 'qwen', VERAFY_NODES: 'http://b, http://c', VERAFY_PORT: '8000' })
+  assert.equal(c.harness.family, 'qwen')
   assert.equal(c.harness.model, 'x')
   assert.deepEqual(c.nodes, ['http://b', 'http://c'])
   assert.equal(c.port, 8000)
@@ -19,11 +19,11 @@ test('serve config comes from the environment, which wins over the file', () => 
 
 test('checks say what is missing; a local model server needs no key', () => {
   assert.equal(checkServeConfig(serveConfig({}, {}), {}).length, 3)
-  const local = serveConfig({}, { VERAFY_LAB: 'qwen', VERAFY_MODEL: 'qwen3:4b', VERAFY_BASE_URL: 'http://127.0.0.1:11434/v1' })
+  const local = serveConfig({}, { VERAFY_FAMILY: 'qwen', VERAFY_MODEL: 'qwen3:4b', VERAFY_BASE_URL: 'http://127.0.0.1:11434/v1' })
   assert.deepEqual(checkServeConfig(local, {}), [])
   assert.ok(isLocalEndpoint('http://host.docker.internal:11434/v1'))
   assert.ok(!isLocalEndpoint('https://openrouter.ai/api/v1'))
-  const remote = serveConfig({}, { VERAFY_LAB: 'qwen', VERAFY_MODEL: 'm', VERAFY_MOCK: '1', VERAFY_NODES: 'https://node.example' })
+  const remote = serveConfig({}, { VERAFY_FAMILY: 'qwen', VERAFY_MODEL: 'm', VERAFY_MOCK: '1', VERAFY_NODES: 'https://node.example' })
   assert.match(checkServeConfig(remote, {}).join(), /VERAFY_PUBLIC_URL/)
 })
 
@@ -35,11 +35,11 @@ test('hardware profiles: modeled memory, tiers, and a pick per machine', () => {
   assert.equal(gpu.kind, 'local')
   assert.ok(gpu.model.needGb <= 24)
   assert.ok(fits({ memGb: 16 }).every(m => m.needGb <= 14 && m.on === 'cpu'))
-  assert.equal(recommend({ memGb: 64, gpuMemGb: 24 }, { lab: 'meta' }).model.lab, 'meta')
+  assert.equal(recommend({ memGb: 64, gpuMemGb: 24 }, { family: 'llama' }).model.family, 'llama')
 })
 
 test('user data: quotes values, refuses bad names and refs, never runs as root', () => {
-  const s = cloudInit({ env: { VERAFY_LAB: 'anthropic', VERAFY_API_KEY: "a'b" }, cloud: 'hetzner' })
+  const s = cloudInit({ env: { VERAFY_FAMILY: 'mistral', VERAFY_API_KEY: "a'b" }, cloud: 'hetzner' })
   assert.match(s, /VERAFY_API_KEY='a'\\''b'/)
   assert.match(s, /hetzner\/v1\/metadata\/public-ipv4/)
   assert.match(s, /User=verafy/)
@@ -53,19 +53,19 @@ test('user data: quotes values, refuses bad names and refs, never runs as root',
 })
 
 test('every target plans; keys only in mode-600 files or user data', () => {
-  const base = { lab: 'anthropic', model: 'anthropic/claude-haiku-4.5', apiKey: 'sk-test-123456', nodes: ['https://n1'], id: 'h-anthropic-1' }
+  const base = { family: 'mistral', model: 'mistralai/mistral-small-3.2-24b-instruct', apiKey: 'sk-test-123456', nodes: ['https://n1'], id: 'h-mistral-1' }
   const local = plan({ ...base, target: 'local', publicUrl: 'https://me.example' })
   assert.equal(local.files[0].mode, 0o600)
   assert.match(local.files[0].content, /VERAFY_API_KEY='sk-test-123456'/)
-  const docker = plan({ ...base, target: 'docker', kind: 'local', model: 'qwen3:8b', lab: 'qwen', apiKey: undefined })
+  const docker = plan({ ...base, target: 'docker', kind: 'local', model: 'qwen3:8b', family: 'qwen', apiKey: undefined })
   assert.match(docker.steps.at(-1), /docker run .*ghcr.io\/verafyai\/verafy-harness:latest/)
   assert.match(docker.steps.at(-1), /host-gateway/)
   assert.equal(docker.env.VERAFY_BASE_URL, 'http://host.docker.internal:11434/v1')
   const doPlan = plan({ ...base, target: 'digitalocean' })
   assert.equal(doPlan.cloud.plan, 's-1vcpu-2gb')
-  assert.equal(doPlan.cloud.name, 'verafy-h-anthropic-1')
+  assert.equal(doPlan.cloud.name, 'verafy-h-mistral-1')
   assert.ok(doPlan.warnings.some(w => /spending limit/.test(w)))
-  const hz = plan({ ...base, target: 'hetzner', kind: 'local', lab: 'qwen', model: 'qwen3:14b', apiKey: undefined })
+  const hz = plan({ ...base, target: 'hetzner', kind: 'local', family: 'qwen', model: 'qwen3:14b', apiKey: undefined })
   assert.equal(hz.cloud.plan, 'cx42')
   assert.match(hz.cloud.userData, /ollama pull qwen3:14b/)
   assert.ok(plan({ ...base, target: 'user-data' }).files[0].print)
@@ -90,7 +90,7 @@ test('cloud apply creates one server and waits for its address (fake API)', asyn
     if (init.method === 'POST') return reply({ droplet: { id: 42 } })
     return reply({ droplet: { id: 42, status: 'active', networks: { v4: [{ type: 'public', ip_address: '203.0.113.9' }] } } })
   }
-  const p = plan({ target: 'digitalocean', lab: 'anthropic', model: 'm', mock: true, id: 'h-1' })
+  const p = plan({ target: 'digitalocean', family: 'mistral', model: 'm', mock: true, id: 'h-1' })
   p.files = []
   const r = await apply(p, { env: { DIGITALOCEAN_TOKEN: 'do-token' }, fetch, say: () => {}, waitMs: 1 })
   assert.equal(r.server.url, 'http://203.0.113.9:7200')
@@ -112,7 +112,7 @@ test('hetzner client posts the right body', async () => {
 
 test('startServe keeps one id per data directory', async () => {
   const dataDir = mkdtempSync(join(tmpdir(), 'serve-'))
-  const c = serveConfig({}, { VERAFY_LAB: 'qwen', VERAFY_MODEL: 'm', VERAFY_MOCK: '1', VERAFY_PORT: '0', VERAFY_DATA_DIR: dataDir })
+  const c = serveConfig({}, { VERAFY_FAMILY: 'qwen', VERAFY_MODEL: 'm', VERAFY_MOCK: '1', VERAFY_PORT: '0', VERAFY_DATA_DIR: dataDir })
   const d1 = await startServe(c, { env: {}, log: () => {} })
   const id = d1.harness.id
   await d1.stop()
@@ -122,7 +122,7 @@ test('startServe keeps one id per data directory', async () => {
   await d2.stop()
 })
 
-test('a local testnet: one daemon per lab, juries over HTTP, sealed blocks', async () => {
+test('a local testnet: one daemon per family, juries over HTTP, sealed blocks', async () => {
   const { testnetUp } = await import('../src/index.js')
   const dir = mkdtempSync(join(tmpdir(), 'testnet-'))
   const r = await testnetUp({ dir, basePort: 7401, say: () => {} })
@@ -130,4 +130,21 @@ test('a local testnet: one daemon per lab, juries over HTTP, sealed blocks', asy
   assert.deepEqual(r.blocks.map(b => b.height), [1, 2, 3])
   assert.equal(r.blocks[1].parent, r.blocks[0].hash)
   assert.ok(r.blocks.every(b => b.rulings[0].passed))
+  assert.ok(r.blocks.every(b => b.beacon && b.rulings[0].round.seed === b.beacon.value), 'every jury is seeded by the beacon')
+  assert.equal(r.beacon.ok, true)
+  assert.deepEqual(r.slashed, [])
+})
+
+test('a local testnet slashes a harness that withholds its reveal, and replaces one that skips its commit', async () => {
+  const { testnetUp } = await import('../src/index.js')
+  const dir = mkdtempSync(join(tmpdir(), 'testnet-'))
+  const r = await testnetUp({ dir, basePort: 7421, say: () => {}, misbehave: { 'h-llama-1': 'no-reveal', 'h-qwen-1': 'no-commit' } })
+  const byFault = f => r.slashed.filter(x => x.fault === f)
+  for (const x of byFault('no-reveal')) assert.equal(x.harness, 'h-llama-1')
+  for (const x of byFault('no-commit')) assert.equal(x.harness, 'h-qwen-1')
+  assert.ok(r.slashed.length > 0)
+  const took = r.slashed.reduce((s, x) => s + x.amount, 0)
+  assert.ok(Math.abs(r.bonds['pool:slashed'] - took) < 1e-6, 'every slashed unit lands in the pool; nothing is burned or minted')
+  for (const b of r.blocks) for (const rp of b.rulings[0].round.schedule.replaced) assert.equal(rp.seat, 'h-qwen-1')
+  await assert.rejects(testnetUp({ dir, live: true, misbehave: { 'h-llama-1': 'no-reveal' }, say: () => {} }), /scripted testnets only/)
 })

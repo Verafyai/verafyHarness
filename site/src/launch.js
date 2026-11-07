@@ -8,8 +8,8 @@
 
   function fillModels() {
     var kind = val('kind')
-    var list = kind === 'local' ? OPEN_WEIGHTS.map(function (m) { return { v: m.lab + '|' + m.tag, t: m.tag + '  (' + m.lab + ', about ' + memoryNeededGb(m.paramsB) + ' GB)' } })
-      : HOSTED.map(function (m) { return { v: m.lab + '|' + m.model, t: m.lab + ': ' + m.model } })
+    var list = kind === 'local' ? OPEN_WEIGHTS.map(function (m) { return { v: m.family + '|' + m.tag, t: m.tag + '  (' + m.family + ', about ' + memoryNeededGb(m.paramsB) + ' GB)' } })
+      : HOSTED.map(function (m) { return { v: m.family + '|' + m.model, t: m.family + ': ' + m.model } })
     $('model').innerHTML = list.map(function (o) { return '<option value="' + esc(o.v) + '">' + esc(o.t) + '</option>' }).join('')
   }
 
@@ -26,15 +26,15 @@
 
   function render() {
     var target = val('target'), kind = val('kind')
-    var parts = $('model').value.split('|'), lab = parts[0], model = parts[1]
+    var parts = $('model').value.split('|'), family = parts[0], model = parts[1]
     var nodes = $('nodes').value.split(',').map(function (s) { return s.trim() }).filter(Boolean)
-    var id = ($('hid').value.trim() || 'h-' + lab + '-1').replace(/[^\w.-]/g, '-')
+    var id = ($('hid').value.trim() || 'h-' + family + '-1').replace(/[^\w.-]/g, '-')
     $('where').textContent = NAMES[target]
     var m = OPEN_WEIGHTS.filter(function (x) { return x.tag === model })[0]
-    $('modelNote').textContent = kind === 'local' && m ? 'Needs about ' + memoryNeededGb(m.paramsB) + ' GB of memory (modeled); router tier: ' + tierFor(m.paramsB) + '.' : 'Any machine can call a hosted model.'
-    var flags = ['--target ' + (target === 'buttons' ? 'local' : target), '--kind ' + kind, '--lab ' + lab, '--model ' + model, '--id ' + id]
+    $('modelNote').textContent = kind === 'local' && m ? 'Needs about ' + memoryNeededGb(m.paramsB) + ' GB of memory (modeled); router tier: ' + tierFor(m.paramsB) + '.' : 'Any machine can call an open-weight model served over an API.'
+    var flags = ['--target ' + (target === 'buttons' ? 'local' : target), '--kind ' + kind, '--family ' + family, '--model ' + model, '--id ' + id]
     if (nodes.length) flags.push('--nodes ' + nodes.join(','))
-    var envBase = { VERAFY_HARNESS_ID: id, VERAFY_LAB: lab, VERAFY_MODEL: model, VERAFY_BOND: '500', VERAFY_PORT: '7200' }
+    var envBase = { VERAFY_HARNESS_ID: id, VERAFY_FAMILY: family, VERAFY_MODEL: model, VERAFY_BOND: '500', VERAFY_PORT: '7200' }
     if (nodes.length) envBase.VERAFY_NODES = nodes.join(',')
     var html = ''
     if (target === 'local' || target === 'docker') {
@@ -66,13 +66,13 @@
     } else {
       html += '<p>Both build the Dockerfile from the repo and ask for your key as an encrypted secret.</p>'
       html += '<p class="btns"><a class="btn" href="https://render.com/deploy?repo=https://github.com/Verafyai/verafyHarness">Deploy to Render</a> <a class="btn" href="https://cloud.digitalocean.com/apps/new?repo=https://github.com/Verafyai/verafyHarness/tree/main">Deploy to DigitalOcean</a></p>'
-      html += '<p class="note">Set VERAFY_LAB to <code>' + esc(lab) + '</code> and VERAFY_MODEL to <code>' + esc(model) + '</code> in the form. One-click hosts suit hosted models; open weights need a GPU server.</p>'
+      html += '<p class="note">Set VERAFY_FAMILY to <code>' + esc(family) + '</code> and VERAFY_MODEL to <code>' + esc(model) + '</code> in the form. One-click hosts suit hosted models; open weights need a GPU server.</p>'
     }
     $('out').innerHTML = html
   }
 
   function table() {
-    $('hwTable').innerHTML = OPEN_WEIGHTS.map(function (m) { return '<tr><td>' + esc(m.model) + '</td><td>' + esc(m.lab) + '</td><td><code>' + esc(m.tag) + '</code></td><td class="v">' + memoryNeededGb(m.paramsB) + ' GB</td><td>' + tierFor(m.paramsB) + '</td></tr>' }).join('')
+    $('hwTable').innerHTML = OPEN_WEIGHTS.map(function (m) { return '<tr><td>' + esc(m.model) + '</td><td>' + esc(m.family) + '</td><td><code>' + esc(m.tag) + '</code></td><td class="v">' + memoryNeededGb(m.paramsB) + ' GB</td><td>' + tierFor(m.paramsB) + '</td></tr>' }).join('')
   }
 
   document.addEventListener('change', function (e) { if (e.target.name === 'kind') fillModels(); render() })

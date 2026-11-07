@@ -33,11 +33,11 @@ export async function startServe(c, { env = process.env, log } = {}) {
   if (!c.harness.id) {
     // One id per data directory, kept across restarts, so the key and the record stay with it.
     const idFile = join(c.dataDir, 'harness-id')
-    if (!existsSync(idFile)) writeFileSync(idFile, `h-${c.harness.lab}-${Math.random().toString(36).slice(2, 8)}\n`, { mode: 0o600 })
+    if (!existsSync(idFile)) writeFileSync(idFile, `h-${c.harness.family}-${Math.random().toString(36).slice(2, 8)}\n`, { mode: 0o600 })
     c = { ...c, harness: { ...c.harness, id: readFileSync(idFile, 'utf8').trim() } }
   }
   const harness = new Harness({ ...c.harness, provider: providerFrom(c, env), identityFile: join(c.dataDir, `${c.harness.id}.identity.pem`) })
-  const daemon = new HarnessDaemon({ harness, nodes: c.nodes, publicUrl: c.publicUrl, port: c.port, stateFile: join(c.dataDir, `${c.harness.id}.state.json`), ...(log ? { log } : {}) })
+  const daemon = new HarnessDaemon({ harness, nodes: c.nodes, publicUrl: c.publicUrl, port: c.port, stateFile: join(c.dataDir, `${c.harness.id}.state.json`), misbehave: c.misbehave, ...(log ? { log } : {}) })
   await daemon.start()
   return daemon
 }

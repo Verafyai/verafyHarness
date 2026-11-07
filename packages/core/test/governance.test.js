@@ -85,10 +85,13 @@ test('adding the amendment kind leaves every existing contract hash and block ha
     'milestone-escrow.json': 'b0252971284caa20afc2df3631164b83de1cab8aba02c8b99a8f03eb5b13160a',
     'ranked-prize.json': '8005ce7e5439e0d0e6dad328f07767c554cbae1be4eaed9b6a9d153ecfb7e83b',
   }
-  const files = readdirSync(`${ROOT}examples`).filter(f => f.endsWith('.json') && f !== 'mock-answers.json').sort()
+  // The v0.0.2 examples, kept as fixtures: v0.0.3 moved the examples to minFamilies, which gives them new hashes,
+  // and these pin that a contract written with the old names still keeps its old hash.
+  const dir = `${ROOT}packages/core/test/fixtures/v0.0.2`
+  const files = readdirSync(dir).filter(f => f.endsWith('.json') && f !== 'mock-answers.json' && f !== 'verafy.config.json').sort()
   assert.deepEqual(files, Object.keys(golden).sort())
   for (const f of files) {
-    const asc = JSON.parse(readFileSync(`${ROOT}examples/${f}`, 'utf8'))
+    const asc = JSON.parse(readFileSync(`${dir}/${f}`, 'utf8'))
     assert.deepEqual(validate(asc), [], f)
     assert.equal(ascHash(asc), golden[f], f)
     assert.ok(validateAmendment(asc).length > 0, `${f} is not an amendment`)

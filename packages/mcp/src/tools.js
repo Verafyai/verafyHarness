@@ -138,9 +138,9 @@ const HINTS = [
   [/^payment\.escrow/, 'Set "payment.escrow" to the amount held for this ruling, such as 1.2, with "payment.currency".'],
   [/^payment\.bar/, 'Set "payment.bar" to the agreement the jury must reach, between 0 and 1, such as 0.8.'],
   [/^payment\.jury\.size/, 'Set "payment.jury.size" to the number of jurors, such as 5.'],
-  [/^payment\.jury\.minLabs/, 'Set "payment.jury.minLabs" to how many different labs the jury must span, no more than the jury size.'],
+  [/^payment\.jury\.minFamilies/, 'Set "payment.jury.minFamilies" to how many different families the jury must span, no more than the jury size.'],
   [/^payment\.split/, 'Make jurors, auditors, storage and sealer in "payment.split" add up to 1, such as 0.8, 0.1, 0.05, 0.05.'],
-  [/^payment\.jury\.exclude/, 'Give a list of names, such as ["openai"].'],
+  [/^payment\.jury\.exclude/, 'Give a list of names, such as ["gpt-oss"].'],
   [/^exits needs/, 'Add one exit per answer option, plus one for "*below-bar".'],
   [/^exits\[\d+\]\.effect\.type/, 'Use one of pay, refund, hold, record, call or escalate.'],
   [/^no exit for option/, 'Add an exit whose "outcome" is that option.'],
@@ -331,7 +331,7 @@ export function createTools({ workspace, allowLive = false, configFile, fetch: f
       const seed = parent?.hash ?? 'genesis'
       const live = Boolean(args.live)
       let jury, pool, meter = null, modeledUsd = 0
-      const draw = harnesses => { try { return drawJuryFor(asc, harnesses, seed) } catch (err) { throw new ToolError('INVALID_CONTRACT', err.message, 'Lower payment.jury.size or minLabs, or pass a config whose pool spans more labs.') } }
+      const draw = harnesses => { try { return drawJuryFor(asc, harnesses, seed) } catch (err) { throw new ToolError('INVALID_CONTRACT', err.message, 'Lower payment.jury.size or minFamilies, or pass a config whose pool spans more families.') } }
 
       if (live) {
         // Draw on cards first, so the modeled cost and keys are checked before any provider exists.
@@ -349,7 +349,7 @@ export function createTools({ workspace, allowLive = false, configFile, fetch: f
         })
       } else {
         const script = readJsonOr(join(ROOT, 'examples', 'mock-answers.json'), {})
-        pool = config.pool.map(h => new Harness({ ...h, provider: mockProvider(script, asc.id, h.lab) }))
+        pool = config.pool.map(h => new Harness({ ...h, provider: mockProvider(script, asc.id, h.family) }))
       }
       jury = draw(pool)
       const sealer = pool.find(h => !jury.includes(h)) ?? jury[0]
@@ -360,7 +360,7 @@ export function createTools({ workspace, allowLive = false, configFile, fetch: f
       const payouts = ruling.passed ? await router.settle(ruling, asc, config.payments?.book) : []
       await writeFile(inWorkspace(ws, 'chain.json'), JSON.stringify([...chain, block], null, 2))
 
-      const votes = ruling.votes.map(v => ({ harness: v.harness, lab: v.lab, model: v.model, answer: v.answer, confidence: v.confidence }))
+      const votes = ruling.votes.map(v => ({ harness: v.harness, family: v.family, model: v.model, answer: v.answer, confidence: v.confidence }))
       return {
         mode: live ? 'live' : 'mock',
         asc: asc.id,
@@ -414,7 +414,7 @@ export function createTools({ workspace, allowLive = false, configFile, fetch: f
           passed: r.passed,
           exit: r.exit,
           effect: r.effect,
-          votes: (r.votes ?? []).map(v => ({ harness: v.harness, lab: v.lab, model: v.model, answer: v.answer, confidence: v.confidence, reasoningHash: v.reasoningHash, ...(v.proofHash ? { proofHash: v.proofHash } : {}) })),
+          votes: (r.votes ?? []).map(v => ({ harness: v.harness, family: v.family, model: v.model, answer: v.answer, confidence: v.confidence, reasoningHash: v.reasoningHash, ...(v.proofHash ? { proofHash: v.proofHash } : {}) })),
           dissent: (r.dissent ?? []).map(d => d.harness),
           diff: r.diff,
           triggers: r.triggers,
@@ -437,14 +437,14 @@ export function createTools({ workspace, allowLive = false, configFile, fetch: f
       liveGate(args)
       const { config, file } = loadConfig()
       const major = Number(process.versions.node.split('.')[0])
-      const labs = [...new Set(config.pool.map(h => h.lab))]
+      const families = [...new Set(config.pool.map(h => h.family))]
       const keyNames = [...new Set([config.provider?.apiKeyEnv ?? 'VERAFY_API_KEY', ...config.pool.map(h => h.apiKeyEnv).filter(Boolean)])]
       const out = {
         node: { version: process.versions.node, ok: major >= 22, need: '22 or later' },
         config: file,
         workspace: ws,
         allowLive,
-        pool: { harnesses: config.pool.length, labs, models: config.pool.map(h => ({ id: h.id, lab: h.lab, model: h.model })) },
+        pool: { harnesses: config.pool.length, families, models: config.pool.map(h => ({ id: h.id, family: h.family, model: h.model })) },
         keys: Object.fromEntries([...keyNames.map(n => [n, Boolean(envValue(n, env))]), ['VERAFY_KEYBLOCK_PASSPHRASE', Boolean(envValue('VERAFY_KEYBLOCK_PASSPHRASE', env))]]),
         paymentRouter: 'ledger (local file; nothing moves on any chain)',
         endpoints: 'skipped: pass live: true and maxSpendUsd on a server started with --allow-live',

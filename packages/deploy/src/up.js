@@ -92,7 +92,7 @@ async function askSecret(q) {
 
 /**
  * The interactive flow. Flags fill answers and skip their questions:
- * --target --lab --model --kind --nodes --id --public-url --region --plan --ref --mock --yes
+ * --target --family --model --kind --nodes --id --public-url --region --plan --ref --mock --yes
  */
 export async function upInteractive(flags = {}, { env = process.env } = {}) {
   const hw = detectHardware()
@@ -102,16 +102,16 @@ export async function upInteractive(flags = {}, { env = process.env } = {}) {
   const localish = target === 'local' || target === 'docker'
   const rec = recommend(localish ? hw : { memGb: 2 })
   const kind = flags.kind ?? (flags.mock ? 'hosted' : await ask(rl, `Model: hosted (an API key) or local (open weights on the same machine)? ${localish ? `Suggested: ${rec.kind}. ${rec.why}` : ''}`, localish ? rec.kind : 'hosted'))
-  let lab = flags.lab, model = flags.model
+  let family = flags.family, model = flags.model
   if (kind === 'local') {
     const opts = (localish ? rec.options : recommend({ memGb: 32 }).options).slice(0, 6)
-    if (!model) console.log(opts.map(o => `  ${o.tag.padEnd(20)} ${o.lab.padEnd(9)} ${o.tier.padEnd(6)} about ${o.needGb} GB (modeled), ${o.on}`).join('\n'))
+    if (!model) console.log(opts.map(o => `  ${o.tag.padEnd(20)} ${o.family.padEnd(9)} ${o.tier.padEnd(6)} about ${o.needGb} GB (modeled), ${o.on}`).join('\n'))
     model ??= await ask(rl, 'Ollama model tag', opts[0]?.tag ?? 'qwen3:4b')
-    lab ??= opts.find(o => o.tag === model)?.lab ?? await ask(rl, 'Lab that made it', 'qwen')
+    family ??= opts.find(o => o.tag === model)?.family ?? await ask(rl, 'Model family (the base model it descends from)', 'qwen')
   } else {
-    if (!model) console.log(HOSTED.map(o => `  ${o.lab.padEnd(10)} ${o.model}`).join('\n'))
-    lab ??= await ask(rl, 'Lab', 'anthropic')
-    model ??= await ask(rl, 'Model', HOSTED.find(h => h.lab === lab)?.model)
+    if (!model) console.log(HOSTED.map(o => `  ${o.family.padEnd(10)} ${o.model}`).join('\n'))
+    family ??= await ask(rl, 'Model family', 'mistral')
+    model ??= await ask(rl, 'Model', HOSTED.find(h => h.family === family)?.model)
   }
   const nodes = flags.nodes ?? (await ask(rl, 'Node URLs, comma-separated (empty to start without)', env.VERAFY_NODES ?? '')).split(',').map(s => s.trim()).filter(Boolean)
   const publicUrl = flags.publicUrl ?? (localish && nodes.length ? await ask(rl, 'Address nodes reach this harness at', `http://127.0.0.1:7200`) : undefined)
@@ -119,7 +119,7 @@ export async function upInteractive(flags = {}, { env = process.env } = {}) {
   const apiKey = kind === 'hosted' && !flags.mock ? (env.VERAFY_API_KEY ?? await askSecret('Model API key (VERAFY_API_KEY; not shown)')) : undefined
   let cloudToken
   if (CLOUDS[target] && !env[CLOUDS[target].tokenEnv]) cloudToken = await askSecret(`${CLOUDS[target].name} API token (${CLOUDS[target].tokenEnv}; used once, not stored)`)
-  const p = plan({ target, kind, lab, model, nodes, publicUrl, apiKey, id: flags.id, region: flags.region, plan: flags.plan, ref: flags.ref, mock: flags.mock })
+  const p = plan({ target, kind, family, model, nodes, publicUrl, apiKey, id: flags.id, region: flags.region, plan: flags.plan, ref: flags.ref, mock: flags.mock })
   console.log('\nPlan:\n' + JSON.stringify(redact(p), null, 2))
   for (const w of p.warnings) console.log(`note: ${w}`)
   if (!flags.yes) {
@@ -166,8 +166,8 @@ export async function upUi({ port = 7299, open = true } = {}) {
 function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]) }
 
 function uiPage(token, hw, rec) {
-  const hosted = HOSTED.map(h => `<option value="${esc(h.lab)}|${esc(h.model)}">${esc(h.lab)}: ${esc(h.model)}</option>`).join('')
-  const local = rec.options.map(o => `<option value="${esc(o.lab)}|${esc(o.tag)}">${esc(o.tag)} (${esc(o.lab)}, ${o.tier}, about ${o.needGb} GB, ${o.on})</option>`).join('')
+  const hosted = HOSTED.map(h => `<option value="${esc(h.family)}|${esc(h.model)}">${esc(h.family)}: ${esc(h.model)}</option>`).join('')
+  const local = rec.options.map(o => `<option value="${esc(o.family)}|${esc(o.tag)}">${esc(o.tag)} (${esc(o.family)}, ${o.tier}, about ${o.needGb} GB, ${o.on})</option>`).join('')
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Verafy Harness: launch</title>
 <style>:root{--bg:#fff;--ink:#14181f;--mut:#5b6472;--line:#d9dde3;--acc:#2f3ccf}@media(prefers-color-scheme:dark){:root{--bg:#0f1217;--ink:#e8ebf0;--mut:#9aa3b2;--line:#2a303a;--acc:#8b93ff}}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,sans-serif}main{max-width:40rem;margin:0 auto;padding:24px 16px}label{display:block;margin:14px 0 4px;font-weight:600}
@@ -185,8 +185,8 @@ select,input{width:100%;box-sizing:border-box;padding:8px;border:1px solid var(-
 <script>
 const H=${JSON.stringify(hosted)},L=${JSON.stringify(local)};const $=id=>document.getElementById(id)
 $('kind').onchange=()=>{$('model').innerHTML=$('kind').value==='local'?(L||'<option value="qwen|qwen3:4b">qwen3:4b</option>'):H}
-$('go').onclick=async()=>{const [lab,model]=$('model').value.split('|');$('out').hidden=false;$('out').textContent='Working...'
-const r=await fetch(location.pathname+'/up',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({target:$('target').value,kind:$('kind').value,lab,model,apiKey:$('apiKey').value,cloudToken:$('cloudToken').value,nodes:$('nodes').value,mock:$('mock').checked})})
+$('go').onclick=async()=>{const [family,model]=$('model').value.split('|');$('out').hidden=false;$('out').textContent='Working...'
+const r=await fetch(location.pathname+'/up',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({target:$('target').value,kind:$('kind').value,family,model,apiKey:$('apiKey').value,cloudToken:$('cloudToken').value,nodes:$('nodes').value,mock:$('mock').checked})})
 const j=await r.json();$('out').textContent=j.ok?j.log+'\\n\\n'+JSON.stringify(j.plan,null,2):'Error: '+j.error}
 </script></main></body></html>`
 }

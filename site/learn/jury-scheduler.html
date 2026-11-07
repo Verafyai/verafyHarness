@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The jury scheduler: Verafy Harness</title>
+<meta name="description" content="The one place that decides who sits on a jury, when each step is due, and what happens when a juror does not show.">
+<link rel="icon" href="/logo.svg" type="image/svg+xml">
+<link rel="canonical" href="https://harness.verafy.ai/learn/jury-scheduler">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Verafy Harness">
+<meta property="og:title" content="The jury scheduler: Verafy Harness">
+<meta property="og:description" content="The one place that decides who sits on a jury, when each step is due, and what happens when a juror does not show.">
+<meta property="og:url" content="https://harness.verafy.ai/learn/jury-scheduler">
+<meta property="og:image" content="https://harness.verafy.ai/banner.png">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="640">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://harness.verafy.ai/banner.png">
+<meta name="twitter:title" content="The jury scheduler: Verafy Harness">
+<meta name="twitter:description" content="The one place that decides who sits on a jury, when each step is due, and what happens when a juror does not show.">
+<link rel="alternate" type="text/plain" title="llms.txt" href="/llms.txt">
+<link rel="alternate" type="application/rss+xml" title="Verafy Harness release notes" href="/blog/feed.xml">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"The jury scheduler: Verafy Harness","description":"The one place that decides who sits on a jury, when each step is due, and what happens when a juror does not show.","url":"https://harness.verafy.ai/learn/jury-scheduler","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"Verafy Harness","url":"https://harness.verafy.ai/"},"author":{"@type":"Organization","name":"Verafy","url":"https://verafy.ai"},"publisher":{"@type":"Organization","name":"Verafy","url":"https://verafy.ai"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Verafy Harness","item":"https://harness.verafy.ai/"},{"@type":"ListItem","position":2,"name":"Learn Verafy Harness","item":"https://harness.verafy.ai/learn"},{"@type":"ListItem","position":3,"name":"The jury scheduler: Verafy Harness","item":"https://harness.verafy.ai/learn/jury-scheduler"}]}]}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+
+:root{--paper:#EDF0F3;--sheet:#FFFFFF;--ink:#16212C;--mute:#566473;--rule:#CDD5DD;--accent:#3640C9;--accent-soft:#DADDF7;--allow:#1C7A4E;--hold:#A0561A;--code:#F4F6F8;
+--display:"Archivo","Helvetica Neue",Arial,sans-serif;--body:"Source Serif 4",Georgia,serif;--mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--paper:#0F151B;--sheet:#161E26;--ink:#E4EAF0;--mute:#93A1AF;--rule:#2A3541;--accent:#8A92FF;--accent-soft:#252A55;--allow:#5CC995;--hold:#E0A060;--code:#1B242E;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#0F151B;--sheet:#161E26;--ink:#E4EAF0;--mute:#93A1AF;--rule:#2A3541;--accent:#8A92FF;--accent-soft:#252A55;--allow:#5CC995;--hold:#E0A060;--code:#1B242E;color-scheme:dark}
+*{box-sizing:border-box}body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:17.5px;line-height:1.6;margin:0}
+a{color:var(--accent);text-underline-offset:3px}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+img{max-width:100%;height:auto}
+.wrap{max-width:1240px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.coinfree{background:var(--sheet);border-top:3px solid var(--accent);border-bottom:1px solid var(--rule)}
+.coinfree .wrap{padding-block:18px 20px;display:flex;flex-direction:column;gap:6px}
+.coinfree h2{font-family:var(--display);font-weight:750;font-size:clamp(22px,2.4vw,28px);margin:0}
+.coinfree p{max-width:46em;margin:0;overflow-wrap:break-word}
+.top{display:flex;align-items:center;gap:16px;padding-block:20px;border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.brand{font-family:var(--display);font-weight:800;font-size:20px;font-stretch:110%;color:var(--ink);text-decoration:none;display:inline-flex;align-items:center;gap:10px}
+.brand .mark{color:var(--ink);flex:none}
+.tabs{display:flex;flex-wrap:wrap;gap:4px;margin-right:auto;margin-left:12px}
+.tabs a{font-family:var(--display);font-weight:600;font-size:15px;color:var(--mute);text-decoration:none;padding:6px 10px;border-radius:2px;border:1px solid transparent}
+.tabs a:hover{color:var(--ink);border-color:var(--rule)}.tabs a[aria-current="page"]{color:var(--ink);border-color:var(--ink)}
+.status{font-family:var(--mono);font-size:12.5px;color:var(--hold);border:1px solid currentColor;padding:4px 10px;border-radius:2px}
+.tabs{order:3;width:100%;margin:0 0 0 -10px}
+.top .status{margin-left:auto}
+@media (max-width:560px){.top .status{margin-left:0}}
+.layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:48px;padding-block:40px 80px}
+@media (max-width:900px){.layout{grid-template-columns:minmax(0,1fr)}.side{position:static!important;max-height:none!important}}
+.side{position:sticky;top:16px;align-self:start;max-height:calc(100vh - 32px);overflow:auto;font-size:15px}
+.side .lbl{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);display:block;margin-bottom:8px}
+.side ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.side ul ul{padding-left:14px;margin:2px 0 6px}
+.side a{color:var(--mute);text-decoration:none;display:block;padding:3px 8px;border-left:2px solid transparent}
+.side a:hover{color:var(--ink)}.side a.on{color:var(--ink);border-left-color:var(--accent)}
+article{min-width:0;max-width:52rem}
+article h1{font-family:var(--display);font-weight:800;font-size:clamp(34px,4.6vw,52px);line-height:1.05;letter-spacing:-.015em;margin:0 0 18px}
+article h2{font-family:var(--display);font-weight:750;font-size:28px;line-height:1.15;margin:48px 0 14px;padding-top:18px;border-top:1px solid var(--rule)}
+article h3{font-family:var(--display);font-weight:700;font-size:20px;margin:28px 0 10px}
+article p,article li{max-width:44em}
+article img{display:block;border:1px solid var(--rule);border-radius:3px;background:#fff}
+article blockquote{margin:18px 0;padding:14px 18px;background:var(--sheet);border:1px solid var(--hold);border-radius:2px;color:var(--ink)}
+article blockquote p{margin:0}
+code{font-family:var(--mono);font-size:.86em;background:var(--code);padding:1px 5px;border-radius:2px}
+pre{background:var(--code);border:1px solid var(--rule);border-radius:3px;padding:14px 16px;overflow-x:auto;font-size:14px;line-height:1.5}
+pre code{background:none;padding:0;font-size:inherit}
+.tbl{overflow-x:auto;border:1px solid var(--rule);border-radius:3px;background:var(--sheet);margin:16px 0}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:15.5px}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);font-weight:400}
+tr:last-child td{border-bottom:0}
+.foot{padding-block:24px 48px;border-top:1px solid var(--rule);font-size:15px;color:var(--mute);display:flex;flex-direction:column;gap:6px}
+.foot p{margin:0}
+
+.learnnav .grp-l{display:block;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin:12px 0 4px 8px}
+.learnnav>li:first-child .grp-l{margin-top:0}
+.learnnav ul{padding-left:0!important}
+@media (max-width:900px){.side:has(.learnnav){display:none}}
+.crumb{font-family:var(--mono);font-size:13px;margin:0 0 10px}
+figure.chart{margin:20px 0;background:var(--sheet);border:1px solid var(--rule);border-radius:3px;padding:14px;overflow-x:auto}
+figure.chart svg{display:block;width:100%;min-width:620px;height:auto}
+figure.chart figcaption{font-size:14px;color:var(--mute);margin-top:8px}
+img.anim{display:block;width:100%;height:auto;border:1px solid var(--rule);border-radius:3px;margin:18px 0}
+.postmeta{font-family:var(--mono);font-size:13px;color:var(--mute)}
+.posts{list-style:none;padding:0;margin:20px 0;display:flex;flex-direction:column;gap:16px}
+.posts li{background:var(--sheet);border:1px solid var(--rule);border-left:3px solid var(--accent);border-radius:3px;padding:16px 18px}
+.posts a{font-family:var(--display);font-weight:750;font-size:22px;text-decoration:none}
+.posts p{margin:6px 0 0;color:var(--mute)}
+
+
+.top{display:flex;align-items:center;gap:14px;padding-block:18px;border-bottom:1px solid var(--rule);position:relative;flex-wrap:nowrap}
+.top .brand{margin-right:auto;white-space:nowrap}
+.ver{font-family:var(--mono);font-size:13px;color:var(--accent);border:1px solid currentColor;padding:4px 9px;border-radius:2px;text-decoration:none;white-space:nowrap}
+.ver:hover{background:var(--accent-soft)}
+.menu{position:relative}
+.menu>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:9px;font-family:var(--display);font-weight:600;font-size:15px;color:var(--ink);border:1px solid var(--rule);border-radius:2px;padding:7px 11px;background:var(--sheet);user-select:none}
+.menu>summary::-webkit-details-marker{display:none}
+.menu>summary:hover,.menu[open]>summary{border-color:var(--ink)}
+.burger{display:inline-flex;flex-direction:column;gap:3.5px}.burger i{display:block;width:17px;height:2px;background:currentColor;border-radius:1px}
+.menu[open] .burger i:nth-child(1){transform:translateY(5.5px) rotate(45deg)}.menu[open] .burger i:nth-child(2){opacity:0}.menu[open] .burger i:nth-child(3){transform:translateY(-5.5px) rotate(-45deg)}
+.menu nav{position:absolute;right:0;top:calc(100% + 8px);z-index:50;width:min(300px,calc(100vw - 32px));background:var(--sheet);border:1px solid var(--rule);border-top:3px solid var(--accent);border-radius:3px;padding:10px 0;box-shadow:0 12px 32px rgba(15,21,27,.18)}
+.menu nav .grp{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);padding:10px 18px 4px}
+.menu nav a{display:block;padding:8px 18px;font-family:var(--display);font-weight:600;font-size:15.5px;color:var(--ink);text-decoration:none;border-left:3px solid transparent}
+.menu nav a:hover{background:var(--paper);border-left-color:var(--rule)}
+.menu nav a[aria-current="page"]{border-left-color:var(--accent);color:var(--accent)}
+.menu nav hr{border:0;border-top:1px solid var(--rule);margin:8px 0}
+@media (max-width:420px){.menu>summary .lab{display:none}.ver{font-size:12px;padding:3px 7px}.top{gap:10px}.top .brand{font-size:17px;gap:7px}.top .brand .mark{width:24px;height:24px}}
+
+</style>
+</head>
+<body>
+<section class="coinfree" aria-labelledby="coinfreeH">
+  <div class="wrap">
+    <h2 id="coinfreeH">Coin-free guarantee.</h2>
+    <p>There is no coin, and Verafy Harness will never need one. A harness is paid in whatever token a contract offers and pays its own AI and hosting bills from that. No presale, no airdrop, no points, no treasury. <a href="/coin-agnostic">How payment works</a></p>
+  </div>
+</section>
+<header class="wrap top">
+  <a class="brand" href="/"><svg class="mark" viewBox="0 0 64 64" width="28" height="28" aria-hidden="true"><path d="M6 20V6h14M44 6h14v14M58 44v14H44M20 58H6V44" stroke="currentColor" stroke-width="5" stroke-linecap="square" fill="none"/><path d="M32 13v7M32 44v7M13 32h7M44 32h7" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><circle cx="32" cy="32" r="11" fill="var(--accent)"/><circle cx="32" cy="32" r="4" fill="var(--paper)"/></svg>Verafy Harness</a>
+  <a class="ver" href="/blog/v0-0-3-alpha" title="Release notes for v0.0.3-alpha">v0.0.3-alpha</a>
+  <details class="menu">
+    <summary aria-label="Menu"><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><span class="lab">Menu</span></summary>
+    <nav aria-label="Site"><div class="grp">Verafy Harness</div><a href="/launch">Launch a harness</a><a href="/run">Run a harness</a><a href="/testnet">Testnet</a><a href="/economics">Economics</a><a href="/coin-agnostic">Coin Agnostic</a><a href="/learn" aria-current="page">Learn</a><a href="/spec">Specification</a><a href="/blog">Release notes</a><hr><div class="grp">Verafy Chain</div><a href="https://chain.verafy.ai">Verafy Chain</a><a href="https://chain.verafy.ai/constitution">Constitution</a><a href="https://chain.verafy.ai/#roadmap">Roadmap</a><hr><div class="grp">More</div><a href="https://asc.verafy.ai">Actually Smart Contracts</a><a href="https://github.com/Verafyai/verafyHarness">GitHub</a></nav>
+  </details>
+</header>
+<script>(function(){var d=document.querySelector('.menu');if(!d)return;document.addEventListener('click',function(e){if(d.open&&!d.contains(e.target))d.open=false});document.addEventListener('keydown',function(e){if(e.key==='Escape')d.open=false})})();</script>
+<div class="wrap layout"><aside class="side" aria-label="Learn"><span class="lbl">Learn</span><ul class="learnnav"><li><span class="grp-l">Basics</span><ul><li><a href="/learn/actually-smart-contracts">Actually Smart Contracts</a></li><li><a href="/learn/harness">A harness</a></li><li><a href="/learn/jury">Juries, commit and reveal</a></li><li><a href="/learn/model-families">Open-weight models and model families</a></li><li><a href="/learn/agreement-and-the-bar">Agreement and the bar</a></li><li><a href="/learn/proof-of-judgment">Proof of Judgment</a></li><li><a href="/learn/context-is-evidence">Context is evidence</a></li><li><a href="/learn/economics">The economics</a></li></ul></li><li><span class="grp-l">Stake</span><ul><li><a href="/learn/jury-scheduler" class="on" aria-current="page">The jury scheduler</a></li><li><a href="/learn/randomness-beacon">The randomness beacon</a></li><li><a href="/learn/operators">Operators</a></li><li><a href="/learn/bonds-and-slashing">Bonds and slashing</a></li><li><a href="/learn/challenge-window">The challenge window and challenge bonds</a></li></ul></li><li><span class="grp-l">Settlement</span><ul><li><a href="/learn/exits-and-tinysvm">Exits and TinySVM</a></li><li><a href="/learn/verafy-chain">Verafy Chain</a></li><li><a href="/learn/solana-settlement">Settling on Solana</a></li><li><a href="/learn/light-client">The light client</a></li><li><a href="/learn/encrypted-queue">The encrypted queue</a></li></ul></li><li><span class="grp-l">Proofs</span><ul><li><a href="/learn/assurance-levels">Assurance levels</a></li><li><a href="/learn/proof-of-inference">Proofs of inference</a></li><li><a href="/learn/proof-packing">Proof packing</a></li><li><a href="/learn/atoms-and-plans">Atoms and plans</a></li></ul></li><li><span class="grp-l">Routing</span><ul><li><a href="/learn/multi-model-routing">Multi-model routing</a></li><li><a href="/learn/fast-screens-and-calibration">Fast screens and calibration</a></li><li><a href="/learn/disclosed-reasoning">Disclosed reasoning</a></li></ul></li><li><span class="grp-l">Money</span><ul><li><a href="/learn/routing-agent">The routing agent</a></li><li><a href="/learn/banker">The Banker</a></li><li><a href="/learn/api-credits">API credits</a></li><li><a href="/learn/coin-free">Coin-free</a></li></ul></li><li><span class="grp-l">Governance</span><ul><li><a href="/learn/audits-and-challenges">Audits and challenges</a></li><li><a href="/learn/constitution-and-ethics">The Constitution and the ethics gate</a></li></ul></li><li><span class="grp-l">Running one</span><ul><li><a href="/learn/harness-daemon">The harness daemon</a></li><li><a href="/learn/launching-a-harness">Launching a harness</a></li><li><a href="/learn/local-testnet">A local testnet</a></li></ul></li></ul></aside><article><p class="crumb"><a href="/learn">Learn</a> / Stake</p><h1 id="the-jury-scheduler">The jury scheduler</h1>
+<p><em>The one place that decides who sits on a jury, when each step is due, and what happens when a juror does not show.</em></p>
+<ol>
+<li><strong>Seed.</strong> The scheduler draws from the <a href="/learn/randomness-beacon">randomness beacon</a>, never from a raw block hash.</li>
+<li><strong>Draw.</strong> Every eligible harness is ranked by the seed. Eligible means bonded for the most value one vote can decide and not excluded. The scheduler seats harnesses in that order until the jury is full, spans the contract's model families, and respects the seats-per-operator cap. By default every eligible harness is equally likely to come first. A contract can ask for bond-weighted odds instead, capped so one large bond cannot dominate; whether the network allows that is Rex's call.</li>
+<li><strong>Alternates.</strong> The draw keeps ranking past the last seat. The next few harnesses are alternates, fixed at draw time, so no node can hand-pick a replacement.</li>
+<li><strong>Deadlines, in blocks.</strong> <code>commitBy</code> and <code>revealBy</code> are block heights, so every node agrees on whether a deadline passed.</li>
+<li><strong>Replacement, commit phase only.</strong> A seat that misses <code>commitBy</code> takes the first alternate that keeps the jury within its rules, with a fresh commit window. A seat that committed and then missed <code>revealBy</code> is never replaced: a replacement after reveals are public could copy them. It is recorded as a <code>no-reveal</code> fault and <a href="/learn/bonds-and-slashing">slashed</a>.</li>
+<li><strong>Audits.</strong> The scheduler also picks which rulings get audited. A jury of one is always audited.</li>
+</ol>
+<p>Every ruling records its schedule (the seed, deadlines, alternates and replacements), so any node can recompute it and <code>verifyRuling</code> rejects a replacement the alternates do not give.</p>
+<p><strong>Status.</strong> Built (CONS-001); the local testnet runs every jury through it. Deadlines and alternate counts are illustrative. Design: <a href="https://github.com/Verafyai/verafyHarness/blob/main/docs/proposals/VIP-0001-jury-scheduler.md">VIP-0001</a>.</p>
+<p><strong>Related:</strong> <a href="/learn/randomness-beacon">Randomness beacon</a>, <a href="/learn/jury">Juries, commit and reveal</a>, <a href="/learn/operators">Operators</a></p></article></div>
+<footer class="wrap foot">
+  <p>Verafy Harness is the validator for Verafy Chain, a Verafy research concept. It is a prototype, not a running network, and there is no token.</p>
+  <p>Code: <a href="https://github.com/Verafyai/verafyHarness">Verafyai/verafyHarness</a>, MIT, built on <a href="https://github.com/deepseek-ai/deepseek-harness">DeepSeek Harness</a>. The concept: <a href="https://chain.verafy.ai">chain.verafy.ai</a>.</p>
+</footer>
+<script>(function(){var links=[].slice.call(document.querySelectorAll('.side a[href^="#"]'));var hs=links.map(function(a){return document.getElementById(decodeURIComponent(a.hash.slice(1)))}).filter(Boolean);function on(){var y=window.scrollY+120,cur=null;hs.forEach(function(h){if(h.offsetTop<=y)cur=h.id});links.forEach(function(a){a.classList.toggle('on',decodeURIComponent(a.hash.slice(1))===cur)})}window.addEventListener('scroll',on,{passive:true});on()})();</script>
+</body>
+</html>

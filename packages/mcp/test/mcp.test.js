@@ -254,8 +254,8 @@ function stubFetch() {
   const fetch = async (url, init) => {
     calls.push({ url, auth: init?.headers?.authorization })
     const body = JSON.parse(init.body)
-    const lab = config.pool.find(h => h.model === body.model).lab
-    const answer = mock['market-senate-bill-nov30'][lab]
+    const family = config.pool.find(h => h.model === body.model).family
+    const answer = mock['market-senate-bill-nov30'][family]
     return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(answer) } }], usage: { prompt_tokens: 400, completion_tokens: 60, cost: 0.0002 } }), { status: 200, headers: { 'content-type': 'application/json' } })
   }
   return { fetch, calls }

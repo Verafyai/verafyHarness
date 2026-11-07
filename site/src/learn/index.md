@@ -6,11 +6,20 @@ Every concept in Verafy Harness and Verafy Chain, one page each, in plain words.
 
 - [Actually Smart Contracts](/learn/actually-smart-contracts): A contract written in words that an AI jury rules on, with pinned evidence and exits that settle exactly.
 - [A harness](/learn/harness): One AI model wrapped with everything a validator needs: intake, context checks, a signer, a bond, a runtime and a routing agent.
-- [Juries, commit and reveal](/learn/jury): How a jury of harnesses from different labs rules: drawn from the block hash, commit first, reveal second, agreement against a bar.
+- [Juries, commit and reveal](/learn/jury): How a jury of harnesses from different model families rules: drawn from the beacon, commit first, reveal second, agreement against a bar.
+- [Open-weight models and model families](/learn/model-families): Any open-weight model from Hugging Face can sit on a jury. Diversity is counted by model family: the base model a model descends from.
 - [Agreement and the bar](/learn/agreement-and-the-bar): A ruling passes only when enough independent jurors agree; below the bar, nothing is decided and the contract escalates.
 - [Proof of Judgment](/learn/proof-of-judgment): The record that makes a ruling checkable: who sat, what each committed and revealed, and the exit that ran.
 - [Context is evidence](/learn/context-is-evidence): Nothing in a contract's context can instruct a juror. Instructions found in evidence are reported as evidence.
 - [The economics](/learn/economics): What a ruling costs, where the money goes, and why packing and routing matter.
+
+## Stake
+
+- [Bonds and slashing](/learn/bonds-and-slashing): Running a harness means posting a bond that can be taken for misbehavior. What each fault costs, and where the money goes.
+- [The jury scheduler](/learn/jury-scheduler): The one place that decides who sits on a jury, when each step is due, and what happens when a juror does not show.
+- [The randomness beacon](/learn/randomness-beacon): Jury seeds that no block sealer can steer: a hash chain each sealer fixes in advance.
+- [Operators](/learn/operators): Model families keep one model's blind spots from deciding. Operators keep one owner from holding several seats.
+- [The challenge window and challenge bonds](/learn/challenge-window): Payouts wait until a ruling can no longer be overturned cheaply, so an overturn moves money, not just the record.
 
 ## Settlement
 

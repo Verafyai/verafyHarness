@@ -1,7 +1,7 @@
 ---
 vip: '0002'
 title: Randomness beacon for jury seeds
-status: Idea
+status: Built
 created: 2026-11-07
 requirement: CONS-002
 ---
@@ -16,13 +16,13 @@ Today the seed is the parent block's hash (`drawJuryFor(asc, pool, parent.hash)`
 
 ## Proposal
 
-A commit and reveal beacon with lookahead, in the style of Ethereum's RANDAO, in `packages/core/src/beacon.js`:
+**As built (v0.0.3-alpha, `packages/core/src/beacon.js`): a hash chain fixed in advance.** An earlier draft had each sealer commit a fresh secret every block. That lets a sealer choose the secret after seeing which contracts arrived, which is grinding by another route. The built design removes the choice:
 
-1. **Commit:** each block's sealer includes `beaconCommit = sha256(r)` for a fresh random 32-byte `r` it keeps secret.
-2. **Reveal:** the sealer of the next block that sealer seals, or that same sealer in the next block, must reveal `r`. A reveal is checked against its commitment.
-3. **Mix:** `beacon[h] = sha256(beacon[h-1] || r_revealed_at_h)`.
-4. **Lookahead:** juries for contracts admitted at height `h` are drawn with `beacon[h + L]`. Illustrative default L = 2. Nobody knows that value when a contract is admitted, so nobody can time a submission to a known jury.
-5. **Withholding is a fault.** A sealer that commits and doesn't reveal can bias the beacon by one bit, by choosing whether to reveal. That's the "last revealer" weakness of RANDAO. A missing reveal is a `no-beacon-reveal` fault, slashed under VIP-0005, at a penalty larger than any single jury is worth (bounded by `maxValuePerVote` across the block).
+1. **Anchor:** each sealer registers `anchor = H^n(secret)`, the last link of a hash chain, when it joins.
+2. **Reveal:** each block it seals reveals the next link back toward the secret. Anyone checks `H(reveal) == previous link` (`verifyBeacon`). The reveals were fixed at registration, before any contract existed.
+3. **Mix:** `value[h] = sha256(value[h-1] || reveal[h])`, from a fixed genesis value. The value does not depend on the block's contents.
+4. **Lookahead:** a contract admitted while the tip is at height a is drawn with `value[a + 1]` (L = 1). The block carries its own beacon entry in the signed header, so every ruling's seed is checkable.
+5. **Withholding is a fault.** A sealer that skips a reveal mixes in a fixed marker instead, and is recorded as `no-beacon-reveal`, slashed at 10% of its bond (illustrative). That is the only remaining bias: one bit per withheld reveal.
 
 `Beacon` is an interface, so a stronger source can replace it later:
 
@@ -34,7 +34,7 @@ Candidates for later: drand (League of Entropy, threshold BLS, publicly verifiab
 
 ## Alternatives
 
-- **VRF self-selection** (each harness evaluates a VRF on the seed and sits if its output is below a threshold, as in Algorand). Strong, but jury size becomes random, and the lab rule is hard to enforce without a second pass.
+- **VRF self-selection** (each harness evaluates a VRF on the seed and sits if its output is below a threshold, as in Algorand). Strong, but jury size becomes random, and the family rule is hard to enforce without a second pass.
 - **Ed25519 signatures as a VRF.** Rejected: Ed25519 verification doesn't force a deterministic nonce, so a harness can produce many valid signatures over one message and pick the one it likes.
 - **Solana's slot hashes.** Fine for settlement on Solana, but the Solana leader can grind them too, and the harness network shouldn't depend on Solana to run.
 
@@ -49,4 +49,4 @@ Remaining bias: one bit per withheld reveal, at the cost of a slash. Grinding th
 
 ## Tracking
 
-Requirement CONS-002. GitHub issue: see the index in [README.md](README.md).
+Requirement CONS-002. GitHub issue: [#27](https://github.com/Verafyai/verafyHarness/issues/27).

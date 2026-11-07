@@ -1,7 +1,7 @@
 ---
 vip: '0007'
 title: Hold payouts until the challenge window closes
-status: Idea
+status: Built
 created: 2026-11-07
 requirement: CONS-006
 ---
@@ -37,4 +37,4 @@ Money waits. For a market that settles in seconds, a one-hour window is the pric
 
 ## Tracking
 
-Requirement CONS-006. GitHub issue: see the index in [README.md](README.md).
+Requirement CONS-006. GitHub issue: [#32](https://github.com/Verafyai/verafyHarness/issues/32).

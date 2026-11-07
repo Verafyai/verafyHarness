@@ -11,25 +11,25 @@
  * A provider's `complete(req)` resolves to the model's reply text, or to
  * `{content, proofHash}` when the route can commit to an off-chain proof of the
  * inference. The request carries `model`, `system` and `user`, plus `ascId` and
- * `lab` so a scripted provider can answer any contract.
+ * `family` so a scripted provider can answer any contract.
  * @module @verafyharness/core/providers
  */
 
 /**
- * A provider that returns scripted answers keyed by contract id and lab. Bind it
- * to one contract and lab, or leave either out and it reads them from each
- * request (`req.ascId`, `req.lab`), so one long-lived harness can answer every
+ * A provider that returns scripted answers keyed by contract id and model family. Bind it
+ * to one contract and family, or leave either out and it reads them from each
+ * request (`req.ascId`, `req.family`), so one long-lived harness can answer every
  * contract.
- * @param {Record<string, Record<string, object>>} script - answers by contract id, then lab.
+ * @param {Record<string, Record<string, object>>} script - answers by contract id, then model family.
  * @param {string} [ascId] - the contract being ruled on; read from the request when omitted.
- * @param {string} [lab] - the juror's lab; read from the request when omitted.
- * @returns {{complete: (req?: {ascId?: string, lab?: string}) => Promise<string>}} the provider.
+ * @param {string} [family] - the juror's model family; read from the request when omitted.
+ * @returns {{complete: (req?: {ascId?: string, family?: string}) => Promise<string>}} the provider.
  */
-export function mockProvider(script, ascId, lab) {
+export function mockProvider(script, ascId, family) {
   return {
     async complete(req = {}) {
       const id = ascId ?? req.ascId
-      const l = lab ?? req.lab
+      const l = family ?? req.family ?? req.lab
       const a = script[id]?.[l]
       if (!a) throw new Error(`no scripted answer for ${id} / ${l}`)
       return JSON.stringify(a)
