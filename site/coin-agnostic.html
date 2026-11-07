@@ -105,7 +105,7 @@ tr:last-child td{border-bottom:0}
 </section>
 <header class="wrap top">
   <a class="brand" href="/"><svg class="mark" viewBox="0 0 64 64" width="28" height="28" aria-hidden="true"><path d="M6 20V6h14M44 6h14v14M58 44v14H44M20 58H6V44" stroke="currentColor" stroke-width="5" stroke-linecap="square" fill="none"/><path d="M32 13v7M32 44v7M13 32h7M44 32h7" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><circle cx="32" cy="32" r="11" fill="var(--accent)"/><circle cx="32" cy="32" r="4" fill="var(--paper)"/></svg>Verafy Harness</a>
-  <a class="ver" href="/blog/v0-0-2-alpha" title="Release notes for v0.0.2-alpha">v0.0.2-alpha</a>
+  <a class="ver" href="/blog/v0-0-3-alpha" title="Release notes for v0.0.3-alpha">v0.0.3-alpha</a>
   <details class="menu">
     <summary aria-label="Menu"><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><span class="lab">Menu</span></summary>
     <nav aria-label="Site"><div class="grp">Verafy Harness</div><a href="/launch">Launch a harness</a><a href="/run">Run a harness</a><a href="/testnet">Testnet</a><a href="/economics">Economics</a><a href="/coin-agnostic" aria-current="page">Coin Agnostic</a><a href="/learn">Learn</a><a href="/spec">Specification</a><a href="/blog">Release notes</a><hr><div class="grp">Verafy Chain</div><a href="https://chain.verafy.ai">Verafy Chain</a><a href="https://chain.verafy.ai/constitution">Constitution</a><a href="https://chain.verafy.ai/#roadmap">Roadmap</a><hr><div class="grp">More</div><a href="https://asc.verafy.ai">Actually Smart Contracts</a><a href="https://github.com/Verafyai/verafyHarness">GitHub</a></nav>
@@ -215,7 +215,7 @@ tr:last-child td{border-bottom:0}
 </tr>
 <tr>
 <td><strong>Audits</strong></td>
-<td>Auditors: they re-run a sample of sealed rulings with a different lab's model</td>
+<td>Auditors: they re-run a sample of sealed rulings with a model from a different family</td>
 <td>More inference, on rulings they didn't sit on</td>
 <td><code>split.auditors</code>, plus the bond of any juror they catch</td>
 </tr>
@@ -341,8 +341,8 @@ tr:last-child td{border-bottom:0}
 <tbody>
 <tr>
 <td><strong>L0, L1</strong></td>
-<td>Any model; the jury supplies lab diversity and commit-reveal</td>
-<td>Hosted APIs: Claude, GPT, Gemini, through a provider or a router</td>
+<td>Any model; the jury supplies model-family diversity and commit-reveal</td>
+<td>Open-weight models served over an API, through a provider or a router</td>
 </tr>
 <tr>
 <td><strong>L1+</strong></td>
@@ -373,7 +373,7 @@ tr:last-child td{border-bottom:0}
   ],
   &quot;routing&quot;: {
     &quot;inference&quot;: [
-      { &quot;id&quot;: &quot;hosted-haiku&quot;, &quot;kind&quot;: &quot;hosted&quot;, &quot;provider&quot;: &quot;openrouter&quot;, &quot;model&quot;: &quot;anthropic/claude-haiku-4.5&quot;, &quot;usdPerVote&quot;: 0.003 },
+      { &quot;id&quot;: &quot;hosted-mistral&quot;, &quot;kind&quot;: &quot;hosted&quot;, &quot;provider&quot;: &quot;openrouter&quot;, &quot;model&quot;: &quot;mistralai/mistral-small-3.2-24b-instruct&quot;, &quot;usdPerVote&quot;: 0.0005 },
       { &quot;id&quot;: &quot;local-gptoss&quot;, &quot;kind&quot;: &quot;open-weights&quot;, &quot;model&quot;: &quot;openai/gpt-oss-120b&quot;, &quot;host&quot;: &quot;gpu-1&quot;, &quot;usdPerVote&quot;: 0.001 },
       { &quot;id&quot;: &quot;proving-maverick&quot;, &quot;kind&quot;: &quot;open-weights&quot;, &quot;model&quot;: &quot;meta-llama/llama-4-maverick&quot;, &quot;proofs&quot;: true, &quot;host&quot;: &quot;gpu-proving&quot;, &quot;usdPerVote&quot;: 0.03 }
     ],

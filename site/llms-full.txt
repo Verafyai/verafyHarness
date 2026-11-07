@@ -1,4 +1,4 @@
-# Verafy Harness, full text (v0.0.2-alpha)
+# Verafy Harness, full text (v0.0.3-alpha)
 
 The Learn pages, then the specification. Generated from the site sources.
 
@@ -11,10 +11,10 @@ An Actually Smart Contract (`verafy.asc/1`) is a contract written in plain words
 - **Instructions:** what the jury is to decide and how.
 - **A question with fixed answers:** a verdict from a list, a number in a range, or a probability.
 - **Pinned context:** every piece of evidence is stored with its SHA-256, so every juror reads the same bytes.
-- **Payment:** the escrow, the jury's size and lab mix, and the agreement bar.
+- **Payment:** the escrow, the jury's size and model-family mix, and the agreement bar.
 - **Exits:** what happens for each answer, run exactly by TinySVM or another runtime.
 
-A smart contract runs code that cannot read the world. An Actually Smart Contract hands judgment to a jury of AI models from different labs and keeps the money movement exact. The jury decides which exit applies; it never writes the transfer itself.
+A smart contract runs code that cannot read the world. An Actually Smart Contract hands judgment to a jury of open-weight models from different families and keeps the money movement exact. The jury decides which exit applies; it never writes the transfer itself.
 
 Examples in the repo cover a prediction market, a fact check, flight delay cover, graded insurance, a milestone escrow and a ranked prize.
 
@@ -37,11 +37,11 @@ A harness is one AI model inside a fixed wrapper:
 - **The bond** is the harness's stake. It is never spent on bills.
 - **The routing agent** holds the keys and pays the model and hosting bills.
 
-The model can come from any lab, hosted behind an API or running as open weights on the operator's machine. A jury is several harnesses from different labs, so no single lab decides.
+The model is any open-weight model, running on the operator's own machine or served over an API by a provider that hosts the same weights. A jury is several harnesses from different model families, so no single model family decides.
 
 A harness runs as one long-running process, the daemon, started with `verafy harness serve` or `verafy up`.
 
-**Status.** Built and run live with five labs (JURY-001, measured Nov 6, 2026). See the [specification](https://harness.verafy.ai/spec).
+**Status.** Built and run live with five different models (JURY-001, measured Nov 6, 2026). See the [specification](https://harness.verafy.ai/spec).
 
 **Related:** [The harness daemon](https://harness.verafy.ai/learn/harness-daemon), [Juries, commit and reveal](https://harness.verafy.ai/learn/jury), [The routing agent](https://harness.verafy.ai/learn/routing-agent)
 
@@ -49,22 +49,42 @@ Source: https://harness.verafy.ai/learn/harness
 
 # Juries, commit and reveal
 
-*How a jury of harnesses from different labs rules: drawn from the block hash, commit first, reveal second, agreement against a bar.*
+*How a jury of harnesses from different model families rules: drawn from the beacon, commit first, reveal second, agreement against a bar.*
 
-A contract names its jury: how many harnesses, how many distinct labs, the quorum, and the agreement bar.
+A contract names its jury: how many harnesses, how many distinct model families, the quorum, and the agreement bar.
 
-1. **The draw.** The jury is drawn from the pool with the parent block hash as the seed, so nobody picks their jurors.
+1. **The draw.** The [jury scheduler](https://harness.verafy.ai/learn/jury-scheduler) draws the jury from the pool, seeded by the [randomness beacon](https://harness.verafy.ai/learn/randomness-beacon), so nobody picks their jurors, not even the block's sealer.
 2. **Commit.** Each juror reads the contract and its pinned context, decides, and publishes only a commitment: the SHA-256 of its vote and a secret salt.
-3. **Reveal.** After every commitment is in, each juror reveals its vote and salt. A reveal that does not match its commitment does not count.
+3. **Reveal.** After every commitment is in, each juror reveals its vote and salt. A reveal that does not match its commitment does not count, and a juror that commits and never reveals is [slashed](https://harness.verafy.ai/learn/bonds-and-slashing).
 4. **Agreement.** If the share of jurors agreeing on one answer reaches the bar, the ruling passes and that answer's exit runs. Below the bar, the contract escalates to a wider jury or its below-bar exit.
 
-Committing first stops jurors from copying each other. Drawing from many labs stops one company's model from deciding alone.
+Committing first stops jurors from copying each other. Drawing from many model families stops one model's blind spots from deciding alone, and the operator cap stops one owner from holding several seats.
 
 **Status.** Built and verified with live models (JURY-001, JURY-002). The same flow runs on Solana in the verafy_ruling program (SOL-002, local validator). See the [specification](https://harness.verafy.ai/spec).
 
-**Related:** [Agreement and the bar](https://harness.verafy.ai/learn/agreement-and-the-bar), [Proof of Judgment](https://harness.verafy.ai/learn/proof-of-judgment), [Settling on Solana](https://harness.verafy.ai/learn/solana-settlement)
+**Related:** [Agreement and the bar](https://harness.verafy.ai/learn/agreement-and-the-bar), [The jury scheduler](https://harness.verafy.ai/learn/jury-scheduler), [Bonds and slashing](https://harness.verafy.ai/learn/bonds-and-slashing), [Settling on Solana](https://harness.verafy.ai/learn/solana-settlement)
 
 Source: https://harness.verafy.ai/learn/jury
+
+# Open-weight models and model families
+
+*Any open-weight model from Hugging Face can sit on a jury. Diversity is counted by model family: the base model a model descends from.*
+
+A harness runs one open-weight model: weights anyone can download, from Hugging Face or anywhere else. The operator runs the weights on their own machine, or calls a provider that serves the same weights over an API. Nobody needs a company's permission to run one.
+
+**Why families, not models.** A fine-tune shares most of its base model's weights, and with them most of its blind spots. So a jury that needs five independent views counts the base model each juror descends from: the root of the `base_model` chain on the model's Hugging Face card. Two fine-tunes of one base model are one family, however different their names.
+
+**The rule.** A contract sets `payment.jury.minFamilies`: the fewest families its jury may span. The draw skips a second model from a family that is already seated whenever the remaining seats are needed for new families. `excludeFamilies` keeps families off a jury, which escalated and challenge juries use to keep the original jury's families off the retrial.
+
+**What families do not stop.** One person can run harnesses on five families. That is what [operators](https://harness.verafy.ai/learn/operators) and [bonds](https://harness.verafy.ai/learn/bonds-and-slashing) are for.
+
+**Older contracts.** Contracts and harness cards written before v0.0.3 say `minLabs`, `excludeLabs` and `lab`. They still validate, keep their hashes, and are read as families.
+
+**Status.** Built (CONS-003 and the core draw). The family is declared on the harness card; checking it against the model's weights commitment is planned. See the [specification](https://harness.verafy.ai/spec).
+
+**Related:** [Juries, commit and reveal](https://harness.verafy.ai/learn/jury), [Operators](https://harness.verafy.ai/learn/operators), [A harness](https://harness.verafy.ai/learn/harness)
+
+Source: https://harness.verafy.ai/learn/model-families
 
 # Agreement and the bar
 
@@ -76,7 +96,7 @@ The bar is the share of seated jurors that must give the same answer, set by the
 - **Ties never pass** unless the bar is at most one half.
 - **Below the bar is an answer too.** The contract says what happens: a wider jury, a refund, or a human.
 
-The bar is what lets a reader trust a ruling without trusting any one model: several labs had to reach the same answer independently.
+The bar is what lets a reader trust a ruling without trusting any one model: several model families had to reach the same answer independently.
 
 **Status.** Built (CORE). The Solana program counts agreement the same way, in parts per million. See the [specification](https://harness.verafy.ai/spec).
 
@@ -138,7 +158,7 @@ Source: https://harness.verafy.ai/learn/exits-and-tinysvm
 
 Verafy Chain is a research concept for a chain run on Actually Smart Contracts and AI validation.
 
-- **Nodes** never call a model. They keep the mempool of funded contracts, draw juries from the parent block hash, relay commitments and reveals, check every signature and diff, and seal blocks.
+- **Nodes** never call a model. They keep the mempool of funded contracts, draw juries (the verafyChain node still seeds them from the parent block hash; moving it to the beacon and scheduler in harness core is CHAIN work), relay commitments and reveals, check every signature and diff, and seal blocks.
 - **Harnesses** are the validators: they take seats and rule.
 - **Blocks** exist only when a jury rules. Each carries its rulings, their exits and their transfers.
 
@@ -295,7 +315,7 @@ Source: https://harness.verafy.ai/learn/proof-of-inference
 Proving is expensive and FlashProve takes at most 1,024 tokens per request. Proof packing makes each proof count:
 
 1. **Atomize.** Each contract becomes a plan: small yes-no, choice or number questions (atoms), each with only the facts that decide it, and an exact rule that turns the atoms' answers into the contract's outcome.
-2. **Check fidelity.** A panel of models from different labs rules whether the plan reaches the same outcome as the original question. Below its bar, the contract is not packed.
+2. **Check fidelity.** A panel of models from different families rules whether the plan reaches the same outcome as the original question. Below its bar, the contract is not packed.
 3. **Dedupe and pack.** Atoms shared by many contracts become one slot. Slots fill each window, in an order set by the block hash.
 4. **Prove once, verify.** One prover proves each window; the proof is verified before any answer counts.
 5. **Assemble.** A reply that mangles any slot fails its whole window, and those contracts go back to a normal jury.
@@ -331,7 +351,7 @@ Source: https://harness.verafy.ai/learn/atoms-and-plans
 Not every question needs a frontier jury. The router sends each atom up a ladder:
 
 1. a fast screen, such as Jev;
-2. a panel of small models from several labs;
+2. a panel of small models from several model families;
 3. a mid-size panel;
 4. a frontier panel.
 
@@ -389,13 +409,15 @@ Source: https://harness.verafy.ai/learn/disclosed-reasoning
 
 *How a sealed ruling is re-checked, and how it can be overturned.*
 
-**Audits.** Harnesses from other labs re-check a sample of sealed rulings. For routed questions, audits are drawn from the block hash, so nobody chooses which answers get checked.
+**Audits.** Harnesses from other model families re-check a sample of sealed rulings. For routed questions, audits are drawn from the beacon, so nobody chooses which answers get checked.
 
 **Challenges.** Anyone can challenge a sealed ruling with new evidence, false evidence, an error, or changed rules. A challenge is itself a contract with a wider jury. Its ruling appends affirm, overturn or supersede to the original's history. Nothing is ever edited.
 
-**Status.** Built (JURY-004, JURY-005). Challenge bonds are planned. See the [specification](https://harness.verafy.ai/spec).
+Whoever challenges locks a bond, and payouts wait out a [challenge window](https://harness.verafy.ai/learn/challenge-window), so an overturn redirects the money too.
 
-**Related:** [Proof of Judgment](https://harness.verafy.ai/learn/proof-of-judgment), [Juries, commit and reveal](https://harness.verafy.ai/learn/jury)
+**Status.** Built (JURY-004, JURY-005, JURY-006, CONS-006). See the [specification](https://harness.verafy.ai/spec).
+
+**Related:** [The challenge window](https://harness.verafy.ai/learn/challenge-window), [Proof of Judgment](https://harness.verafy.ai/learn/proof-of-judgment), [Juries, commit and reveal](https://harness.verafy.ai/learn/jury)
 
 Source: https://harness.verafy.ai/learn/audits-and-challenges
 
@@ -405,7 +427,7 @@ Source: https://harness.verafy.ai/learn/audits-and-challenges
 
 Article 1 of the Constitution (Draft 0) lists what the chain will never have: no foundation, no venture capital, no coin, no fundraising, no secret engineering team, no community fund and no treasury. Its Article 3, Embedded Ethics, lists what is never allowed, what is allowed, and what is case by case.
 
-Every contract is screened against Article 3 by a panel spanning labs before a jury sits. A "never allowed" match forces a wider panel, and doubt resolves toward refusal. A refusal returns the escrow in full and records the reasons. No config key, variable, contract field or API parameter can skip the gate. A harness may decline a seat on ethics grounds without a fault.
+Every contract is screened against Article 3 by a panel spanning model families before a jury sits. A "never allowed" match forces a wider panel, and doubt resolves toward refusal. A refusal returns the escrow in full and records the reasons. No config key, variable, contract field or API parameter can skip the gate. A harness may decline a seat on ethics grounds without a fault.
 
 Amendments pass through seven stages, and the current text is rebuilt from Block 0 plus every sealed amendment.
 
@@ -462,11 +484,13 @@ Source: https://harness.verafy.ai/learn/harness-daemon
 
 `verafy up --ui` asks the same questions as a page on your own machine.
 
-Hardware profiles suggest a model: a hosted model on any machine, or open weights sized by modeled memory. Releases ship a tarball, single-file binaries, a container image and an install script.
+Hardware profiles suggest an open-weight model: one served over an API on any machine, or weights you run yourself, sized by modeled memory.
+
+**What you put at stake.** Every harness posts a bond (500 in the examples). It caps the value one of your votes may decide, and it is what the network takes if your harness breaks the rules: a share of it for provable misbehavior such as revealing a vote that does not match your commitment, and a small fixed amount for missed seats beyond a free allowance. Keep the machine up and the data directory safe. See [bonds and slashing](https://harness.verafy.ai/learn/bonds-and-slashing). Releases ship a tarball, single-file binaries, a container image and an install script.
 
 **Status.** Built (DEPLOY-001 to 009); cloud creation tested against fake APIs only. Hosted harnesses run by Verafy are planned. See the [specification](https://harness.verafy.ai/spec).
 
-**Related:** [The harness daemon](https://harness.verafy.ai/learn/harness-daemon), [A local testnet](https://harness.verafy.ai/learn/local-testnet)
+**Related:** [Bonds and slashing](https://harness.verafy.ai/learn/bonds-and-slashing), [The harness daemon](https://harness.verafy.ai/learn/harness-daemon), [A local testnet](https://harness.verafy.ai/learn/local-testnet)
 
 Source: https://harness.verafy.ai/learn/launching-a-harness
 
@@ -474,9 +498,11 @@ Source: https://harness.verafy.ai/learn/launching-a-harness
 
 *A whole testnet on one machine, with scripted AI so it costs nothing, and optional Solana settlement.*
 
-`verafy testnet up` starts one harness daemon per lab, each its own process, then a local coordinator that does a node's job: draw the jury from the parent block hash, run commit and reveal over HTTP, rule, and seal a block.
+`verafy testnet up` starts one harness daemon per model family, each its own process, then a local coordinator that does a node's job: draw the jury with the scheduler from its beacon, run commit and reveal over HTTP, replace seats that miss the commit, rule, slash faults, and seal a block.
 
 AI calls are scripted by default (spoofed from `examples/mock-answers.json`), so nothing costs money. `--live` uses real models. `--solana` also starts a local Solana validator, deploys the ruling program, and settles every ruling there, each harness signing with its own key. `--chain <dir>` runs the full Verafy Chain devnet instead.
+
+**Watch slashing.** `--misbehave h-llama-1:no-reveal,h-qwen-1:no-commit` makes those harnesses skip a reveal or a commit, and `bad-reveal` makes one reveal a changed answer. The coordinator replaces seats that miss the commit from the draw's alternates, records each fault, takes the penalty from the bond, and prints it. Scripted answers only.
 
 **Status.** Built (DEPLOY-007), measured on one machine Nov 6, 2026. See the [specification](https://harness.verafy.ai/spec).
 
@@ -503,12 +529,121 @@ Once proofs are packed, the fidelity checks cost more than the proofs, which is 
 
 Source: https://harness.verafy.ai/learn/economics
 
+# The jury scheduler
+
+*The one place that decides who sits on a jury, when each step is due, and what happens when a juror does not show.*
+
+1. **Seed.** The scheduler draws from the [randomness beacon](https://harness.verafy.ai/learn/randomness-beacon), never from a raw block hash.
+2. **Draw.** Every eligible harness is ranked by the seed. Eligible means bonded for the most value one vote can decide and not excluded. The scheduler seats harnesses in that order until the jury is full, spans the contract's model families, and respects the seats-per-operator cap. By default every eligible harness is equally likely to come first. A contract can ask for bond-weighted odds instead, capped so one large bond cannot dominate; whether the network allows that is Rex's call.
+3. **Alternates.** The draw keeps ranking past the last seat. The next few harnesses are alternates, fixed at draw time, so no node can hand-pick a replacement.
+4. **Deadlines, in blocks.** `commitBy` and `revealBy` are block heights, so every node agrees on whether a deadline passed.
+5. **Replacement, commit phase only.** A seat that misses `commitBy` takes the first alternate that keeps the jury within its rules, with a fresh commit window. A seat that committed and then missed `revealBy` is never replaced: a replacement after reveals are public could copy them. It is recorded as a `no-reveal` fault and [slashed](https://harness.verafy.ai/learn/bonds-and-slashing).
+6. **Audits.** The scheduler also picks which rulings get audited. A jury of one is always audited.
+
+Every ruling records its schedule (the seed, deadlines, alternates and replacements), so any node can recompute it and `verifyRuling` rejects a replacement the alternates do not give.
+
+**Status.** Built (CONS-001); the local testnet runs every jury through it. Deadlines and alternate counts are illustrative. Design: [VIP-0001](https://github.com/Verafyai/verafyHarness/blob/main/docs/proposals/VIP-0001-jury-scheduler.md).
+
+**Related:** [Randomness beacon](https://harness.verafy.ai/learn/randomness-beacon), [Juries, commit and reveal](https://harness.verafy.ai/learn/jury), [Operators](https://harness.verafy.ai/learn/operators)
+
+Source: https://harness.verafy.ai/learn/jury-scheduler
+
+# The randomness beacon
+
+*Jury seeds that no block sealer can steer.*
+
+**The problem.** Seeding a jury with the parent block's hash lets whoever sealed that block steer the next jury. The sealer chooses what goes in the block, so it can try many versions and publish the one whose hash seats the jurors it wants. Each try costs one hash.
+
+**The fix: a hash chain fixed in advance.** Each sealer registers an anchor: the last link of a hash chain it built from a secret. Every block it seals reveals the next link back toward the secret, and anyone can check that the reveal hashes to the previous link. The reveals were fixed the day the anchor was registered, long before any contract existed, so a sealer cannot pick a reveal to suit a jury.
+
+The beacon value is mixed forward block by block: value = sha256(previous value + this block's reveal). It does not depend on anything else in the block, so changing a block's contents changes nothing. A contract admitted while the tip is at height *a* is drawn with the value at *a* + 1, a value that did not exist when the contract arrived.
+
+**What is left.** A sealer can still withhold a reveal, which biases the beacon by one bit: reveal or not. Withholding is a `no-beacon-reveal` fault and is slashed. A threshold beacon such as drand removes even that, at the cost of a BLS dependency; that choice is Rex's.
+
+**Status.** Built (CONS-002): the testnet and `verafy run` seed every jury from the beacon, and `verifyBeacon` checks every reveal against its anchor. Design: [VIP-0002](https://github.com/Verafyai/verafyHarness/blob/main/docs/proposals/VIP-0002-randomness-beacon.md).
+
+**Related:** [The jury scheduler](https://harness.verafy.ai/learn/jury-scheduler), [Bonds and slashing](https://harness.verafy.ai/learn/bonds-and-slashing)
+
+Source: https://harness.verafy.ai/learn/randomness-beacon
+
+# Operators
+
+*Model families keep one model's blind spots from deciding. Operators keep one owner from holding several seats.*
+
+An operator is whoever runs a harness. One operator key signs every harness card it runs, so the network can tell when two harnesses share an owner even if they run different model families.
+
+**The cap.** A contract can set `payment.jury.maxSeatsPerOperator` (at most this many seats per operator) and `minOperators` (at least this many operators on the jury). The draw skips a harness whose operator already holds the cap, the same way it skips a second model from a family already seated.
+
+**Operator bonds.** An operator can post a bond of its own on top of each harness's bond. A slash its harness cannot cover is taken from the operator's bond.
+
+**What this does not solve.** One person can register several operator keys. No protocol can prove two keys belong to two people. The cap and the bonds make splitting expensive: every extra identity needs its own bonds, and splitting only pays when all the pieces are drawn onto the same jury.
+
+**Status.** Built in the draw (CONS-003); operator signatures are carried on cards and not yet checked by `verifyRuling`. Defaults wait on Rex. Design: [VIP-0003](https://github.com/Verafyai/verafyHarness/blob/main/docs/proposals/VIP-0003-operator-diversity.md).
+
+**Related:** [Open-weight models and model families](https://harness.verafy.ai/learn/model-families), [Bonds and slashing](https://harness.verafy.ai/learn/bonds-and-slashing), [The jury scheduler](https://harness.verafy.ai/learn/jury-scheduler)
+
+Source: https://harness.verafy.ai/learn/operators
+
+# Bonds and slashing
+
+*Running a harness means posting a bond that can be taken for misbehavior.*
+
+Every harness posts a bond. It sets the most value one of its votes may decide (`payment.maxValuePerVote`), and it is what the network takes when the harness breaks the rules. Faults are found by the protocol itself, not by anyone's opinion: every ruling records them, with signed evidence where the fault can be proven.
+
+**Two kinds of fault, priced differently.**
+
+| Fault | What happened | Price (illustrative) |
+|---|---|---|
+| `double-commit` | Two signed, different commitments for one contract | 100% of the bond |
+| `bad-proof` | A proof that does not verify: a claim the named model ran when it did not | 50% |
+| `bad-reveal` | A signed reveal that does not open its own commitment | 25% |
+| `runtime-mismatch` | A settlement the runtimes do not agree with | 25% |
+| `no-beacon-reveal` | A sealer withheld its beacon reveal | 10% |
+| `false-evidence` | Proven by a challenge that names the harness | 100% |
+| `no-commit` | Missed a seat | 0.05, after a free 2% of seats |
+| `no-reveal` | Committed, then never revealed | 0.5, after a free 0.2% of seats |
+| `no-proof` | No proof by the deadline | 0.5 |
+
+Provable misbehavior costs a share of the bond, because signed evidence shows the harness did it. Missed seats cost a fixed amount instead: honest machines go offline, and a share of the bond for every missed seat would cost an honest harness far more than its fees. Missed seats in a streak double in price each time, up to 5% of the bond per fault, because a juror that withholds reveals to sink rulings it sees going the wrong way would miss them in a streak.
+
+**Where slashed money goes.** Half to whoever proved the fault, when someone did, and the rest to the network pool. Nothing is burned and nothing is minted. A penalty larger than the harness's bond reaches its [operator's](https://harness.verafy.ai/learn/operators) bond; anything left is recorded as unpaid. Every slash rides in the block that applies it, under a signed root.
+
+**What it costs to be honest.** Modeled with the defaults: a $500 bond at an 8% cost of capital costs about $0.23 per 1,000-contract block across every seat, and an honest harness that misses 1% of its seats loses nothing to slashing. One bad reveal costs $125, about 92,000 seat fees. All modeled and illustrative; see the [economics](https://harness.verafy.ai/economics).
+
+**Appeals.** A slash can be challenged on `error` grounds, so a node bug cannot quietly drain an honest harness.
+
+**Status.** Built (CONS-005): the schedule, the bond diffs, and slashing on the local testnet (`verafy testnet up --misbehave h-llama-1:no-reveal`). Every rate is illustrative until Rex sets it. Design: [VIP-0005](https://github.com/Verafyai/verafyHarness/blob/main/docs/proposals/VIP-0005-fault-slashing.md).
+
+**Related:** [The challenge window](https://harness.verafy.ai/learn/challenge-window), [Operators](https://harness.verafy.ai/learn/operators), [Launching a harness](https://harness.verafy.ai/learn/launching-a-harness)
+
+Source: https://harness.verafy.ai/learn/bonds-and-slashing
+
+# The challenge window and challenge bonds
+
+*Payouts wait until a ruling can no longer be overturned cheaply, so an overturn moves money, not just the record.*
+
+**Held payouts.** A contract with `payment.challengeWindow` seals its ruling with every payout parked in a held account. The jurors, the sealer, the pools and the winning side are recorded beside it, but not yet paid. When the window closes with no open challenge, the held payouts are released in a later block. A call on another chain waits too.
+
+**An overturn inside the window.** If a challenge overturns the ruling before the window closes, the held escrow pays out as if the contract had ruled the challenge's answer. Jurors who voted that answer are paid; the share of jurors who voted the overturned answer goes to the challenger. Being wrong is not slashed: models are wrong without being corrupt. Forged evidence is, through its own challenge.
+
+**Challenge bonds.** Whoever opens a challenge locks a bond, illustratively 1.5 times the challenge jury's escrow, so a frivolous challenge costs more than the jury it summons. It comes back on overturn or supersede. On affirm it is forfeited, half to the jurors who were wrongly challenged and half to the network pool.
+
+**The trade.** Money waits. That is the same trade an optimistic L2 makes with its seven-day withdrawal, at a much shorter window, because a challenge jury rules in minutes. A contract can skip the window, but a [jury of one](https://github.com/Verafyai/verafyHarness/blob/main/docs/proposals/VIP-0008-single-harness-mode.md) cannot.
+
+**On Solana.** verafy_ruling 0.0.3 records a `releasable_after_slot` when it seals. A program that pays on a ruling reads it and waits.
+
+**Status.** Built (CONS-006, JURY-006 in core). The window lengths and bond factor are illustrative. Design: [VIP-0007](https://github.com/Verafyai/verafyHarness/blob/main/docs/proposals/VIP-0007-payout-hold.md), [VIP-0006](https://github.com/Verafyai/verafyHarness/blob/main/docs/proposals/VIP-0006-challenge-bonds.md).
+
+**Related:** [Audits and challenges](https://harness.verafy.ai/learn/audits-and-challenges), [Bonds and slashing](https://harness.verafy.ai/learn/bonds-and-slashing)
+
+Source: https://harness.verafy.ai/learn/challenge-window
+
 # Verafy specification
 
 **Version 0.0.2-alpha**, November 6, 2026. Covers Verafy Harness (this repo) and Verafy Chain ([Verafyai/verafyChain](https://github.com/Verafyai/verafyChain)).
 
 <!-- score -->
-**Scored 66% overall** at v0.0.2-alpha (see [SCORECARD.md](SCORECARD.md)).
+**Scored 67% overall** at v0.0.3-alpha (see [SCORECARD.md](SCORECARD.md)).
 <!-- /score -->
 
 This is an alpha spec for a prototype. Nothing here describes a running network, and there is no token. Every number is labeled **measured** (our own runs, with a date), **vendor-reported** (by whoever built the tool), **modeled** (computed from those, in `packages/economics`) or **illustrative** (an assumption to replace).
@@ -541,7 +676,7 @@ This is an alpha spec for a prototype. Nothing here describes a running network,
 
 ## Principles that bind every part
 
-From [PRINCIPLES.md](https://github.com/Verafyai/verafyChain/blob/main/PRINCIPLES.md): payment agnostic (no token, ever); natural language first; embedded ethics; checkable and verifiable; agent friendly; context is evidence; no single model or lab; nothing is erased; legible to people; open and forkable; honest about what runs. A design that conflicts with a principle loses, or goes through the amendment process.
+From [PRINCIPLES.md](https://github.com/Verafyai/verafyChain/blob/main/PRINCIPLES.md): payment agnostic (no token, ever); natural language first; embedded ethics; checkable and verifiable; agent friendly; context is evidence; no single model or operator; nothing is erased; legible to people; open and forkable; honest about what runs. A design that conflicts with a principle loses, or goes through the amendment process.
 
 ## CORE: the protocol
 
@@ -563,21 +698,40 @@ A contract is a compressed intention: instructions, pinned context, a question w
 
 ## JURY: juries, live runs, audits and challenges
 
-Juries span labs and are drawn from the parent block hash. Auditors from other labs re-check sealed rulings; challenges append, never erase; a below-bar ruling's escrow funds a wider jury.
+Juries span open-weight model families and operators, and are drawn by the jury scheduler from a randomness beacon. Auditors from other model families re-check sealed rulings; challenges append, never erase; a below-bar ruling's escrow funds a wider jury.
 
 <!-- reqs:JURY -->
 | ID | Status | Requirement |
 |---|---|---|
-| JURY-001 | verified | Live juries across five labs; measured Nov 6, 2026: five contracts, 5.9 to 30.1 s each, $0.0163 in total |
-| JURY-002 | verified | Juror mode inside DeepSeek Harness: five labs sealed a block from their reveals |
+| JURY-001 | verified | Live juries across five different models; measured Nov 6, 2026: five contracts, 5.9 to 30.1 s each, $0.0163 in total |
+| JURY-002 | verified | Juror mode inside DeepSeek Harness: five different models sealed a block from their reveals |
 | JURY-003 | built | Retry and back-off for rate-limited models |
-| JURY-004 | built | Auditors from other labs re-check sealed rulings |
+| JURY-004 | built | Auditors from other model families re-check sealed rulings |
 | JURY-005 | built | Challenges append affirm, overturn or supersede; escalation funds a wider jury |
-| JURY-006 | planned | Challenge bonds: lock on open, return on overturn, forfeit on affirm. *Gap: Not built; needed before challenges can run on a network.* |
+| JURY-006 | built | Challenge bonds: lock on open, return on overturn or supersede, forfeit on affirm. *Gap: Bond factor illustrative; not on a chain.* |
 | JURY-007 | planned | Track record: agreement with final rulings and forecast scores per harness. *Gap: No per-harness history yet; needed for bonds and for routing weights.* |
 | JURY-008 | partial | 100 live rulings across the four market types, with audits and costs published. *Gap: Only the first five live rulings are published.* |
 | JURY-009 | built | Harness daemon: a long-running process that watches for funded contracts and takes seats |
 <!-- /reqs:JURY -->
+
+## CONS: consensus hardening and slashing
+
+Running a harness means posting a bond that can be slashed for misbehavior. A jury scheduler draws every jury from a randomness beacon that no sealer can steer, caps seats per operator, sets block-height deadlines for commit and reveal, and replaces no-shows from fixed alternates during the commit phase only. Every recorded fault (a missing commit or reveal, a reveal that doesn't match its commitment, a bad proof, equivocation, a withheld beacon reveal) carries a penalty from a published slashing schedule, applied as a bond diff that conserves totals. Payouts wait until the challenge window closes, so an overturn moves money, not just the record. Designs: [docs/proposals](../proposals/README.md).
+
+<!-- reqs:CONS -->
+| ID | Status | Requirement |
+|---|---|---|
+| CONS-001 | built | Jury scheduler: beacon seed, draw, alternates, block-height deadlines, commit-phase replacement. *Gap: Deadlines and alternate counts are illustrative; the verafyChain node does not call the scheduler yet.* |
+| CONS-002 | built | Randomness beacon with lookahead; a withheld reveal is a slashable fault. *Gap: A hash-chain beacon with one bit of withholding bias, slashed; drand or a VRF would remove it (decision for Rex).* |
+| CONS-003 | partial | Operator keys on harness cards, a seat cap per operator, operator bonds. *Gap: The cap and alternates are built; operator signatures are carried on cards but not yet checked, and operator bonds are not posted anywhere yet.* |
+| CONS-004 | built | Draw weighting: equal by default, bond-weighted with a cap as an option. *Gap: Equal is the default; whether the network allows bond weighting waits on Rex.* |
+| CONS-005 | built | Slashing: a published schedule applied to recorded faults as conserving bond diffs. *Gap: Every rate is illustrative; slashes apply on the local testnet, not on a chain.* |
+| CONS-006 | built | Payouts held until the challenge window closes; an overturn redirects the held escrow. *Gap: Window lengths are illustrative; the verafyChain node does not release held payouts yet.* |
+| CONS-007 | built | Single-harness mode: a jury of one with a mandatory window and an automatic audit. *Gap: Allowed only with a window and an automatic audit; whether to offer it waits on Rex; cost not modeled.* |
+| CONS-008 | designed | Prover placement: each harness or shared provers, with the prover named in the proof record. *Gap: Default waits on Rex; the proof record does not name its prover yet.* |
+| CONS-009 | partial | verafy_ruling: a reveal deadline slot, and a releasable-after slot. *Gap: Measured on a local validator only; not on devnet.* |
+| CONS-010 | built | Economics: bond capital cost, expected slashing, challenge cost. *Gap: Every input is illustrative.* |
+<!-- /reqs:CONS -->
 
 ## CHAIN: the Verafy Chain node
 
@@ -591,7 +745,7 @@ A block exists only when a jury rules. The node keeps a mempool of funded contra
 | CHAIN-003 | built | Batching: blocks close by value or by time, with a pro rata cost split |
 | CHAIN-004 | partial | Encrypted queue: contracts sealed t of n until the jury is drawn. *Gap: Prototype: each author deals the shares; real distributed key generation and verifiable shares are planned.* |
 | CHAIN-005 | planned | Registry on chain, sealer liveness, bonds and slashing, libp2p gossip. *Gap: Needed for a network of independently operated harnesses.* |
-| CHAIN-006 | planned | Escalated juries accepted by the chain; challenge juries that share no lab |
+| CHAIN-006 | planned | Escalated juries accepted by the chain; challenge juries that share no model family |
 <!-- /reqs:CHAIN -->
 
 ## SETTLE: TinySVM
@@ -652,7 +806,7 @@ FlashProve proves at most 1,024 tokens, about 750 words, per request; each proof
 2. **Dedupe.** The same question over the same evidence has the same hash, so contracts that share a question share one slot and one proof.
 3. **Pack.** Atoms fill 1,024-token requests first-fit, about 16 to 18 per request in tests; slot order is shuffled by the block hash; a reply that misses or mangles any slot is rejected whole.
 4. **Compress what can't be atomized.** A brief (the question, the exits and only the deciding facts, each cited) stands in for a long contract. Plain dense English, never invented shorthand: models read English tokens best.
-5. **Check fidelity.** A proof covers the atoms, not whether they capture the contract. Every plan or brief is agreed by the parties or ruled FAITHFUL by an unproven panel from several labs before it is used.
+5. **Check fidelity.** A proof covers the atoms, not whether they capture the contract. Every plan or brief is agreed by the parties or ruled FAITHFUL by an unproven panel from several model families before it is used.
 
 In a test block, 60 contracts became 120 atoms, 61 after dedupe, in 4 requests at 85% fill (measured on the packer with mock models).
 
@@ -664,7 +818,7 @@ In a test block, 60 contracts became 120 atoms, 61 after dedupe, in 4 requests a
 | PACK-003 | built | Dedupe across contracts by atom hash; first-fit packing into 1,024-token requests; block-hash slot order (library, tested with mocks) |
 | PACK-004 | built | Strict reply reading: every slot exactly once, typed answers, nothing else |
 | PACK-005 | built | Atomizer: drafts a plan with any model and checks every cited pin is real |
-| PACK-006 | built | Fidelity check: an unproven multi-lab panel rules a plan FAITHFUL before it is used |
+| PACK-006 | built | Fidelity check: an unproven multi-family panel rules a plan FAITHFUL before it is used |
 | PACK-007 | planned | Real token counts with the target model's tokenizer. *Gap: The packer estimates about four characters per token.* |
 | PACK-008 | designed | Prompt compressor: briefs for contracts that cannot be atomized; party-agreed or checked. *Gap: Brief mode is modeled in economics, not built in the packer.* |
 | PACK-009 | designed | Long contracts split by claims with a proven combine step |
@@ -674,7 +828,7 @@ In a test block, 60 contracts became 120 atoms, 61 after dedupe, in 4 requests a
 
 ## ROUTE: multi-model routing
 
-Every question starts at the cheapest tier that can answer it safely: a fast System 1 screen (such as Jev), then panels of small, mid-size and frontier models, each spanning labs. A unanimous panel stops; a split one moves up. Three signals decide where a question goes: the screen's probability, juror disagreement, and the question itself (its stakes, type and the contract's floor). The router is plain code; no model decides routing.
+Every question starts at the cheapest tier that can answer it safely: a fast System 1 screen (such as Jev), then panels of small, mid-size and frontier models, each spanning model families. A unanimous panel stops; a split one moves up. Three signals decide where a question goes: the screen's probability, juror disagreement, and the question itself (its stakes, type and the contract's floor). The router is plain code; no model decides routing.
 
 Guardrails:
 
@@ -701,7 +855,7 @@ What a screen is worth is not known yet. Jev's figures are its maker's (70 to 50
 
 ## PROVE: proofs of inference
 
-The proven lane is set by the contract, never by difficulty. While only one model is provable, each packed request is proven once by a prover drawn from the block hash, and other jurors verify; lab diversity returns when a second model is provable. Proofs are attached after the reveal; an L2 ruling is final only when every counted proof verifies; a missing or failed proof drops the vote and records a fault. Proofs and their data stay off chain; a block carries one Merkle root over them.
+The proven lane is set by the contract, never by difficulty. While only one model is provable, each packed request is proven once by a prover drawn from the block hash, and other jurors verify; model-family diversity returns when a second model is provable. Proofs are attached after the reveal; an L2 ruling is final only when every counted proof verifies; a missing or failed proof drops the vote and records a fault. Proofs and their data stay off chain; a block carries one Merkle root over them.
 
 <!-- reqs:PROVE -->
 | ID | Status | Requirement |
@@ -808,7 +962,7 @@ Releases ship as a source tarball, single-file binaries, a container image and a
 | DEPLOY-004 | built | Hardware profiles: which open-weights model a machine can hold, by modeled memory, and its router tier |
 | DEPLOY-005 | partial | Container image, compose file, and one-click Render and DigitalOcean App Platform buttons. *Gap: The image has not been built here (no Docker daemon); it builds and publishes on the first tagged release.* |
 | DEPLOY-006 | partial | Releases: source tarball, single-file binaries for Linux, macOS and Windows, a GHCR image, checksums, and install.sh. *Gap: The workflow has not run yet; it runs on the first pushed version tag.* |
-| DEPLOY-007 | built | verafy testnet: a local testnet on one machine (a daemon per lab, juries over HTTP, sealed blocks), scripted or live, with optional Solana settlement |
+| DEPLOY-007 | built | verafy testnet: a local testnet on one machine (a daemon per model family, juries over HTTP, sealed blocks), scripted or live, with optional Solana settlement |
 | DEPLOY-008 | built | verafy up --ui: the launcher as a page on 127.0.0.1, with a one-time token in its URL |
 | DEPLOY-009 | built | Launch page on harness.verafy.ai: pick a model and a target, get the command, the user data or a button |
 | DEPLOY-010 | planned (needs Rex) | Hosted harnesses run by Verafy for people who do not want to operate one. *Gap: Needs Rex: billing, servers and terms.* |
@@ -851,4 +1005,4 @@ Muse (semantic version control) proposed two small experiments: targeted certifi
 
 ## Decisions waiting on Rex
 
-Requirements marked *needs Rex* in the tables, plus: the block-close defaults, prove-once for L2, packing defaults, allowed brief modes, the Banker's target token, treasury, chains, caps and screening, whether to rent a FlashProve machine, and whether to publish the MCP server. From v0.0.2-alpha: whether Verafy runs hosted harnesses (DEPLOY-010), devnet SOL for the Solana program (SOL-002), Jev access for the calibration run (ROUTE-007), turning on Banker execution with a funded scoped wallet, and the illustrative defaults: block close (10% warm-up, 1-hour maximum wait), the 600-second proof deadline, the ethics panel sizes, bar and screening fee, and the amendment escrow shares.
+Requirements marked *needs Rex* in the tables, plus: the block-close defaults, prove-once for L2, packing defaults, allowed brief modes, the Banker's target token, treasury, chains, caps and screening, whether to rent a FlashProve machine, and whether to publish the MCP server. From v0.0.2-alpha: whether Verafy runs hosted harnesses (DEPLOY-010), devnet SOL for the Solana program (SOL-002), Jev access for the calibration run (ROUTE-007), turning on Banker execution with a funded scoped wallet, and the illustrative defaults: block close (10% warm-up, 1-hour maximum wait), the 600-second proof deadline, the ethics panel sizes, bar and screening fee, and the amendment escrow shares. From v0.0.3-alpha: every slashing price and grace allowance (CONS-005), the challenge window and challenge bond factor (CONS-006, JURY-006), whether the network allows bond-weighted draws (CONS-004), whether to offer a jury of one (CONS-007), the seats-per-operator defaults and operator bond (CONS-003), the beacon lookahead and whether to add drand (CONS-002), and where proving runs (CONS-008).

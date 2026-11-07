@@ -1,7 +1,7 @@
 ---
 vip: '0004'
 title: 'Draw weighting: equal seats or weighted by bond'
-status: Decision needed
+status: Built; default needs Rex
 created: 2026-11-07
 requirement: CONS-004
 ---
@@ -22,7 +22,7 @@ Decide whether a larger bond raises a harness's odds of being drawn. Today it do
 
 ## Proposal
 
-Ship both behind a jury rule, `weighting: 'equal' | 'bond'`, with `equal` the default. Bond weighting uses weighted sampling without replacement: rank by `-ln(u) / weight`, with `u` from the seed. It's deterministic, and it keeps the same lab and operator rules. Bond weight is capped (illustrative: no harness counts for more than 4 times the floor), so one large bond can't dominate.
+Ship both behind a jury rule, `weighting: 'equal' | 'bond'`, with `equal` the default. Bond weighting uses weighted sampling without replacement: rank by `-ln(u) / weight`, with `u` from the seed. It's deterministic, and it keeps the same family and operator rules. Bond weight is capped (illustrative: no harness counts for more than 4 times the floor), so one large bond can't dominate.
 
 A contract chooses its weighting; the network chooses which weightings it accepts.
 
@@ -33,4 +33,4 @@ A contract chooses its weighting; the network chooses which weightings it accept
 
 ## Tracking
 
-Requirement CONS-004. GitHub issue: see the index in [README.md](README.md).
+Requirement CONS-004. GitHub issue: [#29](https://github.com/Verafyai/verafyHarness/issues/29).

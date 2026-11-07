@@ -1,6 +1,6 @@
 {
   "name": "@verafyharness/banker",
-  "version": "0.0.2-alpha",
+  "version": "0.0.3-alpha",
   "description": "The Banker as a deterministic service: deposit state machine, allowlist by address, caps, kill switch, hash-chained ledger, real venue quotes (Jupiter, LI.FI) with simulation, and API credit planning. Execution off by default.",
   "type": "module",
   "license": "MIT",

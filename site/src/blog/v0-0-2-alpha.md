@@ -35,7 +35,7 @@ Releases now ship from one workflow on each version tag: a source tarball, singl
 
 ### A testnet on one machine
 
-`verafy testnet up` starts one harness daemon per lab, each its own process, and a local coordinator that does a node's job: draw each jury from the parent block hash, run commit and reveal over HTTP, rule, and seal a block. AI answers are scripted by default, so it costs nothing; `--live` uses real models. Measured on one machine on Nov 6, 2026: eight harnesses, three contracts, three blocks.
+`verafy testnet up` starts one harness daemon per model family, each its own process, and a local coordinator that does a node's job: draw each jury from the parent block hash, run commit and reveal over HTTP, rule, and seal a block. AI answers are scripted by default, so it costs nothing; `--live` uses real models. Measured on one machine on Nov 6, 2026: eight harnesses, three contracts, three blocks.
 
 ### Settling on Solana, for real
 
@@ -49,7 +49,7 @@ Measured on a local Solana test validator on Nov 6, 2026:
 
 ### Proof packing, end to end
 
-Packing now runs as one pipeline (PACK-011): atomize, check fidelity with a panel spanning labs, route, pack, prove, verify, read and assemble. `verafy packed` runs it on contracts. Two contracts sharing one question become three unique questions in one proven request, proven once and verified.
+Packing now runs as one pipeline (PACK-011): atomize, check fidelity with a panel spanning model families, route, pack, prove, verify, read and assemble. `verafy packed` runs it on contracts. Two contracts sharing one question become three unique questions in one proven request, proven once and verified.
 
 The guardrails:
 - a plan the panel does not rule FAITHFUL is never packed;

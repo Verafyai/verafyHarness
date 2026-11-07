@@ -5,7 +5,7 @@
 Not every question needs a frontier jury. The router sends each atom up a ladder:
 
 1. a fast screen, such as Jev;
-2. a panel of small models from several labs;
+2. a panel of small models from several model families;
 3. a mid-size panel;
 4. a frontier panel.
 

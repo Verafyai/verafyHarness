@@ -1,6 +1,6 @@
 {
   "name": "@verafyharness/deploy",
-  "version": "0.0.2-alpha",
+  "version": "0.0.3-alpha",
   "description": "verafy up: run a harness locally, in Docker, on DigitalOcean or Hetzner, or on any cloud from a user-data script. Hardware profiles pick a model the machine can hold.",
   "type": "module",
   "license": "MIT",

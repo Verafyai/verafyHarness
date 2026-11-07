@@ -151,7 +151,7 @@ article section{scroll-margin-top:16px}
 </section>
 <header class="wrap top">
   <a class="brand" href="/"><svg class="mark" viewBox="0 0 64 64" width="28" height="28" aria-hidden="true"><path d="M6 20V6h14M44 6h14v14M58 44v14H44M20 58H6V44" stroke="currentColor" stroke-width="5" stroke-linecap="square" fill="none"/><path d="M32 13v7M32 44v7M13 32h7M44 32h7" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><circle cx="32" cy="32" r="11" fill="var(--accent)"/><circle cx="32" cy="32" r="4" fill="var(--paper)"/></svg>Verafy Harness</a>
-  <a class="ver" href="/blog/v0-0-2-alpha" title="Release notes for v0.0.2-alpha">v0.0.2-alpha</a>
+  <a class="ver" href="/blog/v0-0-3-alpha" title="Release notes for v0.0.3-alpha">v0.0.3-alpha</a>
   <details class="menu">
     <summary aria-label="Menu"><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><span class="lab">Menu</span></summary>
     <nav aria-label="Site"><div class="grp">Verafy Harness</div><a href="/launch">Launch a harness</a><a href="/run">Run a harness</a><a href="/testnet">Testnet</a><a href="/economics" aria-current="page">Economics</a><a href="/coin-agnostic">Coin Agnostic</a><a href="/learn">Learn</a><a href="/spec">Specification</a><a href="/blog">Release notes</a><hr><div class="grp">Verafy Chain</div><a href="https://chain.verafy.ai">Verafy Chain</a><a href="https://chain.verafy.ai/constitution">Constitution</a><a href="https://chain.verafy.ai/#roadmap">Roadmap</a><hr><div class="grp">More</div><a href="https://asc.verafy.ai">Actually Smart Contracts</a><a href="https://github.com/Verafyai/verafyHarness">GitHub</a></nav>
@@ -224,9 +224,9 @@ article section{scroll-margin-top:16px}
   <li><b>Atomize.</b> Each contract is broken into atoms: small questions that ask one thing (yes or no, a choice, or a bounded integer) and carry only the facts that decide it, each citing a pinned source. An exact composition rule turns the atoms' answers back into the contract's outcome. That rule is code, integer math only, and any UNKNOWN atom sends the contract to its declared fallback instead of a guess. Plain dense English, never invented shorthand: models read English tokens best.</li>
   <li><b>Dedupe.</b> The same atomic question over the same pinned facts has the same hash. Thirty markets that all hinge on "did the Fed cut rates on December 10?" share one slot and one proof.</li>
   <li><b>Pack.</b> Atoms are packed first-fit by size into 1,024-token requests, about 16 to 18 per request in our tests, each in a numbered slot with its own answer line. The slot order is shuffled by the block hash, so nobody chooses their neighbors. A reply that misses or mangles any slot is rejected whole. Contracts that must stand alone opt out.</li>
-  <li><b>Prove once, verify many.</b> Today only one model can be proven, and with integer weights and greedy decoding, every juror running it on the same input gets the same answer. So each packed request is proven once, by a prover drawn from the block hash, and the other jurors become verifiers. Lab diversity returns as soon as a second model is provable: one proof per distinct model.</li>
+  <li><b>Prove once, verify many.</b> Today only one model can be proven, and with integer weights and greedy decoding, every juror running it on the same input gets the same answer. So each packed request is proven once, by a prover drawn from the block hash, and the other jurors become verifiers. Model-family diversity returns as soon as a second model is provable: one proof per distinct model.</li>
 </ol>
-<div class="callout"><b>The safeguard.</b> A proof shows the model answered the atoms correctly, not that the atoms and the rule capture the original question. So every atom plan is either agreed by the contract's parties before funding, or checked by a cheap unproven panel from several labs (the fidelity check), and auditors spot-check its citations. A plan that drops the deciding fact or reaches a different outcome fails the check, and that contract runs unpacked.</div>
+<div class="callout"><b>The safeguard.</b> A proof shows the model answered the atoms correctly, not that the atoms and the rule capture the original question. So every atom plan is either agreed by the contract's parties before funding, or checked by a cheap unproven panel from several model families (the fidelity check), and auditors spot-check its citations. A plan that drops the deciding fact or reaches a different outcome fails the check, and that contract runs unpacked.</div>
 <div class="callout"><b>What the numbers show.</b> Once contracts are packed, proving stops being the big cost. At 1,000 contracts, the proving GPU costs about $1.29 and the fidelity checks about $3.26 (modeled). The next savings come from cheaper checks, not cheaper proofs.</div>
 
 <h3>What packing does not change</h3>
@@ -253,11 +253,11 @@ article section{scroll-margin-top:16px}
 
 <section id="screens">
 <h2>Fast screens (Jev)</h2>
-<p>A System 1 model such as <a href="https://thenewstack.io/typesafe-jev-system-one/">TypeSafe's Jev</a> returns a typed answer with a probability in 70 to 500 ms for about $0.0004 a decision (vendor-reported, not reproduced). A jury of models from several labs takes 5.9 to 30.1 seconds per contract (measured, Nov 6, 2026). Atoms are exactly the shape a screen reads. It can do four jobs, all before or around the real jury and never instead of it:</p>
+<p>A System 1 model such as <a href="https://thenewstack.io/typesafe-jev-system-one/">TypeSafe's Jev</a> returns a typed answer with a probability in 70 to 500 ms for about $0.0004 a decision (vendor-reported, not reproduced). A jury of models from several model families takes 5.9 to 30.1 seconds per contract (measured, Nov 6, 2026). Atoms are exactly the shape a screen reads. It can do four jobs, all before or around the real jury and never instead of it:</p>
 <ol class="steps">
-  <li><b>Screen the fidelity checks,</b> the biggest cost once proofs are packed. Clear plans pass on the screen; unclear ones go to the multi-lab panel.</li>
+  <li><b>Screen the fidelity checks,</b> the biggest cost once proofs are packed. Clear plans pass on the screen; unclear ones go to the multi-family panel.</li>
   <li><b>Triage atoms.</b> Where it is confident, the stakes are low and the contract allows it, its answer stands: roughly 10 to 400 times faster than a jury. Never for L2: a closed model can't carry a proof.</li>
-  <li><b>Size the jury.</b> Its probability is a cheap read on difficulty: easy questions get the contract's minimum panel, hard ones get more jurors and labs.</li>
+  <li><b>Size the jury.</b> Its probability is a cheap read on difficulty: easy questions get the contract's minimum panel, hard ones get more jurors and model families.</li>
   <li><b>Run a fast lane</b> for what it settles, under a second instead of seconds to minutes.</li>
 </ol>
 <h3>What it might save, on your inputs at 1,000 contracts</h3>
@@ -265,12 +265,12 @@ article section{scroll-margin-top:16px}
 <div class="callout"><b>These settle rates are assumptions, not measurements.</b> How much a screen can safely settle depends on how well its confidence matches its accuracy on our questions, which needs a calibration run. On its maker's own benchmark Jev scored 67.8%, against 73 to 74% for frontier models. Until calibrated, the router keeps it in <b>shadow mode</b>: it sizes juries and logs what it would have settled, and settles nothing. A screen that settles little only adds cost.</div>
 <h3>The cutoff</h3>
 <p>A screen's answer may stand only when all three hold: its probability clears the calibrated cutoff for that question type (the lowest confidence where its accuracy, as a Wilson lower bound on labeled examples, matches the jury it replaces); its chance of being wrong times the stakes is under the contract's allowed loss; and the contract allows a screen. Random audits, drawn from the block hash, keep re-checking it on live traffic and withdraw a cutoff whose accuracy drops. This is built in <a href="https://github.com/Verafyai/verafyHarness/tree/main/packages/route">packages/route</a> and tested with scripted screens.</p>
-<p>It can't be the court. It is one closed model, so it adds no lab diversity and can't carry a proof, and calibrated isn't the same as correct.</p>
+<p>It can't be the court. It is one closed model, so it adds no model-family diversity and can't carry a proof, and calibrated isn't the same as correct.</p>
 </section>
 
 <section id="cascade">
 <h2>Difficulty sorting</h2>
-<p>Don't send every question to your biggest jury. Start each one at the cheapest tier that can answer it safely, and move up only when needed: a fast screen, then panels of small, mid-size and frontier models, each spanning labs. A unanimous, confident panel stops there; a split one moves up. The screen's probability, juror disagreement and the stakes decide where each question goes, and contracts that require proof go straight to the proven lane. Set the tiers and how often questions stop at each:</p>
+<p>Don't send every question to your biggest jury. Start each one at the cheapest tier that can answer it safely, and move up only when needed: a fast screen, then panels of small, mid-size and frontier models, each spanning model families. A unanimous, confident panel stops there; a split one moves up. The screen's probability, juror disagreement and the stakes decide where each question goes, and contracts that require proof go straight to the proven lane. Set the tiers and how often questions stop at each:</p>
 <div class="calc">
   <form class="inputs" id="cascadeInputs" aria-label="Cascade inputs"></form>
   <div class="outputs" aria-live="polite">
@@ -295,6 +295,13 @@ article section{scroll-margin-top:16px}
 <h3>Proven reasoning, on your inputs at 1,000 contracts</h3>
 <div class="tbl"><table><thead><tr><th>Reasoning per atom</th><th>Atoms per proof</th><th>Proofs</th><th>Per contract</th><th>Time to seal</th></tr></thead><tbody id="reasonTable"></tbody></table></div>
 <p>So proven jurors give short, structured reasons; unproven tiers keep full reasoning. Storing reasoning is cheap: on chain it is a 32-byte hash per juror; the full text lives next to the chain, fetched by hash. At one ruling a second with full reasoning (about 8 KB per juror), that is about 3.5 GB a day, and one proof is bigger than about 2,300 full reasoning traces (modeled).</p>
+</section>
+
+<section id="stake">
+<h2>Stake: bonds and slashing</h2>
+<p>Every harness posts a bond, and the network takes part of it for misbehavior. Bonds cost money to hold, and slashing has to be priced so an honest harness keeps its fees while a dishonest one loses far more than it could gain. Every input here is illustrative, from <code>stake()</code> in packages/economics; the penalty schedule mirrors <code>DEFAULT_SLASHING</code> in core. <a href="/learn/bonds-and-slashing">How slashing works</a>.</p>
+<div class="tbl"><table><thead><tr><th>Quantity</th><th>Value</th><th>Reading</th></tr></thead><tbody id="stakeTable"></tbody></table></div>
+<p class="note">What changed the design: pricing a missed seat as a share of the bond (1% each) would cost an honest harness that misses 1% of its seats about 200 times its fees (modeled). Missed seats are now a small fixed amount past a free allowance, doubling only in a streak; provable misbehavior is still a share of the bond.</p>
 </section>
 
 <section id="solana">
@@ -423,9 +430,9 @@ const DEFAULTS = {
   dedupePct: { value: 0, label: 'input', source: 'Share of atoms already asked by another contract in the same block' },
   screen: { value: false, label: 'design', source: 'A fast System 1 screen (for example TypeSafe Jev) answers atoms first' },
   screenPct: { value: 0, label: 'illustrative', source: 'Share of atoms the screen settles, only where the contract allows a screen to settle them' },
-  screenFidelityPct: { value: 0, label: 'illustrative', source: 'Share of brief and plan fidelity checks the screen settles; the rest go to the unproven multi-lab panel' },
+  screenFidelityPct: { value: 0, label: 'illustrative', source: 'Share of brief and plan fidelity checks the screen settles; the rest go to the unproven multi-family panel' },
   screenUsd: { value: 0.0004, label: 'vendor-reported', source: 'TypeSafe Jev, about $0.0004 a decision in 70 to 500 ms; not reproduced', url: 'https://thenewstack.io/typesafe-jev-system-one/', date: '2026-11' },
-  fidelityCheckUsd: { value: 0.0163 / 5, label: 'measured', source: 'One unproven multi-lab check per brief, from the measured live run: $0.0163 for five contracts', url: 'https://github.com/Verafyai/verafyHarness/blob/main/results/live-2026-11-06.md', date: '2026-11-06' },
+  fidelityCheckUsd: { value: 0.0163 / 5, label: 'measured', source: 'One unproven multi-family check per brief, from the measured live run: $0.0163 for five contracts', url: 'https://github.com/Verafyai/verafyHarness/blob/main/results/live-2026-11-06.md', date: '2026-11-06' },
 }
 
 /** Presets: overrides on DEFAULTS. */
@@ -609,6 +616,74 @@ const CASCADE_EXAMPLE = [
   { id: 'mid', usd: 0.0033, seconds: 10, stopShare: 0.20 },
   { id: 'frontier', usd: 0.0300, seconds: 35, stopShare: 0.15 },
 ]
+
+/**
+ * Stake: what it costs to post a bond, what an honest harness should expect to
+ * lose to slashing, what a dishonest one stands to lose, and what a challenge
+ * costs (VIP-0005, VIP-0006). Every default is illustrative; the fault prices
+ * mirror DEFAULT_SLASHING in packages/core/src/slashing.js (this file has no
+ * imports, so the site can inline it).
+ */
+const STAKE_DEFAULTS = {
+  bondUsd: { value: 500, label: 'illustrative', source: 'Bond per harness, as in verafy.config.json' },
+  capitalCostPct: { value: 8, label: 'illustrative', source: 'Yearly return the bond could earn elsewhere' },
+  poolSize: { value: 50, label: 'illustrative', source: 'Harnesses in the network' },
+  jurors: { value: 5, label: 'prototype default', source: 'Seats per contract' },
+  contractsPerBlock: { value: 1000, label: 'input', source: 'Contracts per block' },
+  blocksPerDay: { value: 24, label: 'illustrative', source: 'One block an hour' },
+  feePerSeatUsd: { value: 0.0068 / 5, label: 'modeled', source: 'The routed jury: $0.0068 per decision on average, over five seats (packages/economics cascade)' },
+  missCommitPct: { value: 1, label: 'illustrative', source: 'Seats an honest harness misses (outages, timeouts)' },
+  missRevealPct: { value: 0.1, label: 'illustrative', source: 'Seats an honest harness commits and then fails to reveal' },
+  fixedNoCommitUsd: { value: 0.05, label: 'illustrative', source: 'DEFAULT_SLASHING.fixed["no-commit"]' },
+  fixedNoRevealUsd: { value: 0.5, label: 'illustrative', source: 'DEFAULT_SLASHING.fixed["no-reveal"]' },
+  graceNoCommitPct: { value: 2, label: 'illustrative', source: 'DEFAULT_SLASHING.graceRate["no-commit"]: share of seats a harness may miss for free' },
+  graceNoRevealPct: { value: 0.2, label: 'illustrative', source: 'DEFAULT_SLASHING.graceRate["no-reveal"]' },
+  windowBlocks: { value: 1000, label: 'illustrative', source: 'DEFAULT_SLASHING.window' },
+  livenessCapPct: { value: 5, label: 'illustrative', source: 'DEFAULT_SLASHING.livenessCap' },
+  badRevealPct: { value: 25, label: 'illustrative', source: 'DEFAULT_SLASHING.rates["bad-reveal"]' },
+  doubleCommitPct: { value: 100, label: 'illustrative', source: 'DEFAULT_SLASHING.rates["double-commit"]' },
+  challengeBondFactor: { value: 1.5, label: 'illustrative', source: 'HOLD_DEFAULTS.challengeBondFactor: a challenge locks 1.5 times its jury\'s escrow' },
+  challengeEscrowUsd: { value: 0.0068 * 2, label: 'modeled', source: 'A challenge jury at least as large as the original, from model families not on it: about twice the routed jury cost' },
+}
+
+/**
+ * @param {object} [raw] - overrides on STAKE_DEFAULTS (plain numbers).
+ * @returns {object} per-seat and per-block costs, honest expected slashing, attack costs, and the challenge bond.
+ */
+function stake(raw = {}) {
+  const i = Object.fromEntries(Object.entries(STAKE_DEFAULTS).map(([k, d]) => [k, raw[k] ?? d.value]))
+  const seatsPerDay = i.contractsPerBlock * i.blocksPerDay * i.jurors / i.poolSize
+  const capitalPerDay = i.bondUsd * i.capitalCostPct / 100 / 365
+  const capitalPerSeat = capitalPerDay / seatsPerDay
+  // Honest liveness slashing: misses past the grace share pay the fixed price. Honest misses are spread out,
+  // so they rarely form a streak; escalation is for clustered misses and is not modeled here.
+  const seatsPerWindow = seatsPerDay / i.blocksPerDay * i.windowBlocks
+  const excess = (missPct, gracePct) => Math.max(0, seatsPerWindow * (missPct - gracePct) / 100)
+  const honestPerWindow = excess(i.missCommitPct, i.graceNoCommitPct) * i.fixedNoCommitUsd + excess(i.missRevealPct, i.graceNoRevealPct) * i.fixedNoRevealUsd
+  const honestPerSeat = seatsPerWindow ? honestPerWindow / seatsPerWindow : 0
+  const feesPerWindow = seatsPerWindow * i.feePerSeatUsd
+  const perBlockSeats = i.contractsPerBlock * i.jurors
+  // A dishonest harness: what one provable fault costs, against what one seat earns.
+  const badReveal = i.bondUsd * i.badRevealPct / 100
+  const doubleCommit = i.bondUsd * i.doubleCommitPct / 100
+  // Taking a majority of one jury needs ceil(jurors/2) seats, each on its own bond, and each caught seat is slashed.
+  const majority = Math.ceil(i.jurors / 2)
+  return {
+    inputs: i,
+    seatsPerDay,
+    capitalPerSeatUsd: capitalPerSeat,
+    capitalPerBlockUsd: capitalPerSeat * perBlockSeats,
+    honestSlashPerSeatUsd: honestPerSeat,
+    honestSlashPerBlockUsd: honestPerSeat * perBlockSeats,
+    honestSlashShareOfFees: feesPerWindow ? honestPerWindow / feesPerWindow : 0,
+    feePerSeatUsd: i.feePerSeatUsd,
+    badRevealUsd: badReveal,
+    doubleCommitUsd: doubleCommit,
+    badRevealInSeatFees: badReveal / i.feePerSeatUsd,
+    majorityBondsUsd: majority * i.bondUsd,
+    challengeBondUsd: i.challengeBondFactor * i.challengeEscrowUsd,
+  }
+}
 ;
 // Page logic for /economics. The economics functions are inlined above this by site/build.py.
 (function () {
@@ -776,7 +851,7 @@ const CASCADE_EXAMPLE = [
   }
 
   var tiers = CASCADE_EXAMPLE.map(function (t) { return Object.assign({}, t) })
-  var TIERNAMES = { screen: 'Fast screen (Jev)', small: 'Small models, 3 labs', mid: 'Mid models, 5 labs', frontier: 'Frontier, 5 to 7 labs' }
+  var TIERNAMES = { screen: 'Fast screen (Jev)', small: 'Small models, 3 families', mid: 'Mid models, 5 families', frontier: 'Frontier, 5 to 7 families' }
   function buildCascade() {
     var f = document.getElementById('cascadeInputs')
     tiers.forEach(function (t, i) {
@@ -853,7 +928,24 @@ const CASCADE_EXAMPLE = [
     try { navigator.clipboard.writeText(location.href); this.textContent = 'Link copied' } catch (e) {}
   })
 
-  load(); build(); fill(); sources(); render(); buildCascade(); renderCascade()
+  function renderStake() {
+    var t = document.getElementById('stakeTable'); if (!t || typeof stake !== 'function') return
+    var s = stake(), m = function (x, d) { return '$' + (+x).toFixed(d === undefined ? 2 : d) }
+    var rows = [
+      ['Bond per harness', m(s.inputs.bondUsd, 0), 'illustrative; it caps the value one vote may decide'],
+      ['Seats per harness per day', Math.round(s.seatsPerDay).toLocaleString(), s.inputs.contractsPerBlock.toLocaleString() + ' contracts a block, ' + s.inputs.blocksPerDay + ' blocks a day, ' + s.inputs.jurors + ' seats each, ' + s.inputs.poolSize + ' harnesses'],
+      ['Cost of holding the bond, per 1,000-contract block', m(s.capitalPerBlockUsd), 'across every seat, at ' + s.inputs.capitalCostPct + '% a year; next to about $6.87 for the packed, proven block'],
+      ['Honest harness, ' + s.inputs.missCommitPct + '% of seats missed', m(s.honestSlashPerSeatUsd, 4) + ' a seat', 'inside the free ' + s.inputs.graceNoCommitPct + '% allowance'],
+      ['Unreliable harness, 5% missed', m(stake({ missCommitPct: 5, missRevealPct: 0.5 }).honestSlashPerSeatUsd, 4) + ' a seat', (stake({ missCommitPct: 5, missRevealPct: 0.5 }).honestSlashShareOfFees).toFixed(1) + ' times its fees: it loses money'],
+      ['One bad reveal', m(s.badRevealUsd, 0), Math.round(s.badRevealInSeatFees).toLocaleString() + ' seat fees'],
+      ['One double commit', m(s.doubleCommitUsd, 0), 'the whole bond'],
+      ['Bonds behind a majority of one jury', m(s.majorityBondsUsd, 0), Math.ceil(s.inputs.jurors / 2) + ' seats, each on its own bond and operator'],
+      ['Challenge bond', m(s.challengeBondUsd, 4), s.inputs.challengeBondFactor + ' times the challenge jury escrow'],
+    ]
+    t.innerHTML = rows.map(function (r) { return '<tr><td>' + r[0] + '</td><td class="v">' + r[1] + '</td><td>' + r[2] + '</td></tr>' }).join('')
+  }
+
+  load(); build(); fill(); sources(); render(); buildCascade(); renderCascade(); renderStake()
 })()
 
 </script>

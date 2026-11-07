@@ -42,7 +42,7 @@ There is no coin to pay for anything, so every ruling pays its own way. The escr
 |---|---|---|---|
 | **Inference** | Jurors: each one runs its committed AI model on the contract's instructions, context and question | Model tokens, either per call to a provider or GPU time on their own hardware | `split.jurors`, shared across counted votes |
 | **Running the harness** | Jurors | The machine, the network, uptime, keeping the model pinned and the endpoint healthy, and the capital locked in the bond | The same juror share |
-| **Audits** | Auditors: they re-run a sample of sealed rulings with a different lab's model | More inference, on rulings they didn't sit on | `split.auditors`, plus the bond of any juror they catch |
+| **Audits** | Auditors: they re-run a sample of sealed rulings with a model from a different family | More inference, on rulings they didn't sit on | `split.auditors`, plus the bond of any juror they catch |
 | **Keeping the words available** | Storage harnesses: they serve every prompt, context file and piece of evidence by hash for as long as a ruling can be challenged | Disk and bandwidth | `split.storage` |
 | **Bookkeeping** | Sealers and nodes: they collect reveals, check quorum, signatures and diffs, seal blocks and keep the chain | CPU, disk and bandwidth | `split.sealer` |
 | **Settlement** | Whoever submits the quorum-signed trigger on the source chain | That chain's own transaction fee, in its own asset | Covered by the sealer share in the current design |
@@ -105,7 +105,7 @@ The routing agent never trades provability for price. Each contract sets the min
 
 | Level | What the route must offer | Example routes |
 |---|---|---|
-| **L0, L1** | Any model; the jury supplies lab diversity and commit-reveal | Hosted APIs: Claude, GPT, Gemini, through a provider or a router |
+| **L0, L1** | Any model; the jury supplies model-family diversity and commit-reveal | Open-weight models served over an API, through a provider or a router |
 | **L1+** | Re-executable by auditors: open weights at temperature 0 on a pinned runtime, or a hardware attestation of what ran | `gpt-oss-120b` or Qwen3 on a GPU the agent rents, pinned by weights hash and container digest |
 | **L2** | A zero-knowledge proof of inference per vote, checked off chain by auditors | Today only Llama 4 Maverick, through research proving systems such as FlashProve, on a GPU host with large memory |
 
@@ -130,7 +130,7 @@ The operator stays in charge through limits in the harness config. The keyblock,
   ],
   "routing": {
     "inference": [
-      { "id": "hosted-haiku", "kind": "hosted", "provider": "openrouter", "model": "anthropic/claude-haiku-4.5", "usdPerVote": 0.003 },
+      { "id": "hosted-mistral", "kind": "hosted", "provider": "openrouter", "model": "mistralai/mistral-small-3.2-24b-instruct", "usdPerVote": 0.0005 },
       { "id": "local-gptoss", "kind": "open-weights", "model": "openai/gpt-oss-120b", "host": "gpu-1", "usdPerVote": 0.001 },
       { "id": "proving-maverick", "kind": "open-weights", "model": "meta-llama/llama-4-maverick", "proofs": true, "host": "gpu-proving", "usdPerVote": 0.03 }
     ],

@@ -12,11 +12,12 @@ verafy up --ui     # the same questions as a page on your own machine</code></pr
 
 <section id="try">
 <h2>Try it for free: a testnet on your machine</h2>
-<p>One harness per lab, a local coordinator that draws juries and seals blocks, and scripted AI answers, so it costs nothing. Add <code>--solana</code> to settle every ruling on a local Solana validator too (needs the Solana CLI).</p>
+<p>One harness per open-weight model family, a local coordinator that draws juries from its beacon, slashes faults and seals blocks, and scripted AI answers, so it costs nothing. Add <code>--solana</code> to settle every ruling on a local Solana validator too (needs the Solana CLI).</p>
 <pre><code>git clone https://github.com/Verafyai/verafyHarness.git && cd verafyHarness
 npm run testnet                         # scripted answers, no keys
 node bin/verafy.js testnet up --solana  # plus Solana settlement
-node bin/verafy.js testnet up --live    # real models, with VERAFY_API_KEY</code></pre>
+node bin/verafy.js testnet up --live    # real models, with VERAFY_API_KEY
+node bin/verafy.js testnet up --misbehave h-llama-1:no-reveal   # watch a harness get slashed</code></pre>
 </section>
 
 <section id="configure">
@@ -35,7 +36,7 @@ node bin/verafy.js testnet up --live    # real models, with VERAFY_API_KEY</code
     </fieldset>
     <fieldset><legend>Model</legend>
       <div class="opts" role="radiogroup" aria-label="Model kind">
-        <label><input type="radio" name="kind" value="hosted" checked> Hosted, with an API key</label>
+        <label><input type="radio" name="kind" value="hosted" checked> Open weights over an API, with a key</label>
         <label><input type="radio" name="kind" value="local"> Open weights on the same machine</label>
       </div>
       <label class="row" for="model">Which model</label>
@@ -46,7 +47,7 @@ node bin/verafy.js testnet up --live    # real models, with VERAFY_API_KEY</code
       <label class="row" for="nodes">Node URLs, comma-separated (empty to start without)</label>
       <input id="nodes" placeholder="https://node1.example:7101">
       <label class="row" for="hid">Harness id (optional)</label>
-      <input id="hid" placeholder="h-anthropic-1">
+      <input id="hid" placeholder="h-mistral-1">
     </fieldset>
   </div>
   <div class="outputs">
@@ -58,8 +59,8 @@ node bin/verafy.js testnet up --live    # real models, with VERAFY_API_KEY</code
 
 <section id="hardware">
 <h2>Which model fits which machine</h2>
-<p>Any machine, even the smallest server, can run a harness that calls a hosted model. To run open weights yourself, memory decides. These needs are modeled, not measured: 4-bit weights at about 0.6 GB per billion parameters, plus about 25% for the context cache and runtime. Check a model on your machine before you put a bond behind it.</p>
-<div class="tbl"><table><thead><tr><th>Model</th><th>Lab</th><th>Ollama tag</th><th>Memory needed (modeled)</th><th>Router tier</th></tr></thead><tbody id="hwTable"></tbody></table></div>
+<p>Any machine, even the smallest server, can run a harness that calls an open-weight model served over an API. To run the weights yourself, memory decides. These needs are modeled, not measured: 4-bit weights at about 0.6 GB per billion parameters, plus about 25% for the context cache and runtime. Check a model on your machine before you put a bond behind it.</p>
+<div class="tbl"><table><thead><tr><th>Model</th><th>Family</th><th>Ollama tag</th><th>Memory needed (modeled)</th><th>Router tier</th></tr></thead><tbody id="hwTable"></tbody></table></div>
 </section>
 
 <section id="hosted">
@@ -72,6 +73,7 @@ node bin/verafy.js testnet up --live    # real models, with VERAFY_API_KEY</code
 <ul>
 <li><strong>Your model key</strong> lives where the harness runs: a mode-600 file on your machine, or the server's user data in the cloud. Cloud providers keep user data in the server's metadata, so use a key for this harness alone, with a spending limit.</li>
 <li><strong>A cloud API token</strong> is used once, by <code>verafy up</code> on your machine, to create the server. It is never written anywhere.</li>
+<li><strong>Your bond</strong> is at stake. Every harness posts one; it caps the value one vote can decide, and the network takes part of it for misbehavior: a share for provable faults such as a reveal that does not match its commitment, a small fixed amount for missed seats past a free allowance. Keep the machine up. <a href="/learn/bonds-and-slashing">How slashing works</a>.</li>
 <li><strong>The harness signing key</strong> is made on first start and never leaves the machine. Keep its data directory (or Docker volume): it is the harness's identity and its open commitments.</li>
 <li><strong>The harness refuses</strong> to commit on any contract no node it watches holds, so nobody can spend your model budget by calling it directly.</li>
 <li><strong>Vercel and other serverless hosts</strong> cannot run a harness: it is a long-running process that holds a key. Use a server, a container host or your own machine.</li>

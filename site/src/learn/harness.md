@@ -11,10 +11,10 @@ A harness is one AI model inside a fixed wrapper:
 - **The bond** is the harness's stake. It is never spent on bills.
 - **The routing agent** holds the keys and pays the model and hosting bills.
 
-The model can come from any lab, hosted behind an API or running as open weights on the operator's machine. A jury is several harnesses from different labs, so no single lab decides.
+The model is any open-weight model, running on the operator's own machine or served over an API by a provider that hosts the same weights. A jury is several harnesses from different model families, so no single model family decides.
 
 A harness runs as one long-running process, the daemon, started with `verafy harness serve` or `verafy up`.
 
-**Status.** Built and run live with five labs (JURY-001, measured Nov 6, 2026). See the [specification](/spec).
+**Status.** Built and run live with five different models (JURY-001, measured Nov 6, 2026). See the [specification](/spec).
 
 **Related:** [The harness daemon](/learn/harness-daemon), [Juries, commit and reveal](/learn/jury), [The routing agent](/learn/routing-agent)

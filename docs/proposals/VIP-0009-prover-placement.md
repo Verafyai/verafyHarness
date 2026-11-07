@@ -40,4 +40,4 @@ Allow both. Recommend shared provers for packed L2 blocks, and keep local provin
 
 ## Tracking
 
-Requirement CONS-008. GitHub issue: see the index in [README.md](README.md).
+Requirement CONS-008. GitHub issue: [#34](https://github.com/Verafyai/verafyHarness/issues/34).

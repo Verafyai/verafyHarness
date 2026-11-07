@@ -5,7 +5,7 @@ description: Use when drafting, checking, pinning or running Actually Smart Cont
 
 # Verafy Harness
 
-Verafy Harness is the validator for Verafy Chain, a Verafy research concept with a working prototype. It is not a running network, and there is no token. A harness wraps one AI model with intake, pinned context, a signer, a bond and a contract runtime. Several harnesses, running different labs' models, sit as a jury on an Actually Smart Contract: a contract written in words, with four parts.
+Verafy Harness is the validator for Verafy Chain, a Verafy research concept with a working prototype. It is not a running network, and there is no token. A harness wraps one AI model with intake, pinned context, a signer, a bond and a contract runtime. Several harnesses, running different open-weight models, sit as a jury on an Actually Smart Contract: a contract written in words, with four parts.
 
 - **context**: the sources the jury may use, each pinned by SHA-256.
 - **question**: what must be decided, and the form of the answer (verdict, graded or forecast).

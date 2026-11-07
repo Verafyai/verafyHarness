@@ -1,7 +1,7 @@
 <section class="hero" aria-labelledby="h1">
   <p class="lbl">The validator for Verafy Chain</p>
   <h1 id="h1">An AI validator anyone can run.</h1>
-  <p class="lead hero-lead">Verafy Harness wraps one AI model in everything a validator needs: intake, pinned context, sandboxed tools, guardrails, a signer, a bond, a contract runtime, and a routing agent that holds the keys and pays the bills. It rules on Actually Smart Contracts, contracts written in words, together with harnesses running other labs' models.</p>
+  <p class="lead hero-lead">Verafy Harness wraps one AI model in everything a validator needs: intake, pinned context, sandboxed tools, guardrails, a signer, a bond, a contract runtime, and a routing agent that holds the keys and pays the bills. It rules on Actually Smart Contracts, contracts written in words, together with harnesses running other open-weight models.</p>
   <div class="cta">
     <a class="btn" href="/launch">Launch a harness</a>
     <a class="btn ghost" href="/learn">Learn how it works</a>
@@ -11,8 +11,8 @@
   </div>
   <div class="facts">
     <div class="fact"><span class="big num">40</span><p>core tests pass with no dependencies on Node 22</p><span class="tag m">measured, Nov 6, 2026</span></div>
-    <div class="fact"><span class="big num">5 labs</span><p>ruled inside DeepSeek Harness and sealed a block from their reveals</p><span class="tag m">measured, Nov 6, 2026</span></div>
-    <div class="fact"><span class="big num">$0.0163</span><p>for five live rulings by five labs' models, 5.9 to 30.1 s each</p><span class="tag m">measured, Nov 6, 2026</span></div>
+    <div class="fact"><span class="big num">5 models</span><p>ruled inside DeepSeek Harness and sealed a block from their reveals</p><span class="tag m">measured, Nov 6, 2026</span></div>
+    <div class="fact"><span class="big num">$0.0163</span><p>for five live rulings by five different models, 5.9 to 30.1 s each</p><span class="tag m">measured, Nov 6, 2026</span></div>
   </div>
 </section>
 
@@ -22,7 +22,7 @@
     <h2 id="s1">One model, wrapped in everything a validator does</h2>
     <p class="lead">On today's chains a validator re-runs code and votes on blocks. A Verafy Harness reads a contract written in words, checks every piece of pinned context against its hash, asks its model for an answer and a confidence, and commits a hidden vote before anyone reveals. The model brings judgment. The harness does the rest.</p>
 @@FIGURE@@
-    <p class="lead mut">A harness commits to one model. Swapping the AI means changing the provider and model id, nothing else. The network does not care which lab a harness uses; it requires that every jury spans several labs.</p>
+    <p class="lead mut">A harness commits to one model. Swapping the AI means changing the provider and model id, nothing else. Any open-weight model from Hugging Face will do. The network requires that every jury spans several model families and operators, and that every harness posts a bond it can lose.</p>
   </div>
 </section>
 
@@ -59,7 +59,7 @@
     <div class="tbl"><table>
       <thead><tr><th>Provability</th><th>What it requires</th><th>What the router may use</th></tr></thead>
       <tbody>
-        <tr><td class="v">L0, L1</td><td>Any model; the jury supplies lab diversity and commit and reveal</td><td>Hosted APIs such as Claude, GPT and Gemini, direct or through a router</td></tr>
+        <tr><td class="v">L0, L1</td><td>Any model; the jury supplies model-family diversity and commit and reveal</td><td>Open-weight models served over an API, direct or through a router</td></tr>
         <tr><td class="v">L1+</td><td>Re-executable by auditors: open weights at temperature 0 on a pinned runtime, or a hardware attestation</td><td>An open model on a GPU the agent rents, pinned by weights hash and container digest</td></tr>
         <tr><td class="v">L2</td><td>A zero-knowledge proof of inference per vote, checked by auditors</td><td>A proving-capable GPU host running an open model. Never a hosted API.</td></tr>
       </tbody>
@@ -76,8 +76,8 @@
       <thead><tr><th>What</th><th>Status</th></tr></thead>
       <tbody>
         <tr><td>A full jury on one machine: contracts, pinned context, commit and reveal, agreement against the bar, exits, payouts, linked blocks</td><td><span class="tag m">works</span> 167 tests, <code>npm run demo</code></td></tr>
-        <tr><td>Live rulings by five labs' models through OpenRouter</td><td><span class="tag m">measured</span> Nov 6, 2026: five contracts, 5.9 to 30.1 s each, $0.0163 in total</td></tr>
-        <tr><td>Juror mode inside DeepSeek Harness: five processes on five labs' models, block sealed from their reveals</td><td><span class="tag m">measured</span> Nov 6, 2026: all five voted NO, 100% against an 80% bar; every tool other than the two juror tools denied</td></tr>
+        <tr><td>Live rulings by five different models through OpenRouter</td><td><span class="tag m">measured</span> Nov 6, 2026: five contracts, 5.9 to 30.1 s each, $0.0163 in total</td></tr>
+        <tr><td>Juror mode inside DeepSeek Harness: five processes on five different models, block sealed from their reveals</td><td><span class="tag m">measured</span> Nov 6, 2026: all five voted NO, 100% against an 80% bar; every tool other than the two juror tools denied</td></tr>
         <tr><td>Routing agent: keyblock, banker, API router, payment wallet</td><td><span class="tag">works with test venues</span> real venues and on-chain signing planned</td></tr>
         <tr><td>Auditors, challenges and escalation of below-bar rulings to a wider jury</td><td><span class="tag">works with scripted models</span> not yet run live</td></tr>
         <tr><td>Retry and back-off for rate-limited models</td><td><span class="tag">works with fake providers</span> not yet measured live</td></tr>
@@ -133,7 +133,7 @@ node bin/verafy.js run examples/market-resolution.json --live</code></pre>
     <div class="grid3">
       <div class="col"><h3>Two tools, no others</h3><p>A juror can load and check a contract, and cast a vote. A tool lock offers only those two, and a pre-execute gate denies any other call.</p></div>
       <div class="col"><h3>Context is evidence</h3><p>Nothing a juror reads is treated as an instruction. The juror prompt section says so, and the tool lock limits what a misled juror could do.</p></div>
-      <div class="col"><h3>Any lab's model</h3><p>DeepSeek Harness routes to Anthropic, OpenAI, Google, OpenRouter, any OpenAI-compatible gateway, or a self-hosted server.</p></div>
+      <div class="col"><h3>Any open-weight model</h3><p>DeepSeek Harness routes to a self-hosted server or any OpenAI-compatible gateway that serves open weights.</p></div>
     </div>
   </div>
 </section>

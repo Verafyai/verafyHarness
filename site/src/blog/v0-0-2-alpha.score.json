@@ -1,6 +1,6 @@
 {
  "version": "0.0.2-alpha",
- "overall": 0.6568627450980391,
+ "overall": 0.6267272727272727,
  "areas": {
   "CORE": {
    "name": "Core protocol: contracts, commit and reveal, agreement, exits",
@@ -10,7 +10,7 @@
   "JURY": {
    "name": "Juries, live runs, audits and challenges",
    "count": 9,
-   "score": 0.6863636363636363
+   "score": 0.7
   },
   "CHAIN": {
    "name": "Verafy Chain node (verafyChain repo)",
@@ -91,6 +91,11 @@
    "name": "External collaborations and data",
    "count": 2,
    "score": 0
+  },
+  "CONS": {
+   "name": "Consensus hardening: jury scheduling, randomness, operators, slashing, payout holds",
+   "count": 10,
+   "score": 0.22749999999999998
   }
  },
  "rows": [
@@ -147,6 +152,36 @@
   },
   {
    "id": "JURY-009"
+  },
+  {
+   "id": "CONS-001"
+  },
+  {
+   "id": "CONS-002"
+  },
+  {
+   "id": "CONS-003"
+  },
+  {
+   "id": "CONS-004"
+  },
+  {
+   "id": "CONS-005"
+  },
+  {
+   "id": "CONS-006"
+  },
+  {
+   "id": "CONS-007"
+  },
+  {
+   "id": "CONS-008"
+  },
+  {
+   "id": "CONS-009"
+  },
+  {
+   "id": "CONS-010"
   },
   {
    "id": "CHAIN-001"
@@ -454,6 +489,30 @@
  ],
  "gaps": [
   {
+   "id": "CONS-001",
+   "status": "designed",
+   "title": "Jury scheduler: beacon seed, draw, alternates, block-height deadlines, commit-phase replacement",
+   "rex": null
+  },
+  {
+   "id": "CONS-002",
+   "status": "designed",
+   "title": "Randomness beacon with lookahead; a withheld reveal is a slashable fault",
+   "rex": null
+  },
+  {
+   "id": "CONS-005",
+   "status": "designed",
+   "title": "Slashing: a published schedule applied to recorded faults as conserving bond diffs",
+   "rex": null
+  },
+  {
+   "id": "CONS-006",
+   "status": "designed",
+   "title": "Payouts held until the challenge window closes; an overturn redirects the held escrow",
+   "rex": null
+  },
+  {
    "id": "PROVE-004",
    "status": "designed",
    "title": "Prove once, verify many while one model is provable; verifiers drawn from the block hash",
@@ -478,40 +537,16 @@
    "rex": null
   },
   {
+   "id": "CONS-009",
+   "status": "planned",
+   "title": "verafy_ruling: a reveal deadline slot, and a releasable-after slot",
+   "rex": null
+  },
+  {
    "id": "DEPLOY-010",
    "status": "planned",
    "title": "Hosted harnesses run by Verafy for people who do not want to operate one",
    "rex": true
-  },
-  {
-   "id": "JURY-006",
-   "status": "planned",
-   "title": "Challenge bonds: lock on open, return on overturn, forfeit on affirm",
-   "rex": null
-  },
-  {
-   "id": "JURY-007",
-   "status": "planned",
-   "title": "Track record: agreement with final rulings and forecast scores per harness",
-   "rex": null
-  },
-  {
-   "id": "OPS-003",
-   "status": "planned",
-   "title": "Monitoring: per-harness health, spend, faults and alerts",
-   "rex": null
-  },
-  {
-   "id": "OPS-004",
-   "status": "planned",
-   "title": "Threat model document covering keys, queue, provers, screens and the banker",
-   "rex": null
-  },
-  {
-   "id": "PACK-007",
-   "status": "planned",
-   "title": "Real token counts with the target model's tokenizer",
-   "rex": null
   }
  ]
 }

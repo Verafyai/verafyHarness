@@ -450,7 +450,8 @@ def spec_page(sc):
     write_page('spec.html', '/spec', f'Verafy specification v{VERSION}', f'The Verafy Harness and Verafy Chain specification, v{VERSION}: every requirement with a stable ID and a status, checked against the code by a scoring pass.', 'Specification', body, toc)
 
 
-POSTS = [('v0-0-2-alpha', 'v0.0.2-alpha', '2026-11-06', 'Verafy Harness v0.0.2-alpha: run it anywhere', 'The harness daemon, verafy up for every cloud, a testnet on one machine, a Solana ruling program, proof packing end to end, a calibration set, the Banker as a service, and a Learn section.'),
+POSTS = [('v0-0-3-alpha', 'v0.0.3-alpha', '2026-11-07', 'Verafy Harness v0.0.3-alpha: stake, slashing and open-weight models', 'Bonds that are slashed for misbehavior, a jury scheduler seeded by a randomness beacon, operator caps, payouts held through a challenge window, challenge bonds, and juries of open-weight models counted by family.'),
+         ('v0-0-2-alpha', 'v0.0.2-alpha', '2026-11-06', 'Verafy Harness v0.0.2-alpha: run it anywhere', 'The harness daemon, verafy up for every cloud, a testnet on one machine, a Solana ruling program, proof packing end to end, a calibration set, the Banker as a service, and a Learn section.'),
          ('v0-0-1-alpha', 'v0.0.1-alpha', '2026-11-06', 'Verafy Harness v0.0.1-alpha: the first spec, scored', 'The first versioned spec, a scoring pass that checks it against the code, multi-model routing with calibration and audits, proof packing routed, and the economics rewritten.')]
 
 
@@ -525,7 +526,7 @@ def learn():
     groups = {}
     for slug, m in meta.items():
         groups.setdefault(m['group'], []).append(slug)
-    side = ''.join(f'<li><span class="grp-l">{g}</span><ul>' + ''.join(f'<li><a href="/learn/{s}">{H.escape(meta[s]["title"])}</a></li>' for s in groups[g]) + '</ul></li>' for g in ['Basics', 'Settlement', 'Proofs', 'Routing', 'Money', 'Governance', 'Running one'] if g in groups)
+    side = ''.join(f'<li><span class="grp-l">{g}</span><ul>' + ''.join(f'<li><a href="/learn/{s}">{H.escape(meta[s]["title"])}</a></li>' for s in groups[g]) + '</ul></li>' for g in ['Basics', 'Stake', 'Settlement', 'Proofs', 'Routing', 'Money', 'Governance', 'Running one'] if g in groups)
     side = f'<ul class="learnnav">{side}</ul>'
     body, _ = md_page((SRC / 'learn' / 'index.md').read_text(), 'learn.html', '/learn', '', '', '')
     write_page('learn.html', '/learn', 'Learn Verafy Harness', 'Every concept in Verafy Harness and Verafy Chain in plain words: Actually Smart Contracts, juries, proof packing, routing, the Banker, Solana settlement and more.', 'Learn', body, side, side='Learn')
@@ -545,7 +546,7 @@ def machine_readable():
         ('Reference', [('/spec', None), ('/economics', None), ('/coin-agnostic', None)]),
         ('Release notes', [('/blog', None)] + [(f'/blog/{slug}', None) for slug, *_ in POSTS]),
     ]
-    L = ['# Verafy Harness', '', f'> An AI validator anyone can run: one model in a harness that rules on contracts written in words (Actually Smart Contracts), with juries across labs, commit and reveal, exact settlement, and no token. Version {VERSION}. A prototype, not a running network.', '',
+    L = ['# Verafy Harness', '', f'> An AI validator anyone can run: one model in a harness that rules on contracts written in words (Actually Smart Contracts), with juries across open-weight model families, commit and reveal, bonds that are slashed for misbehavior, exact settlement, and no token. Version {VERSION}. A prototype, not a running network.', '',
          'Every number on this site is labeled measured, vendor-reported, modeled or illustrative. Code: https://github.com/Verafyai/verafyHarness (MIT). The concept chain: https://chain.verafy.ai.', '']
     for name, items in sections:
         L.append(f'## {name}')
