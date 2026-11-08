@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-08T17:16:07.315Z",
+  "cluster": "http://127.0.0.1:8899",
+  "version": "2.1.21",
+  "payer": "(throwaway local key)",
+  "upgradeAuthority": "(throwaway local key)",
+  "spentLamports": 767594160,
+  "programs": [
+    {
+      "name": "verafy_ruling",
+      "id": "A6iZhDZASfQGCmzxXWW8JdnEhtz7EZE3gS4N1hkiJNNN",
+      "bytes": 21736,
+      "already": false,
+      "signature": "5YCCYDGTexJLC21QHf3cktoJkyWGdKDrQdBqNdQsRXJCctC2q5kgsCG7J1hEGrJikFfCHJbDVsEyUcqnhHCNHXU3",
+      "executable": true
+    },
+    {
+      "name": "verafy_judiciary",
+      "id": "6fUWUTA7qni3p1pWWdd58icC7cxKGmVv1vonawg1QnnJ",
+      "bytes": 47872,
+      "already": false,
+      "signature": "3sxYSLJJpE56AGpKcyD83mc1kVA21JGq2BprMEHHrQkg4A75aynjHzg62VRrRTSrNyEKHA7fqeD746ZCSmEQdab5",
+      "executable": true
+    },
+    {
+      "name": "verafy_registry",
+      "id": "Bn6jV1CGK4WFibJcCVsEzHeVVhtph2xPsNkemWfgqn9R",
+      "bytes": 22624,
+      "already": false,
+      "signature": "4fxMAPUwj88MQoFsPwcuMhhwLpMkx52xKSaTn2V3wD23ygAbjYDyDCJVuxn9qWJfjxrHcnbE4oh67P7NEXcJfGXy",
+      "executable": true
+    },
+    {
+      "name": "verafy_covenant",
+      "id": "D4ftcrUiGehwCAd6ndkttxyydPhkuis63HkiQeFQ5k4s",
+      "bytes": 16616,
+      "already": false,
+      "signature": "2e1xjxN3JXTaEMT25ej79afko268qmigJfoRRECNSJyDtrFCMrtQBdJcpDVTifhbjraNfU33k2KpQFbfnXXKTtT5",
+      "executable": true
+    }
+  ],
+  "note": "Rehearsal on a local validator standing in for devnet (Squads v4 loaded from a mainnet dump, program config cloned from mainnet). Not devnet."
+}

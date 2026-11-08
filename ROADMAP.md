@@ -18,6 +18,9 @@ The milestones below are stage 1 in detail. The same stages, for readers: [docs/
 - [x] VIP-0032 DAO constitution: articles pinned by hash, caps in code, one jury question per article
 - [x] VIP-0033 Agent bonds: an operator bonds its agent's behavior; anyone reports; a jury slashes violations
 - [x] A tailoring prompt for every template, in `templates/prompts/`
+- [x] Repository snapshots for hackathon councils (`packages/snapshot`)
+- [x] Devnet deploy script and live-cluster mode for the judiciary checks, rehearsed on a stand-in cluster
+- [ ] Deploy to devnet (needs about 3 devnet SOL in the payer)
 - [ ] Each on devnet, with one real program run end to end
 
 Done when: one agentic contract, one super grant and one hackathon settle on devnet through the judiciary signer program.

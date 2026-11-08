@@ -14,6 +14,8 @@ ASC templates for agreements, funding and conduct: agentic contracts, super gran
 - `packages/core/src/grants.js`: super grants: a Request for Ideas, agent terms, base grants, response and outcome reviews, outcome tranches, refunds.
 - `packages/core/src/hackathon.js`: hackathon grants: GitHub submissions pinned to a commit, graded council contracts, ranking, prizes.
 - `packages/core/src/agentbond.js`: agent bonds: priced articles, reports by anyone with a reporter bond, violation contracts, slashes, release after the term.
+- `packages/snapshot`: deterministic snapshots of a GitHub repository at a commit, which hackathon councils grade and checkers rebuild.
+- `packages/solana/scripts/devnet-deploy.mjs`, and a live-cluster mode for the 30 judiciary checks (`--rpc`, `--payer`); rehearsed on a stand-in cluster, not yet run on devnet.
 - `templates/prompts/`: a tailoring prompt for each template: paste it into an AI and it writes the program for your case.
 - `packages/core/src/programlog.js`: signed logs for programs with many participants, ruling checks against contracts rebuilt from the log, and the entitlement payout check.
 - `policy.js`: the `agentic-settlement` and `program-payout` rules; the `agentic-contract`, `super-grant`, `hackathon`, `dao-constitution` and `agent-bond` templates.

@@ -2042,9 +2042,12 @@
     },
     {
      "test": "packages/core/test/hackathon.test.js"
+    },
+    {
+     "test": "packages/snapshot/test/snapshot.test.js"
     }
    ],
-   "gap": "Not on devnet; no repository snapshot service, so the council in the demo is scripted; no team identity beyond a key"
+   "gap": "Not on devnet; no real model council has graded a real repository; no team identity beyond a key"
   },
   {
    "id": "SIGN-010",
