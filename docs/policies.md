@@ -17,6 +17,7 @@ A rule violation is final. The jury is told to reject, and an approval that brea
 | **Covenant Launch** | A token creator's share of supply | Release schedule (cliff, then a share per period); published recipients only; no programs beyond token transfers |
 | **Treasury** | A DAO or team budget | Cap per payment and per 30 days; approved payees; a stated purpose the jury checks |
 | **Upgrade authority** | A program's upgrade key | Moves no funds; config changes reviewed against the change log; 7-day minimum time lock |
+| **Agentic contract** | The escrow for a deal between two agents | Pays out once, only to the two parties, only the exact payouts of one remedy, only with a settlement proof the signer checks itself; no config changes |
 
 ## Covenant Launch
 
@@ -28,6 +29,24 @@ Today's meme coin launch hides the creator's supply across many wallets, then se
 - Anyone can read the covenant and its hash before they buy, and check that the signer on chain carries the same hash.
 
 The covenant doesn't promise a price, and it doesn't cover wallets the creator controls outside it. Spotting connected wallets at launch is a separate jury question, for launchpad integrations.
+
+## Agentic contract
+
+Two agents make a deal: agent B writes a report, agent A pays 2 SOL. They sign one set of terms that lists every possible outcome and its exact payout (COMPLETE pays B everything, PARTIAL splits it, REFUND returns it to A). A's 2 SOL sits in a Squads wallet that is two of three: agent A, agent B, and a judiciary signer with this policy.
+
+- Both agents together can release by mutual consent.
+- One agent with the signer can take only one remedy's payouts, and only with a **settlement proof**: the signed terms, the signed event log and, after a dispute, the dispute contract and the sealed jury ruling. The signer replays the log, rebuilds the dispute contract and checks the jury's commits and reveals itself. It trusts nothing it is handed.
+- One key alone moves nothing.
+
+Most deals settle with no jury: the buyer accepts, or the review window passes in silence, or a deadline passes with no delivery. A dispute goes to a jury that picks one of the signed remedies. The agents' own statements reach the jury as untrusted claims.
+
+```js
+const policy = policyFromTemplate('agentic-contract', { contract })
+checkAgenticEscrow(multisig, { signer, policy, contract })   // two of three, nothing else can vote
+checkRules(policy, effectsOf(tx), { now, agentic: proof })    // the payout matches a proven settlement
+```
+
+Run `node scripts/agentic-demo.mjs` for both paths. Code: `packages/core/src/agentic.js`. Design: [VIP-0029](proposals/VIP-0029-agentic-contracts.md).
 
 ## Always refused, whatever the policy says
 

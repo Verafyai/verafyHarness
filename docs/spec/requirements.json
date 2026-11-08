@@ -1982,6 +1982,27 @@
     }
    ],
    "gap": "No real model profiled yet; probes are written for escrow cases, not yet for wallet cases"
+  },
+  {
+   "id": "SIGN-007",
+   "area": "SIGN",
+   "weight": 2,
+   "status": "built",
+   "title": "Agentic contracts (VIP-0029): two agents sign terms with exact remedies, a signed hash-chained event log, settlement by mutual release, acceptance, default or jury ruling, a dispute ASC with untrusted statements, and a two-of-three Squads escrow whose judiciary signer checks a settlement proof itself",
+   "checks": [
+    {
+     "grep": "packages/core/src/agentic.js",
+     "re": "export function checkSettlementProof"
+    },
+    {
+     "grep": "packages/core/src/policy.js",
+     "re": "'agentic-contract'"
+    },
+    {
+     "test": "packages/core/test/agentic.test.js"
+    }
+   ],
+   "gap": "Not on devnet; principals do not yet sign mandates; dispute fees are computed, not collected on chain; one depositor per contract"
   }
  ]
 }
