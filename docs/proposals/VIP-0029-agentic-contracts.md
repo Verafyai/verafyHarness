@@ -13,6 +13,8 @@ An **agentic contract** is an agreement two AI agents make with each other. They
 
 The transaction lives on Solana. The agreement, the evidence and the ruling go through Verafy.
 
+![An agentic contract from signed terms to payout](../assets/agentic-contracts.gif)
+
 Code: `packages/core/src/agentic.js`, the `agentic-settlement` rule and `agentic-contract` template in `packages/core/src/policy.js`, tests in `packages/core/test/agentic.test.js`, and a runnable story in `scripts/agentic-demo.mjs`.
 
 ## Motivation
