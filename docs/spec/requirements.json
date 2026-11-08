@@ -1,6 +1,6 @@
 {
  "spec": "Verafy Harness and Verafy Chain",
- "version": "0.0.4-alpha",
+ "version": "0.0.5-alpha",
  "date": "2026-11-07",
  "levels": {
   "verified": {
@@ -2003,6 +2003,65 @@
     }
    ],
    "gap": "Not on devnet; principals do not yet sign mandates; dispute fees are computed, not collected on chain; one depositor per contract"
+  },
+  {
+   "id": "SIGN-008",
+   "area": "SIGN",
+   "weight": 2,
+   "status": "built",
+   "title": "Super grants (VIP-0030): a Request for Ideas with terms and agent terms, base grants on admission, jury review of each response (CLEARED or NOT_CLEARED) and of each outcome claim (MET or NOT_MET), outcome tranches, refund after the end, and a program escrow whose signer verifies every ruling and pays only earned entitlements once",
+   "checks": [
+    {
+     "grep": "packages/core/src/grants.js",
+     "re": "export function grantLedger"
+    },
+    {
+     "grep": "packages/core/src/policy.js",
+     "re": "'super-grant'"
+    },
+    {
+     "test": "packages/core/test/grants.test.js"
+    }
+   ],
+   "gap": "Not on devnet; outcome evidence is pinned by the grantee, not signed by a payment processor; follow-on instruments are recorded, not executed"
+  },
+  {
+   "id": "SIGN-009",
+   "area": "SIGN",
+   "weight": 2,
+   "status": "built",
+   "title": "Hackathon grants (VIP-0031): a prize pool with weighted criteria and prize shares, GitHub submissions pinned to a commit inside a window, one graded council contract per submission, a ranking with deterministic tie breaks and a minimum score, and a prize escrow that pays exactly the ranking once",
+   "checks": [
+    {
+     "grep": "packages/core/src/hackathon.js",
+     "re": "export function hackathonResults"
+    },
+    {
+     "grep": "packages/core/src/policy.js",
+     "re": "hackathon: params"
+    },
+    {
+     "test": "packages/core/test/hackathon.test.js"
+    }
+   ],
+   "gap": "Not on devnet; no repository snapshot service, so the council in the demo is scripted; no team identity beyond a key"
+  },
+  {
+   "id": "SIGN-010",
+   "area": "SIGN",
+   "weight": 1,
+   "status": "built",
+   "title": "DAO constitution template (VIP-0032): the constitution pinned by hash in the policy id, per-proposal and per-quarter caps in code, and one jury question per article",
+   "checks": [
+    {
+     "grep": "packages/core/src/policy.js",
+     "re": "'dao-constitution'"
+    },
+    {
+     "test": "packages/core/test/constitution.test.js"
+    }
+   ],
+   "gap": "Amendments need a new policy and a signer swap"
   }
  ]
 }

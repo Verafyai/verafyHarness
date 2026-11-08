@@ -1,6 +1,6 @@
 {
   "name": "verafyharness",
-  "version": "0.0.4-alpha",
+  "version": "0.0.5-alpha",
   "private": true,
   "description": "Verafy Harness: harnessed AI validators for Actually Smart Contracts, built on DeepSeek Harness.",
   "type": "module",

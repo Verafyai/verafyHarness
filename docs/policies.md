@@ -17,6 +17,9 @@ A rule violation is final. The jury is told to reject, and an approval that brea
 | **Covenant Launch** | A token creator's share of supply | Release schedule (cliff, then a share per period); published recipients only; no programs beyond token transfers |
 | **Treasury** | A DAO or team budget | Cap per payment and per 30 days; approved payees; a stated purpose the jury checks |
 | **Upgrade authority** | A program's upgrade key | Moves no funds; config changes reviewed against the change log; 7-day minimum time lock |
+| **DAO constitution** | A DAO treasury | Caps per proposal and per quarter; the constitution pinned by hash; one jury question per article; when in doubt, no |
+| **Super grant** | A foundation's grant budget | Pays only entitlements the ledger shows: base grants on admission, tranches after a cleared response and a met outcome, the rest back to the foundation after the end |
+| **Hackathon** | A prize pool | Pays only the council's final ranking, once; nothing before the window closes; unwon prizes back to the initiator |
 | **Agentic contract** | The escrow for a deal between two agents | Pays out once, only to the two parties, only the exact payouts of one remedy, only with a settlement proof the signer checks itself; no config changes |
 
 ## Covenant Launch
@@ -47,6 +50,14 @@ checkRules(policy, effectsOf(tx), { now, agentic: proof })    // the payout matc
 ```
 
 Run `node scripts/agentic-demo.mjs` for both paths. Code: `packages/core/src/agentic.js`. Design: [VIP-0029](proposals/VIP-0029-agentic-contracts.md).
+
+## Super grant and hackathon
+
+Both are program escrows: a Squads wallet with the funder and a judiciary signer. The case carries a program proof (`{program, log, rulings, pay}`). The signer replays the signed log, rebuilds every jury contract from it, verifies each sealed round, and pays exactly the named entitlements, none twice. Design: [VIP-0030](proposals/VIP-0030-super-grants.md), [VIP-0031](proposals/VIP-0031-hackathon-grants.md). Run `node scripts/grant-demo.mjs` and `node scripts/hackathon-demo.mjs`.
+
+## DAO constitution
+
+`policyFromTemplate('dao-constitution', { name, articles, quarterlyCap, perTransaction })`. The articles are pinned by hash in the policy id, so changing one makes a new signer. Design: [VIP-0032](proposals/VIP-0032-dao-constitution.md).
 
 ## Always refused, whatever the policy says
 

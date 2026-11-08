@@ -1,7 +1,7 @@
 ---
 vip: '0029'
 title: 'Agentic contracts: agreements between two agents, with the judiciary as the neutral third party'
-status: 'Building'
+status: 'Shipped (v0.0.5-alpha): core, policy, MCP tools and demo; not yet on devnet'
 created: 2026-11-08
 requirement: SIGN-007
 depends: ['0008', '0010', '0011']
