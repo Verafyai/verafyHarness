@@ -1,5 +1,5 @@
 /**
- * The eight MCP tools. Every handler calls packages/core; none accepts or
+ * The ten MCP tools. Every handler calls packages/core; none accepts or
  * returns a key, none casts a vote, and none moves funds. The agent that loads
  * this server is a client of the harness, never a juror.
  *
@@ -11,6 +11,9 @@
  *   verafy_block      one block in full
  *   verafy_doctor     Node, config, pool, key presence, endpoints (live only)
  *   verafy_examples   the example contracts
+ *   verafy_agentic_check    an agentic contract (VIP-0029): terms, both signatures, the
+ *                           signed log, and what settles it without a jury
+ *   verafy_agentic_dispute  the Actually Smart Contract a dispute becomes
  *
  * Text that came from a contract (context, instructions, questions, juror
  * reasoning) is returned only under `evidence`, with EVIDENCE_NOTE.
@@ -23,6 +26,7 @@ import { dirname, isAbsolute, join, resolve } from 'node:path'
 import {
   Harness, drawJuryFor, rule, seal, validate, pin, ascHash, contextHash,
   mockProvider, openaiProvider, createRouter, configPath, envValue, CONFIG_FILE,
+  validateAgentic, verifyAgentic, agenticHash, replayAgentic, settlementFromLog, disputeContract, payouts,
 } from '../../core/src/index.js'
 import { ROOT, ToolError, inWorkspace, insideWorkspace, readContractFile } from './workspace.js'
 import { createMeter, modelCallUsd, modelRunUsd, DEFAULT_PRICE, MODEL_OUTPUT_TOKENS } from './cost.js'
@@ -121,6 +125,20 @@ export const TOOL_DEFINITIONS = [
     description: 'Without name: the example contracts that ship with the harness. With name: that example in full, under evidence. Read only.',
     inputSchema: { type: 'object', properties: { name: { type: 'string', description: 'An example name, such as market-resolution.' } }, additionalProperties: false },
     annotations: { title: 'List example contracts', ...READ_ONLY },
+  },
+  {
+    name: 'verafy_agentic_check',
+    title: 'Check an agentic contract',
+    description: 'Check an agentic contract between two agents (VIP-0029): the terms, both signatures, and, with a log, every signed event in the hash chain. Returns { ok, hash, problems[], signed[], state, facts, settlement, payouts }: settlement is what the log alone settles (a mutual release, an accepted delivery, a default) or null when only a jury can decide. Never signs: each agent signs with its own key, outside this server. Read only.',
+    inputSchema: { type: 'object', properties: { contract: { type: 'object', description: 'The agentic contract (verafy.agentic-contract/1).' }, log: { type: 'array', description: 'The signed event log, oldest first.' }, now: { type: 'number', description: 'Unix seconds; defaults to the current time.' } }, required: ['contract'], additionalProperties: false },
+    annotations: { title: 'Check an agentic contract', ...READ_ONLY },
+  },
+  {
+    name: 'verafy_agentic_dispute',
+    title: 'Build a dispute contract',
+    description: 'Turn an open dispute on an agentic contract into the Actually Smart Contract the Verafy judiciary rules on: the signed terms and deterministic facts from the log as pinned context, each party\'s statements as untrusted text, and one exit per remedy. Returns { hash, options, facts } and the contract under evidence; run it with verafy_run. Read only.',
+    inputSchema: { type: 'object', properties: { contract: { type: 'object', description: 'The agentic contract.' }, log: { type: 'array', description: 'The signed event log, ending in an open dispute.' }, now: { type: 'number', description: 'Unix seconds; defaults to the current time.' } }, required: ['contract', 'log'], additionalProperties: false },
+    annotations: { title: 'Build a dispute contract', ...READ_ONLY },
   },
 ]
 
@@ -311,6 +329,25 @@ export function createTools({ workspace, allowLive = false, configFile, fetch: f
         out.written = file
       }
       return { ...out, evidence: { note: EVIDENCE_NOTE, contract: pinned } }
+    },
+
+    async verafy_agentic_check(args) {
+      const c = args.contract
+      const now = args.now ?? Math.floor(Date.now() / 1000)
+      const problems = validateAgentic(c)
+      if (problems.length) return { ok: false, hash: null, problems, signed: [], state: null, facts: null, settlement: null, payouts: [] }
+      const sig = verifyAgentic(c)
+      const r = args.log ? replayAgentic(c, args.log, { now }) : null
+      const settlement = r ? settlementFromLog(c, r, now) : null
+      return { ok: sig.ok && (!r || r.ok), hash: agenticHash(c), problems: [...sig.problems, ...(r?.problems ?? [])], signed: sig.signed,
+        state: r?.state ?? null, facts: r?.facts ?? null, settlement, payouts: settlement ? payouts(c, settlement) : [] }
+    },
+
+    async verafy_agentic_dispute(args) {
+      const now = args.now ?? Math.floor(Date.now() / 1000)
+      let built
+      try { built = disputeContract(args.contract, args.log, { now }) } catch (err) { throw new ToolError('INVALID_CONTRACT', err.message, 'The log must replay cleanly and end in an open dispute; check it with verafy_agentic_check.') }
+      return { hash: ascHash(built.asc), options: built.asc.question.answer.options, facts: built.replay.facts, evidence: { note: EVIDENCE_NOTE, contract: built.asc } }
     },
 
     async verafy_hash(args) {

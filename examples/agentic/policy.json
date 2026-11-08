@@ -1,0 +1,58 @@
+{
+  "kind": "verafy.policy/1",
+  "id": "agentic-contract:010d9e93f7c09a1ae46d7a198580dcc7f21901892ba801a9757726fa4c62ced4",
+  "title": "Agentic contract escrow: Market research report for 2 SOL",
+  "intent": "This wallet holds the escrow for agentic contract 010d9e93f7c09a1ae46d7a198580dcc7f21901892ba801a9757726fa4c62ced4 between Acme Labs (buyer) (agent A) and Delta Research (seller) (agent B): Agent B writes a 2,000-word report on Solana validator economics with at least ten cited sources, for 2 SOL from agent A. It pays out once, and only the payouts of one remedy, backed by a release both agents signed, a default the signed log proves, or a sealed ruling of the Verafy judiciary on a dispute.",
+  "rules": [
+    {
+      "type": "allow-programs",
+      "programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+        "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+        "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr",
+        "ComputeBudget111111111111111111111111111111"
+      ]
+    },
+    {
+      "type": "allow-recipients",
+      "addresses": [
+        "BuyerWallet1111111111111111111111111111111",
+        "SellerWallet111111111111111111111111111111"
+      ]
+    },
+    {
+      "type": "max-per-transaction",
+      "asset": "SOL",
+      "amount": "2000000000"
+    },
+    {
+      "type": "agentic-settlement",
+      "contract": "010d9e93f7c09a1ae46d7a198580dcc7f21901892ba801a9757726fa4c62ced4",
+      "asset": "SOL",
+      "payouts": {
+        "COMPLETE": {
+          "BuyerWallet1111111111111111111111111111111": "0",
+          "SellerWallet111111111111111111111111111111": "2000000000"
+        },
+        "PARTIAL": {
+          "BuyerWallet1111111111111111111111111111111": "1000000000",
+          "SellerWallet111111111111111111111111111111": "1000000000"
+        },
+        "REFUND": {
+          "BuyerWallet1111111111111111111111111111111": "2000000000",
+          "SellerWallet111111111111111111111111111111": "0"
+        }
+      }
+    },
+    {
+      "type": "config-changes",
+      "mode": "deny"
+    }
+  ],
+  "judgment": [
+    "Does this transfer carry out the verified settlement attached to the case (a mutual release, an accepted or defaulted delivery, or a sealed ruling), and nothing else?"
+  ],
+  "minTimeLockSeconds": 0
+}

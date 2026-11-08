@@ -14,6 +14,7 @@
  * @module @verafyharness/core/policy
  */
 import { sha256 } from './hash.js'
+import { agenticPolicy, checkSettlementProof } from './agentic.js'
 
 export const POLICY_KIND = 'verafy.policy/1'
 
@@ -28,7 +29,7 @@ export const PROGRAMS = Object.freeze({
 })
 
 const SECONDS_PER_DAY = 86_400
-export const RULE_TYPES = ['allow-programs', 'max-per-transaction', 'max-per-window', 'allow-recipients', 'release-schedule', 'config-changes']
+export const RULE_TYPES = ['allow-programs', 'max-per-transaction', 'max-per-window', 'allow-recipients', 'release-schedule', 'config-changes', 'agentic-settlement']
 
 /**
  * Check a policy and return every problem found.
@@ -61,6 +62,11 @@ export function validatePolicy(p) {
       if (!(r.sharePerPeriod > 0 && r.sharePerPeriod <= 1)) out.push(`${at}.sharePerPeriod must be in (0, 1]`)
     }
     if (r.type === 'config-changes' && !['deny', 'jury'].includes(r.mode)) out.push(`${at}.mode must be "deny" or "jury"`)
+    if (r.type === 'agentic-settlement') {
+      if (!/^[0-9a-f]{64}$/.test(r.contract ?? '')) out.push(`${at}.contract must be the agentic contract hash`)
+      if (!(r.payouts && Object.keys(r.payouts).length >= 2)) out.push(`${at}.payouts must list each remedy's payouts`)
+      for (const [o, m] of Object.entries(r.payouts ?? {})) if (!Object.values(m).every(isAmount)) out.push(`${at}.payouts.${o} must be base-unit amounts, as strings`)
+    }
   }
   if (!(p?.rules ?? []).some(r => r.type === 'allow-programs')) out.push('a policy must list the programs the wallet may call (allow-programs); anything else is refused')
   return out
@@ -117,11 +123,13 @@ export function effectsOf(action) {
  * Run a policy's rules on a transaction's effects.
  * @param {object} policy - the policy.
  * @param {object} fx - effects from `effectsOf`.
- * @param {{now: number, history?: {time: number, transfers: object[]}[], signer?: string, threshold?: number, voters?: number, mints?: Record<string, string>}} ctx -
+ * @param {{now: number, history?: {time: number, transfers: object[]}[], signer?: string, threshold?: number, voters?: number, mints?: Record<string, string>, settlement?: object}} ctx -
  *   `now` in unix seconds; `history` is what earlier approved cases moved (from the signer's case log);
  *   `signer` is the judiciary signer's address, so a config change that removes it is caught;
  *   `voters` is how many members other than the signer can vote, and `threshold` the current threshold;
- *   `mints` maps token accounts to their mint, so a plain `transfer` can be counted against a mint's limit.
+ *   `mints` maps token accounts to their mint, so a plain `transfer` can be counted against a mint's limit;
+ *   `agentic` is the settlement proof an agentic-contract escrow pays out on (VIP-0029), with
+ *   `cards`, `pool` and `seed` to check a dispute ruling's jury against.
  * @returns {{ok: boolean, violations: string[], checked: string[]}} the report.
  */
 export function checkRules(policy, fx, ctx) {
@@ -148,6 +156,8 @@ export function checkRules(policy, fx, ctx) {
       const allowed = released(r, ctx.now)
       const total = moved(r.asset, (ctx.history ?? []).flatMap(h => h.transfers)) + moved(r.asset, fx.transfers)
       if (total > allowed) violations.push(`would have released ${total} of ${r.asset}; the schedule allows ${allowed} by now`)
+    } else if (r.type === 'agentic-settlement') {
+      for (const v of checkAgenticSettlement(r, fx, ctx)) violations.push(v)
     } else if (r.type === 'config-changes') {
       for (const c of fx.configActions) {
         if (r.mode === 'deny') violations.push(`config change ${c.type} is not allowed by this policy`)
@@ -258,6 +268,12 @@ export const POLICY_TEMPLATES = Object.freeze({
     judgment: ['If the bond goes to the validator: did it keep every promise, judged from its published terms and on-chain history?', 'If the bond goes to stakers: does the evidence show a promise was broken?'],
     minTimeLockSeconds,
   }),
+  /**
+   * Agentic contract escrow (VIP-0029): holds the money two agents agreed on,
+   * and pays it out once, as exactly one remedy's payouts, backed by a mutual
+   * release, a default the signed log proves, or a sealed judiciary ruling.
+   */
+  'agentic-contract': params => agenticPolicy(params),
   /** Upgrade authority: the wallet may only hold a program's upgrade authority; config changes only. */
   'upgrade-authority': ({ minTimeLockSeconds = 604_800, title }) => ({
     kind: POLICY_KIND,
@@ -286,4 +302,32 @@ export function policyFromTemplate(name, params) {
   const problems = validatePolicy(p)
   if (problems.length) throw new Error(`policy ${name}: ${problems.join('; ')}`)
   return p
+}
+
+/**
+ * The deterministic check of an `agentic-settlement` rule: the transfers must be
+ * exactly one remedy's payouts, that remedy must be the settlement's outcome,
+ * and the signer checks the settlement proof itself (`checkSettlementProof`):
+ * it replays the signed log and, for a ruling, rebuilds the dispute contract
+ * and verifies the jury's sealed round. No flag in the case is trusted.
+ * @param {object} rule - the rule.
+ * @param {object} fx - effects from `effectsOf`.
+ * @param {{now: number, agentic?: object, cards?: object[], pool?: object[], seed?: string, history?: object[]}} ctx - the case context.
+ * @returns {string[]} violations.
+ */
+export function checkAgenticSettlement(rule, fx, ctx) {
+  const v = []
+  if ((ctx.history ?? []).some(h => (h.transfers ?? []).length)) v.push('the escrow has already paid out; an agentic contract settles once')
+  const proof = ctx.agentic
+  if (!proof) { if (fx.transfers.length) v.push('moves escrow without a settlement proof attached to the case'); return v }
+  const chk = checkSettlementProof(proof, { now: ctx.now, contract: rule.contract, cards: ctx.cards, pool: ctx.pool, seed: ctx.seed })
+  for (const p of chk.problems) v.push(`settlement proof: ${p}`)
+  const outcome = proof.settlement?.outcome
+  const want = rule.payouts[outcome]
+  if (!want) { v.push(`no remedy ${outcome} in this contract`); return v }
+  const got = {}
+  for (const t of fx.transfers) got[t.to] = (got[t.to] ?? 0n) + BigInt(t.amount)
+  for (const [to, amt] of Object.entries(want)) if ((got[to] ?? 0n) !== BigInt(amt)) v.push(`pays ${got[to] ?? 0n} to ${to}; the ${outcome} remedy pays ${amt}`)
+  for (const to of Object.keys(got)) if (!(to in want)) v.push(`pays ${to}, who is not a party`)
+  return v
 }
