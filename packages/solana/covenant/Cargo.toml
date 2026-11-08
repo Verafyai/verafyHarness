@@ -1,0 +1,22 @@
+# verafy_covenant: a validator bonds its promise not to raise commission (VIP-0016).
+
+[package]
+name = "verafy-covenant"
+version = "0.0.4"
+edition = "2021"
+license = "MIT"
+
+[lib]
+name = "verafy_covenant"
+crate-type = ["cdylib", "lib"]
+
+[dependencies]
+abi = { package = "tinysvm-abi", path = "../../tinysvm/programs/abi" }
+
+[profile.release]
+overflow-checks = true
+codegen-units = 1
+lto = true
+panic = "abort"
+
+[workspace]

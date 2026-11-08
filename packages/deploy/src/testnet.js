@@ -49,7 +49,7 @@ async function post(url, body) {
 }
 
 /** A remote harness, shaped like a Harness for drawJuryFor and rule. */
-function remote(card, url) {
+export function remote(card, url) {
   return { ...card, card, url, commit: asc => post(`${url}/commit`, { asc }), reveal: h => post(`${url}/reveal`, { ascHash: h }) }
 }
 

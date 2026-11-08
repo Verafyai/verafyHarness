@@ -1,7 +1,7 @@
 ---
 vip: '0006'
 title: Challenge bonds
-status: Built
+status: 'Shipped (v0.0.3-alpha)'
 created: 2026-11-07
 requirement: JURY-006
 depends: ['0007']

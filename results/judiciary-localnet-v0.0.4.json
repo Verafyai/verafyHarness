@@ -1,0 +1,166 @@
+{
+  "date": "2026-11-08T00:16:21.808Z",
+  "validator": "solana-test-validator 2.1.21 (src:8a085eeb; feat:1416569292, client:Agave)",
+  "squads": "SQDS4ep65T869zMMBKyuUq6aD6EgTu8psMjkvj52pCf",
+  "squadsSource": "dumped from mainnet",
+  "ruling": "A6iZhDZASfQGCmzxXWW8JdnEhtz7EZE3gS4N1hkiJNNN",
+  "judiciary": "6fUWUTA7qni3p1pWWdd58icC7cxKGmVv1vonawg1QnnJ",
+  "registry": "Bn6jV1CGK4WFibJcCVsEzHeVVhtph2xPsNkemWfgqn9R",
+  "covenant": "D4ftcrUiGehwCAd6ndkttxyydPhkuis63HkiQeFQ5k4s",
+  "challengeSlots": 6,
+  "escapeSlots": 40,
+  "results": [
+    {
+      "name": "signer attached with its jury, policy and models fixed",
+      "ok": true,
+      "detail": "member C5RiYtrQayVtJhDEAbYN5gpPLTJbu23GzdPkXEeRSD9p"
+    },
+    {
+      "name": "multisig created with the judiciary signer as a voting member",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "case registered; its hash binds signer, proposal and transaction bytes",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the transaction decodes to what the jury will see",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "1. the human alone does not reach the threshold",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "2a. a ruling from a jury the signer did not name is refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "2b. a ruling on a different case is refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "3a. a ruling inside its challenge window is refused",
+      "ok": true,
+      "detail": "too early"
+    },
+    {
+      "name": "3b. after the window, the signer approves as the ruling says",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "3c. the approved transfer executes from the vault",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "3d. a decided case cannot be decided again",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "6a. the case fee is split among the jurors who revealed",
+      "ok": true,
+      "detail": "10000000 lamports each"
+    },
+    {
+      "name": "6b. a case pays once",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "4a. a REJECT ruling votes no",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "4b. a rejected case can never escape",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "5a. with no ruling, escape is refused before the delay",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "5b. after the delay, the escape hatch approves",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "5c. the case records that it escaped",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "7a. harnesses register and are discovered with one RPC call",
+      "ok": true,
+      "detail": "mistral:5iMan4QS, gpt-oss:7F7Gu8Me, gemma:69d3RZAc"
+    },
+    {
+      "name": "7b. only the operator can change a harness",
+      "ok": true,
+      "detail": "not authorized"
+    },
+    {
+      "name": "7c. the operator updates the endpoint and price",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "7d. a retired harness drops out of discovery",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "7e. its bond waits out the unbonding delay",
+      "ok": true,
+      "detail": "too early"
+    },
+    {
+      "name": "8a. the encoder writes a policy on chain in Memo chunks and reads it back",
+      "ok": true,
+      "detail": "1759 bytes"
+    },
+    {
+      "name": "8b. a reader refuses it against the wrong hash",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "9a. a vote account reads as withdrawer and commission",
+      "ok": true,
+      "detail": "commission 5%"
+    },
+    {
+      "name": "9b. a validator bonds a commission promise",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "9c. a claim fails while the promise holds",
+      "ok": true,
+      "detail": "not broken"
+    },
+    {
+      "name": "9d. a promise kept to the end gives the bond back",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "9e. raising the commission over the promise pays the bond to stakers",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "passed": 30,
+  "total": 30
+}

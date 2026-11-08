@@ -2,6 +2,30 @@
 
 Verafy Harness goes from a local prototype to an open network in stages. Each milestone has a done condition that can be checked. Dates are not set.
 
+## The three stages
+
+1. **Build it on Solana programs, with no SIMD.** Bootstrap the harness, launcher, testnet and internal infrastructure of the v1 harness on ordinary Solana programs (`verafy_ruling`, `verafy_judiciary`, `verafy_registry`). [VIP-0017](docs/proposals/VIP-0017-programs-first.md).
+2. **Prove it with 10 to 50 pilots.** Real wallets and launches, built alongside each customer, with policies, contracts, certifications and scanners turned into templates as we go. [Verafy App Pilots](docs/pilots/README.md).
+3. **Show the demand, then scale to a SIMD and beyond.** Publish adoption, measure where programs fall short, and propose the SIMD that removes that limit.
+
+The milestones below are stage 1 in detail. The same stages, for readers: [docs/roadmap.md](docs/roadmap.md), published at /roadmap.
+
+## Milestone 4c: Judiciary Signer, registry and attestation (v0.0.4-alpha)
+
+- [x] VIP-0010 Judiciary Signer: `verafy_judiciary`, a Squads member that votes only on a sealed ruling bound to the exact transaction; setup check; case contracts; escape hatch. Localnet against Squads v4 from mainnet, 30 of 30
+- [x] VIP-0011 Policies and Covenant Launch: rules engine and templates
+- [x] VIP-0012 Harness registry: `verafy_registry`, discovery in one RPC call, case fees paid to jurors, `verafy discover` and `verafy harness register`
+- [x] VIP-0013 Hardware attestation: verification built. Still open: a harness in a real SEV-SNP VM, and a reproducible image
+- [x] VIP-0014 Model certification: the suite and the bar; no closed model measured yet
+- [ ] Deploy the three programs to devnet
+- [x] VIP-0015 asset transfer records: listings, delivery rulings, records, localizer
+- [x] VIP-0016 commission covenant: `verafy_covenant`, measured on a local validator
+- [x] VIP-0018 bias profiles, with unannounced probes
+- [x] VIP-0019 encoder: Memo backend measured on a local validator; IQ Labs backend ready
+- [x] VIP-0003, 0004, 0008, 0009 closed with their defaults: operator signatures, equal weighting, single-harness mode behind a window, the prover named in each proof
+
+Done when: the three programs are on devnet and an outside wallet attaches a Judiciary Signer without help.
+
 ## Milestone 1: Local prototype (done)
 
 - [x] Actually Smart Contract format `swarm.asc/0` (now `verafy.asc/1`; the old kind still validates): context, question, payment, exits, with a JSON Schema

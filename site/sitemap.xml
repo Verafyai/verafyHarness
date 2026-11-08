@@ -5,6 +5,7 @@
   <url><loc>https://harness.verafy.ai/blog/v0-0-1-alpha</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/blog/v0-0-2-alpha</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/blog/v0-0-3-alpha</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://harness.verafy.ai/blog/v0-0-4-alpha</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/coin-agnostic</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/economics</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/launch</loc><lastmod>2026-11-06</lastmod></url>
@@ -12,30 +13,39 @@
   <url><loc>https://harness.verafy.ai/learn/actually-smart-contracts</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/agreement-and-the-bar</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/api-credits</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://harness.verafy.ai/learn/asset-transfer-records</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/assurance-levels</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/atoms-and-plans</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/audits-and-challenges</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/banker</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://harness.verafy.ai/learn/bias-profiles</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/bonds-and-slashing</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/challenge-window</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/coin-free</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://harness.verafy.ai/learn/commission-covenant</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/constitution-and-ethics</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/context-is-evidence</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/disclosed-reasoning</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/economics</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://harness.verafy.ai/learn/encoder</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/encrypted-queue</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/exits-and-tinysvm</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/fast-screens-and-calibration</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://harness.verafy.ai/learn/hardware-attestation</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/harness</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/harness-daemon</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://harness.verafy.ai/learn/harness-registry</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://harness.verafy.ai/learn/judiciary-signer</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/jury</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/jury-scheduler</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/launching-a-harness</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/light-client</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/local-testnet</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://harness.verafy.ai/learn/model-certification</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/model-families</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/multi-model-routing</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/operators</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://harness.verafy.ai/learn/policies</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/proof-of-inference</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/proof-of-judgment</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/proof-packing</loc><lastmod>2026-11-06</lastmod></url>
@@ -43,7 +53,11 @@
   <url><loc>https://harness.verafy.ai/learn/routing-agent</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/solana-settlement</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/learn/verafy-chain</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://harness.verafy.ai/pilots</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://harness.verafy.ai/policies</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://harness.verafy.ai/roadmap</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/run</loc><lastmod>2026-11-06</lastmod></url>
+  <url><loc>https://harness.verafy.ai/signer</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/spec</loc><lastmod>2026-11-06</lastmod></url>
   <url><loc>https://harness.verafy.ai/testnet</loc><lastmod>2026-11-06</lastmod></url>
 </urlset>

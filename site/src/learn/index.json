@@ -1,353 +1,446 @@
 {
- "actually-smart-contracts": {
-  "title": "Actually Smart Contracts",
-  "desc": "A contract written in words that an AI jury rules on, with pinned evidence and exits that settle exactly.",
-  "status": "Built: CORE-001 and onward. The format is versioned; old `swarm.asc/0` contracts still validate.",
-  "related": [
-   "jury",
-   "context-is-evidence",
-   "exits-and-tinysvm"
-  ],
-  "group": "Basics"
- },
- "harness": {
-  "title": "A harness",
-  "desc": "One AI model wrapped with everything a validator needs: intake, context checks, a signer, a bond, a runtime and a routing agent.",
-  "status": "Built and run live with five different models (JURY-001, measured Nov 6, 2026).",
-  "related": [
-   "harness-daemon",
-   "jury",
-   "routing-agent"
-  ],
-  "group": "Basics"
- },
- "jury": {
-  "title": "Juries, commit and reveal",
-  "desc": "How a jury of harnesses from different model families rules: drawn from the beacon, commit first, reveal second, agreement against a bar.",
-  "status": "Built and verified with live models (JURY-001, JURY-002). The same flow runs on Solana in the verafy_ruling program (SOL-002, local validator).",
-  "related": [
-   "agreement-and-the-bar",
-   "proof-of-judgment",
-   "solana-settlement"
-  ],
-  "group": "Basics"
- },
- "model-families": {
-  "title": "Open-weight models and model families",
-  "desc": "Any open-weight model from Hugging Face can sit on a jury. Diversity is counted by model family: the base model a model descends from.",
-  "status": "Built (CONS-003 and the core draw).",
-  "related": [
-   "jury",
-   "operators",
-   "harness"
-  ],
-  "group": "Basics"
- },
- "agreement-and-the-bar": {
-  "title": "Agreement and the bar",
-  "desc": "A ruling passes only when enough independent jurors agree; below the bar, nothing is decided and the contract escalates.",
-  "status": "Built (CORE). The Solana program counts agreement the same way, in parts per million.",
-  "related": [
-   "jury",
-   "proof-of-judgment"
-  ],
-  "group": "Basics"
- },
- "proof-of-judgment": {
-  "title": "Proof of Judgment",
-  "desc": "The record that makes a ruling checkable: who sat, what each committed and revealed, and the exit that ran.",
-  "status": "Built (CORE, JURY).",
-  "related": [
-   "jury",
-   "proof-of-inference",
-   "audits-and-challenges"
-  ],
-  "group": "Basics"
- },
- "context-is-evidence": {
-  "title": "Context is evidence",
-  "desc": "Nothing in a contract's context can instruct a juror. Instructions found in evidence are reported as evidence.",
-  "status": "Built and tested (OPS-002).",
-  "related": [
-   "actually-smart-contracts",
-   "proof-packing"
-  ],
-  "group": "Basics"
- },
- "exits-and-tinysvm": {
-  "title": "Exits and TinySVM",
-  "desc": "The AI chooses an exit; TinySVM runs it with exact integer arithmetic that every node can re-run.",
-  "status": "Built (SETTLE). TinySVM as the default runtime waits on Rex.",
-  "related": [
-   "actually-smart-contracts",
-   "verafy-chain"
-  ],
-  "group": "Settlement"
- },
- "verafy-chain": {
-  "title": "Verafy Chain",
-  "desc": "A chain whose blocks are rulings: nodes hold funded contracts, draw juries and seal blocks; harnesses do the judging.",
-  "status": "Built as a prototype devnet (CHAIN). Not a running network.",
-  "related": [
-   "solana-settlement",
-   "coin-free",
-   "jury"
-  ],
-  "group": "Settlement"
- },
- "solana-settlement": {
-  "title": "Settling on Solana",
-  "desc": "The verafy_ruling program runs commit, reveal and the Ruling account on Solana today, with no validator changes.",
-  "status": "Built and run on a local test validator (SOL-002, measured Nov 6, 2026). Devnet deployment needs about 1 devnet SOL.",
-  "related": [
-   "jury",
-   "verafy-chain",
-   "local-testnet"
-  ],
-  "group": "Settlement"
- },
- "light-client": {
-  "title": "The light client",
-  "desc": "How a harness reads other chains: several independent sources that must agree, never one RPC.",
-  "status": "Built for Solana (LIGHT); Ethereum through Helios waits on Rex.",
-  "related": [
-   "banker",
-   "routing-agent"
-  ],
-  "group": "Settlement"
- },
- "routing-agent": {
-  "title": "The routing agent",
-  "desc": "The part of a harness that holds keys and pays bills: keyblock, payment wallet, API router and the Banker.",
-  "status": "Built (BANK-001 to 005).",
-  "related": [
-   "banker",
-   "api-credits"
-  ],
-  "group": "Money"
- },
- "banker": {
-  "title": "The Banker",
-  "desc": "A deterministic service, not an AI agent, that turns deposits in any allowed token into the target token, with every step recorded.",
-  "status": "Built (BANK-006, 008, 010, 011); venues quote live, execution untested on a funded wallet (BANK-007).",
-  "related": [
-   "routing-agent",
-   "api-credits",
-   "coin-free"
-  ],
-  "group": "Money"
- },
- "api-credits": {
-  "title": "API credits",
-  "desc": "How a harness keeps its model accounts funded, and why most top-ups are still manual.",
-  "status": "Built: balance reading and planning (BANK-013). Automatic top-ups wait on provider support.",
-  "related": [
-   "banker",
-   "routing-agent"
-  ],
-  "group": "Money"
- },
- "coin-free": {
-  "title": "Coin-free",
-  "desc": "Why there is no coin, and how harnesses get paid without one.",
-  "status": "A rule, enforced in the spec and the Constitution.",
-  "related": [
-   "banker",
-   "constitution-and-ethics"
-  ],
-  "group": "Money"
- },
- "assurance-levels": {
-  "title": "Assurance levels",
-  "desc": "L0 to L3: how much proof a contract asks for, from a plain jury to proofs of inference.",
-  "status": "L0 to L2 routing built (BANK-005); L2 proofs work end to end with a mock prover (PROVE).",
-  "related": [
-   "proof-of-inference",
-   "multi-model-routing"
-  ],
-  "group": "Proofs"
- },
- "proof-of-inference": {
-  "title": "Proofs of inference",
-  "desc": "A cryptographic proof that a specific model produced a specific answer to a specific prompt.",
-  "status": "The flow is built and tested with a mock prover (PROVE-001 to 003). No real proof has been made yet (PROVE-006 needs a GPU and two licenses).",
-  "related": [
-   "proof-packing",
-   "assurance-levels"
-  ],
-  "group": "Proofs"
- },
- "proof-packing": {
-  "title": "Proof packing",
-  "desc": "Break contracts into small questions, merge the ones they share, and prove each 1,024-token window once.",
-  "status": "Built end to end in the harness with a mock prover (PACK-011, `verafy packed`). Chain intake does not use it yet.",
-  "related": [
-   "proof-of-inference",
-   "atoms-and-plans",
-   "economics"
-  ],
-  "group": "Proofs"
- },
- "atoms-and-plans": {
-  "title": "Atoms and plans",
-  "desc": "The small questions proof packing works with, and the exact rule that composes them.",
-  "status": "Built (PACK-001 to 006).",
-  "related": [
-   "proof-packing"
-  ],
-  "group": "Proofs"
- },
- "multi-model-routing": {
-  "title": "Multi-model routing",
-  "desc": "Start every question at the cheapest tier that can answer it safely, and move up only on disagreement.",
-  "status": "Built (ROUTE-001 to 006). Not yet wired into the chain intake (ROUTE-008).",
-  "related": [
-   "fast-screens-and-calibration",
-   "economics",
-   "assurance-levels"
-  ],
-  "group": "Routing"
- },
- "fast-screens-and-calibration": {
-  "title": "Fast screens and calibration",
-  "desc": "A fast model may settle a question only where its accuracy is proven, per kind of question, and the proof is rechecked live.",
-  "status": "Built (ROUTE-004, ROUTE-007 partial). A Jev run needs Jev access.",
-  "related": [
-   "multi-model-routing"
-  ],
-  "group": "Routing"
- },
- "disclosed-reasoning": {
-  "title": "Disclosed reasoning",
-  "desc": "Where a juror's reasoning is kept, what it costs to store, and what goes on chain.",
-  "status": "Partly built (COT).",
-  "related": [
-   "proof-packing",
-   "economics"
-  ],
-  "group": "Routing"
- },
- "audits-and-challenges": {
-  "title": "Audits and challenges",
-  "desc": "How a sealed ruling is re-checked, and how it can be overturned.",
-  "status": "Built (JURY-004, JURY-005). Challenge bonds are planned.",
-  "related": [
-   "proof-of-judgment",
-   "jury"
-  ],
-  "group": "Governance"
- },
- "constitution-and-ethics": {
-  "title": "The Constitution and the ethics gate",
-  "desc": "What Verafy will never rule on, and how every contract is screened before its jury.",
-  "status": "Built (GOV-001 to 004). Panel sizes and fees are illustrative until Rex sets them.",
-  "related": [
-   "verafy-chain",
-   "coin-free"
-  ],
-  "group": "Governance"
- },
- "encrypted-queue": {
-  "title": "The encrypted queue",
-  "desc": "Contracts wait sealed until their jury is drawn, so nobody can front-run a ruling.",
-  "status": "Built (CHAIN, batching).",
-  "related": [
-   "verafy-chain",
-   "jury"
-  ],
-  "group": "Settlement"
- },
- "harness-daemon": {
-  "title": "The harness daemon",
-  "desc": "The long-running process that keeps a harness online: register, watch, commit, reveal, prove.",
-  "status": "Built (JURY-009, DEPLOY-001).",
-  "related": [
-   "launching-a-harness",
-   "harness"
-  ],
-  "group": "Running one"
- },
- "launching-a-harness": {
-  "title": "Launching a harness",
-  "desc": "Every way to run one: this machine, Docker, DigitalOcean, Hetzner, any cloud, or a one-click button.",
-  "status": "Built (DEPLOY-001 to 009); cloud creation tested against fake APIs only. Hosted harnesses run by Verafy are planned.",
-  "related": [
-   "harness-daemon",
-   "local-testnet"
-  ],
-  "group": "Running one"
- },
- "local-testnet": {
-  "title": "A local testnet",
-  "desc": "A whole testnet on one machine, with scripted AI so it costs nothing, and optional Solana settlement.",
-  "status": "Built (DEPLOY-007), measured on one machine Nov 6, 2026.",
-  "related": [
-   "launching-a-harness",
-   "solana-settlement"
-  ],
-  "group": "Running one"
- },
- "economics": {
-  "title": "The economics",
-  "desc": "What a ruling costs, where the money goes, and why packing and routing matter.",
-  "status": "Built (ECON). The calculator is live on the economics page.",
-  "related": [
-   "proof-packing",
-   "multi-model-routing"
-  ],
-  "group": "Basics"
- },
- "jury-scheduler": {
-  "title": "The jury scheduler",
-  "desc": "The one place that decides who sits on a jury, when each step is due, and what happens when a juror does not show.",
-  "status": "Built (CONS-001); the local testnet runs every jury through it.",
-  "related": [
-   "randomness-beacon",
-   "jury",
-   "operators"
-  ],
-  "group": "Stake"
- },
- "randomness-beacon": {
-  "title": "The randomness beacon",
-  "desc": "Jury seeds that no block sealer can steer: a hash chain each sealer fixes in advance.",
-  "status": "Built (CONS-002).",
-  "related": [
-   "jury-scheduler",
-   "bonds-and-slashing"
-  ],
-  "group": "Stake"
- },
- "operators": {
-  "title": "Operators",
-  "desc": "Model families keep one model's blind spots from deciding. Operators keep one owner from holding several seats.",
-  "status": "Built in the draw (CONS-003); defaults wait on Rex.",
-  "related": [
-   "model-families",
-   "bonds-and-slashing",
-   "jury-scheduler"
-  ],
-  "group": "Stake"
- },
- "bonds-and-slashing": {
-  "title": "Bonds and slashing",
-  "desc": "Running a harness means posting a bond that can be taken for misbehavior. What each fault costs, and where the money goes.",
-  "status": "Built (CONS-005); every rate is illustrative.",
-  "related": [
-   "challenge-window",
-   "operators",
-   "launching-a-harness"
-  ],
-  "group": "Stake"
- },
- "challenge-window": {
-  "title": "The challenge window and challenge bonds",
-  "desc": "Payouts wait until a ruling can no longer be overturned cheaply, so an overturn moves money, not just the record.",
-  "status": "Built (CONS-006, JURY-006 in core).",
-  "related": [
-   "audits-and-challenges",
-   "bonds-and-slashing"
-  ],
-  "group": "Stake"
- }
+  "actually-smart-contracts": {
+    "title": "Actually Smart Contracts",
+    "desc": "A contract written in words that an AI jury rules on, with pinned evidence and exits that settle exactly.",
+    "status": "Built: CORE-001 and onward. The format is versioned; old `swarm.asc/0` contracts still validate.",
+    "related": [
+      "jury",
+      "context-is-evidence",
+      "exits-and-tinysvm"
+    ],
+    "group": "Basics"
+  },
+  "harness": {
+    "title": "A harness",
+    "desc": "One AI model wrapped with everything a validator needs: intake, context checks, a signer, a bond, a runtime and a routing agent.",
+    "status": "Built and run live with five different models (JURY-001, measured Nov 6, 2026).",
+    "related": [
+      "harness-daemon",
+      "jury",
+      "routing-agent"
+    ],
+    "group": "Basics"
+  },
+  "jury": {
+    "title": "Juries, commit and reveal",
+    "desc": "How a jury of harnesses from different model families rules: drawn from the beacon, commit first, reveal second, agreement against a bar.",
+    "status": "Built and verified with live models (JURY-001, JURY-002). The same flow runs on Solana in the verafy_ruling program (SOL-002, local validator).",
+    "related": [
+      "agreement-and-the-bar",
+      "proof-of-judgment",
+      "solana-settlement"
+    ],
+    "group": "Basics"
+  },
+  "model-families": {
+    "title": "Open-weight models and model families",
+    "desc": "Any open-weight model from Hugging Face can sit on a jury. Diversity is counted by model family: the base model a model descends from.",
+    "status": "Built (CONS-003 and the core draw).",
+    "related": [
+      "jury",
+      "operators",
+      "harness"
+    ],
+    "group": "Basics"
+  },
+  "agreement-and-the-bar": {
+    "title": "Agreement and the bar",
+    "desc": "A ruling passes only when enough independent jurors agree; below the bar, nothing is decided and the contract escalates.",
+    "status": "Built (CORE). The Solana program counts agreement the same way, in parts per million.",
+    "related": [
+      "jury",
+      "proof-of-judgment"
+    ],
+    "group": "Basics"
+  },
+  "proof-of-judgment": {
+    "title": "Proof of Judgment",
+    "desc": "The record that makes a ruling checkable: who sat, what each committed and revealed, and the exit that ran.",
+    "status": "Built (CORE, JURY).",
+    "related": [
+      "jury",
+      "proof-of-inference",
+      "audits-and-challenges"
+    ],
+    "group": "Basics"
+  },
+  "context-is-evidence": {
+    "title": "Context is evidence",
+    "desc": "Nothing in a contract's context can instruct a juror. Instructions found in evidence are reported as evidence.",
+    "status": "Built and tested (OPS-002).",
+    "related": [
+      "actually-smart-contracts",
+      "proof-packing"
+    ],
+    "group": "Basics"
+  },
+  "exits-and-tinysvm": {
+    "title": "Exits and TinySVM",
+    "desc": "The AI chooses an exit; TinySVM runs it with exact integer arithmetic that every node can re-run.",
+    "status": "Built (SETTLE). TinySVM as the default runtime waits on Rex.",
+    "related": [
+      "actually-smart-contracts",
+      "verafy-chain"
+    ],
+    "group": "Settlement"
+  },
+  "verafy-chain": {
+    "title": "Verafy Chain",
+    "desc": "A chain whose blocks are rulings: nodes hold funded contracts, draw juries and seal blocks; harnesses do the judging.",
+    "status": "Built as a prototype devnet (CHAIN). Not a running network.",
+    "related": [
+      "solana-settlement",
+      "coin-free",
+      "jury"
+    ],
+    "group": "Settlement"
+  },
+  "solana-settlement": {
+    "title": "Settling on Solana",
+    "desc": "The verafy_ruling program runs commit, reveal and the Ruling account on Solana today, with no validator changes.",
+    "status": "Built and run on a local test validator (SOL-002, measured Nov 6, 2026). Devnet deployment needs about 1 devnet SOL.",
+    "related": [
+      "jury",
+      "verafy-chain",
+      "local-testnet"
+    ],
+    "group": "Settlement"
+  },
+  "light-client": {
+    "title": "The light client",
+    "desc": "How a harness reads other chains: several independent sources that must agree, never one RPC.",
+    "status": "Built for Solana (LIGHT); Ethereum through Helios waits on Rex.",
+    "related": [
+      "banker",
+      "routing-agent"
+    ],
+    "group": "Settlement"
+  },
+  "routing-agent": {
+    "title": "The routing agent",
+    "desc": "The part of a harness that holds keys and pays bills: keyblock, payment wallet, API router and the Banker.",
+    "status": "Built (BANK-001 to 005).",
+    "related": [
+      "banker",
+      "api-credits"
+    ],
+    "group": "Money"
+  },
+  "banker": {
+    "title": "The Banker",
+    "desc": "A deterministic service, not an AI agent, that turns deposits in any allowed token into the target token, with every step recorded.",
+    "status": "Built (BANK-006, 008, 010, 011); venues quote live, execution untested on a funded wallet (BANK-007).",
+    "related": [
+      "routing-agent",
+      "api-credits",
+      "coin-free"
+    ],
+    "group": "Money"
+  },
+  "api-credits": {
+    "title": "API credits",
+    "desc": "How a harness keeps its model accounts funded, and why most top-ups are still manual.",
+    "status": "Built: balance reading and planning (BANK-013). Automatic top-ups wait on provider support.",
+    "related": [
+      "banker",
+      "routing-agent"
+    ],
+    "group": "Money"
+  },
+  "coin-free": {
+    "title": "Coin-free",
+    "desc": "Why there is no coin, and how harnesses get paid without one.",
+    "status": "A rule, enforced in the spec and the Constitution.",
+    "related": [
+      "banker",
+      "constitution-and-ethics"
+    ],
+    "group": "Money"
+  },
+  "assurance-levels": {
+    "title": "Assurance levels",
+    "desc": "L0 to L3: how much proof a contract asks for, from a plain jury to proofs of inference.",
+    "status": "L0 to L2 routing built (BANK-005); L2 proofs work end to end with a mock prover (PROVE).",
+    "related": [
+      "proof-of-inference",
+      "multi-model-routing"
+    ],
+    "group": "Proofs"
+  },
+  "proof-of-inference": {
+    "title": "Proofs of inference",
+    "desc": "A cryptographic proof that a specific model produced a specific answer to a specific prompt.",
+    "status": "The flow is built and tested with a mock prover (PROVE-001 to 003). No real proof has been made yet (PROVE-006 needs a GPU and two licenses).",
+    "related": [
+      "proof-packing",
+      "assurance-levels"
+    ],
+    "group": "Proofs"
+  },
+  "proof-packing": {
+    "title": "Proof packing",
+    "desc": "Break contracts into small questions, merge the ones they share, and prove each 1,024-token window once.",
+    "status": "Built end to end in the harness with a mock prover (PACK-011, `verafy packed`). Chain intake does not use it yet.",
+    "related": [
+      "proof-of-inference",
+      "atoms-and-plans",
+      "economics"
+    ],
+    "group": "Proofs"
+  },
+  "atoms-and-plans": {
+    "title": "Atoms and plans",
+    "desc": "The small questions proof packing works with, and the exact rule that composes them.",
+    "status": "Built (PACK-001 to 006).",
+    "related": [
+      "proof-packing"
+    ],
+    "group": "Proofs"
+  },
+  "multi-model-routing": {
+    "title": "Multi-model routing",
+    "desc": "Start every question at the cheapest tier that can answer it safely, and move up only on disagreement.",
+    "status": "Built (ROUTE-001 to 006). Not yet wired into the chain intake (ROUTE-008).",
+    "related": [
+      "fast-screens-and-calibration",
+      "economics",
+      "assurance-levels"
+    ],
+    "group": "Routing"
+  },
+  "fast-screens-and-calibration": {
+    "title": "Fast screens and calibration",
+    "desc": "A fast model may settle a question only where its accuracy is proven, per kind of question, and the proof is rechecked live.",
+    "status": "Built (ROUTE-004, ROUTE-007 partial). A Jev run needs Jev access.",
+    "related": [
+      "multi-model-routing"
+    ],
+    "group": "Routing"
+  },
+  "disclosed-reasoning": {
+    "title": "Disclosed reasoning",
+    "desc": "Where a juror's reasoning is kept, what it costs to store, and what goes on chain.",
+    "status": "Partly built (COT).",
+    "related": [
+      "proof-packing",
+      "economics"
+    ],
+    "group": "Routing"
+  },
+  "audits-and-challenges": {
+    "title": "Audits and challenges",
+    "desc": "How a sealed ruling is re-checked, and how it can be overturned.",
+    "status": "Built (JURY-004, JURY-005). Challenge bonds are planned.",
+    "related": [
+      "proof-of-judgment",
+      "jury"
+    ],
+    "group": "Governance"
+  },
+  "constitution-and-ethics": {
+    "title": "The Constitution and the ethics gate",
+    "desc": "What Verafy will never rule on, and how every contract is screened before its jury.",
+    "status": "Built (GOV-001 to 004). Panel sizes and fees are illustrative until Rex sets them.",
+    "related": [
+      "verafy-chain",
+      "coin-free"
+    ],
+    "group": "Governance"
+  },
+  "encrypted-queue": {
+    "title": "The encrypted queue",
+    "desc": "Contracts wait sealed until their jury is drawn, so nobody can front-run a ruling.",
+    "status": "Built (CHAIN, batching).",
+    "related": [
+      "verafy-chain",
+      "jury"
+    ],
+    "group": "Settlement"
+  },
+  "harness-daemon": {
+    "title": "The harness daemon",
+    "desc": "The long-running process that keeps a harness online: register, watch, commit, reveal, prove.",
+    "status": "Built (JURY-009, DEPLOY-001).",
+    "related": [
+      "launching-a-harness",
+      "harness"
+    ],
+    "group": "Running one"
+  },
+  "launching-a-harness": {
+    "title": "Launching a harness",
+    "desc": "Every way to run one: this machine, Docker, DigitalOcean, Hetzner, any cloud, or a one-click button.",
+    "status": "Built (DEPLOY-001 to 009); cloud creation tested against fake APIs only. Hosted harnesses run by Verafy are planned.",
+    "related": [
+      "harness-daemon",
+      "local-testnet"
+    ],
+    "group": "Running one"
+  },
+  "local-testnet": {
+    "title": "A local testnet",
+    "desc": "A whole testnet on one machine, with scripted AI so it costs nothing, and optional Solana settlement.",
+    "status": "Built (DEPLOY-007), measured on one machine Nov 6, 2026.",
+    "related": [
+      "launching-a-harness",
+      "solana-settlement"
+    ],
+    "group": "Running one"
+  },
+  "economics": {
+    "title": "The economics",
+    "desc": "What a ruling costs, where the money goes, and why packing and routing matter.",
+    "status": "Built (ECON). The calculator is live on the economics page.",
+    "related": [
+      "proof-packing",
+      "multi-model-routing"
+    ],
+    "group": "Basics"
+  },
+  "jury-scheduler": {
+    "title": "The jury scheduler",
+    "desc": "The one place that decides who sits on a jury, when each step is due, and what happens when a juror does not show.",
+    "status": "Built (CONS-001); the local testnet runs every jury through it.",
+    "related": [
+      "randomness-beacon",
+      "jury",
+      "operators"
+    ],
+    "group": "Stake"
+  },
+  "randomness-beacon": {
+    "title": "The randomness beacon",
+    "desc": "Jury seeds that no block sealer can steer: a hash chain each sealer fixes in advance.",
+    "status": "Built (CONS-002).",
+    "related": [
+      "jury-scheduler",
+      "bonds-and-slashing"
+    ],
+    "group": "Stake"
+  },
+  "operators": {
+    "title": "Operators",
+    "desc": "Model families keep one model's blind spots from deciding. Operators keep one owner from holding several seats.",
+    "status": "Built in the draw (CONS-003); defaults wait on Rex.",
+    "related": [
+      "model-families",
+      "bonds-and-slashing",
+      "jury-scheduler"
+    ],
+    "group": "Stake"
+  },
+  "bonds-and-slashing": {
+    "title": "Bonds and slashing",
+    "desc": "Running a harness means posting a bond that can be taken for misbehavior. What each fault costs, and where the money goes.",
+    "status": "Built (CONS-005); every rate is illustrative.",
+    "related": [
+      "challenge-window",
+      "operators",
+      "launching-a-harness"
+    ],
+    "group": "Stake"
+  },
+  "challenge-window": {
+    "title": "The challenge window and challenge bonds",
+    "desc": "Payouts wait until a ruling can no longer be overturned cheaply, so an overturn moves money, not just the record.",
+    "status": "Built (CONS-006, JURY-006 in core).",
+    "related": [
+      "audits-and-challenges",
+      "bonds-and-slashing"
+    ],
+    "group": "Stake"
+  },
+  "judiciary-signer": {
+    "title": "The Judiciary Signer",
+    "desc": "A Squads member no person holds a key for, voting only as a sealed jury ruling says.",
+    "status": "Built: SIGN-001. Measured on a local validator against Squads v4.",
+    "related": [
+      "policies",
+      "model-certification",
+      "challenge-window"
+    ],
+    "group": "Wallets"
+  },
+  "policies": {
+    "title": "Policies and Covenant Launch",
+    "desc": "Rules a wallet cannot break, intent a jury reads, and Covenant Launch for token creators.",
+    "status": "Built in core: SIGN-002.",
+    "related": [
+      "judiciary-signer",
+      "context-is-evidence"
+    ],
+    "group": "Wallets"
+  },
+  "model-certification": {
+    "title": "Model certification",
+    "desc": "Closed models judge a wallet only with measured results on the judiciary attack suite.",
+    "status": "Built: SIGN-003. No closed model measured yet.",
+    "related": [
+      "judiciary-signer",
+      "model-families"
+    ],
+    "group": "Wallets"
+  },
+  "harness-registry": {
+    "title": "The harness registry",
+    "desc": "Register a harness on Solana, get discovered with one RPC call, and get paid per case.",
+    "status": "Built: NET-001. Measured on a local validator.",
+    "related": [
+      "launching-a-harness",
+      "bonds-and-slashing",
+      "hardware-attestation"
+    ],
+    "group": "Running one"
+  },
+  "hardware-attestation": {
+    "title": "Hardware attestation",
+    "desc": "Prove a harness runs a known build inside an AMD SEV-SNP enclave, with its key bound in.",
+    "status": "Verification built: NET-002. No enclave run yet.",
+    "related": [
+      "harness-registry",
+      "proof-of-inference"
+    ],
+    "group": "Running one"
+  },
+  "bias-profiles": {
+    "title": "Bias profiles",
+    "desc": "How a model leans when it judges, measured with paired probes, mapped, and checked by unannounced probes.",
+    "status": "Built: SIGN-006. No real model profiled yet.",
+    "related": [
+      "model-certification",
+      "model-families",
+      "judiciary-signer"
+    ],
+    "group": "Wallets"
+  },
+  "encoder": {
+    "title": "The encoder",
+    "desc": "Policies and contracts on Solana in full, read back against their hash, through IQ Labs Code-In or Memo.",
+    "status": "Built: SOL-005.",
+    "related": [
+      "policies",
+      "solana-settlement"
+    ],
+    "group": "Settlement"
+  },
+  "asset-transfer-records": {
+    "title": "Asset transfer records",
+    "desc": "Sell a physical item, have a jury check the delivery photos, and issue records of the transfer.",
+    "status": "Built: SIGN-004.",
+    "related": [
+      "policies",
+      "judiciary-signer"
+    ],
+    "group": "Wallets"
+  },
+  "commission-covenant": {
+    "title": "The commission covenant",
+    "desc": "A validator bonds its promise not to raise commission; code pays stakers if it does.",
+    "status": "Built: SIGN-005. Measured on a local validator.",
+    "related": [
+      "bonds-and-slashing",
+      "policies"
+    ],
+    "group": "Stake"
+  }
 }

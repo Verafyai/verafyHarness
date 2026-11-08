@@ -31,6 +31,8 @@ RELEASE = '/blog/v' + VERSION.replace('.', '-')
 # One menu, grouped. The logo is home.
 MENU = [
     ('Verafy Harness', [
+        ('/signer', 'Judiciary Signer'),
+        ('/policies', 'Policies'),
         ('/launch', 'Launch a harness'),
         ('/run', 'Run a harness'),
         ('/testnet', 'Testnet'),
@@ -38,6 +40,8 @@ MENU = [
         ('/coin-agnostic', 'Coin Agnostic'),
         ('/learn', 'Learn'),
         ('/spec', 'Specification'),
+        ('/roadmap', 'Roadmap'),
+        ('/pilots', 'Pilots'),
         ('/blog', 'Release notes'),
     ]),
     ('Verafy Chain', [
@@ -267,6 +271,7 @@ TOC_JS = '''<script>(function(){var links=[].slice.call(document.querySelectorAl
 
 def fix_links(md):
     md = md.replace('](testnet.md', '](/testnet').replace('](coin-agnostic.md', '](/coin-agnostic').replace('](run-a-harness.md', '](/run')
+    md = md.replace('](judiciary-signer.md', '](/signer').replace('](policies.md', '](/policies').replace('](roadmap.md', '](/roadmap').replace('](pilots.md', '](/pilots')
     md = md.replace('](assets/', '](/assets/')
     md = re.sub(r'\]\(\.\./([^)#]+)', lambda m: f']({GH}{m.group(1)}', md)
     md = re.sub(r'\]\(((?:dsh|simds|blog)[^)]*)', lambda m: f']({GH}docs/{m.group(1)}', md)
@@ -450,7 +455,8 @@ def spec_page(sc):
     write_page('spec.html', '/spec', f'Verafy specification v{VERSION}', f'The Verafy Harness and Verafy Chain specification, v{VERSION}: every requirement with a stable ID and a status, checked against the code by a scoring pass.', 'Specification', body, toc)
 
 
-POSTS = [('v0-0-3-alpha', 'v0.0.3-alpha', '2026-11-07', 'Verafy Harness v0.0.3-alpha: stake, slashing and open-weight models', 'Bonds that are slashed for misbehavior, a jury scheduler seeded by a randomness beacon, operator caps, payouts held through a challenge window, challenge bonds, and juries of open-weight models counted by family.'),
+POSTS = [('v0-0-4-alpha', 'v0.0.4-alpha', '2026-11-07', 'Verafy Harness v0.0.4-alpha: the Judiciary Signer', 'A Squads multisig member that votes only as a jury rules, policies and Covenant Launch, model certification, a harness registry that finds and pays harnesses on Solana, and hardware attestation started.'),
+         ('v0-0-3-alpha', 'v0.0.3-alpha', '2026-11-07', 'Verafy Harness v0.0.3-alpha: stake, slashing and open-weight models', 'Bonds that are slashed for misbehavior, a jury scheduler seeded by a randomness beacon, operator caps, payouts held through a challenge window, challenge bonds, and juries of open-weight models counted by family.'),
          ('v0-0-2-alpha', 'v0.0.2-alpha', '2026-11-06', 'Verafy Harness v0.0.2-alpha: run it anywhere', 'The harness daemon, verafy up for every cloud, a testnet on one machine, a Solana ruling program, proof packing end to end, a calibration set, the Banker as a service, and a Learn section.'),
          ('v0-0-1-alpha', 'v0.0.1-alpha', '2026-11-06', 'Verafy Harness v0.0.1-alpha: the first spec, scored', 'The first versioned spec, a scoring pass that checks it against the code, multi-model routing with calibration and audits, proof packing routed, and the economics rewritten.')]
 
@@ -526,7 +532,7 @@ def learn():
     groups = {}
     for slug, m in meta.items():
         groups.setdefault(m['group'], []).append(slug)
-    side = ''.join(f'<li><span class="grp-l">{g}</span><ul>' + ''.join(f'<li><a href="/learn/{s}">{H.escape(meta[s]["title"])}</a></li>' for s in groups[g]) + '</ul></li>' for g in ['Basics', 'Stake', 'Settlement', 'Proofs', 'Routing', 'Money', 'Governance', 'Running one'] if g in groups)
+    side = ''.join(f'<li><span class="grp-l">{g}</span><ul>' + ''.join(f'<li><a href="/learn/{s}">{H.escape(meta[s]["title"])}</a></li>' for s in groups[g]) + '</ul></li>' for g in ['Basics', 'Wallets', 'Stake', 'Settlement', 'Proofs', 'Routing', 'Money', 'Governance', 'Running one'] if g in groups)
     side = f'<ul class="learnnav">{side}</ul>'
     body, _ = md_page((SRC / 'learn' / 'index.md').read_text(), 'learn.html', '/learn', '', '', '')
     write_page('learn.html', '/learn', 'Learn Verafy Harness', 'Every concept in Verafy Harness and Verafy Chain in plain words: Actually Smart Contracts, juries, proof packing, routing, the Banker, Solana settlement and more.', 'Learn', body, side, side='Learn')
@@ -541,7 +547,7 @@ def machine_readable():
     """llms.txt, llms-full.txt, sitemap.xml, robots.txt and the release-notes feed."""
     meta = _json.loads((SRC / 'learn' / 'index.json').read_text())
     sections = [
-        ('Start here', [('/', 'Verafy Harness'), ('/launch', None), ('/run', None), ('/testnet', None)]),
+        ('Start here', [('/', 'Verafy Harness'), ('/signer', None), ('/policies', None), ('/launch', None), ('/run', None), ('/testnet', None), ('/roadmap', None), ('/pilots', None)]),
         ('Learn', [('/learn', None)] + [(f'/learn/{s}', None) for s in meta]),
         ('Reference', [('/spec', None), ('/economics', None), ('/coin-agnostic', None)]),
         ('Release notes', [('/blog', None)] + [(f'/blog/{slug}', None) for slug, *_ in POSTS]),
@@ -586,5 +592,13 @@ if __name__ == '__main__':
         'The Verafy Chain local devnet you can run now, and the plan for Testnet 0.')
     doc('coin-agnostic.md', 'coin-agnostic.html', '/coin-agnostic', 'Coin Agnostic',
         'Why there is no coin, what the money pays for, and how the Verafy Harness routing agent moves it.')
+    doc('judiciary-signer.md', 'signer.html', '/signer', 'Judiciary Signer',
+        'A Squads multisig member no person holds a key for. It signs only what the wallet policy allows, as a jury of AI models rules.')
+    doc('policies.md', 'policies.html', '/policies', 'Policies',
+        'The rules a Judiciary Signer enforces: hard rules, intent and judgment, with templates for Covenant Launch, treasuries and upgrade keys.')
+    doc('roadmap.md', 'roadmap.html', '/roadmap', 'Roadmap',
+        'Three stages: build on Solana programs with no SIMD, prove it with 10 to 50 pilots, then show the demand and scale to a SIMD.')
+    doc('pilots.md', 'pilots.html', '/pilots', 'Pilots',
+        'Top Solana apps by revenue, and the jury projects that would make or save them money.')
     machine_readable()
     print('built', ', '.join(str(p.relative_to(SITE)) for p in sorted(SITE.rglob('*.html')) if 'src' not in p.parts))

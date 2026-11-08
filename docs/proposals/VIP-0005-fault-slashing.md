@@ -1,7 +1,7 @@
 ---
 vip: '0005'
 title: Slashing on recorded faults
-status: Built
+status: 'Shipped (v0.0.3-alpha)'
 created: 2026-11-07
 requirement: CONS-005
 depends: ['0003', '0007']

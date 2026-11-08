@@ -1,0 +1,22 @@
+# verafy_registry: harnesses register on chain to be found and paid (VIP-0012).
+
+[package]
+name = "verafy-registry"
+version = "0.0.4"
+edition = "2021"
+license = "MIT"
+
+[lib]
+name = "verafy_registry"
+crate-type = ["cdylib", "lib"]
+
+[dependencies]
+abi = { package = "tinysvm-abi", path = "../../tinysvm/programs/abi" }
+
+[profile.release]
+overflow-checks = true
+codegen-units = 1
+lto = true
+panic = "abort"
+
+[workspace]

@@ -1,0 +1,586 @@
+{
+ "version": "0.0.4-alpha",
+ "overall": 0.6776632302405499,
+ "areas": {
+  "CORE": {
+   "name": "Core protocol: contracts, commit and reveal, agreement, exits",
+   "count": 9,
+   "score": 0.9304347826086959
+  },
+  "JURY": {
+   "name": "Juries, live runs, audits and challenges",
+   "count": 9,
+   "score": 0.75
+  },
+  "CHAIN": {
+   "name": "Verafy Chain node (verafyChain repo)",
+   "count": 6,
+   "score": 0.575
+  },
+  "SETTLE": {
+   "name": "TinySVM: exact settlement next to the AI",
+   "count": 6,
+   "score": 0.6153846153846154
+  },
+  "LIGHT": {
+   "name": "Light client: reading source chains",
+   "count": 4,
+   "score": 0.8333333333333334
+  },
+  "BANK": {
+   "name": "Routing agent: keyblock, banker, wallet, API router, deposits",
+   "count": 13,
+   "score": 0.6964285714285715
+  },
+  "PACK": {
+   "name": "Proof packing and the prompt compressor",
+   "count": 11,
+   "score": 0.6480769230769231
+  },
+  "ROUTE": {
+   "name": "Multi-model routing: screens, tiers, calibration",
+   "count": 9,
+   "score": 0.6636363636363636
+  },
+  "PROVE": {
+   "name": "Proofs of inference",
+   "count": 7,
+   "score": 0.5527777777777778
+  },
+  "COT": {
+   "name": "Disclosed reasoning",
+   "count": 5,
+   "score": 0.49375
+  },
+  "GOV": {
+   "name": "Constitution, Embedded Ethics, amendments",
+   "count": 4,
+   "score": 0.7999999999999999
+  },
+  "SOL": {
+   "name": "Solana settlement through the three SIMDs",
+   "count": 5,
+   "score": 0.3409090909090909
+  },
+  "ECON": {
+   "name": "Economics and the calculator",
+   "count": 5,
+   "score": 0.7999999999999999
+  },
+  "AGENT": {
+   "name": "Agent plugins and the MCP server",
+   "count": 4,
+   "score": 0.5666666666666668
+  },
+  "DEPLOY": {
+   "name": "Deploy and run anywhere: daemon, launcher, clouds, releases, local testnet",
+   "count": 11,
+   "score": 0.6304347826086957
+  },
+  "SITE": {
+   "name": "Sites, docs and the spec",
+   "count": 5,
+   "score": 0.7999999999999999
+  },
+  "OPS": {
+   "name": "Security and operations",
+   "count": 4,
+   "score": 0.48888888888888893
+  },
+  "EXT": {
+   "name": "External collaborations and data",
+   "count": 2,
+   "score": 0
+  },
+  "CONS": {
+   "name": "Consensus hardening: jury scheduling, randomness, operators, slashing, payout holds",
+   "count": 10,
+   "score": 0.7700000000000002
+  },
+  "SIGN": {
+   "name": "Judiciary Signer, policies and model certification",
+   "count": 6,
+   "score": 0.7999999999999999
+  },
+  "NET": {
+   "name": "Harness registry, discovery, pay and attestation",
+   "count": 2,
+   "score": 0.68
+  }
+ },
+ "rows": [
+  {
+   "id": "CORE-001"
+  },
+  {
+   "id": "CORE-002"
+  },
+  {
+   "id": "CORE-003"
+  },
+  {
+   "id": "CORE-004"
+  },
+  {
+   "id": "CORE-005"
+  },
+  {
+   "id": "CORE-006"
+  },
+  {
+   "id": "CORE-007"
+  },
+  {
+   "id": "CORE-008"
+  },
+  {
+   "id": "CORE-009"
+  },
+  {
+   "id": "JURY-001"
+  },
+  {
+   "id": "JURY-002"
+  },
+  {
+   "id": "JURY-003"
+  },
+  {
+   "id": "JURY-004"
+  },
+  {
+   "id": "JURY-005"
+  },
+  {
+   "id": "JURY-006"
+  },
+  {
+   "id": "JURY-007"
+  },
+  {
+   "id": "JURY-008"
+  },
+  {
+   "id": "JURY-009"
+  },
+  {
+   "id": "CONS-001"
+  },
+  {
+   "id": "CONS-002"
+  },
+  {
+   "id": "CONS-003"
+  },
+  {
+   "id": "CONS-004"
+  },
+  {
+   "id": "CONS-005"
+  },
+  {
+   "id": "CONS-006"
+  },
+  {
+   "id": "CONS-007"
+  },
+  {
+   "id": "CONS-008"
+  },
+  {
+   "id": "CONS-009"
+  },
+  {
+   "id": "CONS-010"
+  },
+  {
+   "id": "CHAIN-001"
+  },
+  {
+   "id": "CHAIN-002"
+  },
+  {
+   "id": "CHAIN-003"
+  },
+  {
+   "id": "CHAIN-004"
+  },
+  {
+   "id": "CHAIN-005"
+  },
+  {
+   "id": "CHAIN-006"
+  },
+  {
+   "id": "SETTLE-001"
+  },
+  {
+   "id": "SETTLE-002"
+  },
+  {
+   "id": "SETTLE-003"
+  },
+  {
+   "id": "SETTLE-004"
+  },
+  {
+   "id": "SETTLE-005"
+  },
+  {
+   "id": "SETTLE-006"
+  },
+  {
+   "id": "LIGHT-001"
+  },
+  {
+   "id": "LIGHT-002"
+  },
+  {
+   "id": "LIGHT-003"
+  },
+  {
+   "id": "LIGHT-004"
+  },
+  {
+   "id": "BANK-001"
+  },
+  {
+   "id": "BANK-002"
+  },
+  {
+   "id": "BANK-003"
+  },
+  {
+   "id": "BANK-004"
+  },
+  {
+   "id": "BANK-005"
+  },
+  {
+   "id": "BANK-006"
+  },
+  {
+   "id": "BANK-007"
+  },
+  {
+   "id": "BANK-008"
+  },
+  {
+   "id": "BANK-009"
+  },
+  {
+   "id": "BANK-010"
+  },
+  {
+   "id": "BANK-011"
+  },
+  {
+   "id": "BANK-012"
+  },
+  {
+   "id": "PACK-001"
+  },
+  {
+   "id": "PACK-002"
+  },
+  {
+   "id": "PACK-003"
+  },
+  {
+   "id": "PACK-004"
+  },
+  {
+   "id": "PACK-005"
+  },
+  {
+   "id": "PACK-006"
+  },
+  {
+   "id": "PACK-007"
+  },
+  {
+   "id": "PACK-008"
+  },
+  {
+   "id": "PACK-009"
+  },
+  {
+   "id": "PACK-010"
+  },
+  {
+   "id": "PACK-011"
+  },
+  {
+   "id": "ROUTE-001"
+  },
+  {
+   "id": "ROUTE-002"
+  },
+  {
+   "id": "ROUTE-003"
+  },
+  {
+   "id": "ROUTE-004"
+  },
+  {
+   "id": "ROUTE-005"
+  },
+  {
+   "id": "ROUTE-006"
+  },
+  {
+   "id": "ROUTE-007"
+  },
+  {
+   "id": "ROUTE-008"
+  },
+  {
+   "id": "ROUTE-009"
+  },
+  {
+   "id": "PROVE-001"
+  },
+  {
+   "id": "PROVE-002"
+  },
+  {
+   "id": "PROVE-003"
+  },
+  {
+   "id": "PROVE-004"
+  },
+  {
+   "id": "PROVE-005"
+  },
+  {
+   "id": "PROVE-006"
+  },
+  {
+   "id": "PROVE-007"
+  },
+  {
+   "id": "COT-001"
+  },
+  {
+   "id": "COT-002"
+  },
+  {
+   "id": "COT-003"
+  },
+  {
+   "id": "COT-004"
+  },
+  {
+   "id": "COT-005"
+  },
+  {
+   "id": "GOV-001"
+  },
+  {
+   "id": "GOV-002"
+  },
+  {
+   "id": "GOV-003"
+  },
+  {
+   "id": "GOV-004"
+  },
+  {
+   "id": "SOL-001"
+  },
+  {
+   "id": "SOL-002"
+  },
+  {
+   "id": "SOL-003"
+  },
+  {
+   "id": "SOL-004"
+  },
+  {
+   "id": "SOL-005"
+  },
+  {
+   "id": "ECON-001"
+  },
+  {
+   "id": "ECON-002"
+  },
+  {
+   "id": "ECON-003"
+  },
+  {
+   "id": "ECON-004"
+  },
+  {
+   "id": "ECON-005"
+  },
+  {
+   "id": "AGENT-001"
+  },
+  {
+   "id": "AGENT-002"
+  },
+  {
+   "id": "AGENT-003"
+  },
+  {
+   "id": "AGENT-004"
+  },
+  {
+   "id": "SITE-001"
+  },
+  {
+   "id": "SITE-002"
+  },
+  {
+   "id": "SITE-003"
+  },
+  {
+   "id": "OPS-001"
+  },
+  {
+   "id": "OPS-002"
+  },
+  {
+   "id": "OPS-003"
+  },
+  {
+   "id": "OPS-004"
+  },
+  {
+   "id": "EXT-001"
+  },
+  {
+   "id": "EXT-002"
+  },
+  {
+   "id": "BANK-013"
+  },
+  {
+   "id": "DEPLOY-001"
+  },
+  {
+   "id": "DEPLOY-002"
+  },
+  {
+   "id": "DEPLOY-003"
+  },
+  {
+   "id": "DEPLOY-004"
+  },
+  {
+   "id": "DEPLOY-005"
+  },
+  {
+   "id": "DEPLOY-006"
+  },
+  {
+   "id": "DEPLOY-007"
+  },
+  {
+   "id": "DEPLOY-008"
+  },
+  {
+   "id": "DEPLOY-009"
+  },
+  {
+   "id": "DEPLOY-010"
+  },
+  {
+   "id": "DEPLOY-011"
+  },
+  {
+   "id": "SITE-004"
+  },
+  {
+   "id": "SITE-005"
+  },
+  {
+   "id": "SIGN-001"
+  },
+  {
+   "id": "SIGN-002"
+  },
+  {
+   "id": "SIGN-003"
+  },
+  {
+   "id": "SIGN-004"
+  },
+  {
+   "id": "SIGN-005"
+  },
+  {
+   "id": "NET-001"
+  },
+  {
+   "id": "NET-002"
+  },
+  {
+   "id": "SIGN-006"
+  }
+ ],
+ "gaps": [
+  {
+   "id": "PROVE-004",
+   "status": "designed",
+   "title": "Prove once, verify many while one model is provable; verifiers drawn from the block hash",
+   "rex": null
+  },
+  {
+   "id": "SOL-001",
+   "status": "designed",
+   "title": "Three draft SIMDs: inference programs, attestations, rulings; no validator changes",
+   "rex": null
+  },
+  {
+   "id": "BANK-012",
+   "status": "planned",
+   "title": "Rent GPU and VM hosts on demand for open-weights and proving routes",
+   "rex": null
+  },
+  {
+   "id": "CHAIN-005",
+   "status": "planned",
+   "title": "Registry on chain, sealer liveness, bonds and slashing, libp2p gossip",
+   "rex": null
+  },
+  {
+   "id": "DEPLOY-010",
+   "status": "planned",
+   "title": "Hosted harnesses run by Verafy for people who do not want to operate one",
+   "rex": true
+  },
+  {
+   "id": "JURY-007",
+   "status": "planned",
+   "title": "Track record: agreement with final rulings and forecast scores per harness",
+   "rex": null
+  },
+  {
+   "id": "OPS-003",
+   "status": "planned",
+   "title": "Monitoring: per-harness health, spend, faults and alerts",
+   "rex": null
+  },
+  {
+   "id": "OPS-004",
+   "status": "planned",
+   "title": "Threat model document covering keys, queue, provers, screens and the banker",
+   "rex": null
+  },
+  {
+   "id": "PACK-007",
+   "status": "planned",
+   "title": "Real token counts with the target model's tokenizer",
+   "rex": null
+  },
+  {
+   "id": "ROUTE-008",
+   "status": "planned",
+   "title": "Wire the router into the harness and the chain intake, with per-contract allowScreen, stakes and floors in the contract format",
+   "rex": null
+  }
+ ]
+}

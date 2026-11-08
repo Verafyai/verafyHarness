@@ -1,7 +1,7 @@
 ---
 vip: '0007'
 title: Hold payouts until the challenge window closes
-status: Built
+status: 'Shipped (v0.0.3-alpha)'
 created: 2026-11-07
 requirement: CONS-006
 ---

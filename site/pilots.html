@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pilots</title>
+<meta name="description" content="Top Solana apps by revenue, and the jury projects that would make or save them money.">
+<link rel="icon" href="/logo.svg" type="image/svg+xml">
+<link rel="canonical" href="https://harness.verafy.ai/pilots">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Verafy Harness">
+<meta property="og:title" content="Pilots">
+<meta property="og:description" content="Top Solana apps by revenue, and the jury projects that would make or save them money.">
+<meta property="og:url" content="https://harness.verafy.ai/pilots">
+<meta property="og:image" content="https://harness.verafy.ai/banner.png">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="640">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://harness.verafy.ai/banner.png">
+<meta name="twitter:title" content="Pilots">
+<meta name="twitter:description" content="Top Solana apps by revenue, and the jury projects that would make or save them money.">
+<link rel="alternate" type="text/plain" title="llms.txt" href="/llms.txt">
+<link rel="alternate" type="application/rss+xml" title="Verafy Harness release notes" href="/blog/feed.xml">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"Pilots","description":"Top Solana apps by revenue, and the jury projects that would make or save them money.","url":"https://harness.verafy.ai/pilots","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"Verafy Harness","url":"https://harness.verafy.ai/"},"author":{"@type":"Organization","name":"Verafy","url":"https://verafy.ai"},"publisher":{"@type":"Organization","name":"Verafy","url":"https://verafy.ai"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Verafy Harness","item":"https://harness.verafy.ai/"},{"@type":"ListItem","position":2,"name":"Pilots","item":"https://harness.verafy.ai/pilots"}]}]}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+
+:root{--paper:#EDF0F3;--sheet:#FFFFFF;--ink:#16212C;--mute:#566473;--rule:#CDD5DD;--accent:#3640C9;--accent-soft:#DADDF7;--allow:#1C7A4E;--hold:#A0561A;--code:#F4F6F8;
+--display:"Archivo","Helvetica Neue",Arial,sans-serif;--body:"Source Serif 4",Georgia,serif;--mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--paper:#0F151B;--sheet:#161E26;--ink:#E4EAF0;--mute:#93A1AF;--rule:#2A3541;--accent:#8A92FF;--accent-soft:#252A55;--allow:#5CC995;--hold:#E0A060;--code:#1B242E;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#0F151B;--sheet:#161E26;--ink:#E4EAF0;--mute:#93A1AF;--rule:#2A3541;--accent:#8A92FF;--accent-soft:#252A55;--allow:#5CC995;--hold:#E0A060;--code:#1B242E;color-scheme:dark}
+*{box-sizing:border-box}body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:17.5px;line-height:1.6;margin:0}
+a{color:var(--accent);text-underline-offset:3px}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+img{max-width:100%;height:auto}
+.wrap{max-width:1240px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.coinfree{background:var(--sheet);border-top:3px solid var(--accent);border-bottom:1px solid var(--rule)}
+.coinfree .wrap{padding-block:18px 20px;display:flex;flex-direction:column;gap:6px}
+.coinfree h2{font-family:var(--display);font-weight:750;font-size:clamp(22px,2.4vw,28px);margin:0}
+.coinfree p{max-width:46em;margin:0;overflow-wrap:break-word}
+.top{display:flex;align-items:center;gap:16px;padding-block:20px;border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.brand{font-family:var(--display);font-weight:800;font-size:20px;font-stretch:110%;color:var(--ink);text-decoration:none;display:inline-flex;align-items:center;gap:10px}
+.brand .mark{color:var(--ink);flex:none}
+.tabs{display:flex;flex-wrap:wrap;gap:4px;margin-right:auto;margin-left:12px}
+.tabs a{font-family:var(--display);font-weight:600;font-size:15px;color:var(--mute);text-decoration:none;padding:6px 10px;border-radius:2px;border:1px solid transparent}
+.tabs a:hover{color:var(--ink);border-color:var(--rule)}.tabs a[aria-current="page"]{color:var(--ink);border-color:var(--ink)}
+.status{font-family:var(--mono);font-size:12.5px;color:var(--hold);border:1px solid currentColor;padding:4px 10px;border-radius:2px}
+.tabs{order:3;width:100%;margin:0 0 0 -10px}
+.top .status{margin-left:auto}
+@media (max-width:560px){.top .status{margin-left:0}}
+.layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:48px;padding-block:40px 80px}
+@media (max-width:900px){.layout{grid-template-columns:minmax(0,1fr)}.side{position:static!important;max-height:none!important}}
+.side{position:sticky;top:16px;align-self:start;max-height:calc(100vh - 32px);overflow:auto;font-size:15px}
+.side .lbl{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);display:block;margin-bottom:8px}
+.side ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.side ul ul{padding-left:14px;margin:2px 0 6px}
+.side a{color:var(--mute);text-decoration:none;display:block;padding:3px 8px;border-left:2px solid transparent}
+.side a:hover{color:var(--ink)}.side a.on{color:var(--ink);border-left-color:var(--accent)}
+article{min-width:0;max-width:52rem}
+article h1{font-family:var(--display);font-weight:800;font-size:clamp(34px,4.6vw,52px);line-height:1.05;letter-spacing:-.015em;margin:0 0 18px}
+article h2{font-family:var(--display);font-weight:750;font-size:28px;line-height:1.15;margin:48px 0 14px;padding-top:18px;border-top:1px solid var(--rule)}
+article h3{font-family:var(--display);font-weight:700;font-size:20px;margin:28px 0 10px}
+article p,article li{max-width:44em}
+article img{display:block;border:1px solid var(--rule);border-radius:3px;background:#fff}
+article blockquote{margin:18px 0;padding:14px 18px;background:var(--sheet);border:1px solid var(--hold);border-radius:2px;color:var(--ink)}
+article blockquote p{margin:0}
+code{font-family:var(--mono);font-size:.86em;background:var(--code);padding:1px 5px;border-radius:2px}
+pre{background:var(--code);border:1px solid var(--rule);border-radius:3px;padding:14px 16px;overflow-x:auto;font-size:14px;line-height:1.5}
+pre code{background:none;padding:0;font-size:inherit}
+.tbl{overflow-x:auto;border:1px solid var(--rule);border-radius:3px;background:var(--sheet);margin:16px 0}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:15.5px}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);font-weight:400}
+tr:last-child td{border-bottom:0}
+.foot{padding-block:24px 48px;border-top:1px solid var(--rule);font-size:15px;color:var(--mute);display:flex;flex-direction:column;gap:6px}
+.foot p{margin:0}
+
+
+.top{display:flex;align-items:center;gap:14px;padding-block:18px;border-bottom:1px solid var(--rule);position:relative;flex-wrap:nowrap}
+.top .brand{margin-right:auto;white-space:nowrap}
+.ver{font-family:var(--mono);font-size:13px;color:var(--accent);border:1px solid currentColor;padding:4px 9px;border-radius:2px;text-decoration:none;white-space:nowrap}
+.ver:hover{background:var(--accent-soft)}
+.menu{position:relative}
+.menu>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:9px;font-family:var(--display);font-weight:600;font-size:15px;color:var(--ink);border:1px solid var(--rule);border-radius:2px;padding:7px 11px;background:var(--sheet);user-select:none}
+.menu>summary::-webkit-details-marker{display:none}
+.menu>summary:hover,.menu[open]>summary{border-color:var(--ink)}
+.burger{display:inline-flex;flex-direction:column;gap:3.5px}.burger i{display:block;width:17px;height:2px;background:currentColor;border-radius:1px}
+.menu[open] .burger i:nth-child(1){transform:translateY(5.5px) rotate(45deg)}.menu[open] .burger i:nth-child(2){opacity:0}.menu[open] .burger i:nth-child(3){transform:translateY(-5.5px) rotate(-45deg)}
+.menu nav{position:absolute;right:0;top:calc(100% + 8px);z-index:50;width:min(300px,calc(100vw - 32px));background:var(--sheet);border:1px solid var(--rule);border-top:3px solid var(--accent);border-radius:3px;padding:10px 0;box-shadow:0 12px 32px rgba(15,21,27,.18)}
+.menu nav .grp{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);padding:10px 18px 4px}
+.menu nav a{display:block;padding:8px 18px;font-family:var(--display);font-weight:600;font-size:15.5px;color:var(--ink);text-decoration:none;border-left:3px solid transparent}
+.menu nav a:hover{background:var(--paper);border-left-color:var(--rule)}
+.menu nav a[aria-current="page"]{border-left-color:var(--accent);color:var(--accent)}
+.menu nav hr{border:0;border-top:1px solid var(--rule);margin:8px 0}
+@media (max-width:420px){.menu>summary .lab{display:none}.ver{font-size:12px;padding:3px 7px}.top{gap:10px}.top .brand{font-size:17px;gap:7px}.top .brand .mark{width:24px;height:24px}}
+
+</style>
+</head>
+<body>
+<section class="coinfree" aria-labelledby="coinfreeH">
+  <div class="wrap">
+    <h2 id="coinfreeH">Coin-free guarantee.</h2>
+    <p>There is no coin, and Verafy Harness will never need one. A harness is paid in whatever token a contract offers and pays its own AI and hosting bills from that. No presale, no airdrop, no points, no treasury. <a href="/coin-agnostic">How payment works</a></p>
+  </div>
+</section>
+<header class="wrap top">
+  <a class="brand" href="/"><svg class="mark" viewBox="0 0 64 64" width="28" height="28" aria-hidden="true"><path d="M6 20V6h14M44 6h14v14M58 44v14H44M20 58H6V44" stroke="currentColor" stroke-width="5" stroke-linecap="square" fill="none"/><path d="M32 13v7M32 44v7M13 32h7M44 32h7" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><circle cx="32" cy="32" r="11" fill="var(--accent)"/><circle cx="32" cy="32" r="4" fill="var(--paper)"/></svg>Verafy Harness</a>
+  <a class="ver" href="/blog/v0-0-4-alpha" title="Release notes for v0.0.4-alpha">v0.0.4-alpha</a>
+  <details class="menu">
+    <summary aria-label="Menu"><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><span class="lab">Menu</span></summary>
+    <nav aria-label="Site"><div class="grp">Verafy Harness</div><a href="/signer">Judiciary Signer</a><a href="/policies">Policies</a><a href="/launch">Launch a harness</a><a href="/run">Run a harness</a><a href="/testnet">Testnet</a><a href="/economics">Economics</a><a href="/coin-agnostic">Coin Agnostic</a><a href="/learn">Learn</a><a href="/spec">Specification</a><a href="/roadmap">Roadmap</a><a href="/pilots" aria-current="page">Pilots</a><a href="/blog">Release notes</a><hr><div class="grp">Verafy Chain</div><a href="https://chain.verafy.ai">Verafy Chain</a><a href="https://chain.verafy.ai/constitution">Constitution</a><a href="https://chain.verafy.ai/#roadmap">Roadmap</a><hr><div class="grp">More</div><a href="https://asc.verafy.ai">Actually Smart Contracts</a><a href="https://github.com/Verafyai/verafyHarness">GitHub</a></nav>
+  </details>
+</header>
+<script>(function(){var d=document.querySelector('.menu');if(!d)return;document.addEventListener('click',function(e){if(d.open&&!d.contains(e.target))d.open=false});document.addEventListener('keydown',function(e){if(e.key==='Escape')d.open=false})})();</script>
+<div class="wrap layout"><aside class="side" aria-label="On this page"><span class="lbl">On this page</span><div class="toc">
+<ul>
+<li><a href="#who-earns-on-solana">Who earns on Solana</a></li>
+<li><a href="#projects-by-app">Projects by app</a><ul>
+<li><a href="#squads-the-partner-not-a-target">Squads: the partner, not a target</a></li>
+<li><a href="#pump-bags-letsbonk-raydium-and-meteora-launches">Pump, Bags, LetsBonk, Raydium and Meteora launches</a></li>
+<li><a href="#axiom-fomo-gmgn-trojan-and-photon-trading-apps">Axiom, fomo, GMGN, Trojan and Photon trading apps</a></li>
+<li><a href="#jupiter">Jupiter</a></li>
+<li><a href="#phantom">Phantom</a></li>
+<li><a href="#collector-crypt-physical-goods">Collector Crypt: physical goods</a></li>
+<li><a href="#dex-screener">DEX Screener</a></li>
+<li><a href="#metadao">MetaDAO</a></li>
+<li><a href="#kamino-and-lending-protocols">Kamino and lending protocols</a></li>
+<li><a href="#sanctum-marinade-jito-and-validators">Sanctum, Marinade, Jito and validators</a></li>
+<li><a href="#geodnet">Geodnet</a></li>
+<li><a href="#superteam-and-grant-programs">Superteam and grant programs</a></li>
+<li><a href="#gamified-mining-zinc-ore-godl">Gamified mining (ZINC, ORE, GODL)</a></li>
+</ul>
+</li>
+<li><a href="#the-ranked-pilot-list">The ranked pilot list</a></li>
+<li><a href="#sources">Sources</a></li>
+</ul>
+</div>
+</aside><article><h1 id="pilots">Pilots</h1>
+<p>Stage 2 of the <a href="/roadmap">Roadmap</a> is 10 to 50 pilots. This page names the Solana apps that earn the most, suggests one to three jury projects for each, and says how each one makes money, saves money, speeds things up or keeps customers. At the end is a ranked pilot list.</p>
+<p>Every revenue figure is reported by DefiLlama, as read on November 7, 2026, or by Solana Compass's summary of DefiLlama for August 2026. None is measured by us. Value is described, not estimated: no pilot has run yet.</p>
+<h2 id="who-earns-on-solana">Who earns on Solana</h2>
+<p>Solana apps earned about $143 million in August 2026, 38% of all blockchain app revenue. Six apps took about $119 million of it.</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>App</th>
+<th>What it is</th>
+<th>Revenue, last 30 days</th>
+<th>August 2026</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pump</td>
+<td>Memecoin launchpad and DEX</td>
+<td>$26.48M</td>
+<td>$58.2M</td>
+</tr>
+<tr>
+<td>Collector Crypt</td>
+<td>Physical trading cards, vaulted and tokenized</td>
+<td>$13.46M</td>
+<td>$9.7M</td>
+</tr>
+<tr>
+<td>Axiom Pro</td>
+<td>Trading terminal</td>
+<td>$7.61M</td>
+<td>$24M</td>
+</tr>
+<tr>
+<td>Phantom</td>
+<td>Wallet</td>
+<td>$4.85M</td>
+<td>$6.6M</td>
+</tr>
+<tr>
+<td>Jupiter</td>
+<td>Aggregator, perps, launchpad</td>
+<td>$4.74M</td>
+<td>$6.2M</td>
+</tr>
+<tr>
+<td>ZINC, ORE, GODL</td>
+<td>Gamified mining</td>
+<td>$3.92M, $3.48M, $0.90M</td>
+<td></td>
+</tr>
+<tr>
+<td>DEX Screener</td>
+<td>Token tracker, paid token profiles</td>
+<td>$2.44M</td>
+<td></td>
+</tr>
+<tr>
+<td>fomo</td>
+<td>Social trading app</td>
+<td>$2.41M</td>
+<td>$14.6M</td>
+</tr>
+<tr>
+<td>Meteora</td>
+<td>DEX, launch pools</td>
+<td>$1.81M</td>
+<td></td>
+</tr>
+<tr>
+<td>GMGN, Trojan, Photon</td>
+<td>Trading bots and terminals</td>
+<td>$0.96M, $0.86M, $0.46M</td>
+<td></td>
+</tr>
+<tr>
+<td>GMTrade</td>
+<td>Derivatives</td>
+<td>$0.81M</td>
+<td></td>
+</tr>
+<tr>
+<td>Raydium, Orca</td>
+<td>DEXs and launchpads</td>
+<td>$0.73M, $0.42M</td>
+<td></td>
+</tr>
+<tr>
+<td>Kamino</td>
+<td>Lending</td>
+<td>$0.73M</td>
+<td></td>
+</tr>
+<tr>
+<td>Geodnet</td>
+<td>Positioning network (oracle)</td>
+<td>$0.63M</td>
+<td></td>
+</tr>
+<tr>
+<td>Sanctum</td>
+<td>Liquid staking</td>
+<td>$0.36M</td>
+<td></td>
+</tr>
+<tr>
+<td>Bags</td>
+<td>Launchpad</td>
+<td>$0.29M</td>
+<td></td>
+</tr>
+<tr>
+<td>MetaDAO</td>
+<td>Futarchy raises and markets</td>
+<td>$0.13M</td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
+<p>Not in the revenue table but central to the pilots: Squads, where Solana treasuries live; Superteam, which runs bounties and grants; and Jito, Marinade and validators, for staking.</p>
+<h2 id="projects-by-app">Projects by app</h2>
+<h3 id="squads-the-partner-not-a-target">Squads: the partner, not a target</h3>
+<ol>
+<li><strong>Judiciary Signer as a member type in the Squads app.</strong> Pick a policy template, pick models, attach.</li>
+<li><em>Makes money:</em> a premium tier for treasuries and launches.</li>
+<li><em>Satisfaction:</em> the "who can drain this" question gets a published answer.</li>
+<li><strong>Policy review on existing treasuries.</strong> Scan a multisig and report what a policy should cover: spending limits, config authority, thresholds the humans can reach alone.</li>
+<li><em>Saves money:</em> finds the paths that lose funds before they're used.</li>
+</ol>
+<h3 id="pump-bags-letsbonk-raydium-and-meteora-launches">Pump, Bags, LetsBonk, Raydium and Meteora launches</h3>
+<ol>
+<li><strong>Covenant Launch as a launch option.</strong> The creator's supply goes into a policy wallet with a published release schedule. A "covenant" badge appears on the token page.</li>
+<li><em>Makes money:</em> a paid launch tier.</li>
+<li><em>Keeps customers:</em> buyers return to launchpads where they weren't dumped on.</li>
+<li><strong>Insider check at launch.</strong> A jury rules, from funding paths and timing, which early wallets are tied to the creator. Those wallets are bound by the covenant too.</li>
+<li><em>Saves money:</em> for buyers.</li>
+<li><em>Makes money:</em> for the launchpad, as a trust feature the others lack.</li>
+<li><strong>Creator-fee disputes.</strong> Rule on claims to creator rewards when a token's creator is disputed.</li>
+<li><em>Speed:</em> minutes instead of support tickets.</li>
+</ol>
+<h3 id="axiom-fomo-gmgn-trojan-and-photon-trading-apps">Axiom, fomo, GMGN, Trojan and Photon trading apps</h3>
+<ol>
+<li><strong>Covenant and risk signal in the token view.</strong> Show whether a token's supply is under a covenant, with the jury's insider ruling.</li>
+<li><em>Keeps customers:</em> fewer users lose money on rugs.</li>
+<li><em>Makes money:</em> a paid safety filter for copy trading and snipers.</li>
+<li><strong>Copy-trading disputes.</strong> For apps where users follow a trader: rule on whether a followed trader front-ran followers, against the app's stated rules.</li>
+<li><em>Satisfaction</em>, and a refund pool that pays only on a ruling.</li>
+</ol>
+<h3 id="jupiter">Jupiter</h3>
+<ol>
+<li><strong>DAO proposal review.</strong> Before a JUP DAO vote, a jury checks the proposal against the DAO's stated rules and says what it changes for holders.</li>
+<li><em>Speed:</em> voters read a ruling, not a forum thread.</li>
+<li><strong>Launchpad covenants.</strong> Require Covenant Launch for launchpad projects.</li>
+<li><em>Keeps customers:</em> launchpad buyers.</li>
+<li><strong>Perps edge cases.</strong> Rule on disputed fills or liquidations during oracle outages, against the published rules.</li>
+<li><em>Saves money:</em> support and goodwill payouts decided case by case.</li>
+</ol>
+<h3 id="phantom">Phantom</h3>
+<ol>
+<li><strong>Policy-checked signing for large transfers.</strong> A user sets rules ("never send more than X to a new address in a day"), and a jury reviews any transaction that breaks them before it's signed.</li>
+<li><em>Saves money:</em> for users.</li>
+<li><em>Keeps customers:</em> a reason to stay with the wallet that prevented the loss.</li>
+</ol>
+<h3 id="collector-crypt-physical-goods">Collector Crypt: physical goods</h3>
+<ol>
+<li><strong>Condition and authenticity disputes.</strong> Card photos, grading records and the buyer's claim go to a jury. Its ruling releases escrow or triggers the buyback.</li>
+<li><em>Speed</em> and <em>satisfaction</em>.</li>
+<li>This is the asset-transfer design in <a href="https://github.com/Verafyai/verafyHarness/blob/main/docs/proposals/VIP-0015-asset-transfer-records.md">VIP-0015</a>.</li>
+<li><strong>Redemption proof.</strong> When a vaulted card is redeemed and shipped, the jury compares vault photos with the delivery photo and its one-time code.</li>
+<li><em>Saves money:</em> fewer "never arrived" refunds.</li>
+</ol>
+<h3 id="dex-screener">DEX Screener</h3>
+<ol>
+<li><strong>"Covenant verified" on paid token profiles.</strong> A profile can show the covenant wallet, its policy and its release history, checked by the jury.</li>
+<li><em>Makes money:</em> a higher-priced verified profile.</li>
+</ol>
+<h3 id="metadao">MetaDAO</h3>
+<ol>
+<li><strong>Milestone treasuries.</strong> Raise proceeds sit in a policy wallet. Each release needs a jury ruling that the stated milestone was met, from the team's evidence.</li>
+<li><em>Keeps customers:</em> investors.</li>
+<li><em>Saves money:</em> funds stop leaving before delivery.</li>
+</ol>
+<h3 id="kamino-and-lending-protocols">Kamino and lending protocols</h3>
+<ol>
+<li><strong>Risk-parameter changes under a policy.</strong> Parameter updates by the risk team go through a Judiciary Signer that checks them against the published risk framework.</li>
+<li><em>Saves money:</em> bad parameter pushes are caught before they execute.</li>
+</ol>
+<h3 id="sanctum-marinade-jito-and-validators">Sanctum, Marinade, Jito and validators</h3>
+<ol>
+<li><strong>Commission covenant.</strong> A validator bonds a promise not to raise its commission. Code checks the vote account. The jury covers MEV commission and promises made in words. See <a href="https://github.com/Verafyai/verafyHarness/blob/main/docs/proposals/VIP-0016-commission-covenant.md">VIP-0016</a>.</li>
+<li><em>Makes money:</em> for validators who can show they won't raise fees on stakers.</li>
+<li><strong>Governance proposal review</strong> for Jito improvement proposals and Solana SIMDs: what a proposal changes for stakers and users, against a stated policy. This could live in Ecosystem IQ, as a scanner.</li>
+</ol>
+<h3 id="geodnet">Geodnet</h3>
+<ol>
+<li><strong>Reward fraud review.</strong> Stations flagged for spoofed positions go to a jury with the station's data and neighbors' data. It rules before rewards are clawed back.</li>
+<li><em>Saves money:</em> rewards paid to fraud.</li>
+<li><em>Satisfaction:</em> honest stations aren't clawed back by a heuristic alone.</li>
+</ol>
+<h3 id="superteam-and-grant-programs">Superteam and grant programs</h3>
+<ol>
+<li><strong>Bounty acceptance.</strong> Did a submission meet the spec? A ruling releases the bounty from a policy wallet.</li>
+<li><em>Speed:</em> reviewers stop being the bottleneck.</li>
+</ol>
+<h3 id="gamified-mining-zinc-ore-godl">Gamified mining (ZINC, ORE, GODL)</h3>
+<p>Weak fit. Rewards are set by code, and disputes are rare. Not a pilot.</p>
+<h2 id="the-ranked-pilot-list">The ranked pilot list</h2>
+<p>Ranked by how well the jury fits the problem, and how reachable the team is. Not by revenue. Each pilot is written up as a Verafy App Pilot (VAP), with its done condition: <a href="https://github.com/Verafyai/verafyHarness/blob/main/docs/pilots/README.md">the VAP index</a>.</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Pilot</th>
+<th>App</th>
+<th>Policy or VIP</th>
+<th>First metric</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Judiciary Signer in Squads</td>
+<td>Squads</td>
+<td>VIP-0010, VIP-0011</td>
+<td>Wallets attached</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Covenant Launch on a mid-size launchpad</td>
+<td>Bags or LetsBonk</td>
+<td>Covenant Launch</td>
+<td>Launches with a covenant; buyer retention against launches without</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Milestone treasuries</td>
+<td>MetaDAO</td>
+<td>Treasury template plus milestone judgment</td>
+<td>Releases ruled, disputes</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Card condition disputes</td>
+<td>Collector Crypt</td>
+<td>VIP-0015</td>
+<td>Disputes resolved, time to resolve, agreement with human reviewers</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Covenant badge on token profiles</td>
+<td>DEX Screener</td>
+<td>Covenant Launch</td>
+<td>Paid verified profiles</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Bounty acceptance</td>
+<td>Superteam</td>
+<td>Treasury template</td>
+<td>Bounties released, appeals</td>
+</tr>
+<tr>
+<td>7</td>
+<td>DAO proposal review</td>
+<td>Jupiter</td>
+<td>Governance review</td>
+<td>Proposals reviewed before votes</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Insider check at launch</td>
+<td>Pump</td>
+<td>Covenant Launch plus launch rulings</td>
+<td>Insider wallets found, false positives</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Commission covenant</td>
+<td>A validator or Sanctum LST</td>
+<td>VIP-0016</td>
+<td>Stake under covenant</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Policy review scanner for treasuries</td>
+<td>Any Squads treasury</td>
+<td>Setup check</td>
+<td>Treasuries scanned, issues found</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Covenant and risk signal in a trading app</td>
+<td>Axiom, fomo or GMGN</td>
+<td>Covenant Launch</td>
+<td>Users who filter on it</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Policy-checked signing</td>
+<td>Phantom</td>
+<td>Personal policy</td>
+<td>Transfers stopped, users who keep it on</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Reward fraud review</td>
+<td>Geodnet</td>
+<td>Fraud review</td>
+<td>Cases ruled, agreement with their team</td>
+</tr>
+<tr>
+<td>14</td>
+<td>Risk-parameter changes</td>
+<td>Kamino</td>
+<td>Upgrade and parameter policy</td>
+<td>Changes reviewed</td>
+</tr>
+<tr>
+<td>15</td>
+<td>Launchpad covenants</td>
+<td>Jupiter launchpad, Meteora launch pools</td>
+<td>Covenant Launch</td>
+<td>Launches</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Where to start:</strong> Squads first, because every other wallet pilot rides on it. Then one launchpad for Covenant Launch, and MetaDAO for milestone treasuries. For each, Verafy builds the pilot alongside the team, then turns it into a template the next customer gets for free.</p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li><a href="https://defillama.com/revenue/chain/solana">DefiLlama, Solana revenue rankings</a>, read November 7, 2026.</li>
+<li><a href="https://solanacompass.com/news/solana-tops-all-blockchains-for-app-revenue-in-august-2026-with-143m-capturing-38-of-global-total">Solana Compass, Solana tops all blockchains for app revenue in August 2026</a>.</li>
+<li><a href="https://solanacompass.com/news/solana-dapps-generated-257m-in-q2-2026-revenue-leading-all-blockchains-for-ninth-straight-quarter">Solana Compass, Solana dApps generated $257M in Q2 2026 revenue</a>.</li>
+</ul></article></div>
+<footer class="wrap foot">
+  <p>Verafy Harness is the validator for Verafy Chain, a Verafy research concept. It is a prototype, not a running network, and there is no token.</p>
+  <p>Code: <a href="https://github.com/Verafyai/verafyHarness">Verafyai/verafyHarness</a>, MIT, built on <a href="https://github.com/deepseek-ai/deepseek-harness">DeepSeek Harness</a>. The concept: <a href="https://chain.verafy.ai">chain.verafy.ai</a>.</p>
+</footer>
+<script>(function(){var links=[].slice.call(document.querySelectorAll('.side a[href^="#"]'));var hs=links.map(function(a){return document.getElementById(decodeURIComponent(a.hash.slice(1)))}).filter(Boolean);function on(){var y=window.scrollY+120,cur=null;hs.forEach(function(h){if(h.offsetTop<=y)cur=h.id});links.forEach(function(a){a.classList.toggle('on',decodeURIComponent(a.hash.slice(1))===cur)})}window.addEventListener('scroll',on,{passive:true});on()})();</script>
+</body>
+</html>

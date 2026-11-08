@@ -1,7 +1,7 @@
 ---
 vip: '0009'
 title: 'Prover placement: each harness proves, or shared provers do'
-status: Decision needed
+status: 'Shipped (v0.0.4-alpha): each harness proves by default; shared provers allowed and named in the proof record'
 created: 2026-11-07
 requirement: CONS-008
 ---

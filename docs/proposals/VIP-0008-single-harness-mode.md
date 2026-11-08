@@ -1,7 +1,7 @@
 ---
 vip: '0008'
 title: 'Single-harness mode: a jury of one, with a challenge window'
-status: Built; needs Rex
+status: 'Shipped (v0.0.4-alpha): offered only with a challenge window and an automatic audit; Rex can withdraw it'
 created: 2026-11-07
 requirement: CONS-007
 depends: ['0001', '0006', '0007']

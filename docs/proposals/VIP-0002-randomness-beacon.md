@@ -1,7 +1,7 @@
 ---
 vip: '0002'
 title: Randomness beacon for jury seeds
-status: Built
+status: 'Shipped (v0.0.3-alpha)'
 created: 2026-11-07
 requirement: CONS-002
 ---

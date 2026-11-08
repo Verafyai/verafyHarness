@@ -21,7 +21,7 @@
 <meta name="twitter:description" content="An AI validator anyone can run: one model in a harness that rules on contracts written in words, holds its own keys and pays its own bills. No token.">
 <link rel="alternate" type="text/plain" title="llms.txt" href="/llms.txt">
 <link rel="alternate" type="application/rss+xml" title="Verafy Harness release notes" href="/blog/feed.xml">
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","name":"Verafy Harness","url":"https://harness.verafy.ai/","description":"An AI validator anyone can run: one model in a harness that rules on contracts written in words, holds its own keys and pays its own bills. No token."},{"@type":"SoftwareApplication","name":"Verafy Harness","applicationCategory":"DeveloperApplication","operatingSystem":"Linux, macOS, Windows","softwareVersion":"0.0.3-alpha","license":"https://opensource.org/licenses/MIT","url":"https://harness.verafy.ai/","codeRepository":"https://github.com/Verafyai/verafyHarness","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"An AI validator anyone can run: one model in a harness that rules on contracts written in words, holds its own keys and pays its own bills. No token."}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","name":"Verafy Harness","url":"https://harness.verafy.ai/","description":"An AI validator anyone can run: one model in a harness that rules on contracts written in words, holds its own keys and pays its own bills. No token."},{"@type":"SoftwareApplication","name":"Verafy Harness","applicationCategory":"DeveloperApplication","operatingSystem":"Linux, macOS, Windows","softwareVersion":"0.0.4-alpha","license":"https://opensource.org/licenses/MIT","url":"https://harness.verafy.ai/","codeRepository":"https://github.com/Verafyai/verafyHarness","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"An AI validator anyone can run: one model in a harness that rules on contracts written in words, holds its own keys and pays its own bills. No token."}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
 /* Layout: a court docket. A left gutter carries section marks and labels; the record runs on the right. The hero is a fixed 16:9 animation that can be screen-recorded as is. */
@@ -242,10 +242,10 @@ a.card.go h3{color:var(--accent)}
 </section>
 <header class="wrap top">
   <a class="brand" href="/"><svg class="mark" viewBox="0 0 64 64" width="28" height="28" aria-hidden="true"><path d="M6 20V6h14M44 6h14v14M58 44v14H44M20 58H6V44" stroke="currentColor" stroke-width="5" stroke-linecap="square" fill="none"/><path d="M32 13v7M32 44v7M13 32h7M44 32h7" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><circle cx="32" cy="32" r="11" fill="var(--accent)"/><circle cx="32" cy="32" r="4" fill="var(--paper)"/></svg>Verafy Harness</a>
-  <a class="ver" href="/blog/v0-0-3-alpha" title="Release notes for v0.0.3-alpha">v0.0.3-alpha</a>
+  <a class="ver" href="/blog/v0-0-4-alpha" title="Release notes for v0.0.4-alpha">v0.0.4-alpha</a>
   <details class="menu">
     <summary aria-label="Menu"><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><span class="lab">Menu</span></summary>
-    <nav aria-label="Site"><div class="grp">Verafy Harness</div><a href="/launch">Launch a harness</a><a href="/run">Run a harness</a><a href="/testnet">Testnet</a><a href="/economics">Economics</a><a href="/coin-agnostic">Coin Agnostic</a><a href="/learn">Learn</a><a href="/spec">Specification</a><a href="/blog">Release notes</a><hr><div class="grp">Verafy Chain</div><a href="https://chain.verafy.ai">Verafy Chain</a><a href="https://chain.verafy.ai/constitution">Constitution</a><a href="https://chain.verafy.ai/#roadmap">Roadmap</a><hr><div class="grp">More</div><a href="https://asc.verafy.ai">Actually Smart Contracts</a><a href="https://github.com/Verafyai/verafyHarness">GitHub</a></nav>
+    <nav aria-label="Site"><div class="grp">Verafy Harness</div><a href="/signer">Judiciary Signer</a><a href="/policies">Policies</a><a href="/launch">Launch a harness</a><a href="/run">Run a harness</a><a href="/testnet">Testnet</a><a href="/economics">Economics</a><a href="/coin-agnostic">Coin Agnostic</a><a href="/learn">Learn</a><a href="/spec">Specification</a><a href="/roadmap">Roadmap</a><a href="/pilots">Pilots</a><a href="/blog">Release notes</a><hr><div class="grp">Verafy Chain</div><a href="https://chain.verafy.ai">Verafy Chain</a><a href="https://chain.verafy.ai/constitution">Constitution</a><a href="https://chain.verafy.ai/#roadmap">Roadmap</a><hr><div class="grp">More</div><a href="https://asc.verafy.ai">Actually Smart Contracts</a><a href="https://github.com/Verafyai/verafyHarness">GitHub</a></nav>
   </details>
 </header>
 <script>(function(){var d=document.querySelector('.menu');if(!d)return;document.addEventListener('click',function(e){if(d.open&&!d.contains(e.target))d.open=false});document.addEventListener('keydown',function(e){if(e.key==='Escape')d.open=false})})();</script>
@@ -257,10 +257,12 @@ a.card.go h3{color:var(--accent)}
   <p class="lead hero-lead">Verafy Harness wraps one AI model in everything a validator needs: intake, pinned context, sandboxed tools, guardrails, a signer, a bond, a contract runtime, and a routing agent that holds the keys and pays the bills. It rules on Actually Smart Contracts, contracts written in words, together with harnesses running other open-weight models.</p>
   <div class="cta">
     <a class="btn" href="/launch">Launch a harness</a>
+    <a class="btn ghost" href="/signer">Judiciary Signer for Squads</a>
     <a class="btn ghost" href="/learn">Learn how it works</a>
     <a class="btn ghost" href="https://github.com/Verafyai/verafyHarness">Read the code</a>
     <a class="btn ghost" href="https://chain.verafy.ai">See Verafy Chain</a>
     <a class="btn ghost" href="#plugins">Use it from your agent</a>
+    <a class="btn ghost" href="/roadmap">Roadmap</a>
   </div>
   <div class="facts">
     <div class="fact"><span class="big num">40</span><p>core tests pass with no dependencies on Node 22</p><span class="tag m">measured, Nov 6, 2026</span></div>
