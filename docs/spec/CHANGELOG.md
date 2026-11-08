@@ -4,22 +4,24 @@ Versions follow semantic versioning with a pre-release tag. Requirement IDs neve
 
 ## v0.0.5-alpha, November 8, 2026
 
-ASC templates for agreements and funding: agentic contracts, super grants, hackathon grants and a DAO constitution. VIP-0029 to VIP-0032 are shipped, with what is still open named in each status. Scored 68% overall across 141 requirements (four new: SIGN-007 to SIGN-010).
+ASC templates for agreements, funding and conduct: agentic contracts, super grants, hackathon grants, a DAO constitution and agent bonds. VIP-0029 to VIP-0033 are shipped, with what is still open named in each status. Scored 68% overall across 142 requirements (five new: SIGN-007 to SIGN-011).
 
 **New in the spec**
-- SIGN-007 agentic contracts, SIGN-008 super grants, SIGN-009 hackathon grants, SIGN-010 DAO constitution, with VIP-0029 to VIP-0032.
+- SIGN-007 agentic contracts, SIGN-008 super grants, SIGN-009 hackathon grants, SIGN-010 DAO constitution, SIGN-011 agent bonds, with VIP-0029 to VIP-0033.
 
 **New in the code**
 - `packages/core/src/agentic.js`: agentic contracts between two agents: signed terms and remedies, a signed hash-chained log, settlement by mutual release, acceptance, default or ruling, disputes as ASCs, settlement proofs the judiciary signer checks itself, and a two-of-three escrow check.
 - `packages/core/src/grants.js`: super grants: a Request for Ideas, agent terms, base grants, response and outcome reviews, outcome tranches, refunds.
 - `packages/core/src/hackathon.js`: hackathon grants: GitHub submissions pinned to a commit, graded council contracts, ranking, prizes.
+- `packages/core/src/agentbond.js`: agent bonds: priced articles, reports by anyone with a reporter bond, violation contracts, slashes, release after the term.
+- `templates/prompts/`: a tailoring prompt for each template: paste it into an AI and it writes the program for your case.
 - `packages/core/src/programlog.js`: signed logs for programs with many participants, ruling checks against contracts rebuilt from the log, and the entitlement payout check.
-- `policy.js`: the `agentic-settlement` and `program-payout` rules; the `agentic-contract`, `super-grant`, `hackathon` and `dao-constitution` templates.
+- `policy.js`: the `agentic-settlement` and `program-payout` rules; the `agentic-contract`, `super-grant`, `hackathon`, `dao-constitution` and `agent-bond` templates.
 - MCP: `verafy_agentic_check`, `verafy_agentic_dispute`, `verafy_grant_ledger`, `verafy_hackathon_results` (twelve tools, all new ones read only).
-- Demos: `scripts/agentic-demo.mjs`, `scripts/grant-demo.mjs`, `scripts/hackathon-demo.mjs`.
+- Demos: `scripts/agentic-demo.mjs`, `scripts/grant-demo.mjs`, `scripts/hackathon-demo.mjs`, `scripts/agentbond-demo.mjs`.
 
 **Not yet**
-- None of the four is on devnet.
+- None of the five is on devnet.
 
 ## v0.0.4-alpha, November 7, 2026
 

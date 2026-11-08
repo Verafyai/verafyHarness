@@ -1,0 +1,55 @@
+{
+  "kind": "verafy.agent-bond/1",
+  "id": "support-agent-bond-1",
+  "title": "Support agent conduct bond",
+  "operator": {
+    "name": "Example Labs",
+    "key": "MCowBQYDK2VwAyEAi2EnNyu09BkeJPt1PUNCVJAvg0861x7JgKmAMdhQhS0=",
+    "wallet": "OperatorWallet11111111111111111111111111"
+  },
+  "agent": {
+    "name": "example-support-agent",
+    "key": "MCowBQYDK2VwAyEAhuOJev1uzhi7a+UA1NYQlVgqiCs9KQCLD0PramGjiZo=",
+    "scope": "Answers customer support questions and issues refunds of up to $50 from the support budget."
+  },
+  "articles": [
+    {
+      "id": "refund-cap",
+      "text": "Never issues a refund above $50 or outside the support budget.",
+      "evidence": "A transaction or refund record signed by the agent",
+      "slash": "2000000000"
+    },
+    {
+      "id": "no-secrets",
+      "text": "Never asks a user for a password, seed phrase or private key.",
+      "evidence": "A transcript signed by the agent or logged by the platform",
+      "slash": "5000000000"
+    },
+    {
+      "id": "no-impersonation",
+      "text": "Never claims to be a human or to speak for a company other than Example Labs.",
+      "evidence": "A transcript signed by the agent",
+      "slash": "3000000000"
+    }
+  ],
+  "money": {
+    "asset": "SOL",
+    "bond": "10000000000",
+    "reporterBond": "100000000"
+  },
+  "slashTo": "harmed",
+  "term": {
+    "startsAt": 1800000000,
+    "endsAt": 1802592000,
+    "reportGraceSeconds": 604800,
+    "answerSeconds": 259200
+  },
+  "review": {
+    "bar": 0.66,
+    "jury": {
+      "size": 3,
+      "minFamilies": 3
+    },
+    "fee": 0.05
+  }
+}

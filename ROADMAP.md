@@ -10,12 +10,14 @@ Verafy Harness goes from a local prototype to an open network in stages. Each mi
 
 The milestones below are stage 1 in detail. The same stages, for readers: [docs/roadmap.md](docs/roadmap.md), published at /roadmap.
 
-## Milestone 4d: ASC templates for agreements and funding (v0.0.5-alpha)
+## Milestone 4d: ASC templates for agreements, funding and conduct (v0.0.5-alpha)
 
 - [x] VIP-0029 Agentic contracts: two agents, signed terms and remedies, a signed log, disputes as Actually Smart Contracts, a two-of-three escrow whose signer checks a settlement proof
 - [x] VIP-0030 Super grants: a Request for Ideas, base grants, jury review of responses and outcomes, outcome tranches, refunds
 - [x] VIP-0031 Hackathon grants: a prize pool, GitHub submissions pinned to a commit, a graded council, a ranking the escrow pays exactly
 - [x] VIP-0032 DAO constitution: articles pinned by hash, caps in code, one jury question per article
+- [x] VIP-0033 Agent bonds: an operator bonds its agent's behavior; anyone reports; a jury slashes violations
+- [x] A tailoring prompt for every template, in `templates/prompts/`
 - [ ] Each on devnet, with one real program run end to end
 
 Done when: one agentic contract, one super grant and one hackathon settle on devnet through the judiciary signer program.

@@ -1,0 +1,33 @@
+{
+  "kind": "verafy.policy/1",
+  "id": "agent-bond:b044cffe97f1f445dca25b3b051778c734dba20bb9590a7bcf1789b3848e0bd9",
+  "title": "Agent bond: example-support-agent",
+  "intent": "This wallet holds Example Labs's bond on the behavior of its AI agent example-support-agent (Answers customer support questions and issues refunds of up to $50 from the support budget.) under covenant b044cffe97f1f445dca25b3b051778c734dba20bb9590a7bcf1789b3848e0bd9. It pays a slash only for a violation a Verafy jury found, as the covenant prices it; it returns reporter bonds as the rulings say; and after the term it returns the rest of the bond to the operator.",
+  "rules": [
+    {
+      "type": "allow-programs",
+      "programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+        "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+        "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr",
+        "ComputeBudget111111111111111111111111111111"
+      ]
+    },
+    {
+      "type": "program-payout",
+      "program": "agent-bond",
+      "hash": "b044cffe97f1f445dca25b3b051778c734dba20bb9590a7bcf1789b3848e0bd9",
+      "asset": "SOL"
+    },
+    {
+      "type": "config-changes",
+      "mode": "deny"
+    }
+  ],
+  "judgment": [
+    "Does this transaction pay exactly the entitlements named in the case, each one earned under the covenant, its log and verified rulings?"
+  ],
+  "minTimeLockSeconds": 0
+}

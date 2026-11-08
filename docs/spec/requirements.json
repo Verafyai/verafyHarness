@@ -2062,6 +2062,27 @@
     }
    ],
    "gap": "Amendments need a new policy and a signer swap"
+  },
+  {
+   "id": "SIGN-011",
+   "area": "SIGN",
+   "weight": 2,
+   "status": "built",
+   "title": "Agent bonds (VIP-0033): an operator bonds its agent's behavior under priced articles; anyone reports a violation with evidence and a reporter bond; a jury rules VIOLATED or CLEAN; the escrow slashes to the harmed party, the reporter or a beneficiary, returns or forfeits reporter bonds, and returns the rest after the term",
+   "checks": [
+    {
+     "grep": "packages/core/src/agentbond.js",
+     "re": "export function agentBondLedger"
+    },
+    {
+     "grep": "packages/core/src/policy.js",
+     "re": "'agent-bond'"
+    },
+    {
+     "test": "packages/core/test/agentbond.test.js"
+    }
+   ],
+   "gap": "Not on devnet; agents don't yet sign their outputs, so evidence strength varies; no bond top-up"
   }
  ]
 }
