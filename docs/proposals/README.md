@@ -52,6 +52,7 @@ A proposal is not a promise. Each one is tracked in three places:
 | [0025](VIP-0025-pro-rata-staker-payouts.md) | Pay stakers pro rata from a broken commission covenant | Idea | SIGN-009 |
 | [0026](VIP-0026-testnet-0.md) | Testnet 0: a closed network of harnesses | Idea | CHAIN-006 |
 | [0027](VIP-0027-fast-lane.md) | A fast lane: settle the safe default without a full jury | Idea | ROUTE-009 |
+| [0028](VIP-0028-tinysvm.md) | TinySVM: the default settlement runtime, then solana-svm | Idea | SETTLE-004, SETTLE-005 |
 
 Tracking issues: [#26 to #36](https://github.com/Verafyai/verafyHarness/issues?q=label%3Aproposal). VIPs 0001 to 0009 were built in v0.0.3-alpha and 0010 to 0017 written in v0.0.4-alpha, unless the status says otherwise; every number in them is illustrative until Rex sets it.
 
