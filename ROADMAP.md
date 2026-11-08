@@ -20,7 +20,7 @@ The milestones below are stage 1 in detail. The same stages, for readers: [docs/
 - [x] A tailoring prompt for every template, in `templates/prompts/`
 - [x] Repository snapshots for hackathon councils (`packages/snapshot`)
 - [x] Devnet deploy script and live-cluster mode for the judiciary checks, rehearsed on a stand-in cluster
-- [ ] Deploy to devnet (needs about 3 devnet SOL in the payer)
+- [x] Deploy to devnet: the four programs are live, and the 30 judiciary checks pass on devnet (Agave 4.4.0)
 - [ ] Each on devnet, with one real program run end to end
 
 Done when: one agentic contract, one super grant and one hackathon settle on devnet through the judiciary signer program.
@@ -32,7 +32,7 @@ Done when: one agentic contract, one super grant and one hackathon settle on dev
 - [x] VIP-0012 Harness registry: `verafy_registry`, discovery in one RPC call, case fees paid to jurors, `verafy discover` and `verafy harness register`
 - [x] VIP-0013 Hardware attestation: verification built. Still open: a harness in a real SEV-SNP VM, and a reproducible image
 - [x] VIP-0014 Model certification: the suite and the bar; no closed model measured yet
-- [ ] Deploy the three programs to devnet
+- [x] Deploy the programs to devnet (November 8, 2026: four programs, 30 of 30 checks)
 - [x] VIP-0015 asset transfer records: listings, delivery rulings, records, localizer
 - [x] VIP-0016 commission covenant: `verafy_covenant`, measured on a local validator
 - [x] VIP-0018 bias profiles, with unannounced probes

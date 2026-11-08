@@ -1,0 +1,42 @@
+{
+  "date": "2026-11-08T17:43:27.802Z",
+  "cluster": "https://api.devnet.solana.com",
+  "version": "4.4.0",
+  "payer": "F9iFmVCf4sApukyctbh7KhGgjnWVsWsr1nrjyGY1qh3H",
+  "upgradeAuthority": "F9iFmVCf4sApukyctbh7KhGgjnWVsWsr1nrjyGY1qh3H",
+  "spentLamports": 560425680,
+  "programs": [
+    {
+      "name": "verafy_ruling",
+      "id": "A6iZhDZASfQGCmzxXWW8JdnEhtz7EZE3gS4N1hkiJNNN",
+      "bytes": 21736,
+      "already": false,
+      "signature": "hXZ8HdGxm3rHGwreY63nh389otpZ1cjm83dZW1jbGMUNJsQyBTRBsbFyjyLenKJ8mZr14aMR3CwjQAZya3p9BqP",
+      "executable": true
+    },
+    {
+      "name": "verafy_judiciary",
+      "id": "6fUWUTA7qni3p1pWWdd58icC7cxKGmVv1vonawg1QnnJ",
+      "bytes": 47872,
+      "already": false,
+      "signature": "53j2giWwN8L3cV34319q3Zc6bJuCYLYzvDhefNUaCW3WjNKV3jbdPwrfxfBjVdp64oM3iAD3DkVZs4TxaPtmh8KP",
+      "executable": true
+    },
+    {
+      "name": "verafy_registry",
+      "id": "Bn6jV1CGK4WFibJcCVsEzHeVVhtph2xPsNkemWfgqn9R",
+      "bytes": 22624,
+      "already": false,
+      "signature": "4S93mgaqZYSqvhssHiosXsGSZntVf4uBALge3FdzD9ex3B42FCx5Mg1ustzJ1s2B62BaaHU8Bfbx59M7kzWBX1Sh",
+      "executable": true
+    },
+    {
+      "name": "verafy_covenant",
+      "id": "D4ftcrUiGehwCAd6ndkttxyydPhkuis63HkiQeFQ5k4s",
+      "bytes": 16616,
+      "already": false,
+      "signature": "2Wsa4wDbnY35gwQxQ7u6XYPZjwvzGWC5cytwUzwEv3G2Lp964EnG9awURj3QgsjMZLEf44p3vRv3RfLx3z8bS8Qq",
+      "executable": true
+    }
+  ]
+}

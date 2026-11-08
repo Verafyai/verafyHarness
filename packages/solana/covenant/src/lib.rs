@@ -16,7 +16,8 @@
 //! - `1 claim`   [covenant (w), vote account, beneficiary (w)]  anyone; pays the bond out if broken.
 //! - `2 release` [covenant (w), withdrawer (signer, w)]  after the end slot, if unbroken: the bond comes back.
 //!
-//! Vote accounts are read for the two layouts that keep `commission` as a u8 after the
+//! Vote accounts are read for VoteStateV4 (tag 3: commission in basis points at 132,
+//! rounded up to whole percent) and the two older layouts that keep `commission` as a u8 after the
 //! node and withdrawer keys (versions 1 and 2, tags 1 and 2): tag at 0, node key at 4,
 //! withdrawer at 36, commission at 68. Other layouts are refused rather than guessed.
 //!
@@ -71,12 +72,18 @@ pub fn read_vote(owner: &[u8; 32], data: &[u8]) -> Result<([u8; 32], u8), u64> {
         return Err(BAD_VOTE);
     }
     let tag = u32::from_le_bytes([data[0], data[1], data[2], data[3]]);
-    if tag != 1 && tag != 2 {
-        return Err(BAD_VOTE);
-    }
     let mut w = [0u8; 32];
     w.copy_from_slice(&data[36..68]);
-    Ok((w, data[68]))
+    match tag {
+        1 | 2 => Ok((w, data[68])),
+        // VoteStateV4 (SIMD-0185, live on devnet with Agave 4.4): the inflation-rewards
+        // commission is basis points at 132. Round up, so 5.01% breaks a 5% promise.
+        3 if data.len() >= 136 => {
+            let bps = u16::from_le_bytes([data[132], data[133]]) as u32;
+            Ok((w, ((bps + 99) / 100).min(255) as u8))
+        }
+        _ => Err(BAD_VOTE),
+    }
 }
 
 pub fn process(ix: &mut Input) -> Result<(), u64> {

@@ -56,9 +56,20 @@ Tested end to end on a local validator against the real Squads v4 program, dumpe
 - the encoder writes a policy on chain and reads it back;
 - a commission covenant pays out when broken, and returns its bond when kept.
 
-Results: [judiciary-localnet-v0.0.4.json](../results/judiciary-localnet-v0.0.4.json). Not yet deployed to devnet or mainnet.
+Results: [judiciary-localnet-v0.0.4.json](../results/judiciary-localnet-v0.0.4.json) (local validator) and [judiciary-devnet-v0.0.5.json](../results/judiciary-devnet-v0.0.5.json) (devnet). Not on mainnet.
 
 ## Devnet
+
+Live on devnet since November 8, 2026, and the same 30 checks pass there against devnet's Squads v4 on Agave 4.4.0 (measured; [results](../results/judiciary-devnet-v0.0.5.json), [deploy](../results/devnet-deploy.json)).
+
+| Program | Devnet address |
+|---|---|
+| `verafy_ruling` | `A6iZhDZASfQGCmzxXWW8JdnEhtz7EZE3gS4N1hkiJNNN` |
+| `verafy_judiciary` | `6fUWUTA7qni3p1pWWdd58icC7cxKGmVv1vonawg1QnnJ` |
+| `verafy_registry` | `Bn6jV1CGK4WFibJcCVsEzHeVVhtph2xPsNkemWfgqn9R` |
+| `verafy_covenant` | `D4ftcrUiGehwCAd6ndkttxyydPhkuis63HkiQeFQ5k4s` |
+
+Devnet found one thing localnet couldn't: Agave 4.4 writes vote accounts as VoteStateV4 (SIMD-0185), which keeps the commission in basis points at byte 132. `verafy_covenant` and `voteCommission` now read it, rounding up to whole percent so 5.01% breaks a 5% promise; the upgraded covenant program is the one on devnet. The public devnet RPC rate-limits bursts, so the client retries throttled calls with backoff, and the deploy sends over RPC (`--use-rpc`).
 
 The deploy and the same 30 checks run against any live cluster. Rehearsed on a local validator standing in for devnet (Squads v4 from a mainnet dump, no Verafy programs preloaded): the deploy script put all four programs up under their fixed ids for about 0.77 SOL, a second run skipped them, and the 30 checks passed in live mode twice in a row, about 1 SOL per run in 0.01 SOL units (measured; [rehearsal](../results/devnet-deploy-rehearsal.json)).
 

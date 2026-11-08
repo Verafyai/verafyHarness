@@ -34,7 +34,7 @@ A proposal is not a promise. Each one is tracked in three places:
 | [0007](VIP-0007-payout-hold.md) | Hold payouts until the challenge window closes | Shipped (v0.0.3-alpha) | CONS-006 |
 | [0008](VIP-0008-single-harness-mode.md) | Single-harness mode: a jury of one, with a challenge window | Shipped (v0.0.4-alpha): offered only with a challenge window and an automatic audit; Rex can withdraw it | CONS-007 |
 | [0009](VIP-0009-prover-placement.md) | Prover placement: each harness proves, or shared provers do | Shipped (v0.0.4-alpha): each harness proves by default; shared provers allowed and named in the proof record | CONS-008 |
-| [0010](VIP-0010-judiciary-signer.md) | Judiciary Signer: a multisig member that votes only as a jury rules | Shipped (v0.0.4-alpha); devnet deploy open | SIGN-001 |
+| [0010](VIP-0010-judiciary-signer.md) | Judiciary Signer: a multisig member that votes only as a jury rules | Shipped (v0.0.4-alpha); on devnet, 30 of 30 checks | SIGN-001 |
 | [0011](VIP-0011-policies.md) | Policies, and Covenant Launch: rules a wallet cannot break | Shipped (v0.0.4-alpha) | SIGN-002 |
 | [0012](VIP-0012-harness-registry.md) | Harness registry: find harnesses on chain, and pay them | Shipped (v0.0.4-alpha); devnet deploy and on-chain slashing open | NET-001 |
 | [0013](VIP-0013-hardware-attestation.md) | Hardware attestation: a known build inside an enclave | Shipped (v0.0.4-alpha): verification; a run in a real enclave and a reproducible image open | NET-002 |

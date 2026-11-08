@@ -1,7 +1,7 @@
 ---
 vip: '0010'
 title: 'Judiciary signer: a multisig member that votes only as a jury rules'
-status: 'Shipped (v0.0.4-alpha); devnet deploy open'
+status: 'Shipped (v0.0.4-alpha); on devnet since 2026-11-08, 30 of 30 checks'
 created: 2026-11-07
 requirement: SIGN-001
 depends: ['0001', '0007', '0008', '0011', '0017']
