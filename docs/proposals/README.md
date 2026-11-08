@@ -57,6 +57,7 @@ A proposal is not a promise. Each one is tracked in three places:
 | [0030](VIP-0030-super-grants.md) | Super grants: venture-style funding paid out on verified outcomes | Shipped (v0.0.5-alpha): not yet on devnet | SIGN-008 |
 | [0031](VIP-0031-hackathon-grants.md) | Hackathon grants: a prize pool graded by a Verafy council | Shipped (v0.0.5-alpha): not yet on devnet; repository snapshots not built | SIGN-009 |
 | [0032](VIP-0032-dao-constitution.md) | DAO constitution: a treasury that executes only what the constitution allows | Shipped (v0.0.5-alpha) | SIGN-010 |
+| [0033](VIP-0033-agent-bonds.md) | Agent bonds: an operator bonds its agent's behavior, and a jury slashes violations | Shipped (v0.0.5-alpha): not yet on devnet | SIGN-011 |
 
 Tracking issues: [#26 to #36](https://github.com/Verafyai/verafyHarness/issues?q=label%3Aproposal). VIPs 0001 to 0009 were built in v0.0.3-alpha and 0010 to 0017 written in v0.0.4-alpha, unless the status says otherwise; every number in them is illustrative until Rex sets it.
 

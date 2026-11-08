@@ -17,6 +17,7 @@ import { sha256 } from './hash.js'
 import { agenticPolicy, checkSettlementProof } from './agentic.js'
 import { grantPolicy, checkGrantPayout } from './grants.js'
 import { hackathonPolicy, checkHackathonPayout } from './hackathon.js'
+import { agentBondPolicy, checkAgentBondPayout } from './agentbond.js'
 
 export const POLICY_KIND = 'verafy.policy/1'
 
@@ -70,7 +71,7 @@ export function validatePolicy(p) {
       for (const [o, m] of Object.entries(r.payouts ?? {})) if (!Object.values(m).every(isAmount)) out.push(`${at}.payouts.${o} must be base-unit amounts, as strings`)
     }
     if (r.type === 'program-payout') {
-      if (!['super-grant', 'hackathon'].includes(r.program)) out.push(`${at}.program must be "super-grant" or "hackathon"`)
+      if (!['super-grant', 'hackathon', 'agent-bond'].includes(r.program)) out.push(`${at}.program must be "super-grant", "hackathon" or "agent-bond"`)
       if (!/^[0-9a-f]{64}$/.test(r.hash ?? '')) out.push(`${at}.hash must be the program hash`)
     }
   }
@@ -165,7 +166,7 @@ export function checkRules(policy, fx, ctx) {
     } else if (r.type === 'agentic-settlement') {
       for (const v of checkAgenticSettlement(r, fx, ctx)) violations.push(v)
     } else if (r.type === 'program-payout') {
-      for (const v of (r.program === 'super-grant' ? checkGrantPayout : checkHackathonPayout)(r, fx, ctx)) violations.push(v)
+      for (const v of ({ 'super-grant': checkGrantPayout, hackathon: checkHackathonPayout, 'agent-bond': checkAgentBondPayout }[r.program])(r, fx, ctx)) violations.push(v)
     } else if (r.type === 'config-changes') {
       for (const c of fx.configActions) {
         if (r.mode === 'deny') violations.push(`config change ${c.type} is not allowed by this policy`)
@@ -286,6 +287,8 @@ export const POLICY_TEMPLATES = Object.freeze({
   'super-grant': params => grantPolicy(params),
   /** Hackathon grant escrow (VIP-0031): the prize pool pays the council's ranking, once, and returns what nobody won. */
   hackathon: params => hackathonPolicy(params),
+  /** Agent bond (VIP-0033): an operator bonds its agent's behavior; a jury-found violation is slashed as the covenant prices it. */
+  'agent-bond': params => agentBondPolicy(params),
   /**
    * DAO constitution (VIP-0032): a DAO treasury that executes passed proposals
    * only when no article of its constitution is broken. Hard limits (programs,

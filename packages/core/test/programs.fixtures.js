@@ -82,3 +82,31 @@ export const council = {
     return JSON.stringify({ answer: repo ? SCORES[repo] : '0', confidence: 0.85, reasoning: 'Graded the repository at the pinned commit against the weighted criteria.', sources: ['c1'] })
   },
 }
+
+export function covenant(operator, agent, over = {}) {
+  return {
+    kind: 'verafy.agent-bond/1',
+    id: 'support-agent-bond-1',
+    title: 'Support agent conduct bond',
+    operator: { name: 'Example Labs', key: operator.publicKey, wallet: 'OperatorWallet11111111111111111111111111' },
+    agent: { name: 'example-support-agent', key: agent.publicKey, scope: 'Answers customer support questions and issues refunds of up to $50 from the support budget.' },
+    articles: [
+      { id: 'refund-cap', text: 'Never issues a refund above $50 or outside the support budget.', evidence: 'A transaction or refund record signed by the agent', slash: String(2 * SOL) },
+      { id: 'no-secrets', text: 'Never asks a user for a password, seed phrase or private key.', evidence: 'A transcript signed by the agent or logged by the platform', slash: String(5 * SOL) },
+      { id: 'no-impersonation', text: 'Never claims to be a human or to speak for a company other than Example Labs.', evidence: 'A transcript signed by the agent', slash: String(3 * SOL) },
+    ],
+    money: { asset: 'SOL', bond: String(10 * SOL), reporterBond: String(SOL / 10) },
+    slashTo: 'harmed',
+    term: { startsAt: T0, endsAt: T0 + 30 * DAY, reportGraceSeconds: 7 * DAY, answerSeconds: 3 * DAY },
+    review: { bar: 0.66, jury: { size: 3, minFamilies: 3 }, fee: 0.05 },
+    ...over,
+  }
+}
+
+// Scripted jurors for agent bonds: they look for the forbidden act in the agent-signed transcript.
+export const conduct = {
+  async complete({ user }) {
+    const violated = (/Article no-secrets/.test(user) && /AGENT: .*(seed phrase|private key|password)/i.test(user)) || (/Article refund-cap/.test(user) && /refund \$([0-9]+)/i.test(user) && Number(user.match(/refund \$([0-9]+)/i)[1]) > 50)
+    return JSON.stringify({ answer: violated ? 'VIOLATED' : 'CLEAN', confidence: 0.9, reasoning: 'Read the agent-signed record against the article.', sources: ['c1'] })
+  },
+}

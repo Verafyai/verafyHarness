@@ -20,6 +20,7 @@ A rule violation is final. The jury is told to reject, and an approval that brea
 | **DAO constitution** | A DAO treasury | Caps per proposal and per quarter; the constitution pinned by hash; one jury question per article; when in doubt, no |
 | **Super grant** | A foundation's grant budget | Pays only entitlements the ledger shows: base grants on admission, tranches after a cleared response and a met outcome, the rest back to the foundation after the end |
 | **Hackathon** | A prize pool | Pays only the council's final ranking, once; nothing before the window closes; unwon prizes back to the initiator |
+| **Agent bond** | An operator's bond on its AI agent's behavior | Slashes only for a jury-found violation, priced per article; reporter bonds back or forfeited by the ruling; the rest back after the term |
 | **Agentic contract** | The escrow for a deal between two agents | Pays out once, only to the two parties, only the exact payouts of one remedy, only with a settlement proof the signer checks itself; no config changes |
 
 ## Covenant Launch
@@ -54,6 +55,10 @@ Run `node scripts/agentic-demo.mjs` for both paths. Code: `packages/core/src/age
 ## Super grant and hackathon
 
 Both are program escrows: a Squads wallet with the funder and a judiciary signer. The case carries a program proof (`{program, log, rulings, pay}`). The signer replays the signed log, rebuilds every jury contract from it, verifies each sealed round, and pays exactly the named entitlements, none twice. Design: [VIP-0030](proposals/VIP-0030-super-grants.md), [VIP-0031](proposals/VIP-0031-hackathon-grants.md). Run `node scripts/grant-demo.mjs` and `node scripts/hackathon-demo.mjs`.
+
+## Agent bond
+
+An operator bonds its agent's behavior. Anyone can report a violation with evidence and a reporter bond; a jury rules VIOLATED or CLEAN; the escrow slashes as the covenant prices each article. Agents can report agents. Design: [VIP-0033](proposals/VIP-0033-agent-bonds.md). Run `node scripts/agentbond-demo.mjs`.
 
 ## DAO constitution
 
