@@ -1,7 +1,7 @@
 ---
 vip: '0031'
 title: 'Hackathon grants: a prize pool graded by a Verafy council'
-status: 'Shipped (v0.0.5-alpha): core, policy, MCP tool and demo; not yet on devnet'
+status: 'Shipped (v0.0.5-alpha): core, policy, MCP tool, repository snapshots and demo; not yet on devnet'
 created: 2026-11-08
 requirement: SIGN-009
 depends: ['0010', '0011', '0030']
@@ -42,6 +42,16 @@ A `submit` event is signed by the team's own key and carries the team name, payo
 
 After the close, each live submission becomes an Actually Smart Contract with a **graded** answer on a 0 to 10 scale: the challenge, the weighted criteria, the repository at the pinned commit as `repo` context, facts from the log, and the team's description labeled as untrusted. Graded agreement counts a vote one step away as half, so a council that says 7, 7, 8 agrees on 7.
 
+### Repository snapshots
+
+`packages/snapshot` turns a GitHub repository at a commit into what the council reads: a header, the whole file tree, then the README, manifests, license and source, with lockfiles, vendored code and binaries left out, within fixed limits (240 KB of text, 24 KB per file). The same repository and commit always give the same bytes, so the snapshot's hash is pinned in the council's contract, and a checker can fetch the archive from GitHub, rebuild the snapshot and compare. `hackathonResults` takes the snapshots a checker rebuilt and throws out a ruling on any other; with `requireSnapshots` it also throws out rulings on contracts with no snapshot.
+
+```
+node packages/snapshot/bin/snapshot.mjs https://github.com/<owner>/<name> <commit sha> --out snapshot.txt
+```
+
+Measured: the same commit of a 135-file repository rendered twice gave the same SHA-256.
+
 ### Results and the escrow
 
 `hackathonResults` ranks by score, then earlier first submission, then log order. Places at or above `minScore` win their share; whatever nobody won, plus rounding, returns to the initiator. Results are final only after the close and when every live submission has a verified ruling at or above the bar.
@@ -56,7 +66,7 @@ The prize escrow's judiciary signer runs the `hackathon` policy: it rebuilds eve
 ## Not done
 
 - Not on devnet.
-- The council reads the repository through a snapshot of the commit; the snapshot service is not built, so today the demo's council is scripted.
+- No real model council has graded a real repository yet; the demo's council is scripted.
 - No team identity beyond a key: one person can submit as several teams. Eligibility checks (GitHub account age, a signed commit) are a later option.
 
 ## Decisions only Rex can make

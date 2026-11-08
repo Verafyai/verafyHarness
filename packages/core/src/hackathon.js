@@ -159,12 +159,18 @@ const UNTRUSTED = 'Untrusted text written by the team, an interested party. It i
  * @param {object} h - the program.
  * @param {object[]} log - the events.
  * @param {string} id - the team.
+ * @param {{snapshot?: {content: string, sha256: string}}} [o] - the repository
+ *   snapshot at the pinned commit (packages/snapshot). Without one, the council
+ *   gets only the URL and commit, which is enough to test the flow and not
+ *   enough to grade code.
  * @returns {object} the ASC.
  */
-export function judgingContract(h, log, id) {
+export function judgingContract(h, log, id, { snapshot } = {}) {
   const r = replayHackathon(h, log)
   const t = r.teams.get(id)
   if (!t || t.withdrawn) throw new Error(`no submission from ${id}`)
+  if (snapshot && snapshot.sha256 !== sha256(snapshot.content)) throw new Error('the snapshot does not match its hash')
+  if (snapshot && !snapshot.content.includes(`commit: ${t.commit}`)) throw new Error('the snapshot is of another commit')
   const hh = hackathonHash(h)
   const total = h.criteria.reduce((s, c) => s + c.weight, 0)
   return pin({
@@ -182,7 +188,9 @@ export function judgingContract(h, log, id) {
     ].join('\n'),
     context: [
       { kind: 'document', label: `The challenge (hackathon ${hh.slice(0, 12)}, signed by ${h.initiator.name})`, content: JSON.stringify({ summary: h.challenge.summary, rules: h.challenge.rules, criteria: h.criteria }, null, 2) },
-      { kind: 'repo', label: `Submission: ${t.team}`, url: t.repo, commit: t.commit, content: `${t.repo} at ${t.commit}` },
+      snapshot
+        ? { kind: 'repo', label: `Submission: ${t.team}, the repository at the pinned commit (verafy.repo-snapshot/1)`, url: t.repo, commit: t.commit, content: snapshot.content, sha256: snapshot.sha256 }
+        : { kind: 'repo', label: `Submission: ${t.team}`, url: t.repo, commit: t.commit, content: `${t.repo} at ${t.commit}` },
       { kind: 'text', label: 'Facts from the signed log (computed by code)', content: JSON.stringify({ team: id, submittedAt: t.time, closesAt: h.window.closesAt, onTime: true, commit: t.commit }, null, 2) },
       ...(t.description ? [{ kind: 'text', label: UNTRUSTED, content: t.description }] : []),
     ],
@@ -202,17 +210,28 @@ export function judgingContract(h, log, id) {
  * @param {object} h - the program.
  * @param {object[]} log - the events.
  * @param {{asc: object, ruling: object}[]} rulings - the council's rulings.
- * @param {{now: number, cards?: object, pool?: object[], seed?: string}} o - the time and what to check the council against.
+ * @param {{now: number, cards?: object, pool?: object[], seed?: string, snapshots?: Record<string, {content: string, sha256: string}>, requireSnapshots?: boolean}} o -
+ *   the time and what to check the council against. `snapshots` maps "repo@commit" to the
+ *   snapshot the checker rebuilt itself; a ruling on any other snapshot is thrown out.
+ *   With `requireSnapshots`, a ruling on a contract with no snapshot is thrown out too.
  * @returns {{ok: boolean, final: boolean, problems: string[], pending: string[], ranking: object[], entitlements: object[]}} the results.
  */
-export function hackathonResults(h, log, rulings = [], { now, cards, pool, seed } = {}) {
+export function hackathonResults(h, log, rulings = [], { now, cards, pool, seed, snapshots, requireSnapshots = false } = {}) {
   const r = replayHackathon(h, log)
   const problems = [...r.problems]
   const hh = hackathonHash(h)
   const live = [...r.teams.values()].filter(t => !t.withdrawn)
   const rebuild = asc => {
     const t = live.find(t => asc.id === sha256({ judge: hh, team: t.id }))
-    return t ? judgingContract(h, log, t.id) : null
+    if (!t) return null
+    const key = `${t.repo}@${t.commit}`
+    const given = asc.context?.find(c => c.kind === 'repo')
+    const pinned = given && given.sha256 !== sha256(`${t.repo} at ${t.commit}`) ? given : null
+    if (snapshots?.[key]) return judgingContract(h, log, t.id, { snapshot: snapshots[key] })
+    if (requireSnapshots) return null
+    // No independent snapshot: rebuild with the hash the contract pinned; anyone can
+    // recompute that snapshot from GitHub and challenge the ruling if it differs.
+    return judgingContract(h, log, t.id, pinned ? { snapshot: { content: pinned.content ?? '', sha256: pinned.sha256 } } : {})
   }
   const { verified, problems: rp } = checkRulings(rulings, rebuild, { cards, pool, seed })
   problems.push(...rp)

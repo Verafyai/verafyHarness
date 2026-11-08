@@ -8,6 +8,7 @@ import {
   judgingContract, hackathonResults, policyFromTemplate, validatePolicy, effectsOf, checkRules, PROGRAMS,
 } from '../src/index.js'
 import { hackathon, council, SCORES } from './programs.fixtures.js'
+import { createHash } from 'node:crypto'
 
 const DAY = 86_400
 const T0 = 1_800_000_000
@@ -98,4 +99,26 @@ test('a high minimum score leaves places empty and returns their share to the in
   for (const t of base.teams) rulings.push(await grade(judgingContract(h, log, teamId(t.publicKey))))
   const res = hackathonResults(h, log, rulings, { now: T0 + 15 * DAY })
   assert.deepEqual(res.entitlements.map(e => [e.id, e.amount]), [['prize:1', String(5 * SOL)], ['refund', String(5 * SOL)]])
+})
+
+test('the council grades a pinned repository snapshot; a ruling on a different snapshot is thrown out', async () => {
+  const { h, teams, log } = setup()
+  const ids = teams.map(t => teamId(t.publicKey))
+  const snap = (repo, commit, body) => { const content = `verafy.repo-snapshot/1\nrepo: ${repo}\ncommit: ${commit}\n\n${body}`; return { content, sha256: createHash('sha256').update(content).digest('hex') } }
+  const t = replayHackathon(h, log).teams
+  const snaps = Object.fromEntries([...t.values()].map(x => [`${x.repo}@${x.commit}`, snap(x.repo, x.commit, `README for ${x.team}`)]))
+  const rulings = []
+  for (const id of ids) { const x = t.get(id); rulings.push(await grade(judgingContract(h, log, id, { snapshot: snaps[`${x.repo}@${x.commit}`] }))) }
+  assert.ok(rulings[0].asc.context.some(c => c.kind === 'repo' && /verafy.repo-snapshot\/1/.test(c.label)))
+  const ok = hackathonResults(h, log, rulings, { now: T0 + 15 * DAY, snapshots: snaps, requireSnapshots: true })
+  assert.equal(ok.ok, true, ok.problems.join())
+  assert.equal(ok.final, true)
+  const ada = t.get(ids[0])
+  const other = { ...snaps, [`${ada.repo}@${ada.commit}`]: snap(ada.repo, ada.commit, 'a different snapshot') }
+  assert.match(hackathonResults(h, log, rulings, { now: T0 + 15 * DAY, snapshots: other }).problems.join(), /differs/, 'the checker rebuilt a different snapshot')
+  assert.throws(() => judgingContract(h, log, ids[0], { snapshot: snap(ada.repo, 'f'.repeat(40), 'x') }), /another commit/)
+  assert.throws(() => judgingContract(h, log, ids[0], { snapshot: { content: 'x', sha256: '0'.repeat(64) } }), /does not match its hash/)
+  const bare = []
+  for (const id of ids) bare.push(await grade(judgingContract(h, log, id)))
+  assert.equal(hackathonResults(h, log, bare, { now: T0 + 15 * DAY, requireSnapshots: true }).final, false, 'without snapshots, a strict checker does not accept the results')
 })

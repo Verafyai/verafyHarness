@@ -1,0 +1,11 @@
+{
+  "name": "@verafyharness/snapshot",
+  "version": "0.0.5-alpha",
+  "description": "Deterministic text snapshots of a GitHub repository at a commit, for juries to grade (hackathon grants, VIP-0031). No dependencies.",
+  "type": "module",
+  "license": "MIT",
+  "exports": "./src/index.js",
+  "bin": { "verafy-snapshot": "./bin/snapshot.mjs" },
+  "engines": { "node": ">=22" },
+  "scripts": { "test": "node --test" }
+}

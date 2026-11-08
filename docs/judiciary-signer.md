@@ -58,6 +58,21 @@ Tested end to end on a local validator against the real Squads v4 program, dumpe
 
 Results: [judiciary-localnet-v0.0.4.json](../results/judiciary-localnet-v0.0.4.json). Not yet deployed to devnet or mainnet.
 
+## Devnet
+
+The deploy and the same 30 checks run against any live cluster. Rehearsed on a local validator standing in for devnet (Squads v4 from a mainnet dump, no Verafy programs preloaded): the deploy script put all four programs up under their fixed ids for about 0.77 SOL, a second run skipped them, and the 30 checks passed in live mode twice in a row, about 1 SOL per run in 0.01 SOL units (measured; [rehearsal](../results/devnet-deploy-rehearsal.json)).
+
+```
+# 1. fund a payer with about 3 devnet SOL (https://faucet.solana.com)
+solana-keygen new -o payer.json && solana address -k payer.json
+# 2. deploy the four programs (checks the balance first, skips what is already there)
+node packages/solana/scripts/devnet-deploy.mjs --payer payer.json --out results/devnet-deploy.json
+# 3. run the 30 checks against devnet Squads v4
+node packages/solana/scripts/judiciary-localnet.mjs --rpc https://api.devnet.solana.com --payer payer.json --out results/judiciary-devnet.json
+```
+
+The payer becomes the programs' upgrade authority.
+
 ## Try it
 
 ```
