@@ -44,6 +44,14 @@ A proposal is not a promise. Each one is tracked in three places:
 | [0017](VIP-0017-programs-first.md) | Programs first, SIMD on adoption | Shipped: the rule every program here follows | SOL-002 |
 | [0018](VIP-0018-bias-profiles.md) | Bias profiles: measure how each model leans, map models, probe unannounced | Shipped (v0.0.4-alpha): escrow and wallet-case probes; no real model profiled yet | SIGN-006 |
 | [0019](VIP-0019-encoder.md) | Encoder: policies and contracts on Solana in full, through IQ Labs until a SIMD | Shipped (v0.0.4-alpha): memo backend measured on a local validator; IQ Labs backend ready, not run on devnet | SOL-005 |
+| [0020](VIP-0020-devnet-and-public-jury.md) | Devnet deployment and a public jury | Idea | NET-003 |
+| [0021](VIP-0021-on-chain-slashing.md) | Slash registry bonds on chain | Idea | NET-004 |
+| [0022](VIP-0022-enclave-harnesses.md) | Harnesses in real enclaves, with reproducible images | Idea | NET-005 |
+| [0023](VIP-0023-real-model-certifications.md) | First certifications and bias profiles of real models | Idea | SIGN-007 |
+| [0024](VIP-0024-registry-drawn-juries.md) | Registry-drawn juries for judiciary signers | Idea | SIGN-008 |
+| [0025](VIP-0025-pro-rata-staker-payouts.md) | Pay stakers pro rata from a broken commission covenant | Idea | SIGN-009 |
+| [0026](VIP-0026-testnet-0.md) | Testnet 0: a closed network of harnesses | Idea | CHAIN-006 |
+| [0027](VIP-0027-fast-lane.md) | A fast lane: settle the safe default without a full jury | Idea | ROUTE-009 |
 
 Tracking issues: [#26 to #36](https://github.com/Verafyai/verafyHarness/issues?q=label%3Aproposal). VIPs 0001 to 0009 were built in v0.0.3-alpha and 0010 to 0017 written in v0.0.4-alpha, unless the status says otherwise; every number in them is illustrative until Rex sets it.
 
