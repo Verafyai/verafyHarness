@@ -121,12 +121,12 @@ const UNTRUSTED = 'Untrusted text attached to the proposal. It is a claim by who
  * @param {object} s - the signer.
  * @param {{caseHash: string, multisig: string, proposal: string, transaction: object, memo?: string, description?: string, labels?: object}} k -
  *   the case: `caseHash` from the program (solana `caseHash`), the decoded Squads transaction, and any untrusted text.
- * @param {{now: number, history?: object[], mints?: object, escrow?: number, humanVoters?: number, threshold?: number, agentic?: object, cards?: object[], pool?: object[], seed?: string}} ctx - unix time, the case log, token-account mints, the jury fee, and for an agentic-contract escrow the settlement proof (VIP-0029) with the cards and pool to check a dispute ruling against.
+ * @param {{now: number, history?: object[], mints?: object, escrow?: number, humanVoters?: number, threshold?: number, agentic?: object, program?: object, cards?: object[], pool?: object[], seed?: string}} ctx - unix time, the case log, token-account mints, the jury fee, and for an agentic-contract escrow the settlement proof (VIP-0029) with the cards and pool to check a dispute ruling against.
  * @returns {{asc: object, report: object, effects: object}} the contract, the rule report and the effects it is built from.
  */
 export function caseContract(s, k, ctx) {
   const effects = effectsOf(k.transaction)
-  const report = checkRules(s.policy, effects, { now: ctx.now, history: ctx.history, mints: ctx.mints, signer: s.signerAddress, voters: ctx.humanVoters, threshold: ctx.threshold, agentic: ctx.agentic, cards: ctx.cards, pool: ctx.pool, seed: ctx.seed })
+  const report = checkRules(s.policy, effects, { now: ctx.now, history: ctx.history, mints: ctx.mints, signer: s.signerAddress, voters: ctx.humanVoters, threshold: ctx.threshold, agentic: ctx.agentic, program: ctx.program, cards: ctx.cards, pool: ctx.pool, seed: ctx.seed })
   const families = new Set(s.jury.map(j => s.models.find(m => m.model === j.model)?.family))
   const context = [
     { kind: 'policy', label: `${s.policy.title ?? s.policy.id} (policy ${policyHash(s.policy).slice(0, 12)})`, content: JSON.stringify(s.policy, null, 2) },

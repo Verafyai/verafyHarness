@@ -1,0 +1,38 @@
+{
+  "kind": "verafy.policy/1",
+  "id": "hackathon:d0ad9e739fd360f773bbcb806f8ec13f4890122716ca15f321fba5fa6d65c6dc",
+  "title": "Hackathon prize pool: Agent escrow hackathon",
+  "intent": "This wallet holds Example Foundation's prize pool for hackathon d0ad9e739fd360f773bbcb806f8ec13f4890122716ca15f321fba5fa6d65c6dc: Build a tool that lets two AI agents hold money in escrow on Solana and settle it by an agentic contract. After the window closes and the Verafy council has graded every submission, it pays the prizes the ranking gives, once, and returns whatever nobody won to the initiator.",
+  "rules": [
+    {
+      "type": "allow-programs",
+      "programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+        "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+        "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr",
+        "ComputeBudget111111111111111111111111111111"
+      ]
+    },
+    {
+      "type": "max-per-transaction",
+      "asset": "SOL",
+      "amount": "10000000000"
+    },
+    {
+      "type": "program-payout",
+      "program": "hackathon",
+      "hash": "d0ad9e739fd360f773bbcb806f8ec13f4890122716ca15f321fba5fa6d65c6dc",
+      "asset": "SOL"
+    },
+    {
+      "type": "config-changes",
+      "mode": "deny"
+    }
+  ],
+  "judgment": [
+    "Does this transaction pay exactly the prizes named in the case, as the council's verified ranking gives them?"
+  ],
+  "minTimeLockSeconds": 0
+}

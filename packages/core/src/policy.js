@@ -15,6 +15,8 @@
  */
 import { sha256 } from './hash.js'
 import { agenticPolicy, checkSettlementProof } from './agentic.js'
+import { grantPolicy, checkGrantPayout } from './grants.js'
+import { hackathonPolicy, checkHackathonPayout } from './hackathon.js'
 
 export const POLICY_KIND = 'verafy.policy/1'
 
@@ -29,7 +31,7 @@ export const PROGRAMS = Object.freeze({
 })
 
 const SECONDS_PER_DAY = 86_400
-export const RULE_TYPES = ['allow-programs', 'max-per-transaction', 'max-per-window', 'allow-recipients', 'release-schedule', 'config-changes', 'agentic-settlement']
+export const RULE_TYPES = ['allow-programs', 'max-per-transaction', 'max-per-window', 'allow-recipients', 'release-schedule', 'config-changes', 'agentic-settlement', 'program-payout']
 
 /**
  * Check a policy and return every problem found.
@@ -66,6 +68,10 @@ export function validatePolicy(p) {
       if (!/^[0-9a-f]{64}$/.test(r.contract ?? '')) out.push(`${at}.contract must be the agentic contract hash`)
       if (!(r.payouts && Object.keys(r.payouts).length >= 2)) out.push(`${at}.payouts must list each remedy's payouts`)
       for (const [o, m] of Object.entries(r.payouts ?? {})) if (!Object.values(m).every(isAmount)) out.push(`${at}.payouts.${o} must be base-unit amounts, as strings`)
+    }
+    if (r.type === 'program-payout') {
+      if (!['super-grant', 'hackathon'].includes(r.program)) out.push(`${at}.program must be "super-grant" or "hackathon"`)
+      if (!/^[0-9a-f]{64}$/.test(r.hash ?? '')) out.push(`${at}.hash must be the program hash`)
     }
   }
   if (!(p?.rules ?? []).some(r => r.type === 'allow-programs')) out.push('a policy must list the programs the wallet may call (allow-programs); anything else is refused')
@@ -158,6 +164,8 @@ export function checkRules(policy, fx, ctx) {
       if (total > allowed) violations.push(`would have released ${total} of ${r.asset}; the schedule allows ${allowed} by now`)
     } else if (r.type === 'agentic-settlement') {
       for (const v of checkAgenticSettlement(r, fx, ctx)) violations.push(v)
+    } else if (r.type === 'program-payout') {
+      for (const v of (r.program === 'super-grant' ? checkGrantPayout : checkHackathonPayout)(r, fx, ctx)) violations.push(v)
     } else if (r.type === 'config-changes') {
       for (const c of fx.configActions) {
         if (r.mode === 'deny') violations.push(`config change ${c.type} is not allowed by this policy`)
@@ -274,6 +282,38 @@ export const POLICY_TEMPLATES = Object.freeze({
    * release, a default the signed log proves, or a sealed judiciary ruling.
    */
   'agentic-contract': params => agenticPolicy(params),
+  /** Super grant escrow (VIP-0030): base grants on admission, tranches on verified outcomes, the rest back to the foundation. */
+  'super-grant': params => grantPolicy(params),
+  /** Hackathon grant escrow (VIP-0031): the prize pool pays the council's ranking, once, and returns what nobody won. */
+  hackathon: params => hackathonPolicy(params),
+  /**
+   * DAO constitution (VIP-0032): a DAO treasury that executes passed proposals
+   * only when no article of its constitution is broken. Hard limits (programs,
+   * a per-quarter cap, the largest single payment) are code; the articles are
+   * the jury's questions, one per article, and the constitution is pinned by hash.
+   */
+  'dao-constitution': ({ name, asset = 'SOL', articles, quarterlyCap, perTransaction, minTimeLockSeconds = 172_800, title }) => {
+    if (!Array.isArray(articles) || articles.length === 0) throw new Error('dao-constitution needs at least one article')
+    const constitution = sha256({ domain: 'verafy.dao-constitution/1', name, articles })
+    return {
+      kind: POLICY_KIND,
+      id: `dao-constitution:${constitution}`,
+      title: title ?? `${name} constitution`,
+      intent: `This wallet is the treasury of ${name}. It executes a proposal only after the DAO passed it and only if the proposal breaks no article of the DAO's constitution (hash ${constitution}). What the transaction does on chain must match what the proposal text says it does. When the jury cannot tell whether an article is broken, the answer is no.`,
+      constitution: { hash: constitution, articles },
+      rules: [
+        { type: 'allow-programs', programs: [PROGRAMS.system, PROGRAMS.token, PROGRAMS.token2022, PROGRAMS.associatedToken, PROGRAMS.memo, PROGRAMS.computeBudget] },
+        { type: 'max-per-transaction', asset, amount: String(perTransaction) },
+        { type: 'max-per-window', asset, amount: String(quarterlyCap), windowDays: 91 },
+        { type: 'config-changes', mode: 'jury' },
+      ],
+      judgment: [
+        'Does the decoded transaction do exactly what the passed proposal says it does, paying no one and changing nothing the text does not mention?',
+        ...articles.map(a => `Article ${a.id}: ${a.text} Does this proposal break it?`),
+      ],
+      minTimeLockSeconds,
+    }
+  },
   /** Upgrade authority: the wallet may only hold a program's upgrade authority; config changes only. */
   'upgrade-authority': ({ minTimeLockSeconds = 604_800, title }) => ({
     kind: POLICY_KIND,

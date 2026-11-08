@@ -1,0 +1,59 @@
+{
+  "kind": "verafy.hackathon/1",
+  "id": "agent-escrow-hack-1",
+  "title": "Agent escrow hackathon",
+  "initiator": {
+    "name": "Example Foundation",
+    "key": "MCowBQYDK2VwAyEA5662R/b1Y0TMTgPhVB1W8wMWmGbnIOuFHRlXWspsvRE=",
+    "wallet": "InitiatorWallet1111111111111111111111111"
+  },
+  "challenge": {
+    "summary": "Build a tool that lets two AI agents hold money in escrow on Solana and settle it by an agentic contract.",
+    "rules": [
+      "The code must be written during the hackathon.",
+      "The repository must be public and open source."
+    ]
+  },
+  "criteria": [
+    {
+      "id": "works",
+      "text": "It runs, and the README shows how to run it end to end on devnet.",
+      "weight": 4
+    },
+    {
+      "id": "contract",
+      "text": "It uses a signed agentic contract with remedies, not a plain transfer.",
+      "weight": 3
+    },
+    {
+      "id": "safety",
+      "text": "Agent keys never leave the agent; payouts are checked against the terms.",
+      "weight": 3
+    }
+  ],
+  "money": {
+    "asset": "SOL",
+    "pool": "10000000000"
+  },
+  "prizes": {
+    "shares": [
+      500000,
+      300000,
+      200000
+    ],
+    "minScore": 6
+  },
+  "window": {
+    "opensAt": 1800000000,
+    "closesAt": 1801209600
+  },
+  "council": {
+    "bar": 0.66,
+    "jury": {
+      "size": 3,
+      "minFamilies": 3
+    },
+    "fee": 0.05
+  },
+  "maxSubmissions": 50
+}

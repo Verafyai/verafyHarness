@@ -1,0 +1,38 @@
+{
+  "kind": "verafy.policy/1",
+  "id": "super-grant:e8d40ff66722a7797328c7d55fb22b0eebf11c678d13c9d252dcfa8eb56c9444",
+  "title": "Super grant escrow: Agents that pay each other",
+  "intent": "This wallet holds Example Foundation's budget for super grant e8d40ff66722a7797328c7d55fb22b0eebf11c678d13c9d252dcfa8eb56c9444: We want working tools that let one AI agent pay another for a service on Solana, with a receipt both sides can check. It pays each admitted grantee its base grant, pays outcome tranches only after a jury cleared the grantee's response and found the outcome met, and returns the unearned rest to the foundation after the program ends.",
+  "rules": [
+    {
+      "type": "allow-programs",
+      "programs": [
+        "11111111111111111111111111111111",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+        "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+        "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr",
+        "ComputeBudget111111111111111111111111111111"
+      ]
+    },
+    {
+      "type": "max-per-transaction",
+      "asset": "SOL",
+      "amount": "20000000000"
+    },
+    {
+      "type": "program-payout",
+      "program": "super-grant",
+      "hash": "e8d40ff66722a7797328c7d55fb22b0eebf11c678d13c9d252dcfa8eb56c9444",
+      "asset": "SOL"
+    },
+    {
+      "type": "config-changes",
+      "mode": "deny"
+    }
+  ],
+  "judgment": [
+    "Does this transaction pay exactly the entitlements named in the case, each earned under the program's terms, log and verified rulings?"
+  ],
+  "minTimeLockSeconds": 0
+}
