@@ -3,7 +3,7 @@
 **Version 0.0.2-alpha**, November 6, 2026. Covers Verafy Harness (this repo) and Verafy Chain ([Verafyai/verafyChain](https://github.com/Verafyai/verafyChain)).
 
 <!-- score -->
-**Scored 67% overall** at v0.0.4-alpha (see [SCORECARD.md](SCORECARD.md)).
+**Scored 68% overall** at v0.0.4-alpha (see [SCORECARD.md](SCORECARD.md)).
 <!-- /score -->
 
 This is an alpha spec for a prototype. Nothing here describes a running network, and there is no token. Every number is labeled **measured** (our own runs, with a date), **vendor-reported** (by whoever built the tool), **modeled** (computed from those, in `packages/economics`) or **illustrative** (an assumption to replace).
@@ -83,12 +83,12 @@ Running a harness means posting a bond that can be slashed for misbehavior. A ju
 |---|---|---|
 | CONS-001 | built | Jury scheduler: beacon seed, draw, alternates, block-height deadlines, commit-phase replacement. *Gap: Deadlines and alternate counts are illustrative; the verafyChain node does not call the scheduler yet.* |
 | CONS-002 | built | Randomness beacon with lookahead; a withheld reveal is a slashable fault. *Gap: A hash-chain beacon with one bit of withholding bias, slashed; drand or a VRF would remove it (decision for Rex).* |
-| CONS-003 | partial | Operator keys on harness cards, a seat cap per operator, operator bonds. *Gap: The cap and alternates are built; operator signatures are carried on cards but not yet checked, and operator bonds are not posted anywhere yet.* |
+| CONS-003 | built | Operator keys on harness cards, a seat cap per operator, operator bonds. *Gap: Operator signatures are checked on every draw; an operator's bond is its harnesses' registry bonds, not yet slashed on chain.* |
 | CONS-004 | built | Draw weighting: equal by default, bond-weighted with a cap as an option. *Gap: Equal is the default; whether the network allows bond weighting waits on Rex.* |
 | CONS-005 | built | Slashing: a published schedule applied to recorded faults as conserving bond diffs. *Gap: Every rate is illustrative; slashes apply on the local testnet, not on a chain.* |
 | CONS-006 | built | Payouts held until the challenge window closes; an overturn redirects the held escrow. *Gap: Window lengths are illustrative; the verafyChain node does not release held payouts yet.* |
-| CONS-007 | built | Single-harness mode: a jury of one with a mandatory window and an automatic audit. *Gap: Allowed only with a window and an automatic audit; whether to offer it waits on Rex; cost not modeled.* |
-| CONS-008 | designed | Prover placement: each harness or shared provers, with the prover named in the proof record. *Gap: Default waits on Rex; the proof record does not name its prover yet.* |
+| CONS-007 | built | Single-harness mode: a jury of one with a mandatory window and an automatic audit. *Gap: Offered behind a mandatory window and automatic audit; cost not modeled.* |
+| CONS-008 | built | Prover placement: each harness or shared provers, with the prover named in the proof record. *Gap: Each harness proves by default; a shared prover is named in the proof record. No prover runs live yet.* |
 | CONS-009 | partial | verafy_ruling: a reveal deadline slot, and a releasable-after slot. *Gap: Measured on a local validator only; not on devnet.* |
 | CONS-010 | built | Economics: bond capital cost, expected slashing, challenge cost. *Gap: Every input is illustrative.* |
 <!-- /reqs:CONS -->
@@ -100,11 +100,11 @@ A Judiciary Signer is a member of a Squads multisig that no person holds a key f
 <!-- reqs:SIGN -->
 | ID | Status | Requirement |
 |---|---|---|
-| SIGN-001 | built | Judiciary Signer: a Squads member that votes only as a sealed jury ruling says, bound to the exact transaction, past its challenge window, with an escape hatch a rejection blocks. *Gap: Measured on a local validator against Squads v4 from mainnet (23 of 23); not deployed to devnet.* |
+| SIGN-001 | built | Judiciary Signer: a Squads member that votes only as a sealed jury ruling says, bound to the exact transaction, past its challenge window, with an escape hatch a rejection blocks. *Gap: Measured on a local validator against Squads v4 from mainnet (30 of 30 checks across the signer, registry, encoder and covenant); not deployed to devnet.* |
 | SIGN-002 | built | Policies: deterministic rules, intent and judgment; templates for Covenant Launch, treasuries and upgrade authorities; hard config violations. *Gap: Rules cover SOL and SPL token transfers; other programs are refused, not read.* |
 | SIGN-003 | built | Model certification: a pinned attack suite and a bar a closed model must clear before a signer may use it. *Gap: No closed model measured yet; the bar is illustrative.* |
-| SIGN-004 | planned | Asset transfer records: physical item sales ruled on photos and serial numbers, with ownership and transfer records localized per country |
-| SIGN-005 | planned | Commission covenant: a validator bonds a promise not to raise fees on stakers |
+| SIGN-004 | built | Asset transfer records: physical item sales ruled on photos and serial numbers, with ownership and transfer records localized per country. *Gap: Scripted multimodal jury only; the localizer formats per country and flags registered categories, without country-specific legal rules.* |
+| SIGN-005 | built | Commission covenant: a validator bonds a promise not to raise fees on stakers. *Gap: Local validator only; pays one beneficiary account, not stakers pro rata; reads vote account versions 1 and 2.* |
 | SIGN-006 | built | Bias profiles: paired probes measure how a model leans (order, authority, framing, position, roles, anchors, length, approve rate, confidence, consistency), maps and least-shared-bias juries, and unannounced probes disguised as live cases. *Gap: No real model profiled yet; probes are written for escrow cases, not yet for wallet cases.* |
 <!-- /reqs:SIGN -->
 
@@ -293,7 +293,7 @@ In theory, no separate chain is needed: the three draft SIMDs describe every par
 | SOL-002 | partial | A Solana devnet program implementing commit, reveal and the Ruling account; one harness ruling settled on devnet. *Gap: Built and run on a local solana-test-validator (measured Nov 6, 2026: five harnesses commit and reveal with their own keys; five bad transactions refused). Not yet deployed to devnet: the devnet and testnet RPC faucets are closed, so it needs about 1 devnet SOL from faucet.solana.com.* |
 | SOL-003 | designed | SIMD amendment: packed proofs shared by many attestations (proof hash, slot and manifest hash). *Gap: Text not yet drafted into the attestations SIMD.* |
 | SOL-004 | planned | Fair juror draws on Solana (commit-reveal randomness or a VRF), since slot data can be nudged |
-| SOL-005 | planned | Availability for off-chain refs on Solana through the challenge window |
+| SOL-005 | built | Availability for off-chain refs on Solana through the challenge window. *Gap: The encoder: memo backend measured on a local validator; the IQ Labs backend tested with a stand-in SDK, not run on devnet.* |
 <!-- /reqs:SOL -->
 
 ## ECON: economics

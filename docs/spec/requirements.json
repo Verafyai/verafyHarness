@@ -340,18 +340,18 @@
    "id": "CONS-003",
    "area": "CONS",
    "weight": 2,
-   "status": "partial",
+   "status": "built",
    "title": "Operator keys on harness cards, a seat cap per operator, operator bonds",
    "checks": [
     {
-     "grep": "packages/core/src/network.js",
-     "re": "maxSeatsPerOperator"
+     "grep": "packages/core/src/operators.js",
+     "re": "operatorStatus"
     },
     {
-     "test": "packages/core/test/consensus.test.js"
+     "test": "packages/core/test/judiciary.test.js"
     }
    ],
-   "gap": "The cap and alternates are built; operator signatures are carried on cards but not yet checked, and operator bonds are not posted anywhere yet"
+   "gap": "Operator signatures are checked on every draw; an operator's bond is its harnesses' registry bonds, not yet slashed on chain"
   },
   {
    "id": "CONS-004",
@@ -422,21 +422,21 @@
      "test": "packages/core/test/consensus.test.js"
     }
    ],
-   "gap": "Allowed only with a window and an automatic audit; whether to offer it waits on Rex; cost not modeled"
+   "gap": "Offered behind a mandatory window and automatic audit; cost not modeled"
   },
   {
    "id": "CONS-008",
    "area": "CONS",
    "weight": 1,
-   "status": "designed",
+   "status": "built",
    "title": "Prover placement: each harness or shared provers, with the prover named in the proof record",
    "checks": [
     {
-     "grep": "docs/proposals/VIP-0009-prover-placement.md",
-     "re": "vip: .?0009"
+     "grep": "packages/core/src/proving.js",
+     "re": "prover"
     }
    ],
-   "gap": "Default waits on Rex; the proof record does not name its prover yet"
+   "gap": "Each harness proves by default; a shared prover is named in the proof record. No prover runs live yet"
   },
   {
    "id": "CONS-009",
@@ -1388,9 +1388,19 @@
    "id": "SOL-005",
    "area": "SOL",
    "weight": 1,
-   "status": "planned",
+   "status": "built",
    "title": "Availability for off-chain refs on Solana through the challenge window",
-   "checks": []
+   "checks": [
+    {
+     "grep": "packages/solana/src/encoder.js",
+     "re": "memoBackend"
+    },
+    {
+     "grep": "results/judiciary-localnet-v0.0.4.json",
+     "re": "8a. the encoder"
+    }
+   ],
+   "gap": "The encoder: memo backend measured on a local validator; the IQ Labs backend tested with a stand-in SDK, not run on devnet"
   },
   {
    "id": "ECON-001",
@@ -1843,10 +1853,10 @@
     },
     {
      "grep": "results/judiciary-localnet-v0.0.4.json",
-     "re": "\"passed\": 23"
+     "re": "\"passed\": 30"
     }
    ],
-   "gap": "Measured on a local validator against Squads v4 from mainnet (23 of 23); not deployed to devnet"
+   "gap": "Measured on a local validator against Squads v4 from mainnet (30 of 30 checks across the signer, registry, encoder and covenant); not deployed to devnet"
   },
   {
    "id": "SIGN-002",
@@ -1886,27 +1896,36 @@
    "id": "SIGN-004",
    "area": "SIGN",
    "weight": 1,
-   "status": "planned",
+   "status": "built",
    "title": "Asset transfer records: physical item sales ruled on photos and serial numbers, with ownership and transfer records localized per country",
    "checks": [
     {
-     "grep": "docs/proposals/VIP-0015-asset-transfer-records.md",
-     "re": "Asset transfer"
+     "grep": "packages/core/src/assets.js",
+     "re": "deliveryContract"
+    },
+    {
+     "test": "packages/core/test/assets.test.js"
     }
-   ]
+   ],
+   "gap": "Scripted multimodal jury only; the localizer formats per country and flags registered categories, without country-specific legal rules"
   },
   {
    "id": "SIGN-005",
    "area": "SIGN",
    "weight": 1,
-   "status": "planned",
+   "status": "built",
    "title": "Commission covenant: a validator bonds a promise not to raise fees on stakers",
    "checks": [
     {
-     "grep": "docs/proposals/VIP-0016-commission-covenant.md",
-     "re": "Commission covenant"
+     "grep": "packages/solana/covenant/src/lib.rs",
+     "re": "NOT_BROKEN"
+    },
+    {
+     "grep": "results/judiciary-localnet-v0.0.4.json",
+     "re": "9e. raising the commission"
     }
-   ]
+   ],
+   "gap": "Local validator only; pays one beneficiary account, not stakers pro rata; reads vote account versions 1 and 2"
   },
   {
    "id": "NET-001",

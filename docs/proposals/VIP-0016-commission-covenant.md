@@ -1,7 +1,7 @@
 ---
 vip: '0016'
 title: 'Commission covenant: a validator bonds its promise not to raise fees on stakers'
-status: Idea
+status: 'Shipped (v0.0.4-alpha): verafy_covenant program and the jury template'
 created: 2026-11-07
 requirement: SIGN-005
 depends: ['0011']

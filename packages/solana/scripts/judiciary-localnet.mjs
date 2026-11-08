@@ -20,6 +20,10 @@
  *   6. The case fee pays the jurors who revealed, once (VIP-0012).
  *   7. Harnesses register in verafy_registry and are discovered with one RPC
  *      call; only the operator can change them; a bond waits out unbonding.
+ *   8. The encoder writes the policy on chain in Memo chunks and reads it back
+ *      against the hash in the signer config (VIP-0019).
+ *   9. A commission covenant pays its bond out when the commission goes over,
+ *      and returns it when it held to the end (VIP-0016).
  */
 import { spawn, execFileSync } from 'node:child_process'
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
@@ -32,6 +36,7 @@ import {
   SQUADS_PROGRAM, PERMISSION, squadsPda, squadsIx, decodeMultisig, decodeProposal, decodeTransaction,
   judiciaryIx, authorityOf, caseOf, caseHash, decodeCase, decodeSignerConfig, CONFIG_SIZE, CASE_SIZE, judiciaryError,
   registryIx, harnessAccount, discoverHarnesses, decodeHarness, HARNESS_SIZE,
+  memoBackend, encodeObject, decodeObject, covenantIx, decodeCovenant, voteCommission, COVENANT_SIZE,
 } from '../src/index.js'
 
 const HERE = new URL('..', import.meta.url).pathname
@@ -41,6 +46,7 @@ if (!a.squads) { console.error('need --squads <path to squads_v4.so> (solana pro
 const RULING = keypair(JSON.parse(readFileSync(join(HERE, 'program/target/deploy/verafy_ruling-keypair.json'), 'utf8')))
 const JUDICIARY = keypair(JSON.parse(readFileSync(join(HERE, 'judiciary/target/deploy/verafy_judiciary-keypair.json'), 'utf8')))
 const REGISTRY = keypair(JSON.parse(readFileSync(join(HERE, 'registry/target/deploy/verafy_registry-keypair.json'), 'utf8')))
+const COVENANT = keypair(JSON.parse(readFileSync(join(HERE, 'covenant/target/deploy/verafy_covenant-keypair.json'), 'utf8')))
 const PROGRAM_CONFIG = squadsPda.programConfig().address
 const mainnet = rpcClient('https://api.mainnet-beta.solana.com')
 const treasury = b58encode((await mainnet.account(PROGRAM_CONFIG)).data.subarray(48, 80))
@@ -52,6 +58,7 @@ const validator = spawn('solana-test-validator', [
   '--bpf-program', RULING.address, join(HERE, 'program/target/deploy/verafy_ruling.so'),
   '--bpf-program', JUDICIARY.address, join(HERE, 'judiciary/target/deploy/verafy_judiciary.so'),
   '--bpf-program', REGISTRY.address, join(HERE, 'registry/target/deploy/verafy_registry.so'),
+  '--bpf-program', COVENANT.address, join(HERE, 'covenant/target/deploy/verafy_covenant.so'),
   '--url', 'https://api.mainnet-beta.solana.com', '--clone', PROGRAM_CONFIG, '--clone', treasury,
 ], { stdio: 'ignore' })
 const stop = () => { if (!a.keep) validator.kill('SIGINT') }
@@ -196,8 +203,45 @@ check('7d. a retired harness drops out of discovery', (await discoverHarnesses(r
 const unbonding = await rpc.send(buildTx([registryIx.withdraw({ programId: REGISTRY.address, harnessKey: jurors[1].address, operator: operator.address, lamports: 1e9 })], operator, [operator], await rpc.blockhash())).then(() => null, e => String(e.message))
 check('7e. its bond waits out the unbonding delay', /0x67/.test(unbonding ?? ''), unbonding ? 'too early' : 'it went through')
 
+// ---- 8: the encoder -------------------------------------------------------------
+const policy = { kind: 'verafy.policy/1', id: 'localnet-example', intent: 'Pays the auditor for audited work, within a monthly budget, and nothing else.', rules: [{ type: 'allow-programs', programs: ['11111111111111111111111111111111'] }], minTimeLockSeconds: 0, padding: 'p'.repeat(1500) }
+const enc = await encodeObject(policy, memoBackend({ rpc, payer }))
+const back = await decodeObject(enc.locator, memoBackend({ rpc, payer }), enc.hash)
+check('8a. the encoder writes a policy on chain in Memo chunks and reads it back', createHash('sha256').update(JSON.stringify(back, Object.keys(back).sort())).digest('hex') === createHash('sha256').update(JSON.stringify(policy, Object.keys(policy).sort())).digest('hex') && back.padding.length === 1500, `${enc.bytes} bytes`)
+const refused = await decodeObject(enc.locator, memoBackend({ rpc, payer }), 'ab'.repeat(32)).then(() => false, e => /refusing/.test(e.message))
+check('8b. a reader refuses it against the wrong hash', refused)
+
+// ---- 9: the commission covenant ------------------------------------------------
+const dir = mkdtempSync(join(tmpdir(), 'covenant-'))
+const file = (name, k) => { const p = join(dir, `${name}.json`); writeFileSync(p, JSON.stringify([...k.secret])); return p }
+const identity = keypair(), voteKp = keypair(), withdrawer = keypair(), stakers = keypair()
+for (const k of [identity, withdrawer]) await rpc.confirm(await rpc.airdrop(k.address, 5e9))
+const cli = (...args) => execFileSync('solana', [...args, '-u', 'http://127.0.0.1:8899', '--commitment', 'confirmed'], { stdio: 'pipe' }).toString()
+cli('create-vote-account', file('vote', voteKp), file('identity', identity), withdrawer.address, '--commission', '5', '-k', file('payer', payer))
+const v0 = voteCommission((await rpc.account(voteKp.address)).data)
+check('9a. a vote account reads as withdrawer and commission', v0?.commission === 5 && v0.withdrawer === withdrawer.address, `commission ${v0?.commission}%`)
+const covRent = await rpc.rent(COVENANT_SIZE)
+async function openCovenant(endSlot, bond) {
+  const acct = keypair()
+  await rpc.send(buildTx([createAccountIx(withdrawer, acct, covRent + bond, COVENANT_SIZE, COVENANT.publicKey), covenantIx.open({ programId: COVENANT.address, covenant: acct.address, withdrawer: withdrawer.address, vote: voteKp.address, maxCommission: 5, endSlot, bond, beneficiary: stakers.address })], withdrawer, [withdrawer, acct], await rpc.blockhash()))
+  return acct.address
+}
+const far = await openCovenant((await slot()) + 1_000_000, 1e9)
+const near = await openCovenant((await slot()) + 30, 1e9)
+check('9b. a validator bonds a commission promise', decodeCovenant((await rpc.account(far)).data).status === 'active')
+const notBroken = await rpc.send(buildTx([covenantIx.claim({ programId: COVENANT.address, covenant: far, vote: voteKp.address, beneficiary: stakers.address })], payer, [payer], await rpc.blockhash())).then(() => null, e => String(e.message))
+check('9c. a claim fails while the promise holds', /0x69/.test(notBroken ?? ''), notBroken ? 'not broken' : 'it went through')
+await waitUntil(decodeCovenant((await rpc.account(near)).data).endSlot)
+const w0 = await rpc.balance(withdrawer.address)
+await rpc.send(buildTx([covenantIx.release({ programId: COVENANT.address, covenant: near, withdrawer: withdrawer.address })], withdrawer, [withdrawer], await rpc.blockhash()))
+check('9d. a promise kept to the end gives the bond back', (await rpc.balance(withdrawer.address)) - w0 >= 1e9 - 10_000)
+cli('vote-update-commission', file('vote2', voteKp), '10', file('withdrawer', withdrawer), '-k', file('payer2', payer))
+const s0 = await rpc.balance(stakers.address)
+await rpc.send(buildTx([covenantIx.claim({ programId: COVENANT.address, covenant: far, vote: voteKp.address, beneficiary: stakers.address })], payer, [payer], await rpc.blockhash()))
+check('9e. raising the commission over the promise pays the bond to stakers', (await rpc.balance(stakers.address)) - s0 === 1e9 && decodeCovenant((await rpc.account(far)).data).status === 'broken')
+
 const version = execFileSync('solana-test-validator', ['--version']).toString().trim()
-const summary = { date: new Date().toISOString(), validator: version, squads: SQUADS_PROGRAM, squadsSource: 'dumped from mainnet', ruling: RULING.address, judiciary: JUDICIARY.address, registry: REGISTRY.address, challengeSlots: CHALLENGE, escapeSlots: ESCAPE, results, passed: results.filter(r => r.ok).length, total: results.length }
+const summary = { date: new Date().toISOString(), validator: version, squads: SQUADS_PROGRAM, squadsSource: 'dumped from mainnet', ruling: RULING.address, judiciary: JUDICIARY.address, registry: REGISTRY.address, covenant: COVENANT.address, challengeSlots: CHALLENGE, escapeSlots: ESCAPE, results, passed: results.filter(r => r.ok).length, total: results.length }
 console.log(`\n${summary.passed}/${summary.total} passed`)
 if (a.out) writeFileSync(a.out, JSON.stringify(summary, null, 2) + '\n')
 stop()

@@ -12,13 +12,17 @@ The milestones below are stage 1 in detail. The same stages, for readers: [docs/
 
 ## Milestone 4c: Judiciary Signer, registry and attestation (v0.0.4-alpha)
 
-- [x] VIP-0010 Judiciary Signer: `verafy_judiciary`, a Squads member that votes only on a sealed ruling bound to the exact transaction; setup check; case contracts; escape hatch. Localnet against Squads v4 from mainnet, 23 of 23
+- [x] VIP-0010 Judiciary Signer: `verafy_judiciary`, a Squads member that votes only on a sealed ruling bound to the exact transaction; setup check; case contracts; escape hatch. Localnet against Squads v4 from mainnet, 30 of 30
 - [x] VIP-0011 Policies and Covenant Launch: rules engine and templates
 - [x] VIP-0012 Harness registry: `verafy_registry`, discovery in one RPC call, case fees paid to jurors, `verafy discover` and `verafy harness register`
-- [ ] VIP-0013 Hardware attestation: verification built; a harness in a real SEV-SNP VM and a reproducible image are next
+- [x] VIP-0013 Hardware attestation: verification built. Still open: a harness in a real SEV-SNP VM, and a reproducible image
 - [x] VIP-0014 Model certification: the suite and the bar; no closed model measured yet
 - [ ] Deploy the three programs to devnet
-- [ ] VIP-0015 asset transfer records and VIP-0016 commission covenant: ideas, not scheduled
+- [x] VIP-0015 asset transfer records: listings, delivery rulings, records, localizer
+- [x] VIP-0016 commission covenant: `verafy_covenant`, measured on a local validator
+- [x] VIP-0018 bias profiles, with unannounced probes
+- [x] VIP-0019 encoder: Memo backend measured on a local validator; IQ Labs backend ready
+- [x] VIP-0003, 0004, 0008, 0009 closed with their defaults: operator signatures, equal weighting, single-harness mode behind a window, the prover named in each proof
 
 Done when: the three programs are on devnet and an outside wallet attaches a Judiciary Signer without help.
 

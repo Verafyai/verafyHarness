@@ -1,7 +1,7 @@
 ---
 vip: '0017'
 title: 'Programs first, SIMD on adoption: settle on Solana today with ordinary programs'
-status: Accepted
+status: 'Shipped: the rule every program here follows'
 created: 2026-11-07
 requirement: SOL-002
 depends: []

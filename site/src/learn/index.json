@@ -412,5 +412,35 @@
       "judiciary-signer"
     ],
     "group": "Wallets"
+  },
+  "encoder": {
+    "title": "The encoder",
+    "desc": "Policies and contracts on Solana in full, read back against their hash, through IQ Labs Code-In or Memo.",
+    "status": "Built: SOL-005.",
+    "related": [
+      "policies",
+      "solana-settlement"
+    ],
+    "group": "Settlement"
+  },
+  "asset-transfer-records": {
+    "title": "Asset transfer records",
+    "desc": "Sell a physical item, have a jury check the delivery photos, and issue records of the transfer.",
+    "status": "Built: SIGN-004.",
+    "related": [
+      "policies",
+      "judiciary-signer"
+    ],
+    "group": "Wallets"
+  },
+  "commission-covenant": {
+    "title": "The commission covenant",
+    "desc": "A validator bonds its promise not to raise commission; code pays stakers if it does.",
+    "status": "Built: SIGN-005. Measured on a local validator.",
+    "related": [
+      "bonds-and-slashing",
+      "policies"
+    ],
+    "group": "Stake"
   }
 }

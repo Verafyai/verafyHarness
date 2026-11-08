@@ -1,7 +1,7 @@
 ---
 vip: '0004'
 title: 'Draw weighting: equal seats or weighted by bond'
-status: Built; default needs Rex
+status: 'Shipped (v0.0.4-alpha): equal by default, bond weighting optional; Rex can change the default'
 created: 2026-11-07
 requirement: CONS-004
 ---

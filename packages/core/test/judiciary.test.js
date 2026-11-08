@@ -230,3 +230,19 @@ test('attestation: an SEV-SNP report binds this key and this build, signed by a 
   assert.deepEqual(jury.map(c => c.id), ['attested'])
   assert.match(verifyAttestation({ ...rec, kind: 'dev' }, { builds, harnessKey: id.publicKey }).problems.join(), /not hardware/)
 })
+
+// ---- VIP-0003 operator signatures, VIP-0009 prover named --------------------
+import { signOperator, operatorStatus, proofRecord, checkProofRecord, createIdentity as ci2, signMessage } from '../src/index.js'
+
+test('operators sign their harness cards; a forged claim is never seated', () => {
+  const op = ci2(), other = ci2()
+  const h = { id: 'h1', family: 'a', model: 'm', bond: 1, publicKey: ci2().publicKey }
+  const signed = { ...h, operator: op.publicKey, operatorSignature: signOperator(op, h).signature }
+  const forged = { ...h, id: 'h2', operator: op.publicKey, operatorSignature: signOperator(other, { ...h, id: 'h2' }).signature }
+  const unsigned = { ...h, id: 'h3', family: 'c', operator: op.publicKey }
+  assert.equal(operatorStatus(signed), 'signed')
+  assert.equal(operatorStatus(forged), 'bad')
+  assert.equal(operatorStatus(unsigned), 'unsigned')
+  assert.deepEqual(drawJury([signed, forged, { ...h, id: 'h4', family: 'b' }], { size: 2, minFamilies: 2 }, 's').map(x => x.id).sort(), ['h1', 'h4'])
+  assert.throws(() => drawJury([signed, unsigned], { size: 2, minFamilies: 2, requireOperatorSignatures: true }, 's'), /cannot seat/)
+})

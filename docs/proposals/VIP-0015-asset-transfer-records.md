@@ -1,7 +1,7 @@
 ---
 vip: '0015'
 title: 'Asset transfer records: sell a physical thing, and record that it changed hands'
-status: Idea
+status: 'Shipped (v0.0.4-alpha): listings, delivery rulings, records and the localizer'
 created: 2026-11-07
 requirement: SIGN-004
 depends: ['0010', '0011']

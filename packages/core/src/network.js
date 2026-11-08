@@ -19,6 +19,7 @@ import { sha256, canonical } from './hash.js'
 import { needsProofs, gateProofs, finality, checkProofCheck } from './proving.js'
 import { familyOf, familyField, minFamiliesOf, excludedFamilies } from './family.js'
 import { attested } from './attestation.js'
+import { operatorStatus } from './operators.js'
 
 /**
  * Harnesses a contract may seat: bonded for the most value one vote can decide
@@ -34,11 +35,18 @@ export function eligibleJurors(pool, asc) {
   return filterPool(pool, asc.payment.jury, asc.payment.maxValuePerVote ?? 0)
 }
 
+// A card that claims an operator with a bad signature is never seated; with
+// `requireOperatorSignatures`, neither is one whose claim is unsigned (VIP-0003).
+function operatorOk(h, rules) {
+  const s = operatorStatus(h)
+  return s !== 'bad' && !(rules.requireOperatorSignatures && s === 'unsigned')
+}
+
 function filterPool(pool, rules, minBond) {
   const families = new Set(excludedFamilies(rules))
   const ids = new Set(rules.excludeHarnesses ?? [])
   const models = rules.allowModels ? new Set(rules.allowModels) : null
-  return pool.filter(h => !families.has(familyOf(h)) && !ids.has(h.id) && (minBond > 0 ? Number(h.bond) >= minBond : true) && (!models || models.has(h.model)) && (!rules.attested || attested(h)))
+  return pool.filter(h => !families.has(familyOf(h)) && !ids.has(h.id) && (minBond > 0 ? Number(h.bond) >= minBond : true) && (!models || models.has(h.model)) && (!rules.attested || attested(h)) && operatorOk(h, rules))
 }
 
 /**

@@ -1,7 +1,7 @@
 ---
 vip: '0003'
 title: 'Operator diversity: model families are not owners'
-status: Building
+status: 'Shipped (v0.0.4-alpha): operator signatures checked; operator bonds are the registry bonds'
 created: 2026-11-07
 requirement: CONS-003
 ---

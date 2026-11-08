@@ -50,6 +50,8 @@ export function needsProofs(asc) {
 function recordMessage(r) {
   const m = { kind: PROOF_RECORD_KIND, harness: r.harness, ascHash: r.ascHash, commitment: r.commitment, modelCommitment: r.modelCommitment, proofHash: r.proofHash }
   if (r.proofRef !== undefined) m.proofRef = r.proofRef
+  // VIP-0009: who ran the proof. Absent means the harness proved its own answer.
+  if (r.prover !== undefined) m.prover = r.prover
   if (r.chunkProofHashes !== undefined) { m.chunkProofHashes = r.chunkProofHashes; m.composition = r.composition }
   return m
 }
@@ -84,6 +86,7 @@ export function checkProofRecord(card, c, r, h) {
   if (!card.modelCommitment) return 'the harness card carries no model commitment'
   if (r.modelCommitment !== card.modelCommitment) return 'proof is for a different model commitment than the harness card'
   if (!PROOF_HASH.test(String(r.proofHash))) return 'proofHash is not a SHA-256 hex digest'
+  if (r.prover !== undefined && !(typeof r.prover === 'string' && r.prover)) return 'prover must name who ran the proof'
   if (r.chunkProofHashes !== undefined) {
     if (!Array.isArray(r.chunkProofHashes) || r.chunkProofHashes.length < 2) return 'a split contract lists at least two chunk proof hashes'
     if (!r.chunkProofHashes.every(x => PROOF_HASH.test(String(x)))) return 'a chunk proof hash is not a SHA-256 hex digest'

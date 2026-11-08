@@ -1,7 +1,7 @@
 ---
 vip: '0018'
 title: 'Bias profiles: measure how each model leans, and map models against each other'
-status: Built; no model measured
+status: 'Shipped (v0.0.4-alpha): escrow and wallet-case probes; no real model profiled yet'
 created: 2026-11-07
 requirement: SIGN-006
 depends: ['0003', '0010', '0014']

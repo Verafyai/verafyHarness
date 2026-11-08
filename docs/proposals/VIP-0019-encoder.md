@@ -1,7 +1,7 @@
 ---
 vip: '0019'
 title: 'Encoder: put policies and contracts on Solana in full, through IQ Labs until a SIMD exists'
-status: Accepted
+status: 'Shipped (v0.0.4-alpha): memo backend measured on a local validator; IQ Labs backend ready, not run on devnet'
 created: 2026-11-07
 requirement: SOL-005
 depends: ['0010', '0011', '0017']
@@ -28,15 +28,15 @@ Two ways to put text on Solana today:
 
 `packages/solana/src/encoder.js`. One interface:
 
-- `encode(object) -> {hash, backend, locator}`: canonical JSON, the same `sha256` the harness uses everywhere, then the backend writes the bytes.
-- `decode(locator) -> object`: fetch, recompute the hash, and refuse anything that doesn't match.
+- `encodeObject(object, backend) -> {hash, backend, locator}`: canonical JSON, the same `sha256` the harness uses everywhere, then the backend writes the bytes.
+- `decodeObject(locator, backend, hash) -> object`: fetch, recompute the hash, and refuse anything that doesn't match.
 
 **Backends:**
 
 | Backend | When |
 |---|---|
 | `iq-codein` | The default until a SIMD: IQ Labs' Solana SDK (`@iqlabs-official/solana-sdk`) |
-| `account` | Small objects, or when no third-party program is wanted |
+| `memo` | No third-party program: chunks in Memo program instructions, each linked to the one before |
 | `simd` | Once a data-availability SIMD is live: the native path |
 
 ### Content addressing makes the backend untrusted

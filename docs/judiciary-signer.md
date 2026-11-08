@@ -43,7 +43,7 @@ Put those together and a wallet's rules can be enforced by a member nobody contr
 
 ## Measured
 
-Tested end to end on a local validator against the real Squads v4 program, dumped from mainnet, on November 7, 2026: 23 of 23 checks pass. The checks cover:
+Tested end to end on a local validator against the real Squads v4 program, dumped from mainnet, on November 7, 2026: 30 of 30 checks pass. The checks cover:
 
 - humans alone can't pass a proposal;
 - a wrong jury or wrong case is refused;
@@ -52,7 +52,9 @@ Tested end to end on a local validator against the real Squads v4 program, dumpe
 - a rejection blocks the escape hatch;
 - the escape hatch waits its delay;
 - jurors are paid once;
-- harnesses register and are discovered.
+- harnesses register and are discovered;
+- the encoder writes a policy on chain and reads it back;
+- a commission covenant pays out when broken, and returns its bond when kept.
 
 Results: [judiciary-localnet-v0.0.4.json](../results/judiciary-localnet-v0.0.4.json). Not yet deployed to devnet or mainnet.
 

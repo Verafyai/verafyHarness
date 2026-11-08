@@ -1,7 +1,7 @@
 ---
 vip: '0013'
 title: 'Hardware attestation: prove a harness runs a known build inside an enclave'
-status: Building
+status: 'Shipped (v0.0.4-alpha): verification; a run in a real enclave and a reproducible image open'
 created: 2026-11-07
 requirement: NET-002
 depends: ['0012']

@@ -1,7 +1,7 @@
 ---
 vip: '0001'
 title: 'Jury scheduler: one unit owns the seed, the draw, deadlines and replacements'
-status: Built
+status: 'Shipped (v0.0.3-alpha)'
 created: 2026-11-07
 requirement: CONS-001
 depends: ['0002', '0003', '0004']

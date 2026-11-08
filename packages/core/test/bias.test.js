@@ -98,3 +98,20 @@ test('the signer setup warns when every chosen model shares a bias', () => {
   assert.deepEqual(signerWarnings(s, { profiles: [prof('a', 0.5), prof('b', 0)] }), [])
   assert.match(signerWarnings(s).join(), /no bias profile/)
 })
+
+import { walletProbeSuite } from '../src/index.js'
+
+test('wallet-case probes are real judiciary cases, so a live wallet juror cannot tell them apart', () => {
+  const policy = policyFromTemplate('treasury', { monthly: 30e9, perTransaction: 10e9, payees: ['Payee'], purpose: 'paying the auditor' })
+  const signer = { kind: SIGNER_KIND, policy, models: [{ kind: 'open-weight', model: 'm', family: 'f', huggingface: 'a/b' }], jury: [{ key: 'K', model: 'm' }], bar: 0.66, challengeSlots: 1, escapeSlots: 0, multisig: 'M' }
+  const contractFor = k => caseContract(signer, { multisig: 'M', ...k }, { now: 1 }).asc
+  const suite = walletProbeSuite(contractFor, { payee: 'Payee', stranger: 'Stranger', cap: 10e9 })
+  const live = caseContract(signer, { caseHash: h('live'), multisig: 'M', proposal: 'P', transaction: { kind: 'vault', instructions: [], lookups: [] }, description: 'Invoice 9.' }, { now: 1 }).asc
+  assert.ok(suite.pairs.length >= 20)
+  for (const p of suite.pairs) assert.equal(p.b.instructions, live.instructions, 'same instructions as a live case')
+  const inj = new ProbeInjector({ seed: 's', rate: 1, model: 'm', family: 'f', suite })
+  const out = inj.next(live)
+  assert.equal(out.probe, true)
+  assert.equal(out.asc.instructions, live.instructions)
+  assert.deepEqual(out.asc.question, live.question)
+})

@@ -58,6 +58,9 @@ Every number on this site is labeled measured, vendor-reported, modeled or illus
 - [The harness registry](https://harness.verafy.ai/learn/harness-registry): Register a harness on Solana, get discovered with one RPC call, and get paid per case.
 - [Hardware attestation](https://harness.verafy.ai/learn/hardware-attestation): Prove a harness runs a known build inside an AMD SEV-SNP enclave, with its key bound in.
 - [Bias profiles](https://harness.verafy.ai/learn/bias-profiles): How a model leans when it judges, measured with paired probes, mapped, and checked by unannounced probes.
+- [The encoder](https://harness.verafy.ai/learn/encoder): Policies and contracts on Solana in full, read back against their hash, through IQ Labs Code-In or Memo.
+- [Asset transfer records](https://harness.verafy.ai/learn/asset-transfer-records): Sell a physical item, have a jury check the delivery photos, and issue records of the transfer.
+- [The commission covenant](https://harness.verafy.ai/learn/commission-covenant): A validator bonds its promise not to raise commission; code pays stakers if it does.
 
 ## Reference
 

@@ -650,7 +650,7 @@ Source: https://harness.verafy.ai/learn/challenge-window
 
 **The escape hatch.** Optional. If a case waits the full delay with no ruling, the signer approves, so a dead jury can't trap funds. A rejected case never escapes.
 
-**Status.** Built (SIGN-001). Measured end to end on a local validator against Squads v4 from mainnet, 23 of 23 checks. Not deployed yet. Design: [VIP-0010](https://github.com/Verafyai/verafyHarness/blob/main/docs/proposals/VIP-0010-judiciary-signer.md).
+**Status.** Built (SIGN-001). Measured end to end on a local validator against Squads v4 from mainnet, 30 of 30 checks. Not deployed yet. Design: [VIP-0010](https://github.com/Verafyai/verafyHarness/blob/main/docs/proposals/VIP-0010-judiciary-signer.md).
 
 **Related:** [Policies](https://harness.verafy.ai/learn/policies), [Model certification](https://harness.verafy.ai/learn/model-certification), [The challenge window](https://harness.verafy.ai/learn/challenge-window)
 
@@ -757,12 +757,60 @@ Measured on their own: the approve rate on genuinely balanced cases, overconfide
 
 Source: https://harness.verafy.ai/learn/bias-profiles
 
+# The encoder
+
+*Put the full text of a policy or contract on Solana, and read it back checked against its hash.*
+
+**Why.** The chain stores hashes: the policy hash in a signer's config, the contract hash in a ruling. A hash proves which text was agreed. It doesn't make that text available to a buyer who wants to read the covenant.
+
+**How.** The encoder writes the canonical JSON on chain, and a reader recomputes the hash and refuses anything that doesn't match. So storage can lose a text, but it can never pass off a different one.
+
+**Backends.**
+- **IQ Labs Code-In:** data in ordinary Solana transactions. The default until a data-availability SIMD exists.
+- **Memo:** chunks in Memo program instructions, each linked to the one before. It uses no third-party program.
+
+**Status.** Built (SOL-005). The Memo backend was measured on a local validator, writing and reading a 1.7 KB policy. The IQ Labs backend is tested with a stand-in SDK; it isn't on devnet yet. Design: [VIP-0019](https://github.com/Verafyai/verafyHarness/blob/main/docs/proposals/VIP-0019-encoder.md).
+
+**Related:** [Policies](https://harness.verafy.ai/learn/policies), [Solana settlement](https://harness.verafy.ai/learn/solana-settlement)
+
+Source: https://harness.verafy.ai/learn/encoder
+
+# Asset transfer records
+
+*Sell a physical thing, have a jury check that what arrived is what was sold, and record the transfer.*
+
+**The listing** pins the seller's photos (one showing the serial number) and documents by hash. The buyer's payment waits in an escrow wallet under the asset-sale policy.
+
+**Delivery.** The buyer photographs the item next to a one-time code from the escrow, written by hand. A jury of multimodal models rules MATCH or NO_MATCH: the serial must match, and the code must be in the shot, so an old or generated photo can't stand in.
+
+**Records.** On MATCH, three signed records are issued: a certificate of transfer, a certificate of ownership and a receipt. Each carries the ruling. The localizer formats them for the buyer's country (language, dates, money). It also says when the item needs a government registry: vehicles, boats, land and firearms do. The records are labeled as Verafy records, never styled as government documents. Whether one counts as a legal bill of sale depends on the place and the item.
+
+**Status.** Built (SIGN-004), tested with a scripted jury. Design: [VIP-0015](https://github.com/Verafyai/verafyHarness/blob/main/docs/proposals/VIP-0015-asset-transfer-records.md).
+
+**Related:** [Policies](https://harness.verafy.ai/learn/policies), [The Judiciary Signer](https://harness.verafy.ai/learn/judiciary-signer)
+
+Source: https://harness.verafy.ai/learn/asset-transfer-records
+
+# The commission covenant
+
+*A validator bonds its promise not to raise fees on stakers.*
+
+**Code, where code can see.** A validator's commission is in its vote account, on chain. `verafy_covenant` holds the bond with a maximum commission and an end slot. Only the vote account's withdrawer can open one. If the commission goes over the maximum before the end, anyone can claim and the bond goes to the beneficiary named at open. If the promise holds to the end, the validator takes the bond back.
+
+**A jury, where code can't.** Promises about MEV commission, or about notice before a change, go to a bond wallet with a Judiciary Signer under the `commission-covenant` policy.
+
+**Status.** Built (SIGN-005). Measured on a local validator: a broken promise paid its bond out, and a kept one got its bond back. It pays one beneficiary account, not each staker pro rata. Design: [VIP-0016](https://github.com/Verafyai/verafyHarness/blob/main/docs/proposals/VIP-0016-commission-covenant.md).
+
+**Related:** [Bonds and slashing](https://harness.verafy.ai/learn/bonds-and-slashing), [Policies](https://harness.verafy.ai/learn/policies)
+
+Source: https://harness.verafy.ai/learn/commission-covenant
+
 # Verafy specification
 
 **Version 0.0.2-alpha**, November 6, 2026. Covers Verafy Harness (this repo) and Verafy Chain ([Verafyai/verafyChain](https://github.com/Verafyai/verafyChain)).
 
 <!-- score -->
-**Scored 67% overall** at v0.0.4-alpha (see [SCORECARD.md](SCORECARD.md)).
+**Scored 68% overall** at v0.0.4-alpha (see [SCORECARD.md](SCORECARD.md)).
 <!-- /score -->
 
 This is an alpha spec for a prototype. Nothing here describes a running network, and there is no token. Every number is labeled **measured** (our own runs, with a date), **vendor-reported** (by whoever built the tool), **modeled** (computed from those, in `packages/economics`) or **illustrative** (an assumption to replace).
@@ -842,12 +890,12 @@ Running a harness means posting a bond that can be slashed for misbehavior. A ju
 |---|---|---|
 | CONS-001 | built | Jury scheduler: beacon seed, draw, alternates, block-height deadlines, commit-phase replacement. *Gap: Deadlines and alternate counts are illustrative; the verafyChain node does not call the scheduler yet.* |
 | CONS-002 | built | Randomness beacon with lookahead; a withheld reveal is a slashable fault. *Gap: A hash-chain beacon with one bit of withholding bias, slashed; drand or a VRF would remove it (decision for Rex).* |
-| CONS-003 | partial | Operator keys on harness cards, a seat cap per operator, operator bonds. *Gap: The cap and alternates are built; operator signatures are carried on cards but not yet checked, and operator bonds are not posted anywhere yet.* |
+| CONS-003 | built | Operator keys on harness cards, a seat cap per operator, operator bonds. *Gap: Operator signatures are checked on every draw; an operator's bond is its harnesses' registry bonds, not yet slashed on chain.* |
 | CONS-004 | built | Draw weighting: equal by default, bond-weighted with a cap as an option. *Gap: Equal is the default; whether the network allows bond weighting waits on Rex.* |
 | CONS-005 | built | Slashing: a published schedule applied to recorded faults as conserving bond diffs. *Gap: Every rate is illustrative; slashes apply on the local testnet, not on a chain.* |
 | CONS-006 | built | Payouts held until the challenge window closes; an overturn redirects the held escrow. *Gap: Window lengths are illustrative; the verafyChain node does not release held payouts yet.* |
-| CONS-007 | built | Single-harness mode: a jury of one with a mandatory window and an automatic audit. *Gap: Allowed only with a window and an automatic audit; whether to offer it waits on Rex; cost not modeled.* |
-| CONS-008 | designed | Prover placement: each harness or shared provers, with the prover named in the proof record. *Gap: Default waits on Rex; the proof record does not name its prover yet.* |
+| CONS-007 | built | Single-harness mode: a jury of one with a mandatory window and an automatic audit. *Gap: Offered behind a mandatory window and automatic audit; cost not modeled.* |
+| CONS-008 | built | Prover placement: each harness or shared provers, with the prover named in the proof record. *Gap: Each harness proves by default; a shared prover is named in the proof record. No prover runs live yet.* |
 | CONS-009 | partial | verafy_ruling: a reveal deadline slot, and a releasable-after slot. *Gap: Measured on a local validator only; not on devnet.* |
 | CONS-010 | built | Economics: bond capital cost, expected slashing, challenge cost. *Gap: Every input is illustrative.* |
 <!-- /reqs:CONS -->
@@ -859,11 +907,11 @@ A Judiciary Signer is a member of a Squads multisig that no person holds a key f
 <!-- reqs:SIGN -->
 | ID | Status | Requirement |
 |---|---|---|
-| SIGN-001 | built | Judiciary Signer: a Squads member that votes only as a sealed jury ruling says, bound to the exact transaction, past its challenge window, with an escape hatch a rejection blocks. *Gap: Measured on a local validator against Squads v4 from mainnet (23 of 23); not deployed to devnet.* |
+| SIGN-001 | built | Judiciary Signer: a Squads member that votes only as a sealed jury ruling says, bound to the exact transaction, past its challenge window, with an escape hatch a rejection blocks. *Gap: Measured on a local validator against Squads v4 from mainnet (30 of 30 checks across the signer, registry, encoder and covenant); not deployed to devnet.* |
 | SIGN-002 | built | Policies: deterministic rules, intent and judgment; templates for Covenant Launch, treasuries and upgrade authorities; hard config violations. *Gap: Rules cover SOL and SPL token transfers; other programs are refused, not read.* |
 | SIGN-003 | built | Model certification: a pinned attack suite and a bar a closed model must clear before a signer may use it. *Gap: No closed model measured yet; the bar is illustrative.* |
-| SIGN-004 | planned | Asset transfer records: physical item sales ruled on photos and serial numbers, with ownership and transfer records localized per country |
-| SIGN-005 | planned | Commission covenant: a validator bonds a promise not to raise fees on stakers |
+| SIGN-004 | built | Asset transfer records: physical item sales ruled on photos and serial numbers, with ownership and transfer records localized per country. *Gap: Scripted multimodal jury only; the localizer formats per country and flags registered categories, without country-specific legal rules.* |
+| SIGN-005 | built | Commission covenant: a validator bonds a promise not to raise fees on stakers. *Gap: Local validator only; pays one beneficiary account, not stakers pro rata; reads vote account versions 1 and 2.* |
 | SIGN-006 | built | Bias profiles: paired probes measure how a model leans (order, authority, framing, position, roles, anchors, length, approve rate, confidence, consistency), maps and least-shared-bias juries, and unannounced probes disguised as live cases. *Gap: No real model profiled yet; probes are written for escrow cases, not yet for wallet cases.* |
 <!-- /reqs:SIGN -->
 
@@ -1052,7 +1100,7 @@ In theory, no separate chain is needed: the three draft SIMDs describe every par
 | SOL-002 | partial | A Solana devnet program implementing commit, reveal and the Ruling account; one harness ruling settled on devnet. *Gap: Built and run on a local solana-test-validator (measured Nov 6, 2026: five harnesses commit and reveal with their own keys; five bad transactions refused). Not yet deployed to devnet: the devnet and testnet RPC faucets are closed, so it needs about 1 devnet SOL from faucet.solana.com.* |
 | SOL-003 | designed | SIMD amendment: packed proofs shared by many attestations (proof hash, slot and manifest hash). *Gap: Text not yet drafted into the attestations SIMD.* |
 | SOL-004 | planned | Fair juror draws on Solana (commit-reveal randomness or a VRF), since slot data can be nudged |
-| SOL-005 | planned | Availability for off-chain refs on Solana through the challenge window |
+| SOL-005 | built | Availability for off-chain refs on Solana through the challenge window. *Gap: The encoder: memo backend measured on a local validator; the IQ Labs backend tested with a stand-in SDK, not run on devnet.* |
 <!-- /reqs:SOL -->
 
 ## ECON: economics

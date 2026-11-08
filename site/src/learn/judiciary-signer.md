@@ -10,6 +10,6 @@
 
 **The escape hatch.** Optional. If a case waits the full delay with no ruling, the signer approves, so a dead jury can't trap funds. A rejected case never escapes.
 
-**Status.** Built (SIGN-001). Measured end to end on a local validator against Squads v4 from mainnet, 23 of 23 checks. Not deployed yet. Design: [VIP-0010](https://github.com/Verafyai/verafyHarness/blob/main/docs/proposals/VIP-0010-judiciary-signer.md).
+**Status.** Built (SIGN-001). Measured end to end on a local validator against Squads v4 from mainnet, 30 of 30 checks. Not deployed yet. Design: [VIP-0010](https://github.com/Verafyai/verafyHarness/blob/main/docs/proposals/VIP-0010-judiciary-signer.md).
 
 **Related:** [Policies](/learn/policies), [Model certification](/learn/model-certification), [The challenge window](/learn/challenge-window)

@@ -115,3 +115,21 @@ test('registry: register encodes every field; a harness account decodes to a car
   assert.equal(Buffer.from(spki(harness.address), 'base64').length, 44)
   assert.ok(harnessAccount(harness.address, programId).address)
 })
+
+import { encodeObject, decodeObject, encodedForm, iqBackend } from '../src/index.js'
+
+test('encoder: round-trips through a backend and refuses a text that does not match its hash', async () => {
+  const store = new Map()
+  const fake = { name: 'fake', async put(text, hash) { store.set(hash, text); return hash }, async get(l) { return store.get(l) } }
+  const policy = { kind: 'verafy.policy/1', id: 'p', intent: 'x'.repeat(30), rules: [] }
+  const r = await encodeObject(policy, fake)
+  assert.equal(r.hash, encodedForm(policy).hash)
+  assert.deepEqual(await decodeObject(r.locator, fake, r.hash), policy)
+  store.set(r.hash, JSON.stringify({ ...policy, intent: 'swapped' }))
+  await assert.rejects(decodeObject(r.locator, fake, r.hash), /refusing/)
+  // The IQ backend passes the canonical text to Code-In and reads it back.
+  const sdk = { writer: { async codeIn(_, text, name) { store.set('sig1', text); assert.match(name, /\.json$/); return 'sig1' } }, reader: { async readCodeIn(sig) { return { data: store.get(sig), metadata: '{}' } } } }
+  const iq = iqBackend({ connection: {}, signer: {}, sdk })
+  const s = await encodeObject(policy, iq)
+  assert.deepEqual(await decodeObject(s.locator, iq, s.hash), policy)
+})

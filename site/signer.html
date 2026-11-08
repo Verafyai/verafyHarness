@@ -159,7 +159,7 @@ tr:last-child td{border-bottom:0}
 <li><strong>The jury gets paid on chain.</strong> A fee rides with each case and is split among the jurors who voted.</li>
 </ul>
 <h2 id="measured">Measured</h2>
-<p>Tested end to end on a local validator against the real Squads v4 program, dumped from mainnet, on November 7, 2026: 23 of 23 checks pass. The checks cover:</p>
+<p>Tested end to end on a local validator against the real Squads v4 program, dumped from mainnet, on November 7, 2026: 30 of 30 checks pass. The checks cover:</p>
 <ul>
 <li>humans alone can't pass a proposal;</li>
 <li>a wrong jury or wrong case is refused;</li>
@@ -168,7 +168,9 @@ tr:last-child td{border-bottom:0}
 <li>a rejection blocks the escape hatch;</li>
 <li>the escape hatch waits its delay;</li>
 <li>jurors are paid once;</li>
-<li>harnesses register and are discovered.</li>
+<li>harnesses register and are discovered;</li>
+<li>the encoder writes a policy on chain and reads it back;</li>
+<li>a commission covenant pays out when broken, and returns its bond when kept.</li>
 </ul>
 <p>Results: <a href="https://github.com/Verafyai/verafyHarness/blob/main/results/judiciary-localnet-v0.0.4.json">judiciary-localnet-v0.0.4.json</a>. Not yet deployed to devnet or mainnet.</p>
 <h2 id="try-it">Try it</h2>

@@ -238,6 +238,26 @@ export const POLICY_TEMPLATES = Object.freeze({
     judgment: ['Is this payment for the purpose the treasury exists for, as the proposal and its evidence describe?'],
     minTimeLockSeconds,
   }),
+  /**
+   * Commission covenant, the jury half (VIP-0016): the validator's bond sits in
+   * a policy wallet and returns to the validator only if it kept the promises
+   * code can't check (MEV commission, notice). The on-chain commission is
+   * checked by the verafy_covenant program, not here.
+   */
+  'commission-covenant': ({ validator, beneficiary, bond, promises, minTimeLockSeconds = 86_400, title }) => ({
+    kind: POLICY_KIND,
+    id: `commission-covenant:${validator}`,
+    title: title ?? 'Commission covenant',
+    intent: `This wallet holds validator ${validator}'s bond for its promises to stakers: ${promises}. The bond returns to the validator only if every promise was kept; otherwise it goes to stakers.`,
+    rules: [
+      { type: 'allow-programs', programs: [PROGRAMS.system, PROGRAMS.memo, PROGRAMS.computeBudget] },
+      { type: 'allow-recipients', addresses: [validator, beneficiary] },
+      { type: 'max-per-transaction', asset: 'SOL', amount: String(bond) },
+      { type: 'config-changes', mode: 'deny' },
+    ],
+    judgment: ['If the bond goes to the validator: did it keep every promise, judged from its published terms and on-chain history?', 'If the bond goes to stakers: does the evidence show a promise was broken?'],
+    minTimeLockSeconds,
+  }),
   /** Upgrade authority: the wallet may only hold a program's upgrade authority; config changes only. */
   'upgrade-authority': ({ minTimeLockSeconds = 604_800, title }) => ({
     kind: POLICY_KIND,
