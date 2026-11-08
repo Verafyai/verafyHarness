@@ -92,11 +92,17 @@ export function createAccountIx(from, account, lamports, space, owner) {
 /** A JSON-RPC client. */
 export function rpc(url, { fetch: f = globalThis.fetch } = {}) {
   let id = 0
+  // Public RPC endpoints rate-limit bursts: retry a throttled call with backoff.
   const call = async (method, params = []) => {
-    const res = await f(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: ++id, method, params }) })
-    const j = await res.json()
-    if (j.error) { const e = new Error(`${method}: ${j.error.message}`); e.data = j.error.data; throw e }
-    return j.result
+    for (let attempt = 0; ; attempt++) {
+      const res = await f(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: ++id, method, params }) })
+      const throttled = res.status === 429
+      const j = throttled ? null : await res.json()
+      if ((throttled || /too many requests/i.test(j?.error?.message ?? '')) && attempt < 8) { await new Promise(r => setTimeout(r, 500 * 2 ** attempt)); continue }
+      if (throttled) throw new Error(`${method}: rate limited`)
+      if (j.error) { const e = new Error(`${method}: ${j.error.message}`); e.data = j.error.data; throw e }
+      return j.result
+    }
   }
   return {
     call,
@@ -116,7 +122,7 @@ export function rpc(url, { fetch: f = globalThis.fetch } = {}) {
         const s = (await call('getSignatureStatuses', [[sig], { searchTransactionHistory: true }])).value[0]
         if (s?.err) throw Object.assign(new Error(`transaction failed: ${JSON.stringify(s.err)}`), { signature: sig, err: s.err })
         if (s && (s.confirmationStatus === 'confirmed' || s.confirmationStatus === 'finalized')) return sig
-        await new Promise(r => setTimeout(r, 800))
+        await new Promise(r => setTimeout(r, 1200))
       }
       throw new Error(`not confirmed in time: ${sig}`)
     },

@@ -50,7 +50,7 @@ if (have < need) {
   process.exit(3)
 }
 for (const p of todo) {
-  const out = cli('program', 'deploy', p.so, '--program-id', p.kp)
+  const out = cli('program', 'deploy', p.so, '--program-id', p.kp, '--use-rpc')
   p.signature = out.match(/Signature: (\w+)/)?.[1] ?? null
   console.log(`deployed ${p.name} at ${p.id}${p.signature ? ` (${p.signature.slice(0, 12)}...)` : ''}`)
 }

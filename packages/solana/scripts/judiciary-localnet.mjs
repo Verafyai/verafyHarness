@@ -86,12 +86,12 @@ const transferIx = (from, to, lamports) => ({ programId: new Uint8Array(32), key
 /** Fund an account: an airdrop on a local validator, a transfer from the payer on a live cluster. */
 const fund = async (address, lamports) => {
   if (!LIVE) return rpc.confirm(await rpc.airdrop(address, lamports))
-  return rpc.confirm(await rpc.send(buildTx([transferIx(payer.address, address, lamports)], payer, [payer], await rpc.blockhash())))
+  return rpc.send(buildTx([transferIx(payer.address, address, lamports)], payer, [payer], await rpc.blockhash()))
 }
 const send = async (ixs, signers = []) => rpc.send(buildTx(ixs, payer, [payer, ...signers], await rpc.blockhash()))
 const fails = async (ixs, signers = []) => { try { await send(ixs, signers); return null } catch (e) { return judiciaryError(e) ?? String(e.message).slice(0, 160) } }
 const slot = () => rpc.call('getSlot', [{ commitment: 'confirmed' }])
-const waitUntil = async s => { while ((await slot()) < s) await new Promise(r => setTimeout(r, 300)) }
+const waitUntil = async s => { while ((await slot()) < s) await new Promise(r => setTimeout(r, LIVE ? 1500 : 300)) }
 
 // ---- Setup: the jury, the signer config, the multisig ---------------------------
 const jurors = [keypair(), keypair(), keypair()]

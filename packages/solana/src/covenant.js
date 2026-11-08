@@ -31,5 +31,8 @@ export function decodeCovenant(data) {
 export function voteCommission(data) {
   const b = Buffer.from(data)
   const tag = b.readUInt32LE(0)
-  return tag === 1 || tag === 2 ? { withdrawer: b58encode(b.subarray(36, 68)), commission: b[68] } : null
+  if (tag === 1 || tag === 2) return { withdrawer: b58encode(b.subarray(36, 68)), commission: b[68] }
+  // VoteStateV4 (SIMD-0185): basis points at 132, rounded up to whole percent, as the program reads it.
+  if (tag === 3 && b.length >= 136) return { withdrawer: b58encode(b.subarray(36, 68)), commission: Math.min(255, Math.ceil(b.readUInt16LE(132) / 100)), commissionBps: b.readUInt16LE(132) }
+  return null
 }
