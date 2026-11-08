@@ -1,5 +1,5 @@
 /**
- * The eight MCP tools. Every handler calls packages/core; none accepts or
+ * The twelve MCP tools. Every handler calls packages/core; none accepts or
  * returns a key, none casts a vote, and none moves funds. The agent that loads
  * this server is a client of the harness, never a juror.
  *
@@ -11,6 +11,13 @@
  *   verafy_block      one block in full
  *   verafy_doctor     Node, config, pool, key presence, endpoints (live only)
  *   verafy_examples   the example contracts
+ *   verafy_agentic_check    an agentic contract (VIP-0029): terms, both signatures, the
+ *                           signed log, and what settles it without a jury
+ *   verafy_agentic_dispute  the Actually Smart Contract a dispute becomes
+ *   verafy_grant_ledger     a super grant (VIP-0030): the log, the cases to rule on, and what
+ *                           each grantee has earned from verified rulings
+ *   verafy_hackathon_results a hackathon grant (VIP-0031): submissions, the council's cases,
+ *                           and the ranking and prizes from verified rulings
  *
  * Text that came from a contract (context, instructions, questions, juror
  * reasoning) is returned only under `evidence`, with EVIDENCE_NOTE.
@@ -23,6 +30,9 @@ import { dirname, isAbsolute, join, resolve } from 'node:path'
 import {
   Harness, drawJuryFor, rule, seal, validate, pin, ascHash, contextHash,
   mockProvider, openaiProvider, createRouter, configPath, envValue, CONFIG_FILE,
+  validateAgentic, verifyAgentic, agenticHash, replayAgentic, settlementFromLog, disputeContract, payouts,
+  validateGrant, grantHash, replayGrant, reviewContract, outcomeContract, grantLedger,
+  validateHackathon, hackathonHash, replayHackathon, judgingContract, hackathonResults,
 } from '../../core/src/index.js'
 import { ROOT, ToolError, inWorkspace, insideWorkspace, readContractFile } from './workspace.js'
 import { createMeter, modelCallUsd, modelRunUsd, DEFAULT_PRICE, MODEL_OUTPUT_TOKENS } from './cost.js'
@@ -121,6 +131,34 @@ export const TOOL_DEFINITIONS = [
     description: 'Without name: the example contracts that ship with the harness. With name: that example in full, under evidence. Read only.',
     inputSchema: { type: 'object', properties: { name: { type: 'string', description: 'An example name, such as market-resolution.' } }, additionalProperties: false },
     annotations: { title: 'List example contracts', ...READ_ONLY },
+  },
+  {
+    name: 'verafy_agentic_check',
+    title: 'Check an agentic contract',
+    description: 'Check an agentic contract between two agents (VIP-0029): the terms, both signatures, and, with a log, every signed event in the hash chain. Returns { ok, hash, problems[], signed[], state, facts, settlement, payouts }: settlement is what the log alone settles (a mutual release, an accepted delivery, a default) or null when only a jury can decide. Never signs: each agent signs with its own key, outside this server. Read only.',
+    inputSchema: { type: 'object', properties: { contract: { type: 'object', description: 'The agentic contract (verafy.agentic-contract/1).' }, log: { type: 'array', description: 'The signed event log, oldest first.' }, now: { type: 'number', description: 'Unix seconds; defaults to the current time.' } }, required: ['contract'], additionalProperties: false },
+    annotations: { title: 'Check an agentic contract', ...READ_ONLY },
+  },
+  {
+    name: 'verafy_agentic_dispute',
+    title: 'Build a dispute contract',
+    description: 'Turn an open dispute on an agentic contract into the Actually Smart Contract the Verafy judiciary rules on: the signed terms and deterministic facts from the log as pinned context, each party\'s statements as untrusted text, and one exit per remedy. Returns { hash, options, facts } and the contract under evidence; run it with verafy_run. Read only.',
+    inputSchema: { type: 'object', properties: { contract: { type: 'object', description: 'The agentic contract.' }, log: { type: 'array', description: 'The signed event log, ending in an open dispute.' }, now: { type: 'number', description: 'Unix seconds; defaults to the current time.' } }, required: ['contract', 'log'], additionalProperties: false },
+    annotations: { title: 'Build a dispute contract', ...READ_ONLY },
+  },
+  {
+    name: 'verafy_grant_ledger',
+    title: 'Check a super grant',
+    description: 'Check a super grant (VIP-0030): the program, every signed event, and with rulings what each grantee has earned (base grants on admission, tranches only after a cleared response and a met outcome, the rest back to the foundation after the end). Returns { ok, hash, problems[], status[], entitlements[], pending[], cases[] }; each case is a review or outcome contract to run with verafy_run, under evidence. Read only; never signs or pays.',
+    inputSchema: { type: 'object', properties: { program: { type: 'object', description: 'The super grant (verafy.super-grant/1).' }, log: { type: 'array', description: 'The signed event log, oldest first.' }, rulings: { type: 'array', description: 'Sealed rulings, each { asc, ruling }.' }, now: { type: 'number', description: 'Unix seconds; defaults to the current time.' } }, required: ['program'], additionalProperties: false },
+    annotations: { title: 'Check a super grant', ...READ_ONLY },
+  },
+  {
+    name: 'verafy_hackathon_results',
+    title: 'Check a hackathon grant',
+    description: 'Check a hackathon grant (VIP-0031): the program, every submission (GitHub repository pinned to a commit), and with the council\'s rulings the ranking and the prizes. Results are final only after the window closes and every live submission has a verified ruling. Returns { ok, hash, final, problems[], pending[], ranking[], entitlements[], cases[] }; each case is the graded contract for one submission, under evidence. Read only.',
+    inputSchema: { type: 'object', properties: { program: { type: 'object', description: 'The hackathon (verafy.hackathon/1).' }, log: { type: 'array', description: 'The signed event log, oldest first.' }, rulings: { type: 'array', description: 'Sealed rulings, each { asc, ruling }.' }, now: { type: 'number', description: 'Unix seconds; defaults to the current time.' } }, required: ['program'], additionalProperties: false },
+    annotations: { title: 'Check a hackathon grant', ...READ_ONLY },
   },
 ]
 
@@ -311,6 +349,53 @@ export function createTools({ workspace, allowLive = false, configFile, fetch: f
         out.written = file
       }
       return { ...out, evidence: { note: EVIDENCE_NOTE, contract: pinned } }
+    },
+
+    async verafy_agentic_check(args) {
+      const c = args.contract
+      const now = args.now ?? Math.floor(Date.now() / 1000)
+      const problems = validateAgentic(c)
+      if (problems.length) return { ok: false, hash: null, problems, signed: [], state: null, facts: null, settlement: null, payouts: [] }
+      const sig = verifyAgentic(c)
+      const r = args.log ? replayAgentic(c, args.log, { now }) : null
+      const settlement = r ? settlementFromLog(c, r, now) : null
+      return { ok: sig.ok && (!r || r.ok), hash: agenticHash(c), problems: [...sig.problems, ...(r?.problems ?? [])], signed: sig.signed,
+        state: r?.state ?? null, facts: r?.facts ?? null, settlement, payouts: settlement ? payouts(c, settlement) : [] }
+    },
+
+    async verafy_agentic_dispute(args) {
+      const now = args.now ?? Math.floor(Date.now() / 1000)
+      let built
+      try { built = disputeContract(args.contract, args.log, { now }) } catch (err) { throw new ToolError('INVALID_CONTRACT', err.message, 'The log must replay cleanly and end in an open dispute; check it with verafy_agentic_check.') }
+      return { hash: ascHash(built.asc), options: built.asc.question.answer.options, facts: built.replay.facts, evidence: { note: EVIDENCE_NOTE, contract: built.asc } }
+    },
+
+    async verafy_grant_ledger(args) {
+      const g = args.program
+      const problems = validateGrant(g)
+      if (problems.length) return { ok: false, hash: null, problems, status: [], entitlements: [], pending: [], cases: [] }
+      const log = args.log ?? []
+      const now = args.now ?? Math.floor(Date.now() / 1000)
+      const r = replayGrant(g, log)
+      const l = grantLedger(g, log, args.rulings ?? [], { now })
+      const cases = []
+      for (const [id, x] of r.grantees) {
+        if (x.response) cases.push(reviewContract(g, log, id))
+        for (const t of x.claims.keys()) cases.push(outcomeContract(g, log, id, t))
+      }
+      return { ok: l.ok, hash: grantHash(g), problems: l.problems, status: l.status, entitlements: l.entitlements, pending: l.pending, cases: cases.map(c => ({ hash: ascHash(c), title: c.title })), evidence: { note: EVIDENCE_NOTE, contracts: cases } }
+    },
+
+    async verafy_hackathon_results(args) {
+      const h = args.program
+      const problems = validateHackathon(h)
+      if (problems.length) return { ok: false, hash: null, final: false, problems, pending: [], ranking: [], entitlements: [], cases: [] }
+      const log = args.log ?? []
+      const now = args.now ?? Math.floor(Date.now() / 1000)
+      const r = replayHackathon(h, log)
+      const res = hackathonResults(h, log, args.rulings ?? [], { now })
+      const cases = now > h.window.closesAt ? [...r.teams.values()].filter(t => !t.withdrawn).map(t => judgingContract(h, log, t.id)) : []
+      return { ok: res.ok, hash: hackathonHash(h), final: res.final, problems: res.problems, pending: res.pending, ranking: res.ranking, entitlements: res.entitlements, cases: cases.map(c => ({ hash: ascHash(c), title: c.title })), evidence: { note: EVIDENCE_NOTE, contracts: cases } }
     },
 
     async verafy_hash(args) {

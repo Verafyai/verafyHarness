@@ -1,0 +1,72 @@
+{
+  "kind": "verafy.super-grant/1",
+  "id": "agent-payments-rfi-1",
+  "title": "Agents that pay each other",
+  "foundation": {
+    "name": "Example Foundation",
+    "key": "MCowBQYDK2VwAyEAZgPTCDqMSKu8q9l+k5+NomWEM6lGpxuyqG9EM8bdfV0=",
+    "wallet": "FoundationWallet11111111111111111111111111"
+  },
+  "request": {
+    "summary": "We want working tools that let one AI agent pay another for a service on Solana, with a receipt both sides can check.",
+    "terms": [
+      {
+        "id": "prototype",
+        "text": "Ships a working prototype in a public GitHub repository."
+      },
+      {
+        "id": "license",
+        "text": "The code is open source under MIT or Apache-2.0."
+      },
+      {
+        "id": "solana",
+        "text": "Payments settle on Solana devnet or mainnet, with a transaction signature shown."
+      }
+    ],
+    "responseSeconds": 1209600,
+    "responseEvidence": "A write-up with the repository link, the license and one transaction signature"
+  },
+  "agentTerms": {
+    "text": "The grantee runs its AI agents under these terms: no custody of user funds, every payment logged with a receipt, and the Verafy review is final for this grant."
+  },
+  "money": {
+    "asset": "SOL",
+    "budget": "20000000000",
+    "baseGrant": "2000000000",
+    "maxGrantees": 2
+  },
+  "tranches": [
+    {
+      "id": "revenue-1k",
+      "outcome": "Revenue",
+      "text": "At least $1,000 received from at least five paying customers who are not the grantee or the foundation.",
+      "evidence": "A payment processor export or on-chain receipts, with customer counts",
+      "amount": "5000000000",
+      "claimSeconds": 7776000
+    },
+    {
+      "id": "integration",
+      "outcome": "Integration",
+      "text": "Another team ships the tool in a product, shown by a public release that uses it.",
+      "evidence": "A link to the release and the line that uses it",
+      "amount": "3000000000",
+      "claimSeconds": 7776000
+    }
+  ],
+  "followOn": {
+    "instrument": "post-money-safe",
+    "text": "The foundation may invest up to $250,000 on a post-money SAFE at a $10M cap within 6 months of a met revenue tranche."
+  },
+  "window": {
+    "applyUntil": 1800864000,
+    "endsAt": 1810368000
+  },
+  "review": {
+    "bar": 0.66,
+    "jury": {
+      "size": 3,
+      "minFamilies": 3
+    },
+    "fee": 0.05
+  }
+}

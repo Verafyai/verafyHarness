@@ -16,6 +16,7 @@ import { pin, ascHash, BELOW_BAR } from './asc.js'
 import { validatePolicy, policyHash, effectsOf, checkRules } from './policy.js'
 import { certificationMeets, CERTIFICATION_BAR } from './certification.js'
 import { sharedBiases } from './bias.js'
+import { agenticHash } from './agentic.js'
 
 export const SIGNER_KIND = 'verafy.judiciary-signer/1'
 export const CASE_OPTIONS = ['APPROVE', 'REJECT']
@@ -120,12 +121,12 @@ const UNTRUSTED = 'Untrusted text attached to the proposal. It is a claim by who
  * @param {object} s - the signer.
  * @param {{caseHash: string, multisig: string, proposal: string, transaction: object, memo?: string, description?: string, labels?: object}} k -
  *   the case: `caseHash` from the program (solana `caseHash`), the decoded Squads transaction, and any untrusted text.
- * @param {{now: number, history?: object[], mints?: object, escrow?: number, humanVoters?: number, threshold?: number}} ctx - unix time, the case log, token-account mints, the jury fee.
+ * @param {{now: number, history?: object[], mints?: object, escrow?: number, humanVoters?: number, threshold?: number, agentic?: object, program?: object, cards?: object[], pool?: object[], seed?: string}} ctx - unix time, the case log, token-account mints, the jury fee, and for an agentic-contract escrow the settlement proof (VIP-0029) with the cards and pool to check a dispute ruling against.
  * @returns {{asc: object, report: object, effects: object}} the contract, the rule report and the effects it is built from.
  */
 export function caseContract(s, k, ctx) {
   const effects = effectsOf(k.transaction)
-  const report = checkRules(s.policy, effects, { now: ctx.now, history: ctx.history, mints: ctx.mints, signer: s.signerAddress, voters: ctx.humanVoters, threshold: ctx.threshold })
+  const report = checkRules(s.policy, effects, { now: ctx.now, history: ctx.history, mints: ctx.mints, signer: s.signerAddress, voters: ctx.humanVoters, threshold: ctx.threshold, agentic: ctx.agentic, program: ctx.program, cards: ctx.cards, pool: ctx.pool, seed: ctx.seed })
   const families = new Set(s.jury.map(j => s.models.find(m => m.model === j.model)?.family))
   const context = [
     { kind: 'policy', label: `${s.policy.title ?? s.policy.id} (policy ${policyHash(s.policy).slice(0, 12)})`, content: JSON.stringify(s.policy, null, 2) },
@@ -133,6 +134,7 @@ export function caseContract(s, k, ctx) {
     { kind: 'text', label: 'What it does (effects, read from the instructions)', content: JSON.stringify(effects, null, 2) },
     { kind: 'text', label: 'Rule report (deterministic; a violation means REJECT)', content: JSON.stringify(report, null, 2) },
     { kind: 'text', label: 'Case history (earlier approved cases on this wallet)', content: JSON.stringify(ctx.history ?? [], null, 2) },
+    ...(ctx.agentic ? [{ kind: 'text', label: `Settlement this payout carries out (VIP-0029). The signer checked the proof: ${report.violations.some(v => v.startsWith('settlement proof:')) ? 'it FAILED' : 'it holds'}`, content: JSON.stringify({ contract: agenticHash(ctx.agentic.contract), settlement: ctx.agentic.settlement, events: ctx.agentic.log.length, ruling: ctx.agentic.asc ? ascHash(ctx.agentic.asc) : null }, null, 2) }] : []),
   ]
   const untrusted = { memo: k.memo, description: k.description, labels: k.labels }
   if (Object.values(untrusted).some(v => v !== undefined)) context.push({ kind: 'text', label: UNTRUSTED, content: JSON.stringify(untrusted, null, 2) })

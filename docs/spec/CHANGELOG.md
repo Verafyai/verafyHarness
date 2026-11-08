@@ -2,6 +2,25 @@
 
 Versions follow semantic versioning with a pre-release tag. Requirement IDs never change meaning. See [VERAFY-SPEC.md](VERAFY-SPEC.md) for the rules.
 
+## v0.0.5-alpha, November 8, 2026
+
+ASC templates for agreements and funding: agentic contracts, super grants, hackathon grants and a DAO constitution. VIP-0029 to VIP-0032 are shipped, with what is still open named in each status. Scored 68% overall across 141 requirements (four new: SIGN-007 to SIGN-010).
+
+**New in the spec**
+- SIGN-007 agentic contracts, SIGN-008 super grants, SIGN-009 hackathon grants, SIGN-010 DAO constitution, with VIP-0029 to VIP-0032.
+
+**New in the code**
+- `packages/core/src/agentic.js`: agentic contracts between two agents: signed terms and remedies, a signed hash-chained log, settlement by mutual release, acceptance, default or ruling, disputes as ASCs, settlement proofs the judiciary signer checks itself, and a two-of-three escrow check.
+- `packages/core/src/grants.js`: super grants: a Request for Ideas, agent terms, base grants, response and outcome reviews, outcome tranches, refunds.
+- `packages/core/src/hackathon.js`: hackathon grants: GitHub submissions pinned to a commit, graded council contracts, ranking, prizes.
+- `packages/core/src/programlog.js`: signed logs for programs with many participants, ruling checks against contracts rebuilt from the log, and the entitlement payout check.
+- `policy.js`: the `agentic-settlement` and `program-payout` rules; the `agentic-contract`, `super-grant`, `hackathon` and `dao-constitution` templates.
+- MCP: `verafy_agentic_check`, `verafy_agentic_dispute`, `verafy_grant_ledger`, `verafy_hackathon_results` (twelve tools, all new ones read only).
+- Demos: `scripts/agentic-demo.mjs`, `scripts/grant-demo.mjs`, `scripts/hackathon-demo.mjs`.
+
+**Not yet**
+- None of the four is on devnet.
+
 ## v0.0.4-alpha, November 7, 2026
 
 The Judiciary Signer, the harness registry, attestation, bias profiles, the encoder, the commission covenant and asset transfer records. Every VIP from 0001 to 0019 is shipped, with anything still open named in its status. Scored 68% overall across 137 requirements (eight new: SIGN-001 to SIGN-006, NET-001, NET-002).

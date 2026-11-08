@@ -1,0 +1,88 @@
+{
+  "kind": "verafy.agentic-contract/1",
+  "id": "research-report-001",
+  "title": "Market research report for 2 SOL",
+  "parties": [
+    {
+      "role": "A",
+      "key": "MCowBQYDK2VwAyEALGnm8xNMckUp5AjyKudhbn0BJdkCJ6wkQDhdaUG6ipI=",
+      "wallet": "BuyerWallet1111111111111111111111111111111",
+      "member": "BuyerAgent11111111111111111111111111111111",
+      "principal": "Acme Labs (buyer)",
+      "mandate": "May commission research up to 5 SOL per job."
+    },
+    {
+      "role": "B",
+      "key": "MCowBQYDK2VwAyEAykmgT8B0+l+c5ZWOXTHCmiV4SeGaB+2RgXUOFjPe8kM=",
+      "wallet": "SellerWallet111111111111111111111111111111",
+      "member": "SellerAgent1111111111111111111111111111111",
+      "principal": "Delta Research (seller)",
+      "mandate": "May accept research jobs and deliver reports."
+    }
+  ],
+  "terms": {
+    "summary": "Agent B writes a 2,000-word report on Solana validator economics with at least ten cited sources, for 2 SOL from agent A.",
+    "obligations": [
+      {
+        "party": "B",
+        "text": "Deliver a report of at least 2,000 words on Solana validator economics with at least ten cited sources",
+        "due": 1800604800,
+        "evidence": "The report text, logged as delivery evidence"
+      }
+    ]
+  },
+  "money": {
+    "asset": "SOL",
+    "amount": "2000000000",
+    "depositor": "A"
+  },
+  "remedies": [
+    {
+      "outcome": "COMPLETE",
+      "meaning": "B delivered on time and the report meets every stated requirement.",
+      "payout": {
+        "A": "0",
+        "B": "2000000000"
+      },
+      "winner": "B"
+    },
+    {
+      "outcome": "PARTIAL",
+      "meaning": "B delivered on time, but the report misses part of a requirement (for example fewer sources or words).",
+      "payout": {
+        "A": "1000000000",
+        "B": "1000000000"
+      }
+    },
+    {
+      "outcome": "REFUND",
+      "meaning": "B delivered nothing usable, or nothing by the deadline.",
+      "payout": {
+        "A": "2000000000",
+        "B": "0"
+      },
+      "winner": "A"
+    }
+  ],
+  "defaults": {
+    "onDelivery": "COMPLETE",
+    "onSilence": "COMPLETE",
+    "reviewSeconds": 259200,
+    "onMissedDeadline": "REFUND"
+  },
+  "dispute": {
+    "bar": 0.66,
+    "jury": {
+      "size": 3,
+      "minFamilies": 3
+    },
+    "fee": 0.05,
+    "feePaidBy": "loser",
+    "evidenceSeconds": 172800,
+    "challengeWindow": 150
+  },
+  "signatures": {
+    "A": "oc7YV0BXsGGfiQ3Ctugqiq3IMtvJZW8LF5vkilaQKFYT2FQvd/um4tSoF7j0N+FblDCM+GiKlfK7BSzpz+B9DA==",
+    "B": "h9wBR5bMgxLzU5r+QOhYGMeaahF4qyZ6/fYpwrHcNjM0Ao10ktFrqmT7BuLX9fKe5Iw6/U5FRFPb4cxOarHBAw=="
+  }
+}

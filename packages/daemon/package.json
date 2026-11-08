@@ -1,6 +1,6 @@
 {
   "name": "@verafyharness/daemon",
-  "version": "0.0.4-alpha",
+  "version": "0.0.5-alpha",
   "description": "The harness daemon: keeps one harness online for Verafy Chain nodes. Registers, watches mempools, admits funded contracts, serves commit, reveal and proof, and keeps open commitments across restarts.",
   "type": "module",
   "license": "MIT",
