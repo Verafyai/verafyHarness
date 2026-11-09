@@ -1,4 +1,4 @@
-# Verafy Harness, full text (v0.0.4-alpha)
+# Verafy Harness, full text (v0.0.5-alpha)
 
 The Learn pages, then the specification. Generated from the site sources.
 
@@ -810,7 +810,7 @@ Source: https://harness.verafy.ai/learn/commission-covenant
 **Version 0.0.2-alpha**, November 6, 2026. Covers Verafy Harness (this repo) and Verafy Chain ([Verafyai/verafyChain](https://github.com/Verafyai/verafyChain)).
 
 <!-- score -->
-**Scored 68% overall** at v0.0.4-alpha (see [SCORECARD.md](SCORECARD.md)).
+**Scored 68% overall** at v0.0.5-alpha (see [SCORECARD.md](SCORECARD.md)).
 <!-- /score -->
 
 This is an alpha spec for a prototype. Nothing here describes a running network, and there is no token. Every number is labeled **measured** (our own runs, with a date), **vendor-reported** (by whoever built the tool), **modeled** (computed from those, in `packages/economics`) or **illustrative** (an assumption to replace).
@@ -913,6 +913,11 @@ A Judiciary Signer is a member of a Squads multisig that no person holds a key f
 | SIGN-004 | built | Asset transfer records: physical item sales ruled on photos and serial numbers, with ownership and transfer records localized per country. *Gap: Scripted multimodal jury only; the localizer formats per country and flags registered categories, without country-specific legal rules.* |
 | SIGN-005 | built | Commission covenant: a validator bonds a promise not to raise fees on stakers. *Gap: Local validator only; pays one beneficiary account, not stakers pro rata; reads vote account versions 1 and 2.* |
 | SIGN-006 | built | Bias profiles: paired probes measure how a model leans (order, authority, framing, position, roles, anchors, length, approve rate, confidence, consistency), maps and least-shared-bias juries, and unannounced probes disguised as live cases. *Gap: No real model profiled yet; probes are written for escrow cases, not yet for wallet cases.* |
+| SIGN-007 | built | Agentic contracts (VIP-0029): two agents sign terms with exact remedies, a signed hash-chained event log, settlement by mutual release, acceptance, default or jury ruling, a dispute ASC with untrusted statements, and a two-of-three Squads escrow whose judiciary signer checks a settlement proof itself. *Gap: Not on devnet; principals do not yet sign mandates; dispute fees are computed, not collected on chain; one depositor per contract.* |
+| SIGN-008 | built | Super grants (VIP-0030): a Request for Ideas with terms and agent terms, base grants on admission, jury review of each response (CLEARED or NOT_CLEARED) and of each outcome claim (MET or NOT_MET), outcome tranches, refund after the end, and a program escrow whose signer verifies every ruling and pays only earned entitlements once. *Gap: Not on devnet; outcome evidence is pinned by the grantee, not signed by a payment processor; follow-on instruments are recorded, not executed.* |
+| SIGN-009 | built | Hackathon grants (VIP-0031): a prize pool with weighted criteria and prize shares, GitHub submissions pinned to a commit inside a window, one graded council contract per submission, a ranking with deterministic tie breaks and a minimum score, and a prize escrow that pays exactly the ranking once. *Gap: Not on devnet; no real model council has graded a real repository; no team identity beyond a key.* |
+| SIGN-010 | built | DAO constitution template (VIP-0032): the constitution pinned by hash in the policy id, per-proposal and per-quarter caps in code, and one jury question per article. *Gap: Amendments need a new policy and a signer swap.* |
+| SIGN-011 | built | Agent bonds (VIP-0033): an operator bonds its agent's behavior under priced articles; anyone reports a violation with evidence and a reporter bond; a jury rules VIOLATED or CLEAN; the escrow slashes to the harmed party, the reporter or a beneficiary, returns or forfeits reporter bonds, and returns the rest after the term. *Gap: Not on devnet; agents don't yet sign their outputs, so evidence strength varies; no bond top-up.* |
 <!-- /reqs:SIGN -->
 
 ## NET: harness registry, discovery, pay and attestation

@@ -57,26 +57,15 @@ MENU = [
 TABS = [item for _, items in MENU for item in items]
 
 HEADER_CSS = r"""
-.top{display:flex;align-items:center;gap:14px;padding-block:18px;border-bottom:1px solid var(--rule);position:relative;flex-wrap:nowrap}
-.top .brand{margin-right:auto;white-space:nowrap}
-.ver{font-family:var(--mono);font-size:13px;color:var(--accent);border:1px solid currentColor;padding:4px 9px;border-radius:2px;text-decoration:none;white-space:nowrap}
-.ver:hover{background:var(--accent-soft)}
-.menu{position:relative}
-.menu>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:9px;font-family:var(--display);font-weight:600;font-size:15px;color:var(--ink);border:1px solid var(--rule);border-radius:2px;padding:7px 11px;background:var(--sheet);user-select:none}
-.menu>summary::-webkit-details-marker{display:none}
-.menu>summary:hover,.menu[open]>summary{border-color:var(--ink)}
-.burger{display:inline-flex;flex-direction:column;gap:3.5px}.burger i{display:block;width:17px;height:2px;background:currentColor;border-radius:1px}
-.menu[open] .burger i:nth-child(1){transform:translateY(5.5px) rotate(45deg)}.menu[open] .burger i:nth-child(2){opacity:0}.menu[open] .burger i:nth-child(3){transform:translateY(-5.5px) rotate(-45deg)}
-.menu nav{position:absolute;right:0;top:calc(100% + 8px);z-index:50;width:min(300px,calc(100vw - 32px));background:var(--sheet);border:1px solid var(--rule);border-top:3px solid var(--accent);border-radius:3px;padding:10px 0;box-shadow:0 12px 32px rgba(15,21,27,.18)}
-.menu nav .grp{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);padding:10px 18px 4px}
-.menu nav a{display:block;padding:8px 18px;font-family:var(--display);font-weight:600;font-size:15.5px;color:var(--ink);text-decoration:none;border-left:3px solid transparent}
-.menu nav a:hover{background:var(--paper);border-left-color:var(--rule)}
-.menu nav a[aria-current="page"]{border-left-color:var(--accent);color:var(--accent)}
-.menu nav hr{border:0;border-top:1px solid var(--rule);margin:8px 0}
-@media (max-width:420px){.menu>summary .lab{display:none}.ver{font-size:12px;padding:3px 7px}.top{gap:10px}.top .brand{font-size:17px;gap:7px}.top .brand .mark{width:24px;height:24px}}
+verafy-header{display:block;min-height:64px;background:#0B0E12}
+.vh-ver{font-family:var(--mono);font-size:13px;color:#5FE0C8;text-decoration:none}
+.vh-menu{display:flex;flex-direction:column}
+.vh-menu .grp{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:#8A96A3;padding:16px 0 4px}
+.vh-menu a{display:block;padding:10px 0;color:#C9D2DC;text-decoration:none;font-size:15px;border-bottom:1px solid #1D2630}
+.vh-menu a:hover{color:#fff}
+.vh-menu a[aria-current="page"]{color:#5FE0C8}
 """
 
-MENU_JS = """<script>(function(){var d=document.querySelector('.menu');if(!d)return;document.addEventListener('click',function(e){if(d.open&&!d.contains(e.target))d.open=false});document.addEventListener('keydown',function(e){if(e.key==='Escape')d.open=false})})();</script>"""
 
 FONTS = ('<link rel="preconnect" href="https://fonts.googleapis.com">'
          '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
@@ -161,19 +150,15 @@ def head(title, desc, path, css):
 
 
 def header(current):
+    """The canonical Verafy header (www.verafy.ai/header/v1), with the full site menu in its menu slot."""
     groups = []
-    for i, (name, items) in enumerate(MENU):
+    for name, items in MENU:
         links = ''.join(f'<a href="{h}"{" aria-current=\"page\"" if l == current else ""}>{l}</a>' for h, l in items)
-        groups.append(('<hr>' if i else '') + f'<div class="grp">{name}</div>{links}')
-    return (f'''<header class="wrap top">
-  <a class="brand" href="/">{MARK}Verafy Harness</a>
-  <a class="ver" href="{RELEASE}" title="Release notes for v{VERSION}">v{VERSION}</a>
-  <details class="menu">
-    <summary aria-label="Menu"><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><span class="lab">Menu</span></summary>
-    <nav aria-label="Site">{''.join(groups)}</nav>
-  </details>
-</header>
-{MENU_JS}
+        groups.append(f'<div class="grp">{name}</div>{links}')
+    return (f'''<verafy-header product="harness" links="Learn:/learn, Launch a harness:/launch, Specification:/spec">
+  <a slot="status" class="vh-ver" href="{RELEASE}" title="Release notes for v{VERSION}">v{VERSION}</a>
+  <div slot="menu" class="vh-menu">{''.join(groups)}</div>
+</verafy-header>
 ''')
 
 
@@ -210,7 +195,7 @@ def landing():
     css = (SRC / 'landing.css').read_text() + LANDING_EXTRA
     body = (SRC / 'landing.html').read_text().replace('@@FIGURE@@', (SRC / 'harness-figure.html').read_text().rstrip())
     out = (head('Verafy Harness', 'An AI validator anyone can run: one model in a harness that rules on contracts written in words, holds its own keys and pays its own bills. No token.', '/', css)
-           + COINFREE + '\n' + header('Verafy Harness') + '\n<main class="wrap">\n' + body + '</main>\n\n' + FOOT + '\n</body>\n</html>\n')
+           + header('Verafy Harness') + '\n' + COINFREE + '\n<main class="wrap">\n' + body + '</main>\n\n' + FOOT + '\n</body>\n</html>\n')
     check('index.html', out)
     (SITE / 'index.html').write_text(out)
 
@@ -285,7 +270,7 @@ def doc(src, out, path, tab, desc):
     m = markdown.Markdown(extensions=['tables', 'fenced_code', 'toc'], extension_configs={'toc': {'toc_depth': '2-3'}})
     body = m.convert(text)
     body = body.replace('<table>', '<div class="tbl"><table>').replace('</table>', '</table></div>')
-    page = (head(title, desc, path, DOC_CSS) + COINFREE + '\n' + header(tab)
+    page = (head(title, desc, path, DOC_CSS) + header(tab) + '\n' + COINFREE
             + f'<div class="wrap layout"><aside class="side" aria-label="On this page"><span class="lbl">On this page</span>{m.toc}</aside><article>{body}</article></div>\n'
             + FOOT + '\n' + TOC_JS + '\n</body>\n</html>\n')
     check(out, page)
@@ -352,7 +337,7 @@ def economics():
     menu = '<ul>' + ''.join(f'<li><a href="#{a}">{t}</a></li>' for a, t in ECON_MENU) + '</ul>'
     body = (SRC / 'economics.html').read_text()
     page = (head('Economics and proof packing', 'What it costs to prove AI rulings, how proof packing cuts it, and what proving operators and verifiers earn. Modeled, with every source named.', '/economics', DOC_CSS + ECON_CSS)
-            + COINFREE + '\n' + header('Economics')
+            + header('Economics') + '\n' + COINFREE
             + f'<div class="wrap layout"><aside class="side" aria-label="On this page"><span class="lbl">Economics</span>{menu}</aside><article class="wide">{body}</article></div>\n'
             + FOOT + '\n' + TOC_JS.replace("hs.forEach(function(h){if(h.offsetTop<=y)cur=h.id})", "hs.forEach(function(h){if(h.offsetTop<=y)cur=h.id})") + f'\n<script>\n{js}\n</script>\n</body>\n</html>\n')
     check('economics.html', page)
@@ -436,7 +421,7 @@ def md_page(md_text, out, path, title, desc, current, side='On this page', fixes
 
 
 def write_page(out, path, title, desc, current, body, toc, side='On this page'):
-    page = (head(title, desc, path, DOC_CSS + SPEC_CSS) + COINFREE + '\n' + header(current)
+    page = (head(title, desc, path, DOC_CSS + SPEC_CSS) + header(current) + '\n' + COINFREE
             + f'<div class="wrap layout"><aside class="side" aria-label="{side}"><span class="lbl">{side}</span>{toc}</aside><article>{body}</article></div>\n'
             + FOOT + '\n' + TOC_JS + '\n</body>\n</html>\n')
     check(out, page)
@@ -521,7 +506,7 @@ def launch():
     body = (SRC / 'launch.html').read_text()
     toc = '<ul>' + ''.join(f'<li><a href="#{a}">{t}</a></li>' for a, t in [('quick', 'The quick way'), ('try', 'A testnet for free'), ('configure', 'Configure one'), ('hardware', 'Models by machine'), ('hosted', 'Hosted harnesses'), ('safety', 'Keys and safety')]) + '</ul>'
     page = (head('Launch a harness', 'Launch a Verafy Harness on your machine, in Docker, on DigitalOcean or Hetzner, or on any cloud. Pick a model; get the command, the first-boot script or a one-click button.', '/launch', DOC_CSS + LAUNCH_CSS)
-            + COINFREE + '\n' + header('Launch a harness')
+            + header('Launch a harness') + '\n' + COINFREE
             + f'<div class="wrap layout"><aside class="side" aria-label="On this page"><span class="lbl">Launch</span>{toc}</aside><article class="wide">{body}</article></div>\n'
             + FOOT + '\n' + TOC_JS + f'\n<script>\n{js}\n</script>\n</body>\n</html>\n')
     check('launch.html', page)

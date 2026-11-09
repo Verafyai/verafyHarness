@@ -3,25 +3,25 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Verafy specification v0.0.4-alpha</title>
-<meta name="description" content="The Verafy Harness and Verafy Chain specification, v0.0.4-alpha: every requirement with a stable ID and a status, checked against the code by a scoring pass.">
+<title>Verafy specification v0.0.5-alpha</title>
+<meta name="description" content="The Verafy Harness and Verafy Chain specification, v0.0.5-alpha: every requirement with a stable ID and a status, checked against the code by a scoring pass.">
 <link rel="icon" href="/logo.svg" type="image/svg+xml">
 <link rel="canonical" href="https://harness.verafy.ai/spec">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Verafy Harness">
-<meta property="og:title" content="Verafy specification v0.0.4-alpha">
-<meta property="og:description" content="The Verafy Harness and Verafy Chain specification, v0.0.4-alpha: every requirement with a stable ID and a status, checked against the code by a scoring pass.">
+<meta property="og:title" content="Verafy specification v0.0.5-alpha">
+<meta property="og:description" content="The Verafy Harness and Verafy Chain specification, v0.0.5-alpha: every requirement with a stable ID and a status, checked against the code by a scoring pass.">
 <meta property="og:url" content="https://harness.verafy.ai/spec">
 <meta property="og:image" content="https://harness.verafy.ai/banner.png">
 <meta property="og:image:width" content="1280">
 <meta property="og:image:height" content="640">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://harness.verafy.ai/banner.png">
-<meta name="twitter:title" content="Verafy specification v0.0.4-alpha">
-<meta name="twitter:description" content="The Verafy Harness and Verafy Chain specification, v0.0.4-alpha: every requirement with a stable ID and a status, checked against the code by a scoring pass.">
+<meta name="twitter:title" content="Verafy specification v0.0.5-alpha">
+<meta name="twitter:description" content="The Verafy Harness and Verafy Chain specification, v0.0.5-alpha: every requirement with a stable ID and a status, checked against the code by a scoring pass.">
 <link rel="alternate" type="text/plain" title="llms.txt" href="/llms.txt">
 <link rel="alternate" type="application/rss+xml" title="Verafy Harness release notes" href="/blog/feed.xml">
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"Verafy specification v0.0.4-alpha","description":"The Verafy Harness and Verafy Chain specification, v0.0.4-alpha: every requirement with a stable ID and a status, checked against the code by a scoring pass.","url":"https://harness.verafy.ai/spec","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"Verafy Harness","url":"https://harness.verafy.ai/"},"author":{"@type":"Organization","name":"Verafy","url":"https://verafy.ai"},"publisher":{"@type":"Organization","name":"Verafy","url":"https://verafy.ai"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Verafy Harness","item":"https://harness.verafy.ai/"},{"@type":"ListItem","position":2,"name":"Verafy specification v0.0.4-alpha","item":"https://harness.verafy.ai/spec"}]}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"Verafy specification v0.0.5-alpha","description":"The Verafy Harness and Verafy Chain specification, v0.0.5-alpha: every requirement with a stable ID and a status, checked against the code by a scoring pass.","url":"https://harness.verafy.ai/spec","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"Verafy Harness","url":"https://harness.verafy.ai/"},"author":{"@type":"Organization","name":"Verafy","url":"https://verafy.ai"},"publisher":{"@type":"Organization","name":"Verafy","url":"https://verafy.ai"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Verafy Harness","item":"https://harness.verafy.ai/"},{"@type":"ListItem","position":2,"name":"Verafy specification v0.0.5-alpha","item":"https://harness.verafy.ai/spec"}]}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
 
@@ -91,44 +91,29 @@ img.anim{display:block;width:100%;height:auto;border:1px solid var(--rule);borde
 .posts p{margin:6px 0 0;color:var(--mute)}
 
 
-.top{display:flex;align-items:center;gap:14px;padding-block:18px;border-bottom:1px solid var(--rule);position:relative;flex-wrap:nowrap}
-.top .brand{margin-right:auto;white-space:nowrap}
-.ver{font-family:var(--mono);font-size:13px;color:var(--accent);border:1px solid currentColor;padding:4px 9px;border-radius:2px;text-decoration:none;white-space:nowrap}
-.ver:hover{background:var(--accent-soft)}
-.menu{position:relative}
-.menu>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:9px;font-family:var(--display);font-weight:600;font-size:15px;color:var(--ink);border:1px solid var(--rule);border-radius:2px;padding:7px 11px;background:var(--sheet);user-select:none}
-.menu>summary::-webkit-details-marker{display:none}
-.menu>summary:hover,.menu[open]>summary{border-color:var(--ink)}
-.burger{display:inline-flex;flex-direction:column;gap:3.5px}.burger i{display:block;width:17px;height:2px;background:currentColor;border-radius:1px}
-.menu[open] .burger i:nth-child(1){transform:translateY(5.5px) rotate(45deg)}.menu[open] .burger i:nth-child(2){opacity:0}.menu[open] .burger i:nth-child(3){transform:translateY(-5.5px) rotate(-45deg)}
-.menu nav{position:absolute;right:0;top:calc(100% + 8px);z-index:50;width:min(300px,calc(100vw - 32px));background:var(--sheet);border:1px solid var(--rule);border-top:3px solid var(--accent);border-radius:3px;padding:10px 0;box-shadow:0 12px 32px rgba(15,21,27,.18)}
-.menu nav .grp{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);padding:10px 18px 4px}
-.menu nav a{display:block;padding:8px 18px;font-family:var(--display);font-weight:600;font-size:15.5px;color:var(--ink);text-decoration:none;border-left:3px solid transparent}
-.menu nav a:hover{background:var(--paper);border-left-color:var(--rule)}
-.menu nav a[aria-current="page"]{border-left-color:var(--accent);color:var(--accent)}
-.menu nav hr{border:0;border-top:1px solid var(--rule);margin:8px 0}
-@media (max-width:420px){.menu>summary .lab{display:none}.ver{font-size:12px;padding:3px 7px}.top{gap:10px}.top .brand{font-size:17px;gap:7px}.top .brand .mark{width:24px;height:24px}}
+verafy-header{display:block;min-height:64px;background:#0B0E12}
+.vh-ver{font-family:var(--mono);font-size:13px;color:#5FE0C8;text-decoration:none}
+.vh-menu{display:flex;flex-direction:column}
+.vh-menu .grp{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:#8A96A3;padding:16px 0 4px}
+.vh-menu a{display:block;padding:10px 0;color:#C9D2DC;text-decoration:none;font-size:15px;border-bottom:1px solid #1D2630}
+.vh-menu a:hover{color:#fff}
+.vh-menu a[aria-current="page"]{color:#5FE0C8}
 
 </style>
 <script src="https://www.verafy.ai/header/v1/verafy-header.js" defer></script>
 </head>
 <body>
+<verafy-header product="harness" links="Learn:/learn, Launch a harness:/launch, Specification:/spec">
+  <a slot="status" class="vh-ver" href="/blog/v0-0-5-alpha" title="Release notes for v0.0.5-alpha">v0.0.5-alpha</a>
+  <div slot="menu" class="vh-menu"><div class="grp">Verafy Harness</div><a href="/signer">Judiciary Signer</a><a href="/policies">Policies</a><a href="/launch">Launch a harness</a><a href="/run">Run a harness</a><a href="/testnet">Testnet</a><a href="/economics">Economics</a><a href="/coin-agnostic">Coin Agnostic</a><a href="/learn">Learn</a><a href="/spec" aria-current="page">Specification</a><a href="/roadmap">Roadmap</a><a href="/pilots">Pilots</a><a href="/blog">Release notes</a><div class="grp">Verafy Chain</div><a href="https://chain.verafy.ai">Verafy Chain</a><a href="https://chain.verafy.ai/constitution">Constitution</a><a href="https://chain.verafy.ai/#roadmap">Roadmap</a><div class="grp">More</div><a href="https://asc.verafy.ai">Actually Smart Contracts</a><a href="https://github.com/Verafyai/verafyHarness">GitHub</a></div>
+</verafy-header>
+
 <section class="coinfree" aria-labelledby="coinfreeH">
   <div class="wrap">
     <h2 id="coinfreeH">Coin-free guarantee.</h2>
     <p>There is no coin, and Verafy Harness will never need one. A harness is paid in whatever token a contract offers and pays its own AI and hosting bills from that. No presale, no airdrop, no points, no treasury. <a href="/coin-agnostic">How payment works</a></p>
   </div>
-</section>
-<header class="wrap top">
-  <a class="brand" href="/"><svg class="mark" viewBox="0 0 64 64" width="28" height="28" aria-hidden="true"><path d="M6 20V6h14M44 6h14v14M58 44v14H44M20 58H6V44" stroke="currentColor" stroke-width="5" stroke-linecap="square" fill="none"/><path d="M32 13v7M32 44v7M13 32h7M44 32h7" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><circle cx="32" cy="32" r="11" fill="var(--accent)"/><circle cx="32" cy="32" r="4" fill="var(--paper)"/></svg>Verafy Harness</a>
-  <a class="ver" href="/blog/v0-0-4-alpha" title="Release notes for v0.0.4-alpha">v0.0.4-alpha</a>
-  <details class="menu">
-    <summary aria-label="Menu"><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><span class="lab">Menu</span></summary>
-    <nav aria-label="Site"><div class="grp">Verafy Harness</div><a href="/signer">Judiciary Signer</a><a href="/policies">Policies</a><a href="/launch">Launch a harness</a><a href="/run">Run a harness</a><a href="/testnet">Testnet</a><a href="/economics">Economics</a><a href="/coin-agnostic">Coin Agnostic</a><a href="/learn">Learn</a><a href="/spec" aria-current="page">Specification</a><a href="/roadmap">Roadmap</a><a href="/pilots">Pilots</a><a href="/blog">Release notes</a><hr><div class="grp">Verafy Chain</div><a href="https://chain.verafy.ai">Verafy Chain</a><a href="https://chain.verafy.ai/constitution">Constitution</a><a href="https://chain.verafy.ai/#roadmap">Roadmap</a><hr><div class="grp">More</div><a href="https://asc.verafy.ai">Actually Smart Contracts</a><a href="https://github.com/Verafyai/verafyHarness">GitHub</a></nav>
-  </details>
-</header>
-<script>(function(){var d=document.querySelector('.menu');if(!d)return;document.addEventListener('click',function(e){if(d.open&&!d.contains(e.target))d.open=false});document.addEventListener('keydown',function(e){if(e.key==='Escape')d.open=false})})();</script>
-<div class="wrap layout"><aside class="side" aria-label="On this page"><span class="lbl">On this page</span><div class="toc">
+</section><div class="wrap layout"><aside class="side" aria-label="On this page"><span class="lbl">On this page</span><div class="toc">
 <ul>
 <li><a href="#how-to-read-this-spec">How to read this spec</a></li>
 <li><a href="#the-system-in-one-picture">The system in one picture</a></li>
@@ -163,8 +148,8 @@ img.anim{display:block;width:100%;height:auto;border:1px solid var(--rule);borde
 <p><strong>Version 0.0.2-alpha</strong>, November 6, 2026. Covers Verafy Harness (this repo) and Verafy Chain (<a href="https://github.com/Verafyai/verafyChain">Verafyai/verafyChain</a>).</p>
 <!-- score -->
 
-<figure class="chart"><svg viewBox="0 0 760 660" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Scorecard by area, v0.0.4-alpha: overall 68 percent" font-family="JetBrains Mono, ui-monospace, monospace" font-size="13"><text x="0" y="35" fill="var(--ink)">CORE</text><text x="70" y="35" fill="var(--mute)" font-size="11.5">Core protocol: contracts, </text><rect x="250" y="23" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="23" width="409.4" height="16" fill="var(--accent)"/><text x="700" y="36" fill="var(--ink)">93%</text><text x="0" y="65" fill="var(--ink)">JURY</text><text x="70" y="65" fill="var(--mute)" font-size="11.5">Juries, live runs, audits </text><rect x="250" y="53" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="53" width="330.0" height="16" fill="var(--accent)"/><text x="700" y="66" fill="var(--ink)">75%</text><text x="0" y="95" fill="var(--ink)">CHAIN</text><text x="70" y="95" fill="var(--mute)" font-size="11.5">Verafy Chain node (verafyC</text><rect x="250" y="83" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="83" width="253.0" height="16" fill="var(--accent)"/><text x="700" y="96" fill="var(--ink)">57%</text><text x="0" y="125" fill="var(--ink)">SETTLE</text><text x="70" y="125" fill="var(--mute)" font-size="11.5">TinySVM: exact settlement </text><rect x="250" y="113" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="113" width="270.8" height="16" fill="var(--accent)"/><text x="700" y="126" fill="var(--ink)">62%</text><text x="0" y="155" fill="var(--ink)">LIGHT</text><text x="70" y="155" fill="var(--mute)" font-size="11.5">Light client: reading sour</text><rect x="250" y="143" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="143" width="366.7" height="16" fill="var(--accent)"/><text x="700" y="156" fill="var(--ink)">83%</text><text x="0" y="185" fill="var(--ink)">BANK</text><text x="70" y="185" fill="var(--mute)" font-size="11.5">Routing agent: keyblock, b</text><rect x="250" y="173" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="173" width="306.4" height="16" fill="var(--accent)"/><text x="700" y="186" fill="var(--ink)">70%</text><text x="0" y="215" fill="var(--ink)">PACK</text><text x="70" y="215" fill="var(--mute)" font-size="11.5">Proof packing and the prom</text><rect x="250" y="203" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="203" width="285.2" height="16" fill="var(--accent)"/><text x="700" y="216" fill="var(--ink)">65%</text><text x="0" y="245" fill="var(--ink)">ROUTE</text><text x="70" y="245" fill="var(--mute)" font-size="11.5">Multi-model routing: scree</text><rect x="250" y="233" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="233" width="292.0" height="16" fill="var(--accent)"/><text x="700" y="246" fill="var(--ink)">66%</text><text x="0" y="275" fill="var(--ink)">PROVE</text><text x="70" y="275" fill="var(--mute)" font-size="11.5">Proofs of inference</text><rect x="250" y="263" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="263" width="243.2" height="16" fill="var(--accent)"/><text x="700" y="276" fill="var(--ink)">55%</text><text x="0" y="305" fill="var(--ink)">COT</text><text x="70" y="305" fill="var(--mute)" font-size="11.5">Disclosed reasoning</text><rect x="250" y="293" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="293" width="217.2" height="16" fill="var(--accent)"/><text x="700" y="306" fill="var(--ink)">49%</text><text x="0" y="335" fill="var(--ink)">GOV</text><text x="70" y="335" fill="var(--mute)" font-size="11.5">Constitution, Embedded Eth</text><rect x="250" y="323" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="323" width="352.0" height="16" fill="var(--accent)"/><text x="700" y="336" fill="var(--ink)">80%</text><text x="0" y="365" fill="var(--ink)">SOL</text><text x="70" y="365" fill="var(--mute)" font-size="11.5">Solana settlement through </text><rect x="250" y="353" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="353" width="150.0" height="16" fill="var(--accent)"/><text x="700" y="366" fill="var(--ink)">34%</text><text x="0" y="395" fill="var(--ink)">ECON</text><text x="70" y="395" fill="var(--mute)" font-size="11.5">Economics and the calculat</text><rect x="250" y="383" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="383" width="352.0" height="16" fill="var(--accent)"/><text x="700" y="396" fill="var(--ink)">80%</text><text x="0" y="425" fill="var(--ink)">AGENT</text><text x="70" y="425" fill="var(--mute)" font-size="11.5">Agent plugins and the MCP </text><rect x="250" y="413" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="413" width="249.3" height="16" fill="var(--accent)"/><text x="700" y="426" fill="var(--ink)">57%</text><text x="0" y="455" fill="var(--ink)">DEPLOY</text><text x="70" y="455" fill="var(--mute)" font-size="11.5">Deploy and run anywhere: d</text><rect x="250" y="443" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="443" width="277.4" height="16" fill="var(--accent)"/><text x="700" y="456" fill="var(--ink)">63%</text><text x="0" y="485" fill="var(--ink)">SITE</text><text x="70" y="485" fill="var(--mute)" font-size="11.5">Sites, docs and the spec</text><rect x="250" y="473" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="473" width="352.0" height="16" fill="var(--accent)"/><text x="700" y="486" fill="var(--ink)">80%</text><text x="0" y="515" fill="var(--ink)">OPS</text><text x="70" y="515" fill="var(--mute)" font-size="11.5">Security and operations</text><rect x="250" y="503" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="503" width="215.1" height="16" fill="var(--accent)"/><text x="700" y="516" fill="var(--ink)">49%</text><text x="0" y="545" fill="var(--ink)">EXT</text><text x="70" y="545" fill="var(--mute)" font-size="11.5">External collaborations an</text><rect x="250" y="533" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="533" width="0.0" height="16" fill="var(--accent)"/><text x="700" y="546" fill="var(--ink)">0%</text><text x="0" y="575" fill="var(--ink)">CONS</text><text x="70" y="575" fill="var(--mute)" font-size="11.5">Consensus hardening: jury </text><rect x="250" y="563" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="563" width="338.8" height="16" fill="var(--accent)"/><text x="700" y="576" fill="var(--ink)">77%</text><text x="0" y="605" fill="var(--ink)">SIGN</text><text x="70" y="605" fill="var(--mute)" font-size="11.5">Judiciary Signer, policies</text><rect x="250" y="593" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="593" width="352.0" height="16" fill="var(--accent)"/><text x="700" y="606" fill="var(--ink)">80%</text><text x="0" y="635" fill="var(--ink)">NET</text><text x="70" y="635" fill="var(--mute)" font-size="11.5">Harness registry, discover</text><rect x="250" y="623" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="623" width="299.2" height="16" fill="var(--accent)"/><text x="700" y="636" fill="var(--ink)">68%</text></svg><figcaption>Scored by <code>npm run score</code> at v0.0.4-alpha: 68% overall, weighted. Built means tested with mocks or scripted models; verified means run live or on a devnet.</figcaption></figure>
-<p><strong>Scored 68% overall</strong> at v0.0.4-alpha (see <a href="#scorecard">SCORECARD.md</a>).</p>
+<figure class="chart"><svg viewBox="0 0 760 660" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Scorecard by area, v0.0.5-alpha: overall 68 percent" font-family="JetBrains Mono, ui-monospace, monospace" font-size="13"><text x="0" y="35" fill="var(--ink)">CORE</text><text x="70" y="35" fill="var(--mute)" font-size="11.5">Core protocol: contracts, </text><rect x="250" y="23" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="23" width="409.4" height="16" fill="var(--accent)"/><text x="700" y="36" fill="var(--ink)">93%</text><text x="0" y="65" fill="var(--ink)">JURY</text><text x="70" y="65" fill="var(--mute)" font-size="11.5">Juries, live runs, audits </text><rect x="250" y="53" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="53" width="330.0" height="16" fill="var(--accent)"/><text x="700" y="66" fill="var(--ink)">75%</text><text x="0" y="95" fill="var(--ink)">CHAIN</text><text x="70" y="95" fill="var(--mute)" font-size="11.5">Verafy Chain node (verafyC</text><rect x="250" y="83" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="83" width="253.0" height="16" fill="var(--accent)"/><text x="700" y="96" fill="var(--ink)">57%</text><text x="0" y="125" fill="var(--ink)">SETTLE</text><text x="70" y="125" fill="var(--mute)" font-size="11.5">TinySVM: exact settlement </text><rect x="250" y="113" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="113" width="270.8" height="16" fill="var(--accent)"/><text x="700" y="126" fill="var(--ink)">62%</text><text x="0" y="155" fill="var(--ink)">LIGHT</text><text x="70" y="155" fill="var(--mute)" font-size="11.5">Light client: reading sour</text><rect x="250" y="143" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="143" width="366.7" height="16" fill="var(--accent)"/><text x="700" y="156" fill="var(--ink)">83%</text><text x="0" y="185" fill="var(--ink)">BANK</text><text x="70" y="185" fill="var(--mute)" font-size="11.5">Routing agent: keyblock, b</text><rect x="250" y="173" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="173" width="306.4" height="16" fill="var(--accent)"/><text x="700" y="186" fill="var(--ink)">70%</text><text x="0" y="215" fill="var(--ink)">PACK</text><text x="70" y="215" fill="var(--mute)" font-size="11.5">Proof packing and the prom</text><rect x="250" y="203" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="203" width="285.2" height="16" fill="var(--accent)"/><text x="700" y="216" fill="var(--ink)">65%</text><text x="0" y="245" fill="var(--ink)">ROUTE</text><text x="70" y="245" fill="var(--mute)" font-size="11.5">Multi-model routing: scree</text><rect x="250" y="233" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="233" width="292.0" height="16" fill="var(--accent)"/><text x="700" y="246" fill="var(--ink)">66%</text><text x="0" y="275" fill="var(--ink)">PROVE</text><text x="70" y="275" fill="var(--mute)" font-size="11.5">Proofs of inference</text><rect x="250" y="263" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="263" width="243.2" height="16" fill="var(--accent)"/><text x="700" y="276" fill="var(--ink)">55%</text><text x="0" y="305" fill="var(--ink)">COT</text><text x="70" y="305" fill="var(--mute)" font-size="11.5">Disclosed reasoning</text><rect x="250" y="293" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="293" width="217.2" height="16" fill="var(--accent)"/><text x="700" y="306" fill="var(--ink)">49%</text><text x="0" y="335" fill="var(--ink)">GOV</text><text x="70" y="335" fill="var(--mute)" font-size="11.5">Constitution, Embedded Eth</text><rect x="250" y="323" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="323" width="352.0" height="16" fill="var(--accent)"/><text x="700" y="336" fill="var(--ink)">80%</text><text x="0" y="365" fill="var(--ink)">SOL</text><text x="70" y="365" fill="var(--mute)" font-size="11.5">Solana settlement through </text><rect x="250" y="353" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="353" width="150.0" height="16" fill="var(--accent)"/><text x="700" y="366" fill="var(--ink)">34%</text><text x="0" y="395" fill="var(--ink)">ECON</text><text x="70" y="395" fill="var(--mute)" font-size="11.5">Economics and the calculat</text><rect x="250" y="383" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="383" width="352.0" height="16" fill="var(--accent)"/><text x="700" y="396" fill="var(--ink)">80%</text><text x="0" y="425" fill="var(--ink)">AGENT</text><text x="70" y="425" fill="var(--mute)" font-size="11.5">Agent plugins and the MCP </text><rect x="250" y="413" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="413" width="249.3" height="16" fill="var(--accent)"/><text x="700" y="426" fill="var(--ink)">57%</text><text x="0" y="455" fill="var(--ink)">DEPLOY</text><text x="70" y="455" fill="var(--mute)" font-size="11.5">Deploy and run anywhere: d</text><rect x="250" y="443" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="443" width="277.4" height="16" fill="var(--accent)"/><text x="700" y="456" fill="var(--ink)">63%</text><text x="0" y="485" fill="var(--ink)">SITE</text><text x="70" y="485" fill="var(--mute)" font-size="11.5">Sites, docs and the spec</text><rect x="250" y="473" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="473" width="352.0" height="16" fill="var(--accent)"/><text x="700" y="486" fill="var(--ink)">80%</text><text x="0" y="515" fill="var(--ink)">OPS</text><text x="70" y="515" fill="var(--mute)" font-size="11.5">Security and operations</text><rect x="250" y="503" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="503" width="215.1" height="16" fill="var(--accent)"/><text x="700" y="516" fill="var(--ink)">49%</text><text x="0" y="545" fill="var(--ink)">EXT</text><text x="70" y="545" fill="var(--mute)" font-size="11.5">External collaborations an</text><rect x="250" y="533" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="533" width="0.0" height="16" fill="var(--accent)"/><text x="700" y="546" fill="var(--ink)">0%</text><text x="0" y="575" fill="var(--ink)">CONS</text><text x="70" y="575" fill="var(--mute)" font-size="11.5">Consensus hardening: jury </text><rect x="250" y="563" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="563" width="338.8" height="16" fill="var(--accent)"/><text x="700" y="576" fill="var(--ink)">77%</text><text x="0" y="605" fill="var(--ink)">SIGN</text><text x="70" y="605" fill="var(--mute)" font-size="11.5">Judiciary Signer, policies</text><rect x="250" y="593" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="593" width="352.0" height="16" fill="var(--accent)"/><text x="700" y="606" fill="var(--ink)">80%</text><text x="0" y="635" fill="var(--ink)">NET</text><text x="70" y="635" fill="var(--mute)" font-size="11.5">Harness registry, discover</text><rect x="250" y="623" width="440" height="16" fill="var(--paper)" stroke="var(--rule)"/><rect x="250" y="623" width="299.2" height="16" fill="var(--accent)"/><text x="700" y="636" fill="var(--ink)">68%</text></svg><figcaption>Scored by <code>npm run score</code> at v0.0.5-alpha: 68% overall, weighted. Built means tested with mocks or scripted models; verified means run live or on a devnet.</figcaption></figure>
+<p><strong>Scored 68% overall</strong> at v0.0.5-alpha (see <a href="#scorecard">SCORECARD.md</a>).</p>
 <!-- /score -->
 
 <p>This is an alpha spec for a prototype. Nothing here describes a running network, and there is no token. Every number is labeled <strong>measured</strong> (our own runs, with a date), <strong>vendor-reported</strong> (by whoever built the tool), <strong>modeled</strong> (computed from those, in <code>packages/economics</code>) or <strong>illustrative</strong> (an assumption to replace).</p>
@@ -422,6 +407,31 @@ img.anim{display:block;width:100%;height:auto;border:1px solid var(--rule);borde
 <td>SIGN-006</td>
 <td>built</td>
 <td>Bias profiles: paired probes measure how a model leans (order, authority, framing, position, roles, anchors, length, approve rate, confidence, consistency), maps and least-shared-bias juries, and unannounced probes disguised as live cases. <em>Gap: No real model profiled yet; probes are written for escrow cases, not yet for wallet cases.</em></td>
+</tr>
+<tr>
+<td>SIGN-007</td>
+<td>built</td>
+<td>Agentic contracts (VIP-0029): two agents sign terms with exact remedies, a signed hash-chained event log, settlement by mutual release, acceptance, default or jury ruling, a dispute ASC with untrusted statements, and a two-of-three Squads escrow whose judiciary signer checks a settlement proof itself. <em>Gap: Not on devnet; principals do not yet sign mandates; dispute fees are computed, not collected on chain; one depositor per contract.</em></td>
+</tr>
+<tr>
+<td>SIGN-008</td>
+<td>built</td>
+<td>Super grants (VIP-0030): a Request for Ideas with terms and agent terms, base grants on admission, jury review of each response (CLEARED or NOT_CLEARED) and of each outcome claim (MET or NOT_MET), outcome tranches, refund after the end, and a program escrow whose signer verifies every ruling and pays only earned entitlements once. <em>Gap: Not on devnet; outcome evidence is pinned by the grantee, not signed by a payment processor; follow-on instruments are recorded, not executed.</em></td>
+</tr>
+<tr>
+<td>SIGN-009</td>
+<td>built</td>
+<td>Hackathon grants (VIP-0031): a prize pool with weighted criteria and prize shares, GitHub submissions pinned to a commit inside a window, one graded council contract per submission, a ranking with deterministic tie breaks and a minimum score, and a prize escrow that pays exactly the ranking once. <em>Gap: Not on devnet; no real model council has graded a real repository; no team identity beyond a key.</em></td>
+</tr>
+<tr>
+<td>SIGN-010</td>
+<td>built</td>
+<td>DAO constitution template (VIP-0032): the constitution pinned by hash in the policy id, per-proposal and per-quarter caps in code, and one jury question per article. <em>Gap: Amendments need a new policy and a signer swap.</em></td>
+</tr>
+<tr>
+<td>SIGN-011</td>
+<td>built</td>
+<td>Agent bonds (VIP-0033): an operator bonds its agent's behavior under priced articles; anyone reports a violation with evidence and a reporter bond; a jury rules VIOLATED or CLEAN; the escrow slashes to the harmed party, the reporter or a beneficiary, returns or forfeits reporter bonds, and returns the rest after the term. <em>Gap: Not on devnet; agents don't yet sign their outputs, so evidence strength varies; no bond top-up.</em></td>
 </tr>
 </tbody>
 </table></div>
@@ -1257,7 +1267,7 @@ img.anim{display:block;width:100%;height:auto;border:1px solid var(--rule);borde
 <p>Requirements marked <em>needs Rex</em> in the tables, plus: the block-close defaults, prove-once for L2, packing defaults, allowed brief modes, the Banker's target token, treasury, chains, caps and screening, whether to rent a FlashProve machine, and whether to publish the MCP server. From v0.0.2-alpha: whether Verafy runs hosted harnesses (DEPLOY-010), devnet SOL for the Solana program (SOL-002), Jev access for the calibration run (ROUTE-007), turning on Banker execution with a funded scoped wallet, and the illustrative defaults: block close (10% warm-up, 1-hour maximum wait), the 600-second proof deadline, the ethics panel sizes, bar and screening fee, and the amendment escrow shares. From v0.0.3-alpha: every slashing price and grace allowance (CONS-005), the challenge window and challenge bond factor (CONS-006, JURY-006), whether the network allows bond-weighted draws (CONS-004), whether to offer a jury of one (CONS-007), the seats-per-operator defaults and operator bond (CONS-003), the beacon lookahead and whether to add drand (CONS-002), and where proving runs (CONS-008).</p>
 <h2 id="scorecard">Scorecard</h2>
 <p>Generated by <code>npm run score -- --write</code> from <a href="https://github.com/Verafyai/verafyHarness/blob/main/docs/spec/requirements.json">requirements.json</a>. Do not edit by hand.</p>
-<p><strong>Overall: 68%</strong> of the spec, weighted. 137 requirements: 8 verified, 86 built, 16 planned, 15 partial, 8 designed, 4 research.</p>
+<p><strong>Overall: 68%</strong> of the spec, weighted. 142 requirements: 8 verified, 91 built, 16 planned, 15 partial, 8 designed, 4 research.</p>
 <p>A requirement scores its status (verified 100%, built 80%, partial 50%, designed 25%, planned 10%, research 0%) only if every check passes. A score is how far the build is along the spec, not a measure of quality.</p>
 <div class="tbl"><table>
 <thead>
@@ -1385,7 +1395,7 @@ img.anim{display:block;width:100%;height:auto;border:1px solid var(--rule);borde
 </tr>
 <tr>
 <td>SIGN: Judiciary Signer, policies and model certification</td>
-<td>6</td>
+<td>11</td>
 <td>80%</td>
 <td><code>████████████████░░░░</code></td>
 </tr>
@@ -2076,6 +2086,30 @@ img.anim{display:block;width:100%;height:auto;border:1px solid var(--rule);borde
 <td>No real model profiled yet; probes are written for escrow cases, not yet for wallet cases</td>
 </tr>
 <tr>
+<td>SIGN-007</td>
+<td>built</td>
+<td>Agentic contracts (VIP-0029): two agents sign terms with exact remedies, a signed hash-chained event log, settlement by mutual release, acceptance, default or jury ruling, a dispute ASC with untrusted statements, and a two-of-three Squads escrow whose judiciary signer checks a settlement proof itself</td>
+<td>Not on devnet; principals do not yet sign mandates; dispute fees are computed, not collected on chain; one depositor per contract</td>
+</tr>
+<tr>
+<td>SIGN-008</td>
+<td>built</td>
+<td>Super grants (VIP-0030): a Request for Ideas with terms and agent terms, base grants on admission, jury review of each response (CLEARED or NOT_CLEARED) and of each outcome claim (MET or NOT_MET), outcome tranches, refund after the end, and a program escrow whose signer verifies every ruling and pays only earned entitlements once</td>
+<td>Not on devnet; outcome evidence is pinned by the grantee, not signed by a payment processor; follow-on instruments are recorded, not executed</td>
+</tr>
+<tr>
+<td>SIGN-009</td>
+<td>built</td>
+<td>Hackathon grants (VIP-0031): a prize pool with weighted criteria and prize shares, GitHub submissions pinned to a commit inside a window, one graded council contract per submission, a ranking with deterministic tie breaks and a minimum score, and a prize escrow that pays exactly the ranking once</td>
+<td>Not on devnet; no real model council has graded a real repository; no team identity beyond a key</td>
+</tr>
+<tr>
+<td>SIGN-011</td>
+<td>built</td>
+<td>Agent bonds (VIP-0033): an operator bonds its agent's behavior under priced articles; anyone reports a violation with evidence and a reporter bond; a jury rules VIOLATED or CLEAN; the escrow slashes to the harmed party, the reporter or a beneficiary, returns or forfeits reporter bonds, and returns the rest after the term</td>
+<td>Not on devnet; agents don't yet sign their outputs, so evidence strength varies; no bond top-up</td>
+</tr>
+<tr>
 <td>SITE-004</td>
 <td>built</td>
 <td>Learn: one page per concept, from Actually Smart Contracts to the Banker, each with its status and related concepts</td>
@@ -2158,6 +2192,12 @@ img.anim{display:block;width:100%;height:auto;border:1px solid var(--rule);borde
 <td>built</td>
 <td>Commission covenant: a validator bonds a promise not to raise fees on stakers</td>
 <td>Local validator only; pays one beneficiary account, not stakers pro rata; reads vote account versions 1 and 2</td>
+</tr>
+<tr>
+<td>SIGN-010</td>
+<td>built</td>
+<td>DAO constitution template (VIP-0032): the constitution pinned by hash in the policy id, per-proposal and per-quarter caps in code, and one jury question per article</td>
+<td>Amendments need a new policy and a signer swap</td>
 </tr>
 <tr>
 <td>SITE-001</td>

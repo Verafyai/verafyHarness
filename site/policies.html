@@ -76,47 +76,36 @@ tr:last-child td{border-bottom:0}
 .foot p{margin:0}
 
 
-.top{display:flex;align-items:center;gap:14px;padding-block:18px;border-bottom:1px solid var(--rule);position:relative;flex-wrap:nowrap}
-.top .brand{margin-right:auto;white-space:nowrap}
-.ver{font-family:var(--mono);font-size:13px;color:var(--accent);border:1px solid currentColor;padding:4px 9px;border-radius:2px;text-decoration:none;white-space:nowrap}
-.ver:hover{background:var(--accent-soft)}
-.menu{position:relative}
-.menu>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:9px;font-family:var(--display);font-weight:600;font-size:15px;color:var(--ink);border:1px solid var(--rule);border-radius:2px;padding:7px 11px;background:var(--sheet);user-select:none}
-.menu>summary::-webkit-details-marker{display:none}
-.menu>summary:hover,.menu[open]>summary{border-color:var(--ink)}
-.burger{display:inline-flex;flex-direction:column;gap:3.5px}.burger i{display:block;width:17px;height:2px;background:currentColor;border-radius:1px}
-.menu[open] .burger i:nth-child(1){transform:translateY(5.5px) rotate(45deg)}.menu[open] .burger i:nth-child(2){opacity:0}.menu[open] .burger i:nth-child(3){transform:translateY(-5.5px) rotate(-45deg)}
-.menu nav{position:absolute;right:0;top:calc(100% + 8px);z-index:50;width:min(300px,calc(100vw - 32px));background:var(--sheet);border:1px solid var(--rule);border-top:3px solid var(--accent);border-radius:3px;padding:10px 0;box-shadow:0 12px 32px rgba(15,21,27,.18)}
-.menu nav .grp{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);padding:10px 18px 4px}
-.menu nav a{display:block;padding:8px 18px;font-family:var(--display);font-weight:600;font-size:15.5px;color:var(--ink);text-decoration:none;border-left:3px solid transparent}
-.menu nav a:hover{background:var(--paper);border-left-color:var(--rule)}
-.menu nav a[aria-current="page"]{border-left-color:var(--accent);color:var(--accent)}
-.menu nav hr{border:0;border-top:1px solid var(--rule);margin:8px 0}
-@media (max-width:420px){.menu>summary .lab{display:none}.ver{font-size:12px;padding:3px 7px}.top{gap:10px}.top .brand{font-size:17px;gap:7px}.top .brand .mark{width:24px;height:24px}}
+verafy-header{display:block;min-height:64px;background:#0B0E12}
+.vh-ver{font-family:var(--mono);font-size:13px;color:#5FE0C8;text-decoration:none}
+.vh-menu{display:flex;flex-direction:column}
+.vh-menu .grp{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:#8A96A3;padding:16px 0 4px}
+.vh-menu a{display:block;padding:10px 0;color:#C9D2DC;text-decoration:none;font-size:15px;border-bottom:1px solid #1D2630}
+.vh-menu a:hover{color:#fff}
+.vh-menu a[aria-current="page"]{color:#5FE0C8}
 
 </style>
 <script src="https://www.verafy.ai/header/v1/verafy-header.js" defer></script>
 </head>
 <body>
+<verafy-header product="harness" links="Learn:/learn, Launch a harness:/launch, Specification:/spec">
+  <a slot="status" class="vh-ver" href="/blog/v0-0-5-alpha" title="Release notes for v0.0.5-alpha">v0.0.5-alpha</a>
+  <div slot="menu" class="vh-menu"><div class="grp">Verafy Harness</div><a href="/signer">Judiciary Signer</a><a href="/policies" aria-current="page">Policies</a><a href="/launch">Launch a harness</a><a href="/run">Run a harness</a><a href="/testnet">Testnet</a><a href="/economics">Economics</a><a href="/coin-agnostic">Coin Agnostic</a><a href="/learn">Learn</a><a href="/spec">Specification</a><a href="/roadmap">Roadmap</a><a href="/pilots">Pilots</a><a href="/blog">Release notes</a><div class="grp">Verafy Chain</div><a href="https://chain.verafy.ai">Verafy Chain</a><a href="https://chain.verafy.ai/constitution">Constitution</a><a href="https://chain.verafy.ai/#roadmap">Roadmap</a><div class="grp">More</div><a href="https://asc.verafy.ai">Actually Smart Contracts</a><a href="https://github.com/Verafyai/verafyHarness">GitHub</a></div>
+</verafy-header>
+
 <section class="coinfree" aria-labelledby="coinfreeH">
   <div class="wrap">
     <h2 id="coinfreeH">Coin-free guarantee.</h2>
     <p>There is no coin, and Verafy Harness will never need one. A harness is paid in whatever token a contract offers and pays its own AI and hosting bills from that. No presale, no airdrop, no points, no treasury. <a href="/coin-agnostic">How payment works</a></p>
   </div>
-</section>
-<header class="wrap top">
-  <a class="brand" href="/"><svg class="mark" viewBox="0 0 64 64" width="28" height="28" aria-hidden="true"><path d="M6 20V6h14M44 6h14v14M58 44v14H44M20 58H6V44" stroke="currentColor" stroke-width="5" stroke-linecap="square" fill="none"/><path d="M32 13v7M32 44v7M13 32h7M44 32h7" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><circle cx="32" cy="32" r="11" fill="var(--accent)"/><circle cx="32" cy="32" r="4" fill="var(--paper)"/></svg>Verafy Harness</a>
-  <a class="ver" href="/blog/v0-0-4-alpha" title="Release notes for v0.0.4-alpha">v0.0.4-alpha</a>
-  <details class="menu">
-    <summary aria-label="Menu"><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><span class="lab">Menu</span></summary>
-    <nav aria-label="Site"><div class="grp">Verafy Harness</div><a href="/signer">Judiciary Signer</a><a href="/policies" aria-current="page">Policies</a><a href="/launch">Launch a harness</a><a href="/run">Run a harness</a><a href="/testnet">Testnet</a><a href="/economics">Economics</a><a href="/coin-agnostic">Coin Agnostic</a><a href="/learn">Learn</a><a href="/spec">Specification</a><a href="/roadmap">Roadmap</a><a href="/pilots">Pilots</a><a href="/blog">Release notes</a><hr><div class="grp">Verafy Chain</div><a href="https://chain.verafy.ai">Verafy Chain</a><a href="https://chain.verafy.ai/constitution">Constitution</a><a href="https://chain.verafy.ai/#roadmap">Roadmap</a><hr><div class="grp">More</div><a href="https://asc.verafy.ai">Actually Smart Contracts</a><a href="https://github.com/Verafyai/verafyHarness">GitHub</a></nav>
-  </details>
-</header>
-<script>(function(){var d=document.querySelector('.menu');if(!d)return;document.addEventListener('click',function(e){if(d.open&&!d.contains(e.target))d.open=false});document.addEventListener('keydown',function(e){if(e.key==='Escape')d.open=false})})();</script>
-<div class="wrap layout"><aside class="side" aria-label="On this page"><span class="lbl">On this page</span><div class="toc">
+</section><div class="wrap layout"><aside class="side" aria-label="On this page"><span class="lbl">On this page</span><div class="toc">
 <ul>
 <li><a href="#the-templates">The templates</a></li>
 <li><a href="#covenant-launch">Covenant Launch</a></li>
+<li><a href="#agentic-contract">Agentic contract</a></li>
+<li><a href="#super-grant-and-hackathon">Super grant and hackathon</a></li>
+<li><a href="#agent-bond">Agent bond</a></li>
+<li><a href="#dao-constitution">DAO constitution</a></li>
 <li><a href="#always-refused-whatever-the-policy-says">Always refused, whatever the policy says</a></li>
 <li><a href="#a-policy-never-changes">A policy never changes</a></li>
 </ul>
@@ -171,6 +160,31 @@ tr:last-child td{border-bottom:0}
 <td>A program's upgrade key</td>
 <td>Moves no funds; config changes reviewed against the change log; 7-day minimum time lock</td>
 </tr>
+<tr>
+<td><strong>DAO constitution</strong></td>
+<td>A DAO treasury</td>
+<td>Caps per proposal and per quarter; the constitution pinned by hash; one jury question per article; when in doubt, no</td>
+</tr>
+<tr>
+<td><strong>Super grant</strong></td>
+<td>A foundation's grant budget</td>
+<td>Pays only entitlements the ledger shows: base grants on admission, tranches after a cleared response and a met outcome, the rest back to the foundation after the end</td>
+</tr>
+<tr>
+<td><strong>Hackathon</strong></td>
+<td>A prize pool</td>
+<td>Pays only the council's final ranking, once; nothing before the window closes; unwon prizes back to the initiator</td>
+</tr>
+<tr>
+<td><strong>Agent bond</strong></td>
+<td>An operator's bond on its AI agent's behavior</td>
+<td>Slashes only for a jury-found violation, priced per article; reporter bonds back or forfeited by the ruling; the rest back after the term</td>
+</tr>
+<tr>
+<td><strong>Agentic contract</strong></td>
+<td>The escrow for a deal between two agents</td>
+<td>Pays out once, only to the two parties, only the exact payouts of one remedy, only with a settlement proof the signer checks itself; no config changes</td>
+</tr>
 </tbody>
 </table></div>
 <h2 id="covenant-launch">Covenant Launch</h2>
@@ -182,6 +196,25 @@ tr:last-child td{border-bottom:0}
 <li>Anyone can read the covenant and its hash before they buy, and check that the signer on chain carries the same hash.</li>
 </ul>
 <p>The covenant doesn't promise a price, and it doesn't cover wallets the creator controls outside it. Spotting connected wallets at launch is a separate jury question, for launchpad integrations.</p>
+<h2 id="agentic-contract">Agentic contract</h2>
+<p>Two agents make a deal: agent B writes a report, agent A pays 2 SOL. They sign one set of terms that lists every possible outcome and its exact payout (COMPLETE pays B everything, PARTIAL splits it, REFUND returns it to A). A's 2 SOL sits in a Squads wallet that is two of three: agent A, agent B, and a judiciary signer with this policy.</p>
+<ul>
+<li>Both agents together can release by mutual consent.</li>
+<li>One agent with the signer can take only one remedy's payouts, and only with a <strong>settlement proof</strong>: the signed terms, the signed event log and, after a dispute, the dispute contract and the sealed jury ruling. The signer replays the log, rebuilds the dispute contract and checks the jury's commits and reveals itself. It trusts nothing it is handed.</li>
+<li>One key alone moves nothing.</li>
+</ul>
+<p>Most deals settle with no jury: the buyer accepts, or the review window passes in silence, or a deadline passes with no delivery. A dispute goes to a jury that picks one of the signed remedies. The agents' own statements reach the jury as untrusted claims.</p>
+<pre><code class="language-js">const policy = policyFromTemplate('agentic-contract', { contract })
+checkAgenticEscrow(multisig, { signer, policy, contract })   // two of three, nothing else can vote
+checkRules(policy, effectsOf(tx), { now, agentic: proof })    // the payout matches a proven settlement
+</code></pre>
+<p>Run <code>node scripts/agentic-demo.mjs</code> for both paths. Code: <code>packages/core/src/agentic.js</code>. Design: <a href="proposals/VIP-0029-agentic-contracts.md">VIP-0029</a>.</p>
+<h2 id="super-grant-and-hackathon">Super grant and hackathon</h2>
+<p>Both are program escrows: a Squads wallet with the funder and a judiciary signer. The case carries a program proof (<code>{program, log, rulings, pay}</code>). The signer replays the signed log, rebuilds every jury contract from it, verifies each sealed round, and pays exactly the named entitlements, none twice. Design: <a href="proposals/VIP-0030-super-grants.md">VIP-0030</a>, <a href="proposals/VIP-0031-hackathon-grants.md">VIP-0031</a>. Run <code>node scripts/grant-demo.mjs</code> and <code>node scripts/hackathon-demo.mjs</code>.</p>
+<h2 id="agent-bond">Agent bond</h2>
+<p>An operator bonds its agent's behavior. Anyone can report a violation with evidence and a reporter bond; a jury rules VIOLATED or CLEAN; the escrow slashes as the covenant prices each article. Agents can report agents. Design: <a href="proposals/VIP-0033-agent-bonds.md">VIP-0033</a>. Run <code>node scripts/agentbond-demo.mjs</code>.</p>
+<h2 id="dao-constitution">DAO constitution</h2>
+<p><code>policyFromTemplate('dao-constitution', { name, articles, quarterlyCap, perTransaction })</code>. The articles are pinned by hash in the policy id, so changing one makes a new signer. Design: <a href="proposals/VIP-0032-dao-constitution.md">VIP-0032</a>.</p>
 <h2 id="always-refused-whatever-the-policy-says">Always refused, whatever the policy says</h2>
 <ul>
 <li>Anything the signer can't read: address lookup tables, unknown instructions.</li>

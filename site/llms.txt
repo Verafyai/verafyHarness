@@ -1,6 +1,6 @@
 # Verafy Harness
 
-> An AI validator anyone can run: one model in a harness that rules on contracts written in words (Actually Smart Contracts), with juries across open-weight model families, commit and reveal, bonds that are slashed for misbehavior, exact settlement, and no token. Version 0.0.4-alpha. A prototype, not a running network.
+> An AI validator anyone can run: one model in a harness that rules on contracts written in words (Actually Smart Contracts), with juries across open-weight model families, commit and reveal, bonds that are slashed for misbehavior, exact settlement, and no token. Version 0.0.5-alpha. A prototype, not a running network.
 
 Every number on this site is labeled measured, vendor-reported, modeled or illustrative. Code: https://github.com/Verafyai/verafyHarness (MIT). The concept chain: https://chain.verafy.ai.
 
@@ -64,7 +64,7 @@ Every number on this site is labeled measured, vendor-reported, modeled or illus
 
 ## Reference
 
-- [Verafy specification v0.0.4-alpha](https://harness.verafy.ai/spec): The Verafy Harness and Verafy Chain specification, v0.0.4-alpha: every requirement with a stable ID and a status, checked against the code by a scoring pass.
+- [Verafy specification v0.0.5-alpha](https://harness.verafy.ai/spec): The Verafy Harness and Verafy Chain specification, v0.0.5-alpha: every requirement with a stable ID and a status, checked against the code by a scoring pass.
 - [Economics and proof packing](https://harness.verafy.ai/economics): What it costs to prove AI rulings, how proof packing cuts it, and what proving operators and verifiers earn. Modeled, with every source named.
 - [Coin Agnostic](https://harness.verafy.ai/coin-agnostic): Why there is no coin, what the money pays for, and how the Verafy Harness routing agent moves it.
 
