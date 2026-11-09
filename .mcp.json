@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "openrouter": {
+      "type": "http",
+      "url": "https://mcp.openrouter.ai/mcp",
+      "headers": { "Authorization": "Bearer ${OPENROUTER_API_KEY}" }
+    }
+  }
+}
