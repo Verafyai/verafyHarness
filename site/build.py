@@ -154,6 +154,7 @@ def head(title, desc, path, css):
 {css}
 {HEADER_CSS}
 </style>
+<script src="https://www.verafy.ai/header/v1/verafy-header.js" defer></script>
 </head>
 <body>
 '''
