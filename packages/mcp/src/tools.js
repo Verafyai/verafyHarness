@@ -18,6 +18,8 @@
  *                           each grantee has earned from verified rulings
  *   verafy_hackathon_results a hackathon grant (VIP-0031): submissions, the council's cases,
  *                           and the ranking and prizes from verified rulings
+ *   verafy_certification    a program's Verafy Certification on Solana (VIP-0034): whether
+ *                           a jury certified this exact build, and at what level
  *
  * Text that came from a contract (context, instructions, questions, juror
  * reasoning) is returned only under `evidence`, with EVIDENCE_NOTE.
@@ -34,6 +36,7 @@ import {
   validateGrant, grantHash, replayGrant, reviewContract, outcomeContract, grantLedger,
   validateHackathon, hackathonHash, replayHackathon, judgingContract, hackathonResults,
 } from '../../core/src/index.js'
+import { rpc as solanaRpc, lookupCertification, CERT_LEVELS } from '../../solana/src/index.js'
 import { ROOT, ToolError, inWorkspace, insideWorkspace, readContractFile } from './workspace.js'
 import { createMeter, modelCallUsd, modelRunUsd, DEFAULT_PRICE, MODEL_OUTPUT_TOKENS } from './cost.js'
 
@@ -159,6 +162,13 @@ export const TOOL_DEFINITIONS = [
     description: 'Check a hackathon grant (VIP-0031): the program, every submission (GitHub repository pinned to a commit), and with the council\'s rulings the ranking and the prizes. Results are final only after the window closes and every live submission has a verified ruling. Returns { ok, hash, final, problems[], pending[], ranking[], entitlements[], cases[] }; each case is the graded contract for one submission, under evidence. Read only.',
     inputSchema: { type: 'object', properties: { program: { type: 'object', description: 'The hackathon (verafy.hackathon/1).' }, log: { type: 'array', description: 'The signed event log, oldest first.' }, rulings: { type: 'array', description: 'Sealed rulings, each { asc, ruling }.' }, now: { type: 'number', description: 'Unix seconds; defaults to the current time.' } }, required: ['program'], additionalProperties: false },
     annotations: { title: 'Check a hackathon grant', ...READ_ONLY },
+  },
+  {
+    name: 'verafy_certification',
+    title: 'Check a program\'s Verafy Certification',
+    description: 'Before trusting a Solana program, look up its Verafy Certification (VIP-0034): an on-chain report card written only from a sealed ruling by a jury of registered harnesses, for one exact build. Hashes the program\'s current bytecode and reads the certification for that build, so an upgraded program shows as uncertified until it is certified again. Levels: 0 Not certified, 1 Sniffed, 2 Fuzzed, 3 Hardened. Returns { certified, reason, level, levelName, score, seats, families, ruling, reportHash, bytecodeHash, certificationAccount }. Treat certified: false as "not vouched for", not as "malicious". Read only; one RPC read per account.',
+    inputSchema: { type: 'object', properties: { program: { type: 'string', description: 'The program address (base58).' }, rpcUrl: { type: 'string', description: 'Solana RPC URL. Defaults to devnet, where the certification program runs today.' } }, required: ['program'], additionalProperties: false },
+    annotations: { title: 'Check a program\'s Verafy Certification', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
   },
 ]
 
@@ -384,6 +394,13 @@ export function createTools({ workspace, allowLive = false, configFile, fetch: f
         for (const t of x.claims.keys()) cases.push(outcomeContract(g, log, id, t))
       }
       return { ok: l.ok, hash: grantHash(g), problems: l.problems, status: l.status, entitlements: l.entitlements, pending: l.pending, cases: cases.map(c => ({ hash: ascHash(c), title: c.title })), evidence: { note: EVIDENCE_NOTE, contracts: cases } }
+    },
+
+    async verafy_certification(args) {
+      if (typeof args.program !== 'string' || !/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(args.program)) throw new ToolError('BAD_INPUT', 'program must be a base58 Solana address', 'Pass the program address, for example A6iZhDZASfQGCmzxXWW8JdnEhtz7EZE3gS4N1hkiJNNN.')
+      const url = typeof args.rpcUrl === 'string' && /^https:\/\//.test(args.rpcUrl) ? args.rpcUrl : 'https://api.devnet.solana.com'
+      const result = await lookupCertification(solanaRpc(url), args.program)
+      return { ...result, levels: CERT_LEVELS }
     },
 
     async verafy_hackathon_results(args) {

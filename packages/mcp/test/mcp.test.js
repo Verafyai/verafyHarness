@@ -21,7 +21,7 @@ const BIN = join(ROOT, 'bin', 'verafy-mcp.js')
 const tmp = (p = 'verafy-mcp-') => mkdtempSync(join(tmpdir(), p))
 const read = p => JSON.parse(readFileSync(join(ROOT, p), 'utf8'))
 const EXAMPLES = readdirSync(join(ROOT, 'examples')).filter(f => f.endsWith('.json') && f !== 'mock-answers.json')
-const TOOLS = ['verafy_validate', 'verafy_pin', 'verafy_hash', 'verafy_run', 'verafy_chain', 'verafy_block', 'verafy_doctor', 'verafy_examples', 'verafy_agentic_check', 'verafy_agentic_dispute', 'verafy_grant_ledger', 'verafy_hackathon_results']
+const TOOLS = ['verafy_validate', 'verafy_pin', 'verafy_hash', 'verafy_run', 'verafy_chain', 'verafy_block', 'verafy_doctor', 'verafy_examples', 'verafy_agentic_check', 'verafy_agentic_dispute', 'verafy_grant_ledger', 'verafy_hackathon_results', 'verafy_certification']
 
 const children = new Set()
 after(() => { for (const c of children) c.kill() })
@@ -137,7 +137,7 @@ test('mcp 1b: older supported handshake versions are accepted; a modern client d
   assert.equal(d.resultType, 'complete')
   const list = (await m.request('tools/list', meta)).result
   assert.equal(list.resultType, 'complete')
-  assert.equal(list.tools.length, 12)
+  assert.equal(list.tools.length, 13)
   assert.ok(list.ttlMs > 0 && list.cacheScope)
   const call = (await m.request('tools/call', { ...meta, name: 'verafy_hash', arguments: { path: 'examples/forecast.json' } })).result
   assert.equal(call.resultType, 'complete')

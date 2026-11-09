@@ -1,0 +1,23 @@
+# verafy_certification: a program's report card on chain, written only from a
+# sealed jury ruling of registered harnesses (VIP-0034).
+
+[package]
+name = "verafy-certification"
+version = "0.0.1"
+edition = "2021"
+license = "MIT"
+
+[lib]
+name = "verafy_certification"
+crate-type = ["cdylib", "lib"]
+
+[dependencies]
+abi = { package = "tinysvm-abi", path = "../../tinysvm/programs/abi" }
+
+[profile.release]
+overflow-checks = true
+codegen-units = 1
+lto = true
+panic = "abort"
+
+[workspace]
