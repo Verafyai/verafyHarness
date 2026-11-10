@@ -210,7 +210,7 @@ export function reviewContract(g, log, id) {
     ].join('\n'),
     context: [
       { kind: 'document', label: `Request for Ideas (super grant ${h.slice(0, 12)}, signed by ${g.foundation.name})`, content: JSON.stringify({ summary: g.request.summary, terms: g.request.terms, responseEvidence: g.request.responseEvidence, agentTerms: g.agentTerms.text }, null, 2) },
-      { kind: 'text', label: 'Facts from the signed log (computed by code)', content: JSON.stringify({ grantee: id, admittedAt: x.admittedAt, respondedAt: x.response.time, deadline: x.admittedAt + g.request.responseSeconds, onTime: true, acceptedAgentTerms: agentTermsHash(g) }, null, 2) },
+      { kind: 'text', trusted: true, label: 'Facts from the signed log (computed by code)', content: JSON.stringify({ grantee: id, admittedAt: x.admittedAt, respondedAt: x.response.time, deadline: x.admittedAt + g.request.responseSeconds, onTime: true, acceptedAgentTerms: agentTermsHash(g) }, null, 2) },
       ...x.response.evidence.map(e => ({ kind: 'document', label: `Response evidence: ${e.label}`, content: e.content, sha256: e.sha256 })),
       ...(x.response.summary ? [{ kind: 'text', label: UNTRUSTED, content: x.response.summary }] : []),
     ],
@@ -252,7 +252,7 @@ export function outcomeContract(g, log, id, tranche) {
     ].join('\n'),
     context: [
       { kind: 'document', label: `Tranche ${t.id} of super grant ${h.slice(0, 12)}`, content: JSON.stringify({ outcome: t.outcome, text: t.text, evidence: t.evidence, amount: t.amount }, null, 2) },
-      { kind: 'text', label: 'Facts from the signed log (computed by code)', content: JSON.stringify({ grantee: id, wallet: x.wallet, admittedAt: x.admittedAt, claimedAt: c.time, deadline: x.admittedAt + t.claimSeconds, onTime: true }, null, 2) },
+      { kind: 'text', trusted: true, label: 'Facts from the signed log (computed by code)', content: JSON.stringify({ grantee: id, wallet: x.wallet, admittedAt: x.admittedAt, claimedAt: c.time, deadline: x.admittedAt + t.claimSeconds, onTime: true }, null, 2) },
       ...c.evidence.map(e => ({ kind: 'document', label: `Outcome evidence: ${e.label}`, content: e.content, sha256: e.sha256 })),
       ...(c.statement ? [{ kind: 'text', label: UNTRUSTED, content: c.statement }] : []),
     ],

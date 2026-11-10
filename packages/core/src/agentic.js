@@ -325,7 +325,7 @@ export function disputeContract(c, log, { now }) {
   }
   const context = [
     { kind: 'document', label: `Signed terms (agentic contract ${agenticHash(c).slice(0, 12)}, both signatures verified)`, content: JSON.stringify(terms, null, 2) },
-    { kind: 'text', label: 'Facts from the signed log (deterministic: who delivered what, when, against which deadline)', content: JSON.stringify({ ...r.facts, now, disputedBy: r.dispute.by, disputedAt: r.dispute.time }, null, 2) },
+    { kind: 'text', trusted: true, label: 'Facts from the signed log (deterministic: who delivered what, when, against which deadline)', content: JSON.stringify({ ...r.facts, now, disputedBy: r.dispute.by, disputedAt: r.dispute.time }, null, 2) },
     ...r.evidence.map(x => ({ kind: 'document', label: `Evidence from ${x.by}: ${x.label}`, content: x.content, sha256: x.sha256 })),
   ]
   if (r.statements.length) context.push({ kind: 'text', label: UNTRUSTED, content: JSON.stringify(r.statements, null, 2) })

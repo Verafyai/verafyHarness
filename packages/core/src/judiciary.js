@@ -130,11 +130,11 @@ export function caseContract(s, k, ctx) {
   const families = new Set(s.jury.map(j => s.models.find(m => m.model === j.model)?.family))
   const context = [
     { kind: 'policy', label: `${s.policy.title ?? s.policy.id} (policy ${policyHash(s.policy).slice(0, 12)})`, content: JSON.stringify(s.policy, null, 2) },
-    { kind: 'text', label: 'Decoded transaction', content: JSON.stringify({ multisig: k.multisig, proposal: k.proposal, transaction: k.transaction }, null, 2) },
-    { kind: 'text', label: 'What it does (effects, read from the instructions)', content: JSON.stringify(effects, null, 2) },
-    { kind: 'text', label: 'Rule report (deterministic; a violation means REJECT)', content: JSON.stringify(report, null, 2) },
-    { kind: 'text', label: 'Case history (earlier approved cases on this wallet)', content: JSON.stringify(ctx.history ?? [], null, 2) },
-    ...(ctx.agentic ? [{ kind: 'text', label: `Settlement this payout carries out (VIP-0029). The signer checked the proof: ${report.violations.some(v => v.startsWith('settlement proof:')) ? 'it FAILED' : 'it holds'}`, content: JSON.stringify({ contract: agenticHash(ctx.agentic.contract), settlement: ctx.agentic.settlement, events: ctx.agentic.log.length, ruling: ctx.agentic.asc ? ascHash(ctx.agentic.asc) : null }, null, 2) }] : []),
+    { kind: 'text', trusted: true, label: 'Decoded transaction', content: JSON.stringify({ multisig: k.multisig, proposal: k.proposal, transaction: k.transaction }, null, 2) },
+    { kind: 'text', trusted: true, label: 'What it does (effects, read from the instructions)', content: JSON.stringify(effects, null, 2) },
+    { kind: 'text', trusted: true, label: 'Rule report (deterministic; a violation means REJECT)', content: JSON.stringify(report, null, 2) },
+    { kind: 'text', trusted: true, label: 'Case history (earlier approved cases on this wallet)', content: JSON.stringify(ctx.history ?? [], null, 2) },
+    ...(ctx.agentic ? [{ kind: 'text', trusted: true, label: `Settlement this payout carries out (VIP-0029). The signer checked the proof: ${report.violations.some(v => v.startsWith('settlement proof:')) ? 'it FAILED' : 'it holds'}`, content: JSON.stringify({ contract: agenticHash(ctx.agentic.contract), settlement: ctx.agentic.settlement, events: ctx.agentic.log.length, ruling: ctx.agentic.asc ? ascHash(ctx.agentic.asc) : null }, null, 2) }] : []),
   ]
   const untrusted = { memo: k.memo, description: k.description, labels: k.labels }
   if (Object.values(untrusted).some(v => v !== undefined)) context.push({ kind: 'text', label: UNTRUSTED, content: JSON.stringify(untrusted, null, 2) })

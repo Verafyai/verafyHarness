@@ -395,7 +395,7 @@ Security is economic: lying has to cost an operator more than it pays.
 | A vote outside the declared options | Rejected at parse; the jury can only pick declared exits | Strong |
 | An operator runs a cheaper model than committed | Bonds, audits, attestation; proofs where available | Moderate today, strong with proofs |
 | Bribery or collusion | Seeded random juries, bonds sized above what one vote decides, audits | Moderate, bounded by bond size |
-| Prompt injection in evidence | Evidence is wrapped and labeled; the juror prompt forbids following it; juror mode locks tools | Moderate |
+| Prompt injection in evidence | [Prompt Guard](https://github.com/Verafyai/prompt-guard) compiles untrusted evidence into quoted statements and directives, so no juror reads it raw; the juror prompt forbids following directives; juror mode locks tools | Moderate. Measured on the scanner only: 45% of a held out injection set caught with no false alarms, 93% or more of jury-directed payloads under every obfuscation tested, 0.7% of task hijacks that never address the reader. Not yet measured at the jury. |
 | Poisoned or forged evidence | Pinned sources, challenges, safe defaults, caps per ruling | Weak; in Verafy's testing poisoned evidence fooled every model tried |
 | A compromised harness fires a trigger | Triggers need a quorum signature | Strong |
 | One RPC provider lies about escrow or a trigger | The light client asks 3 endpoints from 2 or more operators and accepts only agreement; a split or a stale slot is unknown, and the contract pauses | Moderate: it trusts that the operators do not collude. A Solana light-client protocol or Helios on Ethereum would make it strong |
@@ -404,6 +404,7 @@ Security is economic: lying has to cost an operator more than it pays.
 
 - **Proof of which model ran.** Proofs exist for one open model today. Until more can be proven, trust rests on bonds and audits.
 - **Evidence you cannot trust.** A jury is only as good as what it reads.
+- **Prompt injection that never addresses the reader.** Prompt Guard catches text that speaks to the jury, including when it is hidden, but not a plain task dropped into evidence. That work is open at [Verafyai/prompt-guard](https://github.com/Verafyai/prompt-guard), with a red team scoreboard anyone can add attacks to.
 - **Liveness.** If several providers fail at once, juries cannot reach quorum. The live runs already saw one rate-limited harness drop out; the jury sealed without it.
 - **Model drift.** A model update can read the same words differently. Harnesses pin versions; the network needs a retirement rule.
 - **Weighting without a coin.** With no native token to stake, how nodes are weighted for ledger consensus, and how bonds in different assets compare, are open. Testnet keeps the node set permissioned.
