@@ -174,7 +174,7 @@ export function violationContract(b, log, reportId) {
     ].join('\n'),
     context: [
       { kind: 'document', label: `Covenant ${h.slice(0, 12)}, signed by ${b.operator.name}`, content: JSON.stringify({ agent: b.agent, articles: b.articles.map(({ id, text, evidence, slash }) => ({ id, text, evidence, slash })), term: b.term }, null, 2) },
-      { kind: 'text', label: 'Facts from the signed log (computed by code)', content: JSON.stringify({ report: r.id, article: r.article, incident: r.incident, conductAt: r.at, reportedAt: r.time, inTerm: true, operatorAnswered: Boolean(r.answer) }, null, 2) },
+      { kind: 'text', trusted: true, label: 'Facts from the signed log (computed by code)', content: JSON.stringify({ report: r.id, article: r.article, incident: r.incident, conductAt: r.at, reportedAt: r.time, inTerm: true, operatorAnswered: Boolean(r.answer) }, null, 2) },
       ...r.evidence.map(e => ({ kind: 'document', label: `Reporter's evidence: ${e.label}`, content: e.content, sha256: e.sha256 })),
       ...(r.answer?.evidence ?? []).map(e => ({ kind: 'document', label: `Operator's evidence: ${e.label}`, content: e.content, sha256: e.sha256 })),
       ...(statements.length ? [{ kind: 'text', label: UNTRUSTED, content: JSON.stringify(statements, null, 2) }] : []),

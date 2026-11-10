@@ -511,6 +511,10 @@ and explorers MAY decode the account layouts defined here.
   evidence led all ten models tested to the same wrong answer. Calling
   programs MUST keep hard limits in code, MUST restrict effects to listed
   outcomes, and SHOULD require dispute windows for high-value actions.
+  Harnesses SHOULD compile untrusted context before a model reads it, so
+  text that tries to instruct the reader reaches it only as quoted evidence;
+  [Prompt Guard](https://github.com/Verafyai/prompt-guard) is one open
+  implementation, with a deterministic record any verifier can recompute.
 
 - **Misleading summaries.** A rapporteur could summarize unfairly. Sign-off
   by a quorum of agreeing evaluators, and dissents, limit this. The full

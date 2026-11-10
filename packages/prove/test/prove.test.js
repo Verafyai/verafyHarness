@@ -164,11 +164,11 @@ test('proving never blocks the commit', async () => {
 
 test('a long contract splits into proven chunks, map then reduce, every chunk proof attached', async () => {
   const asc = l2(ex('market-resolution'))
-  const pool = provingPool(script, { contextTokens: 500 })
-  const plan = planInference(await import('../../core/src/index.js').then(m => m.buildPrompt(asc)), { contextTokens: 500 })
+  const pool = provingPool(script, { contextTokens: 600 })
+  const plan = planInference(await import('../../core/src/index.js').then(m => m.buildPrompt(asc)), { contextTokens: 600 })
   assert.equal(plan.composition, COMPOSITION)
   assert.ok(plan.map.length >= 2)
-  assert.ok(plan.map.every(m => countTokens(m.system) + countTokens(m.user) <= 500))
+  assert.ok(plan.map.every(m => countTokens(m.system) + countTokens(m.user) <= 600))
   const { ruling, proved } = await l2Round(asc, pool)
   assert.equal(ruling.passed, true)
   assert.deepEqual(ruling.round.faults, [])

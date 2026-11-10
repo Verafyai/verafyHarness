@@ -191,7 +191,7 @@ export function judgingContract(h, log, id, { snapshot } = {}) {
       snapshot
         ? { kind: 'repo', label: `Submission: ${t.team}, the repository at the pinned commit (verafy.repo-snapshot/1)`, url: t.repo, commit: t.commit, content: snapshot.content, sha256: snapshot.sha256 }
         : { kind: 'repo', label: `Submission: ${t.team}`, url: t.repo, commit: t.commit, content: `${t.repo} at ${t.commit}` },
-      { kind: 'text', label: 'Facts from the signed log (computed by code)', content: JSON.stringify({ team: id, submittedAt: t.time, closesAt: h.window.closesAt, onTime: true, commit: t.commit }, null, 2) },
+      { kind: 'text', trusted: true, label: 'Facts from the signed log (computed by code)', content: JSON.stringify({ team: id, submittedAt: t.time, closesAt: h.window.closesAt, onTime: true, commit: t.commit }, null, 2) },
       ...(t.description ? [{ kind: 'text', label: UNTRUSTED, content: t.description }] : []),
     ],
     question: { prompt: 'What score, from 0 to 10, does this submission earn against the weighted criteria?', answer: { type: 'graded', options: SCORE_SCALE } },
