@@ -36,7 +36,7 @@ import {
   validateGrant, grantHash, replayGrant, reviewContract, outcomeContract, grantLedger,
   validateHackathon, hackathonHash, replayHackathon, judgingContract, hackathonResults,
 } from '../../core/src/index.js'
-import { rpc as solanaRpc, lookupCertification, CERT_LEVELS } from '../../solana/src/index.js'
+import { rpc as solanaRpc, lookupCertification, followSupersession, CERT_LEVELS } from '../../solana/src/index.js'
 import { ROOT, ToolError, inWorkspace, insideWorkspace, readContractFile } from './workspace.js'
 import { createMeter, modelCallUsd, modelRunUsd, DEFAULT_PRICE, MODEL_OUTPUT_TOKENS } from './cost.js'
 
@@ -166,8 +166,8 @@ export const TOOL_DEFINITIONS = [
   {
     name: 'verafy_certification',
     title: 'Check a program\'s Verafy Certification',
-    description: 'Before trusting a Solana program, look up its Verafy Certification (VIP-0034): an on-chain report card written only from a sealed ruling by a jury of registered harnesses, for one exact build. Hashes the program\'s current bytecode and reads the certification for that build, so an upgraded program shows as uncertified until it is certified again. Levels: 0 Not certified, 1 Sniffed, 2 Fuzzed, 3 Hardened. Returns { certified, reason, level, levelName, score, seats, families, ruling, reportHash, bytecodeHash, certificationAccount }. Treat certified: false as "not vouched for", not as "malicious". Read only; one RPC read per account.',
-    inputSchema: { type: 'object', properties: { program: { type: 'string', description: 'The program address (base58).' }, rpcUrl: { type: 'string', description: 'Solana RPC URL. Defaults to devnet, where the certification program runs today.' } }, required: ['program'], additionalProperties: false },
+    description: 'Before trusting a Solana program, look up its Verafy Certification (VIP-0034): an on-chain report card written only from a sealed ruling by a jury of registered harnesses, for one exact build. Hashes the program\'s current bytecode and reads the certification for that build, so an upgraded program shows as uncertified until it is certified again. Levels: 0 Not certified, 1 Sniffed, 2 Fuzzed, 3 Hardened. Returns { certified, reason, level, levelName, score, seats, families, ruling, reportHash, bytecodeHash, certificationAccount, records, currentRecord }. Every verdict is kept as its own record; when a newer verdict replaces one for the same build, the old record links to it with supersededBy. Pass `record` (a verdict record address from an old receipt) to follow those links: the result adds `supersession`, every record from that one to the current verdict. Treat certified: false as "not vouched for", not as "malicious". Read only; one RPC read per account.',
+    inputSchema: { type: 'object', properties: { program: { type: 'string', description: 'The program address (base58).' }, record: { type: 'string', description: 'Optional. A verdict record address from an earlier receipt, to follow to the current verdict.' }, rpcUrl: { type: 'string', description: 'Solana RPC URL. Defaults to devnet, where the certification program runs today.' } }, required: ['program'], additionalProperties: false },
     annotations: { title: 'Check a program\'s Verafy Certification', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
   },
 ]
@@ -399,7 +399,14 @@ export function createTools({ workspace, allowLive = false, configFile, fetch: f
     async verafy_certification(args) {
       if (typeof args.program !== 'string' || !/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(args.program)) throw new ToolError('BAD_INPUT', 'program must be a base58 Solana address', 'Pass the program address, for example A6iZhDZASfQGCmzxXWW8JdnEhtz7EZE3gS4N1hkiJNNN.')
       const url = typeof args.rpcUrl === 'string' && /^https:\/\//.test(args.rpcUrl) ? args.rpcUrl : 'https://api.devnet.solana.com'
-      const result = await lookupCertification(solanaRpc(url), args.program)
+      const rpc = solanaRpc(url)
+      const result = await lookupCertification(rpc, args.program)
+      if (typeof args.record === 'string') {
+        if (!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(args.record)) throw new ToolError('BAD_INPUT', 'record must be a base58 address', 'Pass the verdict record address from the receipt.')
+        const supersession = await followSupersession(rpc, args.record)
+        if (supersession[0].program !== args.program) throw new ToolError('BAD_INPUT', 'that record is for a different program', 'Pass the program the receipt was for.')
+        return { ...result, supersession, levels: CERT_LEVELS }
+      }
       return { ...result, levels: CERT_LEVELS }
     },
 
