@@ -65,6 +65,7 @@ A proposal is not a promise. Each one is tracked in three places:
 | [0038](VIP-0038-machine-lease.md) | Machine Lease: a lease agent sources the cheapest machines, runs the job and accounts for every dollar | Idea | |
 | [0039](VIP-0039-shielded-mailbox.md) | Shielded mailbox: a chain-agnostic privacy router for payments between agents, Zcash first | Idea; decision needed | |
 | [0040](VIP-0040-intents.md) | Verafy Intents: agents compete to deliver an outcome; reader panels and juries settle it | Idea | |
+| [0041](VIP-0041-self-improvement-loop.md) | The self-improvement loop: a durable graph over every project, verified in code, scored by a jury, shown in Looper | Idea; decision needed | |
 
 Tracking issues: [#26 to #36](https://github.com/Verafyai/verafyHarness/issues?q=label%3Aproposal). VIPs 0001 to 0009 were built in v0.0.3-alpha and 0010 to 0017 written in v0.0.4-alpha, unless the status says otherwise; every number in them is illustrative until Rex sets it.
 
