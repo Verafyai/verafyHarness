@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Machine Lease by Verafy</title>
+
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0B0D10}
+a{color:#4FD1B5;text-decoration:none}a:hover{color:#9BEBD8}
+</style>
+</helmet>
+<div style="background: #0B0D10; color: #E8EAED; font-family: Inter, system-ui, sans-serif; min-height: 100vh">
+
+<header style="border-bottom: 1px solid #1C2127">
+<div style="max-width: 1280px; margin: 0 auto; padding: 18px 32px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap">
+<a href="#" style="display: flex; align-items: center; gap: 10px; color: #E8EAED">
+<svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true"><rect x="3" y="7" width="22" height="14" rx="3" stroke="#4FD1B5" stroke-width="2"></rect><path d="M8 3v4M14 3v4M20 3v4M8 21v4M14 21v4M20 21v4" stroke="#4FD1B5" stroke-width="2" stroke-linecap="round"></path></svg>
+<span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px">Machine Lease</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #9AA3AD">by Verafy</span>
+</a>
+<nav style="display: flex; gap: 28px; font-size: 15px; flex-wrap: wrap">
+<a href="#" style="color: #C5CBD2">My leases</a>
+<a href="#" style="color: #C5CBD2">Run a lease agent</a>
+<a href="#" style="color: #C5CBD2">List a machine</a>
+<a href="#" style="color: #C5CBD2">Docs</a>
+</nav>
+<a href="#" style="padding: 10px 16px; border: 1px solid #2E3A40; border-radius: 10px; color: #E8EAED; font-size: 15px">Connect wallet</a>
+</div>
+</header>
+
+<section style="max-width: 1280px; margin: 0 auto; padding: 72px 32px 40px">
+<div style="display: inline-flex; gap: 8px; align-items: center; padding: 6px 12px; border: 1px solid #2E3A40; border-radius: 999px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #F5B84B">
+<span style="width: 8px; height: 8px; border-radius: 4px; background: #F5B84B"></span>Planned. Devnet first.
+</div>
+<h1 style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 56px; line-height: 1.06; letter-spacing: -0.02em; margin: 20px 0 18px; max-width: 54rem">Escrow a compute budget. An agent finds the cheapest machines, runs your job and brings back receipts.</h1>
+<p style="font-size: 18px; line-height: 1.6; color: #B8C0C8; margin: 0; max-width: 46rem">GPU prices vary widely across marketplaces, clouds and independent hosts, and finding the right box is its own research project. A lease agent does that research, leases what fits, watches the run and accounts for every dollar. The jury checks the job finished and the spend was fair before the agent is paid.</p>
+</section>
+
+<main style="max-width: 1280px; margin: 0 auto; padding: 0 32px 80px; display: grid; grid-template-columns: minmax(320px, 1fr) minmax(0, 1.6fr); gap: 28px; align-items: start">
+
+<section style="border: 1px solid #232A33; border-radius: 16px; background: #10151A; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+<div style="font-family: 'Space Grotesk', sans-serif; font-size: 22px">New lease request</div>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #9AA3AD">Workload<textarea rows="3" style="padding: 12px; border-radius: 10px; border: 1px solid #2E3A40; background: #0B0D10; color: #E8EAED; font: 15px/1.5 Inter, sans-serif; resize: vertical">LoRA fine tune of an 8B model on my dataset. Return the adapter, eval scores and logs.</textarea></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #9AA3AD">Container image<input value="ghcr.io/you/finetune:1.4" style="padding: 12px; border-radius: 10px; border: 1px solid #2E3A40; background: #0B0D10; color: #E8EAED; font: 14px 'JetBrains Mono', monospace"></label>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #9AA3AD">GPU floor<select style="padding: 12px; border-radius: 10px; border: 1px solid #2E3A40; background: #0B0D10; color: #E8EAED; font: 15px Inter, sans-serif"><option>48 GB VRAM or more</option><option>80 GB VRAM or more</option></select></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #9AA3AD">Count<input value="1" style="padding: 12px; border-radius: 10px; border: 1px solid #2E3A40; background: #0B0D10; color: #E8EAED; font: 15px Inter, sans-serif"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #9AA3AD">Max per GPU hour<input value="[PRICE] USDC" style="padding: 12px; border-radius: 10px; border: 1px solid #2E3A40; background: #0B0D10; color: #E8EAED; font: 15px Inter, sans-serif"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #9AA3AD">Deadline<input value="48 hours" style="padding: 12px; border-radius: 10px; border: 1px solid #2E3A40; background: #0B0D10; color: #E8EAED; font: 15px Inter, sans-serif"></label>
+</div>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #9AA3AD">Done means<input value="adapter.safetensors, eval.json with loss below 1.2, full logs" style="padding: 12px; border-radius: 10px; border: 1px solid #2E3A40; background: #0B0D10; color: #E8EAED; font: 15px Inter, sans-serif"></label>
+<label style="display: flex; gap: 10px; align-items: center; font-size: 15px; color: #C5CBD2"><input type="checkbox" checked style="width: 18px; height: 18px; accent-color: #4FD1B5">Auto-approve plans under my max price</label>
+<div style="border-top: 1px solid #232A33; padding-top: 14px; display: flex; justify-content: space-between; align-items: center; gap: 12px">
+<div><div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #9AA3AD">Escrow</div><div style="font-family: 'Space Grotesk', sans-serif; font-size: 26px">[BUDGET] USDC</div></div>
+<button style="padding: 14px 20px; border-radius: 12px; border: 0; background: #4FD1B5; color: #0B0D10; font: 600 16px Inter, sans-serif">Escrow and post</button>
+</div>
+<div style="color: #9AA3AD; font-size: 13px">Unspent budget refunds when the lease settles.</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 18px">
+<div style="border: 1px solid #232A33; border-radius: 16px; background: #10151A; overflow: hidden">
+<div style="padding: 16px 22px; border-bottom: 1px solid #232A33; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap">
+<span style="font-family: 'Space Grotesk', sans-serif; font-size: 20px">Sourcing run</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #9AA3AD">Example. lease agent 4kTz...q9</span>
+</div>
+<div style="overflow-x: auto">
+<table style="width: 100%; border-collapse: collapse; font-size: 15px; min-width: 640px">
+<thead><tr style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #9AA3AD; text-align: left">
+<th style="padding: 12px 22px; font-weight: 500">Offer</th><th style="padding: 12px 22px; font-weight: 500">GPU</th><th style="padding: 12px 22px; font-weight: 500">Per hour</th><th style="padding: 12px 22px; font-weight: 500">Interruptible</th><th style="padding: 12px 22px; font-weight: 500">Pick</th>
+</tr></thead>
+<tbody>
+<tr style="border-top: 1px solid #1C2127; background: #0F2A26"><td style="padding: 14px 22px">Rental marketplace A</td><td style="padding: 14px 22px; color: #B8C0C8">1x 48 GB</td><td style="padding: 14px 22px; font-family: 'JetBrains Mono', monospace">[PRICE]</td><td style="padding: 14px 22px; color: #B8C0C8">No</td><td style="padding: 14px 22px; color: #4FD1B5; font-weight: 600">Chosen</td></tr>
+<tr style="border-top: 1px solid #1C2127"><td style="padding: 14px 22px">Verafy direct host</td><td style="padding: 14px 22px; color: #B8C0C8">1x 80 GB</td><td style="padding: 14px 22px; font-family: 'JetBrains Mono', monospace">[PRICE]</td><td style="padding: 14px 22px; color: #B8C0C8">No</td><td style="padding: 14px 22px; color: #C5CBD2">Fallback</td></tr>
+<tr style="border-top: 1px solid #1C2127"><td style="padding: 14px 22px">Cloud spot pool</td><td style="padding: 14px 22px; color: #B8C0C8">1x 80 GB</td><td style="padding: 14px 22px; font-family: 'JetBrains Mono', monospace">[PRICE]</td><td style="padding: 14px 22px; color: #FF8A3D">Yes</td><td style="padding: 14px 22px; color: #9AA3AD">Skipped: may be reclaimed</td></tr>
+<tr style="border-top: 1px solid #1C2127"><td style="padding: 14px 22px">Rental marketplace B</td><td style="padding: 14px 22px; color: #B8C0C8">1x 24 GB</td><td style="padding: 14px 22px; font-family: 'JetBrains Mono', monospace">[PRICE]</td><td style="padding: 14px 22px; color: #B8C0C8">No</td><td style="padding: 14px 22px; color: #9AA3AD">Below VRAM floor</td></tr>
+</tbody>
+</table>
+</div>
+<div style="padding: 14px 22px; border-top: 1px solid #232A33; color: #9AA3AD; font-size: 14px">Plan posted on chain with every quote, so the jury can check the choice later.</div>
+</div>
+
+<div style="border: 1px solid #232A33; border-radius: 16px; background: #10151A; padding: 22px">
+<div style="font-family: 'Space Grotesk', sans-serif; font-size: 20px; margin-bottom: 16px">Run</div>
+<ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px">
+<li style="display: flex; gap: 14px; align-items: baseline"><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #4FD1B5; min-width: 120px">open_lease</span><span>Budget escrowed. Request posted to lease agents.</span></li>
+<li style="display: flex; gap: 14px; align-items: baseline"><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #4FD1B5; min-width: 120px">post_plan</span><span>Sourcing plan under max price. Auto-approved.</span></li>
+<li style="display: flex; gap: 14px; align-items: baseline"><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #4FD1B5; min-width: 120px">start</span><span>Machine rented. Provider order id recorded. Container running.</span></li>
+<li style="display: flex; gap: 14px; align-items: baseline"><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #F5B84B; min-width: 120px">post_receipt</span><span>Hour 3 of an estimated 6. GPU busy. Output hash advancing.</span></li>
+<li style="display: flex; gap: 14px; align-items: baseline; color: #9AA3AD"><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; min-width: 120px">deliver</span><span>Outputs, invoices, final report.</span></li>
+<li style="display: flex; gap: 14px; align-items: baseline; color: #9AA3AD"><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; min-width: 120px">record_ruling</span><span>Jury checks the job met "done means" and the spend matched the plan.</span></li>
+</ol>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px">
+<div style="border: 1px solid #232A33; border-radius: 14px; padding: 16px; background: #10151A"><div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #9AA3AD">Spent so far</div><div style="font-family: 'Space Grotesk', sans-serif; font-size: 24px; margin-top: 6px">[SPENT] USDC</div></div>
+<div style="border: 1px solid #232A33; border-radius: 14px; padding: 16px; background: #10151A"><div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #9AA3AD">Still in escrow</div><div style="font-family: 'Space Grotesk', sans-serif; font-size: 24px; margin-top: 6px">[LEFT] USDC</div></div>
+<div style="border: 1px solid #232A33; border-radius: 14px; padding: 16px; background: #10151A"><div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #9AA3AD">Agent fee</div><div style="font-family: 'Space Grotesk', sans-serif; font-size: 24px; margin-top: 6px">Paid on pass</div></div>
+</div>
+<div style="display: flex; gap: 12px; flex-wrap: wrap">
+<button style="padding: 12px 18px; border-radius: 12px; border: 1px solid #2E3A40; background: transparent; color: #E8EAED; font: 500 15px Inter, sans-serif">Stop and refund the rest</button>
+<button style="padding: 12px 18px; border-radius: 12px; border: 1px solid #FF5A5F; background: transparent; color: #FF8A8D; font: 500 15px Inter, sans-serif">Dispute an hour</button>
+</div>
+</section>
+</main>
+
+<footer style="border-top: 1px solid #1C2127">
+<div style="max-width: 1280px; margin: 0 auto; padding: 32px; display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; font-size: 14px; color: #9AA3AD">
+<span>Machine Lease is an Actually Smart Contract by Verafy. Settles on Solana. No token.</span>
+<span style="display: flex; gap: 20px"><a href="#" style="color: #9AA3AD">Spec</a><a href="#" style="color: #9AA3AD">Explorer</a><a href="#" style="color: #9AA3AD">GitHub</a></span>
+</div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2300}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
