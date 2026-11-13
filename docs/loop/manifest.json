@@ -1,0 +1,98 @@
+{
+  "manifest": "verafy-loop/1",
+  "updated": "2026-11-13",
+  "owner": "Rex St. John",
+  "loop": "docs/loop/README.md",
+  "styleGuide": "docs/loop/STYLE-GUIDE.md",
+  "learnings": "docs/loop/LEARNINGS.md",
+  "asks": "docs/loop/ASKS.md",
+  "scoreDir": "docs/loop/scores",
+  "notes": [
+    "Every 'check' value is unknown until the first run fills it. The loop never writes a value it did not observe.",
+    "Paths are GitHub owner/repo. Two owners are in use: Verafyai and VerafyTechnologies. Step 4 of the loop decides whether to consolidate."
+  ],
+  "analytics": {
+    "provider": "Google Analytics 4",
+    "measurementIdEnv": "NEXT_PUBLIC_GA_ID",
+    "measurementId": "NEEDS REX: the GA4 property id",
+    "consent": "Load only after consent where the law requires it (EU, UK, California). No cookies before consent.",
+    "excluded": [
+      {"site": "rexstjohn.com", "reason": "Its CLAUDE.md says the site keeps no reader data at all. GA is not installed there unless Rex changes that rule."}
+    ]
+  },
+  "sites": [
+    {"id": "www", "url": "https://www.verafy.ai", "repo": "VerafyTechnologies/verafy-website", "role": "Brand home, product index, header source of truth"},
+    {"id": "blog", "url": "https://blog.verafy.ai", "repo": "VerafyTechnologies/blog", "role": "Blog"},
+    {"id": "harness", "url": "https://harness.verafy.ai", "repo": "Verafyai/verafyHarness", "role": "Verafy Harness docs and learn pages (site/)"},
+    {"id": "asc", "url": "https://asc.verafy.ai", "repo": "Verafyai/asc", "role": "Actually Smart Contracts"},
+    {"id": "chain", "url": "https://chain.verafy.ai", "repo": "Verafyai/verafyChain", "role": "Verafy Chain concept"},
+    {"id": "devnet", "url": "https://devnet.verafy.ai", "repo": "Verafyai/devnet", "role": "Devnet run record"},
+    {"id": "explorer", "url": "https://explorer.verafy.ai", "repo": "Verafyai/explorer", "role": "Reads Verafy programs on Solana devnet"},
+    {"id": "fuzzy", "url": "https://fuzzy.verafy.ai", "repo": "Verafyai/fuzzy", "role": "Pay-per-run fuzzing and certification"},
+    {"id": "swarm", "url": "https://swarm.verafy.ai", "repo": "VerafyTechnologies/testnet-demo", "role": "Swarm Explorer: ask the models, with web search"},
+    {"id": "bias", "url": "https://bias.verafy.ai", "repo": "Verafyai/bias-detector", "role": "Bias Detector"},
+    {"id": "inspector", "url": "https://inspector.verafy.ai", "repo": "check", "role": "Inspector"},
+    {"id": "perspective", "url": "https://perspective.verafy.ai", "repo": "Verafyai/perspective", "role": "Perspective"},
+    {"id": "testnet", "url": "https://testnet.verafy.ai", "repo": "check", "role": "Testnet"},
+    {"id": "judiciary", "url": "https://judiciary.verafy.ai", "repo": "check", "role": "Judiciary signer"},
+    {"id": "forecast", "url": "https://forecast.verafy.ai", "repo": "check", "role": "Forecasts"},
+    {"id": "prompt-guard", "url": "check", "repo": "Verafyai/prompt-guard", "role": "Prompt Guard"},
+    {"id": "devradar", "url": "https://devradar.rexstjohn.com", "repo": "Verafyai/devradar", "role": "DevRadar scan and MCP server"},
+    {"id": "looper", "url": "https://looper.rexstjohn.com", "repo": "Verafyai/looper", "role": "Looper dashboard for scheduled agent loops"},
+    {"id": "lineage", "url": "https://api.lineage.rexstjohn.com", "repo": "Verafyai/lineage-api", "role": "Lineage records API"},
+    {"id": "tasks", "url": "https://tasks.verafy.ai", "repo": "to create", "role": "VIP-0036, not built"},
+    {"id": "prediction", "url": "https://prediction.verafy.ai", "repo": "to create", "role": "VIP-0037, not built"},
+    {"id": "lease", "url": "check: lease.verafy.ai or a Tasks section", "repo": "to create", "role": "VIP-0038, not built"},
+    {"id": "intents", "url": "check: intents.verafy.ai", "repo": "to create", "role": "VIP-0040, not built"}
+  ],
+  "projects": [
+    {"id": "verafy-harness", "name": "Verafy Harness", "repo": "Verafyai/verafyHarness", "site": "harness", "blog": ["20261106-verafy-harness", "20261107-verafy-harness-v0-0-4"], "vips": ["0001-0035"], "settlesOnVerafy": "check", "logo": "check"},
+    {"id": "asc", "name": "Actually Smart Contracts", "repo": "Verafyai/asc", "site": "asc", "blog": ["20261104-actually-smart-contracts"], "vips": ["0029", "0032"], "settlesOnVerafy": "check", "logo": "check"},
+    {"id": "verafy-chain", "name": "Verafy Chain", "repo": "Verafyai/verafyChain", "site": "chain", "blog": [], "vips": ["0017", "0026", "0028"], "settlesOnVerafy": "concept", "logo": "check"},
+    {"id": "devnet", "name": "Verafy Devnet", "repo": "Verafyai/devnet", "site": "devnet", "blog": ["20261108-verafy-devnet"], "vips": ["0020"], "settlesOnVerafy": "check", "logo": "check"},
+    {"id": "explorer", "name": "Verafy Explorer", "repo": "Verafyai/explorer", "site": "explorer", "blog": ["20261109-introducing-verafy-explorer"], "vips": [], "settlesOnVerafy": "reads only", "logo": "check"},
+    {"id": "fuzzy", "name": "Fuzzy", "repo": "Verafyai/fuzzy", "site": "fuzzy", "blog": ["20261109-fuzzy-fuzzing-database-and-certification-for-agents"], "vips": ["0034", "0035"], "settlesOnVerafy": "check", "logo": "check"},
+    {"id": "prompt-guard", "name": "Prompt Guard", "repo": "Verafyai/prompt-guard", "site": "prompt-guard", "blog": ["20261110-prompt-guard"], "vips": [], "settlesOnVerafy": "n/a: a filter in front of jurors", "logo": "check"},
+    {"id": "swarm-explorer", "name": "Swarm Explorer", "repo": "VerafyTechnologies/testnet-demo", "site": "swarm", "blog": ["20250513-introducing-verafy-swarm-explorer", "20261011-verafy-swarm-explorer"], "vips": [], "settlesOnVerafy": "check", "logo": "check"},
+    {"id": "bias-detector", "name": "Bias Detector", "repo": "Verafyai/bias-detector", "site": "bias", "blog": ["20261011-introducing-verafy-bias-detector"], "vips": ["0018", "0023"], "settlesOnVerafy": "check", "logo": "check"},
+    {"id": "inspector", "name": "Inspector", "repo": "check", "site": "inspector", "blog": ["20261011-introducing-verafy-inspector"], "vips": [], "settlesOnVerafy": "check", "logo": "check"},
+    {"id": "perspective", "name": "Perspective", "repo": "Verafyai/perspective", "site": "perspective", "blog": [], "vips": [], "settlesOnVerafy": "check", "logo": "check"},
+    {"id": "svmllm", "name": "SVMLLM", "repo": "Verafyai/svmLLM", "site": null, "blog": ["20261101-cram-solana-can-you-cram-all-of-solana-into-an-llm", "20261101-svmllm-a-tiny-solana-vm-in-neural-network-weights", "20261107-the-solana-vm-in-hand-set-weights"], "vips": ["0028"], "settlesOnVerafy": "research", "logo": "check"},
+    {"id": "evmllm", "name": "EVMLLM", "repo": "Verafyai/evmLLM", "site": null, "blog": [], "vips": [], "settlesOnVerafy": "research", "logo": "check"},
+    {"id": "sdk", "name": "Verafy SDK", "repo": "Verafyai/sdk", "site": "check", "blog": [], "vips": [], "settlesOnVerafy": "check", "logo": "check"},
+    {"id": "verafy-apis", "name": "Verafy APIs", "repo": "VerafyTechnologies/verafy-apis", "site": "check", "blog": ["20250825-getting-started-with-verafy-apis", "20250829-verafy-api-use-cases"], "vips": [], "settlesOnVerafy": "check", "logo": "check"},
+    {"id": "factcheck-extension", "name": "Verafy fact-check extension", "repo": "Verafyai/verafy-factcheck-extension", "site": "check", "blog": [], "vips": [], "settlesOnVerafy": "check", "logo": "check"},
+    {"id": "tasks", "name": "Tasks", "repo": "to create", "site": "tasks", "blog": [], "vips": ["0036"], "settlesOnVerafy": "planned", "logo": "to create"},
+    {"id": "predictions", "name": "Predictions", "repo": "to create", "site": "prediction", "blog": [], "vips": ["0037"], "settlesOnVerafy": "planned", "logo": "to create"},
+    {"id": "machine-lease", "name": "Machine Lease", "repo": "to create", "site": "lease", "blog": [], "vips": ["0038"], "settlesOnVerafy": "planned", "logo": "to create"},
+    {"id": "shielded-mailbox", "name": "Shielded mailbox", "repo": "to create", "site": null, "blog": [], "vips": ["0039"], "settlesOnVerafy": "planned", "logo": "to create", "gate": "Legal review before any build past devnet"},
+    {"id": "intents", "name": "Verafy Intents", "repo": "to create", "site": "intents", "blog": [], "vips": ["0040"], "settlesOnVerafy": "planned", "logo": "to create"}
+  ],
+  "adjacent": [
+    {"id": "devradar", "repo": "Verafyai/devradar", "site": "devradar", "note": "Rex's product, on rexstjohn.com subdomain; website and repo passes apply, Verafy compliance does not"},
+    {"id": "looper", "repo": "Verafyai/looper", "site": "looper", "note": "Same"},
+    {"id": "lineage", "repo": "Verafyai/lineage-api", "site": "lineage", "note": "Same; its own loop is docs/handoff/LOOP-SPEC.md in that repo"},
+    {"id": "rexstjohn-site", "repo": "Verafyai/rexstjohn.com", "site": "https://rexstjohn.com", "note": "Portfolio. Website copy pass only; no GA; its own CLAUDE.md wins on every conflict"}
+  ],
+  "archivedOrLegacy": [
+    "Verafyai/swarmchain-site (archived)",
+    "Verafyai/TruthTerminal", "Verafyai/Truth-Terminal-MVP", "Verafyai/TruthSeeker", "Verafyai/TruthChainV1",
+    "Verafyai/QuestionsRegistry", "Verafyai/OpenQuestionRegistry", "Verafyai/TruthRouter", "Verafyai/Reports", "Verafyai/testnet"
+  ],
+  "vips": {
+    "dir": "docs/proposals",
+    "shipped": ["0001", "0002", "0003", "0004", "0005", "0006", "0007", "0008", "0009", "0010", "0011", "0012", "0013", "0014", "0015", "0016", "0017", "0018", "0019", "0029", "0030", "0031", "0032", "0033", "0034", "0035"],
+    "idea": ["0020", "0021", "0022", "0023", "0024", "0025", "0026", "0027", "0028", "0036", "0037", "0038", "0040"],
+    "decisionNeeded": ["0039"]
+  },
+  "designs": {
+    "canvas": "https://claude.ai/artifact/W2kVjiM5nwFbEyqhjyKUnE",
+    "spec": "https://claude.ai/artifact/UesDa3kVzVrpy1vhat5d9T",
+    "inRepo": "docs/proposals/assets"
+  },
+  "revenue": {
+    "source": "Stripe (live mode once enabled) and on-chain fees read from Verafy programs",
+    "targets": "NEEDS REX: a revenue target per project, per quarter",
+    "label": "Every revenue number is labelled measured, modeled or target"
+  }
+}
