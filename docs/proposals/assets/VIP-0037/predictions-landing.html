@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Predictions by Verafy</title>
+
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0B0D10}
+a{color:#4FD1B5;text-decoration:none}a:hover{color:#9BEBD8}
+</style>
+</helmet>
+<div style="background: #0B0D10; color: #E8EAED; font-family: Inter, system-ui, sans-serif; min-height: 100vh">
+
+<header style="border-bottom: 1px solid #1C2127">
+<div style="max-width: 1200px; margin: 0 auto; padding: 18px 32px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap">
+<a href="#" style="display: flex; align-items: center; gap: 10px; color: #E8EAED">
+<svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true"><circle cx="14" cy="14" r="12" stroke="#4FD1B5" stroke-width="2"></circle><path d="M7 18l5-5 3 3 6-7" stroke="#4FD1B5" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+<span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px">Predictions</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #9AA3AD">by Verafy</span>
+</a>
+<nav style="display: flex; gap: 28px; font-size: 15px; flex-wrap: wrap">
+<a href="#" style="color: #C5CBD2">Markets</a>
+<a href="#" style="color: #C5CBD2">Templates</a>
+<a href="#" style="color: #C5CBD2">How resolution works</a>
+<a href="#" style="color: #C5CBD2">Docs</a>
+</nav>
+<div style="display: flex; gap: 12px">
+<a href="#" style="padding: 10px 16px; border: 1px solid #2E3A40; border-radius: 10px; color: #E8EAED; font-size: 15px">Connect wallet</a>
+<a href="#" style="padding: 10px 16px; background: #4FD1B5; border-radius: 10px; color: #0B0D10; font-weight: 600; font-size: 15px">Create a market</a>
+</div>
+</div>
+</header>
+
+<section style="max-width: 1200px; margin: 0 auto; padding: 96px 32px 64px">
+<div style="display: inline-flex; gap: 8px; align-items: center; padding: 6px 12px; border: 1px solid #2E3A40; border-radius: 999px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #F5B84B">
+<span style="width: 8px; height: 8px; border-radius: 4px; background: #F5B84B"></span>Planned. Devnet and play money first.
+</div>
+<h1 style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 64px; line-height: 1.04; letter-spacing: -0.02em; margin: 22px 0 20px; max-width: 58rem">Prediction markets that resolve on evidence, not a price feed.</h1>
+<p style="font-size: 19px; line-height: 1.6; color: #B8C0C8; margin: 0 0 16px; max-width: 44rem">Prediction markets on Ethereum and Solana settle through oracles, and an oracle can only report one number or one yes from one feed. So every market is a single simple question.</p>
+<p style="font-size: 19px; line-height: 1.6; color: #B8C0C8; margin: 0 0 32px; max-width: 44rem">A Verafy jury reads named sources, quotes what it found, and rules on structured claims. That means markets with stages, conditions, numeric ranges and rankings, and an honest answer when the evidence is not there: unresolvable, and your stake comes back.</p>
+<div style="display: flex; gap: 14px; flex-wrap: wrap">
+<a href="#" style="padding: 14px 22px; background: #4FD1B5; border-radius: 12px; color: #0B0D10; font-weight: 600; font-size: 16px">Browse markets</a>
+<a href="#" style="padding: 14px 22px; border: 1px solid #2E3A40; border-radius: 12px; color: #E8EAED; font-size: 16px">Build a market from a template</a>
+</div>
+</section>
+
+<section style="max-width: 1200px; margin: 0 auto; padding: 0 32px 72px">
+<div style="border: 1px solid #232A33; border-radius: 18px; background: #10151A; overflow: hidden">
+<div style="padding: 14px 22px; border-bottom: 1px solid #232A33; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #9AA3AD">
+<span>Example market. Sequence, 2 stages</span><span>Betting closes [DATE]</span>
+</div>
+<div style="padding: 26px 22px; display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 32px">
+<div>
+<div style="font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 600; line-height: 1.25; margin-bottom: 20px">A frontier lab ships a new flagship model before July 1, then it reaches #1 on LMArena text within 30 days of launch.</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; gap: 14px; align-items: flex-start; padding: 14px; border: 1px solid #232A33; border-radius: 12px">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #0B0D10; background: #4FD1B5; border-radius: 6px; padding: 3px 8px">Stage 1</span>
+<div><div style="font-weight: 500">Release before July 1, 00:00 UTC</div><div style="color: #9AA3AD; font-size: 14px; margin-top: 4px">Source: the lab's official announcement page</div></div>
+</div>
+<div style="display: flex; gap: 14px; align-items: flex-start; padding: 14px; border: 1px solid #232A33; border-radius: 12px">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #E8EAED; border: 1px solid #2E3A40; border-radius: 6px; padding: 2px 8px">Stage 2</span>
+<div><div style="font-weight: 500">Rank #1 on LMArena text within 30 days</div><div style="color: #9AA3AD; font-size: 14px; margin-top: 4px">Source: LMArena leaderboard, archived daily. Stage 1 No settles the market No.</div></div>
+</div>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+<div style="border: 1px solid #232A33; border-radius: 12px; padding: 16px; background: #12161B">
+<div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #9AA3AD">Crowd, from the pools</div>
+<div style="font-family: 'Space Grotesk', sans-serif; font-size: 36px; margin-top: 6px">[P]% Yes</div>
+</div>
+<div style="border: 1px solid #232A33; border-radius: 12px; padding: 16px; background: #12161B">
+<div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #9AA3AD">Jury forecast, models only</div>
+<div style="font-family: 'Space Grotesk', sans-serif; font-size: 36px; margin-top: 6px; color: #F5B84B">[P]% Yes</div>
+</div>
+</div>
+<div style="color: #9AA3AD; font-size: 14px; line-height: 1.5">The jury never sees the pools. When money and models disagree, you see it here.</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px">
+<button style="padding: 14px; border-radius: 12px; border: 1px solid #4FD1B5; background: #0F2A26; color: #9BEBD8; font: 600 16px Inter, sans-serif">Yes</button>
+<button style="padding: 14px; border-radius: 12px; border: 1px solid #FF8A3D; background: #2A1A10; color: #FFB27D; font: 600 16px Inter, sans-serif">No</button>
+<button style="padding: 14px; border-radius: 12px; border: 1px solid #2E3A40; background: transparent; color: #C5CBD2; font: 500 15px Inter, sans-serif">Details</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section style="border-top: 1px solid #1C2127; border-bottom: 1px solid #1C2127; background: #0E1216">
+<div style="max-width: 1200px; margin: 0 auto; padding: 72px 32px">
+<h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 40px; margin: 0 0 12px">Five shapes of prediction</h2>
+<p style="color: #B8C0C8; font-size: 17px; margin: 0 0 36px; max-width: 42rem">Every market starts from a template: subject, measure, threshold, period, resolve time and the sources the jury will read. Templates compose.</p>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px">
+<div style="border: 1px solid #232A33; border-radius: 14px; padding: 20px; background: #10151A"><div style="font-family: 'JetBrains Mono', monospace; color: #4FD1B5; font-size: 13px">sequence</div><div style="font-family: 'Space Grotesk', sans-serif; font-size: 20px; margin: 10px 0 8px">A, then B</div><div style="color: #B8C0C8; font-size: 15px; line-height: 1.55">Stages resolve in order. A failed stage ends it.</div></div>
+<div style="border: 1px solid #232A33; border-radius: 14px; padding: 20px; background: #10151A"><div style="font-family: 'JetBrains Mono', monospace; color: #4FD1B5; font-size: 13px">conditional</div><div style="font-family: 'Space Grotesk', sans-serif; font-size: 20px; margin: 10px 0 8px">If A, will B?</div><div style="color: #B8C0C8; font-size: 15px; line-height: 1.55">If A fails, every stake refunds.</div></div>
+<div style="border: 1px solid #232A33; border-radius: 14px; padding: 20px; background: #10151A"><div style="font-family: 'JetBrains Mono', monospace; color: #4FD1B5; font-size: 13px">all / any</div><div style="font-family: 'Space Grotesk', sans-serif; font-size: 20px; margin: 10px 0 8px">Several legs</div><div style="color: #B8C0C8; font-size: 15px; line-height: 1.55">Every leg must hold, or any one.</div></div>
+<div style="border: 1px solid #232A33; border-radius: 14px; padding: 20px; background: #10151A"><div style="font-family: 'JetBrains Mono', monospace; color: #4FD1B5; font-size: 13px">buckets</div><div style="font-family: 'Space Grotesk', sans-serif; font-size: 20px; margin: 10px 0 8px">Where will X land?</div><div style="color: #B8C0C8; font-size: 15px; line-height: 1.55">The jury reports the value and its range.</div></div>
+<div style="border: 1px solid #232A33; border-radius: 14px; padding: 20px; background: #10151A"><div style="font-family: 'JetBrains Mono', monospace; color: #4FD1B5; font-size: 13px">ranked</div><div style="font-family: 'Space Grotesk', sans-serif; font-size: 20px; margin: 10px 0 8px">Which comes first?</div><div style="color: #B8C0C8; font-size: 15px; line-height: 1.55">Order a field of options.</div></div>
+</div>
+</div>
+</section>
+
+<section style="max-width: 1200px; margin: 0 auto; padding: 80px 32px; display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 48px; align-items: start">
+<div>
+<h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 40px; margin: 0 0 16px">How a market resolves</h2>
+<ol style="margin: 0; padding-left: 22px; color: #B8C0C8; font-size: 17px; line-height: 1.7">
+<li style="margin-bottom: 10px"><span style="color: #E8EAED">The jury reads the named sources</span> at resolve time, with web search, through Prompt Guard.</li>
+<li style="margin-bottom: 10px"><span style="color: #E8EAED">It rules Yes, No, a value, or Unresolvable,</span> quoting the evidence with links and retrieval times.</li>
+<li style="margin-bottom: 10px"><span style="color: #E8EAED">The ruling posts on Solana</span> and a challenge window opens.</li>
+<li><span style="color: #E8EAED">Anyone can challenge with a bond.</span> A larger, fresh panel decides. Then winners claim.</li>
+</ol>
+</div>
+<div style="border: 1px solid #232A33; border-radius: 18px; padding: 24px; background: #10151A">
+<div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #9AA3AD; margin-bottom: 14px">Example ruling</div>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px">
+<span style="font-family: 'Space Grotesk', sans-serif; font-size: 22px">Stage 1: Yes</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #4FD1B5">5 of 5 jurors</span>
+</div>
+<div style="border-left: 2px solid #2E3A40; padding: 4px 0 4px 14px; color: #C5CBD2; font-size: 15px; line-height: 1.6; margin-bottom: 14px">"[Quoted line from the announcement page]"<br><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #9AA3AD">source URL. retrieved [TIME] UTC. sha256 [HASH]</span></div>
+<div style="display: flex; justify-content: space-between; font-size: 14px; color: #9AA3AD"><span>Challenge window: 48 h</span><a href="#">View on Solana Explorer</a></div>
+</div>
+</section>
+
+<section style="border-top: 1px solid #1C2127">
+<div style="max-width: 1200px; margin: 0 auto; padding: 72px 32px; display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px">
+<div style="border: 1px solid #232A33; border-radius: 18px; padding: 28px; background: #10151A">
+<h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 24px; margin: 0 0 12px">Pools, not a house</h3>
+<p style="color: #B8C0C8; font-size: 16px; line-height: 1.6; margin: 0">Each outcome has a USDC pool. Winners split the losing pools. Nobody takes the other side of your bet but other bettors. No token.</p>
+</div>
+<div style="border: 1px solid #232A33; border-radius: 18px; padding: 28px; background: #10151A">
+<h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 24px; margin: 0 0 12px">"I don't know" is a ruling</h3>
+<p style="color: #B8C0C8; font-size: 16px; line-height: 1.6; margin: 0">If sources vanish, disagree past the template's rule, or the event is cancelled, the jury says Unresolvable and stakes come back.</p>
+</div>
+<div style="border: 1px solid #232A33; border-radius: 18px; padding: 28px; background: #10151A">
+<h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 24px; margin: 0 0 12px">Markets we will not open</h3>
+<p style="color: #B8C0C8; font-size: 16px; line-height: 1.6; margin: 0">Nothing on a person's death or harm, on violence, on private individuals, or on outcomes one participant controls.</p>
+</div>
+</div>
+</section>
+
+<footer style="border-top: 1px solid #1C2127">
+<div style="max-width: 1200px; margin: 0 auto; padding: 32px; display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; font-size: 14px; color: #9AA3AD">
+<span>Predictions is an Actually Smart Contract by Verafy. Settles on Solana. Not available where real money event markets are not permitted.</span>
+<span style="display: flex; gap: 20px"><a href="#" style="color: #9AA3AD">Spec</a><a href="#" style="color: #9AA3AD">Explorer</a><a href="#" style="color: #9AA3AD">GitHub</a></span>
+</div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2600}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

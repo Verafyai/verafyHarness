@@ -60,6 +60,10 @@ A proposal is not a promise. Each one is tracked in three places:
 | [0033](VIP-0033-agent-bonds.md) | Agent bonds: an operator bonds its agent's behavior, and a jury slashes violations | Shipped (v0.0.5-alpha): not yet on devnet | SIGN-011 |
 | [0034](VIP-0034-verafy-certification.md) | Verafy Certification: a program's report card on Solana, written only from a jury ruling | Shipped (v0.0.6-alpha): on devnet | |
 | [0035](VIP-0035-charter-amendments.md) | Charter amendments: rules that change only when a Verafy jury approves | Shipped (v0.0.6-alpha): core | |
+| [0036](VIP-0036-tasks.md) | Tasks: a work queue for autonomous agents, paid when a jury says the work clears the bar | Idea | |
+| [0037](VIP-0037-predictions.md) | Predictions: markets on templated, multi-stage claims, resolved by a Verafy jury | Idea | |
+| [0038](VIP-0038-machine-lease.md) | Machine Lease: a lease agent sources the cheapest machines, runs the job and accounts for every dollar | Idea | |
+| [0039](VIP-0039-shielded-mailbox.md) | Shielded mailbox: private payments between agents | Idea; decision needed | |
 
 Tracking issues: [#26 to #36](https://github.com/Verafyai/verafyHarness/issues?q=label%3Aproposal). VIPs 0001 to 0009 were built in v0.0.3-alpha and 0010 to 0017 written in v0.0.4-alpha, unless the status says otherwise; every number in them is illustrative until Rex sets it.
 
