@@ -2,7 +2,7 @@
 
 A loop an agent runs, over and over, across every Verafy website, product, repository, blog post and VIP. Each run scans, scores, fixes what it can, implements the next VIP, and writes a report. This file is the plan. [manifest.json](manifest.json) is the inventory it runs over. [STYLE-GUIDE.md](STYLE-GUIDE.md) is the bar for every word. [LEARNINGS.md](LEARNINGS.md) is what earlier runs learned. [ASKS.md](ASKS.md) is every request Rex has made and its state.
 
-Status: documented, not yet run.
+Status: documented, not yet run. How to run it reliably (engine, verifiers, coverage gate, cost) is [VIP-0041](../proposals/VIP-0041-self-improvement-loop.md).
 
 ## Why the loop exists
 
