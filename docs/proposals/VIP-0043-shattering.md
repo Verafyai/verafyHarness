@@ -12,7 +12,7 @@ The following is a theoretical approach to privacy in a Verafy agent swarm.
 
 A receiver wallet takes an amount (the running example is $100,000 in bitcoin) and calls an inference program, **Shatter**. The funds are broken into **shrapnel** and sent across a swarm of agent wallets, following a **shattering strategy** the caller supplies. Every agent that takes shrapnel first locks a **bond** worth more than what it holds, so the swarm cannot steal the funds without losing more than it gains. A sealed commitment goes on chain, naming no wallet, and an **assembly key** is returned to the originator.
 
-The funds then rest in the swarm. They are not gone and not owned by any agent: they are held under bond, and the slashing mechanism acts as insurance. The assembly key, together with the encrypted strategy metadata, can be **handed to another wallet**, and that wallet can trigger reassembly to any destination it names, including yet another wallet. On a valid trigger, proven with a zero-knowledge proof of the key, the swarm releases the shrapnel to the destination on schedule. An agent that fails to deliver is slashed automatically, and its bond pays the owner.
+The funds then rest in the swarm. They are not gone and not owned by any agent: they are held under bond, and the slashing mechanism acts as insurance. The assembly key, together with the encrypted strategy metadata, can be **handed to another wallet**. The key is a bearer key: any wallet holding it can call assemble on its own, with nothing else required, and the funds are paid to that wallet or wherever it directs them. On a valid trigger, proven with a zero-knowledge proof of the key, the swarm releases the shrapnel to the destination on schedule. An agent that fails to deliver is slashed automatically, and its bond pays the owner.
 
 Animation: [assets/VIP-0043/verafy-shattering.mp4](assets/VIP-0043/verafy-shattering.mp4) (source: `shatter.html` in the same folder).
 
@@ -46,11 +46,13 @@ Outputs:
 
 ### 2. The key can move
 
-The assembly key and its strategy metadata form a bearer claim on the funds in the swarm. It can be:
+The assembly key and its strategy metadata form a **bearer key**: a claim on the funds in the swarm that belongs to whoever holds it, like cash.
 
-- **Transferred** to another wallet outright. The new holder can trigger reassembly. The funds never move on chain during the handoff.
-- **Passed on again.** The holder can trigger reassembly through yet another wallet, or name any destination wallet.
-- **Delegated with scope** (recommended as the default). The originator keeps the key and hands another wallet a **trigger right** that is narrower than the key: for example, "may trigger reassembly, but only to destination D", or "only after date T", or "only when an inference program rules that condition C holds". A delegated right can be revoked by the key holder until it is used.
+- **Any holder can assemble.** A wallet holding the key calls assemble with only the key. No approval from the originating wallet or any earlier holder is needed, and no earlier holder chooses where the funds go.
+- **The caller is paid by default.** Reassembled funds go to the calling wallet unless the caller directs them elsewhere in the same call.
+- **The key can be passed on any number of times.** Each handoff happens off chain, so the funds never move while the key changes hands.
+
+**Front-running protection.** The assemble call is visible before it executes. If it carried the key, or a proof that did not commit to where the funds go, anyone watching could copy the call with their own wallet as the destination and take the funds. So the zero-knowledge proof proves two statements together: "I hold a valid shatter key" and "pay wallet W". Changing W invalidates the proof. W is chosen by the caller and bound into its own proof; it is not approved or named by anyone else.
 
 Consequences to design for:
 - **The key is the money.** Losing it loses the funds; stealing it steals them. Key custody needs the same care as a seed phrase. Options: split the key (k of n), or add a recovery trigger judged by an inference program.
@@ -71,7 +73,7 @@ A strategy can route shrapnel through any number of networks on the way in, whil
 | Routing | Any number of routings through any network, per piece: hops between agents, other chains, layer 2s, and privacy pools. For example, a piece can be shielded into the Zcash pool and later unshielded to a different wallet before it rests or before it reaches the destination. Cross-network legs go through the privacy router ([VIP-0039](VIP-0039-shielded-mailbox.md)) |
 | Agents | Number of agents; agent selection (random, by bond size, by region or operator diversity, never more than N pieces per operator) |
 | Reassembly | All at once or in parts; schedule; one destination or several; partial reassembly allowed or not |
-| Triggers | Key holder, delegated trigger rights (section 2), time locks, inference program conditions |
+| Triggers | Key holder, time locks, inference program conditions |
 | Budget | Maximum fees, maximum agent fees, deadline |
 
 **What a strategy cannot do: the privacy floor.** Some choices feel private and are the opposite. The compiler rejects or corrects them:
@@ -106,10 +108,10 @@ The guarantee: the owner gets back at least the full value, in shrapnel or in th
 ### 5. Reassembly
 
 ```
-trigger (key holder | delegated right | time lock | inference condition)
-   1  the triggering wallet proves possession of the key (or a valid trigger right)
-      with a zero-knowledge proof: the network learns the call is valid, not which deposit
-   2  the triggering wallet names the destination (any wallet, including a third party's)
+trigger (key holder | time lock | inference condition)
+   1  the calling wallet proves possession of the key with a zero-knowledge proof that
+      also binds the payout wallet: the network learns the call is valid, not which deposit
+   2  the payout wallet is the caller, unless the caller bound a different one into its proof
    3  the swarm releases shrapnel to the destination on the strategy's reassembly schedule
    4  missed deadlines are slashed automatically; bonds pay the destination
    5  agents are paid, bonds released, the commitment marked complete
@@ -126,7 +128,6 @@ This design must be reviewed by counsel before it is built or presented as a pro
 
 Design choices that should be evaluated with counsel:
 - **Proof of clean funds.** A Privacy Pools style association proof, in which a user shows their deposit is not from a flagged source without revealing which deposit is theirs. A Verafy jury could judge membership against an inference program rather than a fixed list.
-- **Scoped delegation as the default** rather than free transfer of the key.
 - **Leading with the inheritance, escrow and treasury use cases**, which do not depend on hiding from anyone.
 
 Nothing here is legal advice.
@@ -134,12 +135,11 @@ Nothing here is legal advice.
 ## Open questions and decisions for Rex
 
 1. Which chain holds the shrapnel, and how BTC is represented there.
-2. Free key transfer, scoped delegation only, or both.
-3. Bond ratio, premium for late delivery, and agent fee per hour locked.
-4. The minimum anonymity set and minimum dwell time in the privacy floor.
-5. Whether a shatter must carry a proof of clean funds.
-6. Who runs the insurance fund for disputed slashes.
-7. Counsel: who reviews this, and before which milestone.
+2. Bond ratio, premium for late delivery, and agent fee per hour locked.
+3. The minimum anonymity set and minimum dwell time in the privacy floor.
+4. Whether a shatter must carry a proof of clean funds.
+5. Who runs the insurance fund for disputed slashes.
+6. Counsel: who reviews this, and before which milestone.
 
 ## Alternatives considered
 
