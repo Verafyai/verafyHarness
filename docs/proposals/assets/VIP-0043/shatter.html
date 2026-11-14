@@ -30,9 +30,9 @@ const CAP=[
  [12.6,'Every holder is bonded','Each agent locks a bond worth more than its shrapnel, held by the program.'],
  [14.4,'Move early, get slashed','Shrapnel moved off schedule: the bond is slashed on the spot and held for the owner.'],
  [16.8,'The key can move','The assembly key and strategy can pass to another wallet. The money stays in the swarm, bonded.'],
- [18.4,'The holder triggers it','Whoever holds the key triggers reassembly, to any wallet it names. Time locks and conditions work too.'],
- [20,'Proof, not identity','A zero-knowledge proof shows the key is valid without revealing which deposit.'],
- [21.6,'Reassembly','Shrapnel returns to a fresh wallet, staggered. An agent that goes dark is slashed, and its bond pays.'],
+ [18.4,'Any holder can assemble','The key alone is enough. No approval from the original wallet. Time locks and conditions work too.'],
+ [20,'Proof, not identity','A zero-knowledge proof shows the key is valid and locks the payout, without revealing which deposit.'],
+ [21.6,'Reassembly','Shrapnel returns to the key holder, staggered. An agent that goes dark is slashed, and its bond pays.'],
  [27.2,'The owner is made whole','Agents paid, bonds released, the shattering marked complete.']
 ];
 function box(x,y,w,h,title,sub,on,col){col=col||C.teal;let g='';if(on)g+=`<rect x="${x-5}" y="${y-5}" width="${w+10}" height="${h+10}" rx="16" fill="none" stroke="${col}" stroke-opacity=".16" stroke-width="8"/>`;g+=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="12" fill="${on?'#0d1a1c':C.panel}" stroke="${on?col:C.line2}" stroke-width="${on?2:1.2}"/><text x="${x+18}" y="${y+32}" font-size="20" font-weight="650" fill="${C.text}">${title}</text>`;if(sub)g+=`<text x="${x+18}" y="${y+58}" font-size="15.5" fill="${C.muted}">${sub}</text>`;return g}
@@ -76,7 +76,7 @@ function render(t){
  if(t>=19.6&&t<20.4){const k=a(t,19.6,20.4);g+=piece(310+(1240-310)*k,600-(600-470)*k,C.amber,1,10)}
  g+=`<path d="M310 600 C 600 880, 1000 880, 1238 480" fill="none" stroke="${t>=19.6&&t<21.6?C.amber:'none'}" stroke-opacity=".35" stroke-width="1.5" stroke-dasharray="4 6"/>`;
  // destination
- g+=box(1240,562,290,150,'Fresh wallet','named by the key holder',t>=21.6,C.teal);
+ g+=box(1240,562,290,150,'Payout wallet','paid to whoever holds the key',t>=21.6,C.teal);
  let arrived=0;
  // pieces
  PIECES.forEach((ai,k)=>{
