@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+:root{--bg:#05070A;--panel:#0B1117;--line:#16202A;--text:#E8EDF2;--muted:#A9B4C0;--dim:#8994A0;--teal:#5FE0C8;--amber:#F0B45A;--sky:#7CC4FA}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1600px;height:900px;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden;position:relative}
+.grid{position:absolute;inset:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:40px 40px;opacity:.35;mask-image:radial-gradient(ellipse at 85% 10%,#000 0,transparent 60%)}
+.wrap{position:relative;padding:64px 72px;height:100%;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;gap:14px;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:20px;color:var(--muted)}
+.top b{color:var(--text);font-weight:600;font-family:Inter,sans-serif;font-size:24px;letter-spacing:-.01em}
+.top .draft{margin-left:auto;border:1px solid #2A3440;border-radius:999px;padding:6px 16px;font-size:16px;color:var(--amber)}
+h1{margin-top:44px;font-size:76px;line-height:1;font-weight:700;letter-spacing:-.03em}
+.sub{margin-top:18px;font-size:27px;color:var(--muted);max-width:1460px;line-height:1.35}
+.sub em{color:var(--teal);font-style:normal}
+.props{margin-top:44px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;flex:1}
+.p{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 22px 20px;display:flex;flex-direction:column}
+.p .k{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:15px;color:var(--dim)}
+.p h3{margin-top:8px;font-size:27px;font-weight:650;letter-spacing:-.01em;color:var(--teal)}
+.p p{margin-top:10px;font-size:18.5px;line-height:1.42;color:var(--muted)}
+.p.amber h3{color:var(--amber)}
+.p.sky h3{color:var(--sky)}
+.foot{margin-top:22px;display:flex;justify-content:space-between;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:17px;color:var(--dim)}
+.foot span:last-child{color:var(--teal)}
+</style></head><body>
+<div class="grid"></div>
+<div class="wrap">
+  <div class="top">
+    <svg width="44" height="44" viewBox="0 0 64 64"><circle cx="32" cy="32" r="27" fill="none" stroke="#5FE0C8" stroke-opacity=".28" stroke-width="1.2"/><g stroke="#F0B45A" stroke-opacity=".55" stroke-width="1.2"><line x1="32" y1="32" x2="32" y2="17"/><line x1="32" y1="32" x2="45" y2="24.5"/><line x1="32" y1="32" x2="45" y2="39.5"/><line x1="32" y1="32" x2="32" y2="47"/><line x1="32" y1="32" x2="19" y2="39.5"/><line x1="32" y1="32" x2="19" y2="24.5"/></g><polygon points="32,17 45,24.5 45,39.5 32,47 19,39.5 19,24.5" fill="none" stroke="#5FE0C8" stroke-width="1.6"/><g fill="#7CC4FA"><rect x="38.3" y="8.3" width="4" height="4" rx="1"/><rect x="51.8" y="18.6" width="4" height="4" rx="1"/><rect x="56.2" y="35.4" width="4" height="4" rx="1"/><rect x="47.7" y="50.2" width="4" height="4" rx="1"/><rect x="30" y="55" width="4" height="4" rx="1"/><rect x="12.3" y="50.2" width="4" height="4" rx="1"/><rect x="3.8" y="35.4" width="4" height="4" rx="1"/><rect x="8.2" y="18.6" width="4" height="4" rx="1"/><rect x="21.7" y="8.3" width="4" height="4" rx="1"/><rect x="30" y="3" width="4" height="4" rx="1"/></g><g fill="#05070A" stroke="#5FE0C8" stroke-width="1.8"><circle cx="32" cy="17" r="3.6"/><circle cx="45" cy="24.5" r="3.6"/><circle cx="45" cy="39.5" r="3.6"/><circle cx="32" cy="47" r="3.6"/><circle cx="19" cy="39.5" r="3.6"/><circle cx="19" cy="24.5" r="3.6"/></g><circle cx="32" cy="32" r="5.5" fill="#F0B45A"/></svg>
+    <b>Verafy</b><span>/ working definition</span>
+    <span class="draft">draft v0</span>
+  </div>
+  <h1>What is an inference program?</h1>
+  <div class="sub">A program whose logic is an intention, carried out by AI. <em>The intent is fixed. The reasoning is not.</em></div>
+  <div class="props">
+    <div class="p"><span class="k">01 intent</span><h3>Immutable</h3><p>The intention is fixed when the program is written.</p></div>
+    <div class="p"><span class="k">02 governance</span><h3>Amendable</h3><p>It may allow amendments, by rules set out in advance.</p></div>
+    <div class="p amber"><span class="k">03 proof</span><h3>Verifiable</h3><p>A proof of which AI ruled, checkable after the fact.</p></div>
+    <div class="p"><span class="k">04 evidence</span><h3>Contextual</h3><p>Fed factual data to reason over. Sources update, so rulings can shift over time.</p></div>
+    <div class="p"><span class="k">05 logic</span><h3>Interpretable</h3><p>The exact logic is fuzzy and may vary each time it runs.</p></div>
+    <div class="p"><span class="k">06 code</span><h3>Generative</h3><p>No fixed logic. New logic is generated as it is needed.</p></div>
+    <div class="p sky"><span class="k">07 precedent</span><h3>Cached</h3><p>10,000 lines written for one intent are kept as precedent and regenerated as models improve.</p></div>
+    <div class="p"><span class="k">08 action</span><h3>Agentic</h3><p>It can spawn agents and processes: web searches, tools, sub-tasks.</p></div>
+  </div>
+  <div class="foot"><span>Actually Smart Contracts</span><span>verafy.ai</span></div>
+</div>
+</body></html>

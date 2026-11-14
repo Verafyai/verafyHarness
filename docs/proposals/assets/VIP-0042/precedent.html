@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+*{margin:0;padding:0}
+body{width:1600px;height:900px;background:#05070A;overflow:hidden;font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+svg{display:block}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+</style></head><body>
+<svg id="s" width="1600" height="900" viewBox="0 0 1600 900"></svg>
+<script>
+const C={bg:'#05070A',panel:'#0B1117',line:'#16202A',line2:'#2A3440',text:'#E8EDF2',muted:'#A9B4C0',dim:'#5d6874',teal:'#5FE0C8',fill:'#3F8F80',amber:'#F0B45A',sky:'#7CC4FA'};
+const LOGO=`<g transform="translate(60,46) scale(.7)"><circle cx="32" cy="32" r="27" fill="none" stroke="#5FE0C8" stroke-opacity=".28" stroke-width="1.2"/><g stroke="#F0B45A" stroke-opacity=".55" stroke-width="1.2"><line x1="32" y1="32" x2="32" y2="17"/><line x1="32" y1="32" x2="45" y2="24.5"/><line x1="32" y1="32" x2="45" y2="39.5"/><line x1="32" y1="32" x2="32" y2="47"/><line x1="32" y1="32" x2="19" y2="39.5"/><line x1="32" y1="32" x2="19" y2="24.5"/></g><polygon points="32,17 45,24.5 45,39.5 32,47 19,39.5 19,24.5" fill="none" stroke="#5FE0C8" stroke-width="1.6"/><g fill="#7CC4FA"><rect x="38.3" y="8.3" width="4" height="4" rx="1"/><rect x="51.8" y="18.6" width="4" height="4" rx="1"/><rect x="56.2" y="35.4" width="4" height="4" rx="1"/><rect x="47.7" y="50.2" width="4" height="4" rx="1"/><rect x="30" y="55" width="4" height="4" rx="1"/><rect x="12.3" y="50.2" width="4" height="4" rx="1"/><rect x="3.8" y="35.4" width="4" height="4" rx="1"/><rect x="8.2" y="18.6" width="4" height="4" rx="1"/><rect x="21.7" y="8.3" width="4" height="4" rx="1"/><rect x="30" y="3" width="4" height="4" rx="1"/></g><g fill="#05070A" stroke="#5FE0C8" stroke-width="1.8"><circle cx="32" cy="17" r="3.6"/><circle cx="45" cy="24.5" r="3.6"/><circle cx="45" cy="39.5" r="3.6"/><circle cx="32" cy="47" r="3.6"/><circle cx="19" cy="39.5" r="3.6"/><circle cx="19" cy="24.5" r="3.6"/></g><circle cx="32" cy="32" r="5.5" fill="#F0B45A"/></g>`;
+const DUR=33;
+const cl=x=>Math.max(0,Math.min(1,x));
+const ez=x=>x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;
+const a=(t,s,e)=>ez(cl((t-s)/(e-s)));
+const lin=(t,s,e)=>cl((t-s)/(e-s));
+const mix=(c1,c2,k)=>{const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));const A=p(c1),B=p(c2);return '#'+A.map((v,i)=>Math.round(v+(B[i]-v)*k).toString(16).padStart(2,'0')).join('')};
+const RED='#F28B82';
+const N={
+ query:{x:60,y:400,w:220,h:120,t:'Query',s:['from an agent or app']},
+ jev:{x:330,y:390,w:250,h:140,t:'Pre-characterize',s:['fast model (Jev)']},
+ cache:{x:640,y:290,w:360,h:340,t:'Precedent cache',s:['cached judgement']},
+ jury:{x:760,y:700,w:400,h:140,t:'Jury convenes',s:['full readjudication']},
+ out:{x:1300,y:290,w:240,h:340,t:'Ruling returned',s:[]},
+};
+const ACT={query:[[1,2.4],[9.5,10.6],[18.5,19.8],[26.5,31]],jev:[[2.2,4],[10.4,12],[19.6,21.2],[26.6,31]],cache:[[3.8,6.4],[11.8,13.6],[21,22.4],[26.7,31],[16.6,17.4],[25,25.6]],jury:[[13.4,16.6],[22.2,25]],out:[[6.2,8.6],[16.4,18],[24.8,26.4],[27,31]]};
+const CAP=[
+ [0,'Precedent: cached judgement','Stored intelligence. Rule once, reuse the analysis.'],
+ [1,'A query arrives','Any agent or app calls the inference program.'],
+ [2.2,'Pre-characterize','A fast model classifies the query and looks for an analog.'],
+ [3.8,'Cache read','A fresh precedent matches. No jury convenes, almost no tokens burn.'],
+ [9.5,'A rotten precedent','The closest analog is too old to trust.'],
+ [13.4,'Readjudicate','A new jury rules, and the new precedent supersedes the old one.'],
+ [18.5,'Forcing a new jury','A caller attaches a fee to force readjudication, even on a fresh precedent.'],
+ [26.4,'Most queries never reach a jury','Each ruling becomes precedent, and precedent answers the next query.']
+];
+function active(k,t){return (ACT[k]||[]).some(([s,e])=>t>=s-.1&&t<e)}
+function node(k,t){
+ const n=N[k],on=active(k,t);
+ const stroke=on?C.teal:C.line2, fill=on?'#0d1a1c':C.panel;
+ let g=on?`<rect x="${n.x-5}" y="${n.y-5}" width="${n.w+10}" height="${n.h+10}" rx="16" fill="none" stroke="${C.teal}" stroke-opacity=".16" stroke-width="8"/>`:'';
+ g+=`<rect x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="12" fill="${fill}" stroke="${stroke}" stroke-width="${on?2:1.2}"/>`;
+ g+=`<text x="${n.x+18}" y="${n.y+32}" font-size="21" font-weight="650" fill="${C.text}">${n.t}</text>`;
+ n.s.forEach((l,i)=>g+=`<text x="${n.x+18}" y="${n.y+60+i*23}" font-size="16.5" fill="${C.muted}">${l}</text>`);
+ return g;
+}
+function along(pts,k){const seg=[];let L=0;for(let i=1;i<pts.length;i++){const l=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);seg.push(l);L+=l}let d=k*L;for(let i=0;i<seg.length;i++){if(d<=seg[i]){const r=seg[i]?d/seg[i]:0;return [pts[i][0]+(pts[i+1][0]-pts[i][0])*r,pts[i][1]+(pts[i+1][1]-pts[i][1])*r]}d-=seg[i]}return pts[pts.length-1]}
+function path(pts,col,w,dash){const d='M'+pts.map(p=>p.join(',')).join(' L');const [x1,y1]=pts[pts.length-2],[x2,y2]=pts[pts.length-1];const an=Math.atan2(y2-y1,x2-x1);const ah=`${x2},${y2} ${x2-11*Math.cos(an-.45)},${y2-11*Math.sin(an-.45)} ${x2-11*Math.cos(an+.45)},${y2-11*Math.sin(an+.45)}`;return `<path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" ${dash?'stroke-dasharray="5 6"':''}/><polygon points="${ah}" fill="${col}"/>`}
+const P={
+ qj:[[280,460],[328,460]],
+ jc:[[580,460],[638,460]],
+ hit:[[1000,380],[1298,380]],
+ toJury:[[960,632],[960,698]],
+ juryOut:[[1160,770],[1420,770],[1420,632]],
+ writeBack:[[760,770],[700,770],[700,632]],
+};
+const PK=[ // [path,s,e,color]
+ ['qj',1.9,2.4,C.teal],['jc',3.5,4.0,C.teal],['hit',5.6,6.4,C.teal],
+ ['qj',10.1,10.6,C.teal],['jc',11.5,12.0,C.teal],['toJury',13.0,13.6,RED],['juryOut',15.6,16.6,C.amber],['writeBack',15.8,16.8,C.sky],
+ ['qj',19.3,19.8,C.amber],['jc',20.6,21.1,C.amber],['toJury',21.8,22.4,C.amber],['juryOut',24.0,25.0,C.amber],['writeBack',24.2,25.2,C.sky],
+];
+// precedent rows
+function rows(t){
+ const R=[
+  {id:'P-118',k:'refund dispute',age:'fresh'},
+  {id:'P-042',k:'insurance claim',age:'rotten'},
+  {id:'P-077',k:'policy check',age:'fresh'},
+  {id:'P-151',k:'certification',age:'fresh'},
+ ];
+ let g='';
+ R.forEach((r,i)=>{
+  const y=372+i*58;
+  let id=r.id,age=r.age,col=r.age=='fresh'?C.teal:RED,hl=false,sub='';
+  if(i==0&&((t>=3.8&&t<6.4)||(t>=21&&t<22.4)))hl=true;
+  if(i==1&&t>=11.8&&t<13.6)hl=true;
+  if(i==1&&t>=16.6){id='P-219';age='fresh';col=C.teal;sub='supersedes P-042'}
+  if(i==0&&t>=25.0){id='P-220';sub='supersedes P-118'}
+  const flash=(i==1&&t>=16.6&&t<17.6)||(i==0&&t>=25&&t<26);
+  const st=hl?(i==1&&t<16.6?RED:C.teal):flash?C.sky:C.line2;
+  g+=`<rect x="658" y="${y}" width="324" height="48" rx="6" fill="${hl||flash?'#0f2024':C.bg}" stroke="${st}" stroke-width="${hl||flash?1.6:1}"/>`;
+  g+=`<text x="672" y="${y+20}" class="mono" font-size="14" fill="${C.text}">${id}</text><text x="740" y="${y+20}" font-size="15" fill="${C.muted}">${r.k}</text>`;
+  g+=`<text x="968" y="${y+20}" text-anchor="end" class="mono" font-size="13" fill="${col}">${age}</text>`;
+  if(sub)g+=`<text x="672" y="${y+39}" class="mono" font-size="12" fill="${C.sky}">${sub}</text>`;
+ });
+ return g;
+}
+function render(t){
+ let g=`<rect width="1600" height="900" fill="${C.bg}"/><g opacity=".25">`;
+ for(let x=0;x<=1600;x+=40)g+=`<line x1="${x}" y1="0" x2="${x}" y2="900" stroke="${C.line}"/>`;for(let y=0;y<=900;y+=40)g+=`<line x1="0" y1="${y}" x2="1600" y2="${y}" stroke="${C.line}"/>`;
+ g+=`</g><rect width="1600" height="190" fill="${C.bg}" opacity=".85"/>`;
+ g+=LOGO+`<text x="116" y="76" font-size="22" font-weight="600" fill="${C.text}">Verafy</text><text x="210" y="76" class="mono" font-size="17" fill="${C.muted}">/ inference programs: precedent</text>`;
+ let ci=0;CAP.forEach((c,i)=>{if(t>=c[0])ci=i});const c=CAP[ci],ca=a(t,c[0],c[0]+.45);
+ g+=`<g opacity="${ca}" transform="translate(0,${(1-ca)*8})"><text x="60" y="126" font-size="38" font-weight="700" fill="${C.text}" letter-spacing="-.5">${c[1]}</text><text x="60" y="158" font-size="20" fill="${C.muted}">${c[2]}</text></g>`;
+ // static edges
+ Object.values(P).forEach(p=>g+=path(p,C.line2,1.6,false));
+ g+=`<text x="1040" y="368" class="mono" font-size="13" fill="${C.teal}">cache read</text>`;
+ g+=`<text x="978" y="672" class="mono" font-size="13" fill="${C.muted}">miss, rotten or forced</text>`;
+ g+=`<text x="712" y="690" class="mono" font-size="13" fill="${C.sky}">new precedent</text>`;
+ // lit edges
+ PK.forEach(([k,s,e,col])=>{if(t>=s-.2&&t<e+.6)g+=path(P[k],col,2.2,false)});
+ Object.keys(N).forEach(k=>g+=node(k,t));
+ g+=rows(t);
+ // jev result line
+ const J=[[2.6,4.2,'analog P-118, fresh',C.teal],[10.8,12.2,'analog P-042, rotten',RED],[20,21.4,'analog P-118, fee attached',C.amber]];
+ J.forEach(([s,e,txt,col])=>{const o=Math.min(a(t,s,s+.3),1-a(t,e+2,e+2.4));if(o>0)g+=`<text x="348" y="${390+110}" class="mono" font-size="13.5" fill="${col}" opacity="${o}">${txt}</text>`});
+ // query tag
+ const fee=Math.min(a(t,18.5,19),1-a(t,26,26.4));
+ g+=`<g opacity="${fee}"><rect x="78" y="474" width="184" height="30" rx="6" fill="#1d1608" stroke="${C.amber}"/><text x="90" y="494" class="mono" font-size="13" fill="${C.amber}">+ readjudication fee</text></g>`;
+ // jury jurors
+ const jw=[[13.6,16.4],[22.4,24.8]];
+ for(let i=0;i<5;i++){let lit=false;jw.forEach(([s,e])=>{if(t>=s+.35*i&&t<e+1.2)lit=true});g+=`<circle cx="${790+i*38}" cy="808" r="10" fill="${lit?C.teal:C.panel}" stroke="${lit?C.teal:C.dim}" stroke-width="1.5"/>`}
+ g+=`<text x="1140" y="814" text-anchor="end" class="mono" font-size="13" fill="${C.amber}">more tokens, more time</text>`;
+ // out entries
+ const O=[[6.4,'P-118','cache read',C.teal],[16.6,'P-219','new jury',C.amber],[25,'P-220','forced jury',C.amber]];
+ O.forEach(([s,id,how,col],i)=>{const o=a(t,s,s+.5);g+=`<g opacity="${o}"><rect x="1316" y="${340+i*62}" width="208" height="50" rx="6" fill="#0d1a1c" stroke="${col}" stroke-opacity=".6"/><text x="1330" y="${361+i*62}" class="mono" font-size="14" fill="${C.text}">${id}</text><text x="1330" y="${381+i*62}" class="mono" font-size="12.5" fill="${col}">${how}</text></g>`});
+ // stream phase
+ const HIT=[[170,460],[455,460],[820,460],[820,380],[1420,380]];
+ const MISS=[[170,460],[455,460],[820,460],[960,632],[960,770],[1420,770],[1420,632]];
+ let hits=0,miss=0;
+ for(let i=0;i<18;i++){const s=26.6+i*.22,isMiss=(i%6==4),dur=isMiss?2.6:1.5,e=s+dur;if(t>=s&&t<e){const [x,y]=along(isMiss?MISS:HIT,lin(t,s,e));if(!Object.values(N).some(n=>x>n.x-4&&x<n.x+n.w+4&&y>n.y-4&&y<n.y+n.h+4))g+=`<circle cx="${x}" cy="${y}" r="9" fill="${isMiss?C.amber:C.teal}" opacity=".2"/><circle cx="${x}" cy="${y}" r="4.5" fill="${isMiss?C.amber:C.teal}"/>`}if(t>=e){isMiss?miss++:hits++}}
+ // packets
+ PK.forEach(([k,s,e,col])=>{if(t>=s&&t<e){const [x,y]=along(P[k],a(t,s,e));g+=`<circle cx="${x}" cy="${y}" r="13" fill="${col}" opacity=".2"/><circle cx="${x}" cy="${y}" r="6" fill="${col}"/>`}});
+ g+=`<text x="1540" y="870" text-anchor="end" class="mono" font-size="15" fill="${C.teal}">verafy.ai</text><text x="60" y="870" class="mono" font-size="15" fill="${C.dim}">Actually Smart Contracts</text>`;
+ const f=Math.min(a(t,0,.5),1-a(t,DUR-.7,DUR));
+ g+=`<rect width="1600" height="900" fill="${C.bg}" opacity="${1-f}"/>`;
+ document.getElementById('s').innerHTML=g;
+}
+window.render=render;
+render(parseFloat(new URLSearchParams(location.search).get('t')||'0'));
+</script></body></html>
