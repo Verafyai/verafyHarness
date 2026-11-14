@@ -62,11 +62,13 @@ The strategy is a program, not a setting. The caller can pass a declarative stra
 
 **What a strategy can specify**
 
+A strategy can route shrapnel through any number of networks on the way in, while it rests, and on the way out. Routing is where shattering and existing privacy systems combine rather than compete.
+
 | Dimension | Options |
 |---|---|
 | Sizes | Fixed denominations from a standard set (for example 0.01, 0.1 and 1 BTC equivalents); a mix of denominations; how many pieces; how much of the total goes in each size |
 | Timing | Spray window (all at once, or spread over hours or days); random delays drawn from a distribution; batching into rounds shared with other users' shatters; dwell time before any piece may move again |
-| Paths | Hops per piece before it rests; whether pieces pass through other agents; whether they cross chains through the privacy router ([VIP-0039](VIP-0039-shielded-mailbox.md)) |
+| Routing | Any number of routings through any network, per piece: hops between agents, other chains, layer 2s, and privacy pools. For example, a piece can be shielded into the Zcash pool and later unshielded to a different wallet before it rests or before it reaches the destination. Cross-network legs go through the privacy router ([VIP-0039](VIP-0039-shielded-mailbox.md)) |
 | Agents | Number of agents; agent selection (random, by bond size, by region or operator diversity, never more than N pieces per operator) |
 | Reassembly | All at once or in parts; schedule; one destination or several; partial reassembly allowed or not |
 | Triggers | Key holder, delegated trigger rights (section 2), time locks, inference program conditions |
@@ -77,6 +79,7 @@ The strategy is a program, not a setting. The caller can pass a declarative stra
 - **Unusual amounts are fingerprints.** A piece of 0.0731842 BTC is unique and traceable. Sizes must come from the standard denominations, so every piece looks like thousands of others.
 - **Unusual behavior is a fingerprint.** Odd transaction formats, unusual fee patterns or distinctive timing make a user's shrapnel stand out from the swarm. Privacy comes from **uniformity**: every agent's transactions use the same formats, the same fee policy and the same batching rhythm, whether or not they are carrying shrapnel. Agents send cover traffic on that rhythm, so carrying shrapnel and not carrying it look the same. A strategy can vary *which* pieces move when; it cannot make a piece look different.
 - **A lone shatter is easy to trace.** The anonymity set is the number of concurrent shatters with overlapping denominations and windows. The strategy must meet a minimum anonymity set; if the swarm is too quiet, the compiler widens the window or waits.
+- **Every network leg has its own floor.** A route through the Zcash shielded pool is only as private as its entry and exit: shielding and unshielding the same amount close together in time links them. The compiler applies the same denomination and dwell rules to each leg, and counts the fees of every leg against the budget.
 - **In equals out is a link.** Reassembling the exact amount right after shattering it links the two. The floor sets a minimum dwell time and encourages partial or staggered reassembly.
 
 **What the compiler checks before funds move**
