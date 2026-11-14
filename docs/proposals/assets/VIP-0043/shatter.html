@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+*{margin:0;padding:0}
+body{width:1600px;height:900px;background:#05070A;overflow:hidden;font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+svg{display:block}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+</style></head><body>
+<svg id="s" width="1600" height="900" viewBox="0 0 1600 900"></svg>
+<script>
+const C={bg:'#05070A',panel:'#0B1117',line:'#16202A',line2:'#2A3440',text:'#E8EDF2',muted:'#A9B4C0',dim:'#5d6874',teal:'#5FE0C8',fill:'#3F8F80',amber:'#F0B45A',sky:'#7CC4FA'};
+const LOGO=`<g transform="translate(60,46) scale(.7)"><circle cx="32" cy="32" r="27" fill="none" stroke="#5FE0C8" stroke-opacity=".28" stroke-width="1.2"/><g stroke="#F0B45A" stroke-opacity=".55" stroke-width="1.2"><line x1="32" y1="32" x2="32" y2="17"/><line x1="32" y1="32" x2="45" y2="24.5"/><line x1="32" y1="32" x2="45" y2="39.5"/><line x1="32" y1="32" x2="32" y2="47"/><line x1="32" y1="32" x2="19" y2="39.5"/><line x1="32" y1="32" x2="19" y2="24.5"/></g><polygon points="32,17 45,24.5 45,39.5 32,47 19,39.5 19,24.5" fill="none" stroke="#5FE0C8" stroke-width="1.6"/><g fill="#7CC4FA"><rect x="38.3" y="8.3" width="4" height="4" rx="1"/><rect x="51.8" y="18.6" width="4" height="4" rx="1"/><rect x="56.2" y="35.4" width="4" height="4" rx="1"/><rect x="47.7" y="50.2" width="4" height="4" rx="1"/><rect x="30" y="55" width="4" height="4" rx="1"/><rect x="12.3" y="50.2" width="4" height="4" rx="1"/><rect x="3.8" y="35.4" width="4" height="4" rx="1"/><rect x="8.2" y="18.6" width="4" height="4" rx="1"/><rect x="21.7" y="8.3" width="4" height="4" rx="1"/><rect x="30" y="3" width="4" height="4" rx="1"/></g><g fill="#05070A" stroke="#5FE0C8" stroke-width="1.8"><circle cx="32" cy="17" r="3.6"/><circle cx="45" cy="24.5" r="3.6"/><circle cx="45" cy="39.5" r="3.6"/><circle cx="32" cy="47" r="3.6"/><circle cx="19" cy="39.5" r="3.6"/><circle cx="19" cy="24.5" r="3.6"/></g><circle cx="32" cy="32" r="5.5" fill="#F0B45A"/></g>`;
+const DUR=31;
+const cl=x=>Math.max(0,Math.min(1,x));
+const ez=x=>x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;
+const a=(t,s,e)=>ez(cl((t-s)/(e-s)));
+const RED='#F28B82';
+// deterministic random
+let seed=7;const rnd=()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646};
+const AG=[];for(let r=0;r<13;r++)for(let c=0;c<17;c++)AG.push([650+c*30+(rnd()-.5)*12,250+r*40+(rnd()-.5)*14]);
+const NP=40;const PIECES=[];const used=new Set();
+while(PIECES.length<NP){const i=Math.floor(rnd()*AG.length);if(!used.has(i)){used.add(i);PIECES.push(i)}}
+const SLASH=7, DARK=13;
+const ORIG=[190,420], PROG=[450,420], DEST=[1380,650];
+const CAP=[
+ [0,'Shattering','Privacy for a deposit, with an intelligent swarm and bonded agents.'],
+ [1,'A deposit triggers Shatter','The receiver wallet calls the Shatter inference program on $100,000.'],
+ [4.6,'Blown into shrapnel','Fixed-size pieces, sprayed across the swarm on the strategy\'s schedule.'],
+ [9.5,'Sealed, and a key returned','A commitment goes on chain, naming no wallet. The originator gets the assembly key.'],
+ [12.6,'Every holder is bonded','Each agent locks a bond worth more than its shrapnel, held by the program.'],
+ [14.4,'Move early, get slashed','Shrapnel moved off schedule: the bond is slashed on the spot and held for the owner.'],
+ [16.8,'The key can move','The assembly key and strategy can pass to another wallet. The money stays in the swarm, bonded.'],
+ [18.4,'The holder triggers it','Whoever holds the key triggers reassembly, to any wallet it names. Time locks and conditions work too.'],
+ [20,'Proof, not identity','A zero-knowledge proof shows the key is valid without revealing which deposit.'],
+ [21.6,'Reassembly','Shrapnel returns to a fresh wallet, staggered. An agent that goes dark is slashed, and its bond pays.'],
+ [27.2,'The owner is made whole','Agents paid, bonds released, the shattering marked complete.']
+];
+function box(x,y,w,h,title,sub,on,col){col=col||C.teal;let g='';if(on)g+=`<rect x="${x-5}" y="${y-5}" width="${w+10}" height="${h+10}" rx="16" fill="none" stroke="${col}" stroke-opacity=".16" stroke-width="8"/>`;g+=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="12" fill="${on?'#0d1a1c':C.panel}" stroke="${on?col:C.line2}" stroke-width="${on?2:1.2}"/><text x="${x+18}" y="${y+32}" font-size="20" font-weight="650" fill="${C.text}">${title}</text>`;if(sub)g+=`<text x="${x+18}" y="${y+58}" font-size="15.5" fill="${C.muted}">${sub}</text>`;return g}
+const piece=(x,y,col,o=1,s=10)=>`<rect x="${x-s/2}" y="${y-s/2}" width="${s}" height="${s}" rx="2" fill="${col}" opacity="${o}"/>`;
+function key(x,y,o){return `<g opacity="${o}" transform="translate(${x},${y})"><circle cx="0" cy="0" r="8" fill="none" stroke="${C.amber}" stroke-width="3"/><path d="M8 0 H26 M20 0 V7 M25 0 V6" stroke="${C.amber}" stroke-width="3" fill="none"/></g>`}
+function render(t){
+ let g=`<rect width="1600" height="900" fill="${C.bg}"/><g opacity=".22">`;
+ for(let x=0;x<=1600;x+=40)g+=`<line x1="${x}" y1="0" x2="${x}" y2="900" stroke="${C.line}"/>`;for(let y=0;y<=900;y+=40)g+=`<line x1="0" y1="${y}" x2="1600" y2="${y}" stroke="${C.line}"/>`;
+ g+=`</g><rect width="1600" height="190" fill="${C.bg}" opacity=".85"/>`;
+ g+=LOGO+`<text x="116" y="76" font-size="22" font-weight="600" fill="${C.text}">Verafy</text><text x="210" y="76" class="mono" font-size="17" fill="${C.muted}">/ shattering</text>`;
+ let ci=0;CAP.forEach((c,i)=>{if(t>=c[0])ci=i});const c=CAP[ci],ca=a(t,c[0],c[0]+.45);
+ g+=`<g opacity="${ca}" transform="translate(0,${(1-ca)*8})"><text x="60" y="126" font-size="38" font-weight="700" fill="${C.text}" letter-spacing="-.5">${c[1]}</text><text x="60" y="158" font-size="20" fill="${C.muted}">${c[2]}</text></g>`;
+ // swarm field
+ const quiet=t>=16.8&&t<18.4;
+ g+=`<rect x="625" y="222" width="540" height="556" rx="14" fill="none" stroke="${C.line2}" stroke-dasharray="4 6"/><text x="640" y="808" class="mono" font-size="14" fill="${C.dim}">agent swarm</text>`;
+ const holder=new Set(PIECES);
+ AG.forEach(([x,y],i)=>{const isH=holder.has(i);g+=`<circle cx="${x}" cy="${y}" r="3.2" fill="${isH&&t>6?C.muted:C.line2}" opacity="${quiet?.5:1}"/>`});
+ // originator
+ const shat=a(t,3.4,4.6);
+ g+=box(80,355,230,135,'Receiver wallet','',t>=1&&t<4.6||t>=10.6&&t<12,C.teal);
+ const amt=t<4?'$100,000':(t<4.6?'$100,000':'$0');
+ g+=`<text x="98" y="420" class="mono" font-size="26" fill="${t<4.6?C.teal:C.dim}">${amt}</text><text x="98" y="446" class="mono" font-size="14" fill="${C.dim}">BTC</text>`;
+ const ko=a(t,11.4,11.9);g+=box(80,530,230,110,'Another wallet','key holder',t>=16.8&&t<21.6,C.amber);if(ko>0){const mv=a(t,16.9,17.9);if(t<16.9)g+=`<text x="146" y="475" class="mono" font-size="14" fill="${C.amber}" opacity="${ko}">assembly key</text>`;else g+=`<text x="98" y="475" class="mono" font-size="13" fill="${C.dim}" opacity="${mv}">key passed on</text>`;if(t<16.9||t>=17.9||true){const ky=470+150*mv;g+=key(110,ky,ko)}if(t>=17.9)g+=`<text x="146" y="625" class="mono" font-size="14" fill="${C.amber}">assembly key</text>`}
+ // program
+ g+=box(360,365,200,110,'Shatter','inference program',t>=2&&t<9.5,C.teal);
+ g+=`<text x="378" y="455" class="mono" font-size="12.5" fill="${C.sky}" opacity="${a(t,2.4,3)}">strategy: spray, stagger</text>`;
+ // edge orig -> prog
+ g+=`<line x1="310" y1="420" x2="358" y2="420" stroke="${t>2?C.teal:C.line2}" stroke-width="2"/>`;
+ if(t>=2&&t<3){const k=a(t,2,3);g+=piece(310+48*k,420,C.teal,1,14)}
+ // chain
+ const cs=t>=9.5&&t<11.4;
+ g+=box(1240,222,290,150,'On chain','',cs,C.teal);
+ const co=a(t,10,10.6);g+=`<g opacity="${co}"><rect x="1256" y="268" width="258" height="44" rx="6" fill="#0d1a1c" stroke="${C.teal}" stroke-opacity=".6"/><text x="1268" y="288" class="mono" font-size="13" fill="${C.muted}">commitment</text><text x="1268" y="305" class="mono" font-size="13" fill="${C.teal}">3f9a…c71e</text><text x="1268" y="340" class="mono" font-size="12.5" fill="${C.dim}">originator: not named</text></g>`;
+ const done=a(t,27.2,27.8);g+=`<text x="1268" y="360" class="mono" font-size="12.5" fill="${C.teal}" opacity="${done}">status: complete</text>`;
+ // trigger + proof
+ g+=box(1240,392,290,150,'Trigger','',t>=18.4&&t<21.6,C.amber);
+ const TR=['key holder','time lock','inference condition'];
+ TR.forEach((x,i)=>{const o=a(t,18.6+i*.25,19+i*.25);g+=`<g opacity="${.25+.75*o}"><rect x="${1256+[0,92,180][i]}" y="436" width="${[84,80,0][i]||0}" height="0"/></g>`});
+ g+=`<text x="1258" y="450" class="mono" font-size="13" fill="${t>=18.6?C.amber:C.dim}">key holder | time lock</text><text x="1258" y="470" class="mono" font-size="13" fill="${t>=18.9?C.amber:C.dim}">| inference condition</text>`;
+ const zo=a(t,20.2,20.8);g+=`<g opacity="${zo}"><text x="1258" y="502" class="mono" font-size="13" fill="${C.teal}">zk proof: key valid</text><text x="1258" y="522" class="mono" font-size="13" fill="${C.dim}">deposit: not revealed</text></g>`;
+ if(t>=19.6&&t<20.4){const k=a(t,19.6,20.4);g+=piece(310+(1240-310)*k,600-(600-470)*k,C.amber,1,10)}
+ g+=`<path d="M310 600 C 600 880, 1000 880, 1238 480" fill="none" stroke="${t>=19.6&&t<21.6?C.amber:'none'}" stroke-opacity=".35" stroke-width="1.5" stroke-dasharray="4 6"/>`;
+ // destination
+ g+=box(1240,562,290,150,'Fresh wallet','named by the key holder',t>=21.6,C.teal);
+ let arrived=0;
+ // pieces
+ PIECES.forEach((ai,k)=>{
+  const [ax,ay]=AG[ai];
+  const s1=4.6+k*.11, e1=s1+1.1;              // spray out
+  const s2=21.8+k*.11, e2=s2+1.2;             // return
+  if(t<s1){ if(t>=3.4){const o=a(t,3.4,4.4);const jx=PROG[0]+((k%8)-3.5)*7*o,jy=PROG[1]+(Math.floor(k/8)-2)*7*o;g+=piece(jx,jy,C.teal,o,8)} return}
+  // slashed piece
+  if(k==SLASH){
+   if(t<14.4){const kk=a(t,s1,e1);g+=piece(PROG[0]+(ax-PROG[0])*kk,PROG[1]+(ay-PROG[1])*kk,C.teal,1,8);if(t>e1&&t>12.6)g+=`<circle cx="${ax}" cy="${ay}" r="9" fill="none" stroke="${C.amber}" stroke-width="1.6"/>`;return}
+   const mk=a(t,14.4,15.2);const mx=ax+70*mk,my=ay-30*mk;
+   if(t<16.6){g+=piece(mx,my,RED,1,8);g+=`<circle cx="${ax}" cy="${ay}" r="${9+10*a(t,15.2,15.8)}" fill="none" stroke="${RED}" stroke-width="2" opacity="${1-a(t,15.8,16.6)}"/>`;g+=`<text x="${ax+18}" y="${ay-38}" class="mono" font-size="14" fill="${RED}" opacity="${a(t,15,15.4)}">slashed, bond held</text>`}
+   if(t>=21.8){const kk=a(t,s2,e2);g+=piece(ax+(DEST[0]-ax)*kk,ay+(DEST[1]-ay)*kk,C.amber,1,8);if(t>=e2)arrived++} return}
+  if(t<s2){const kk=a(t,s1,e1);g+=piece(PROG[0]+(ax-PROG[0])*kk,PROG[1]+(ay-PROG[1])*kk,C.teal,quiet?.55:1,8);
+   if(t>e1&&t>=12.6&&t<27.2)g+=`<circle cx="${ax}" cy="${ay}" r="9" fill="none" stroke="${C.amber}" stroke-width="1.6" opacity="${(quiet?.4:1)*a(t,12.6+k*.02,13.2+k*.02)}"/>`;return}
+  if(k==DARK){ // agent goes dark; bond pays instead, late
+   const b=26.0,be=27.0;g+=piece(ax,ay,C.dim,.7,8);
+   if(t>=24.4)g+=`<text x="${ax-120}" y="${ay+30}" class="mono" font-size="14" fill="${RED}" opacity="${a(t,24.4,24.8)}">dark: bond pays</text>`;
+   if(t>=b){const kk=a(t,b,be);g+=piece(ax+(DEST[0]-ax)*kk,ay+(DEST[1]-ay)*kk,C.amber,1,8);if(t>=be)arrived++}
+   return}
+  const kk=a(t,s2,e2);if(t<e2)g+=piece(ax+(DEST[0]-ax)*kk,ay+(DEST[1]-ay)*kk,C.teal,1,8);else arrived++;
+ });
+ if(t>=21.6){const v=arrived*2500;g+=`<text x="1258" y="672" class="mono" font-size="26" fill="${arrived==NP?C.teal:C.text}">$${v.toLocaleString('en-US')}</text><text x="1258" y="696" class="mono" font-size="13" fill="${C.dim}">${arrived} of ${NP} pieces</text>`}
+ // legend
+ g+=`<g transform="translate(80,690) scale(.9)"><rect x="0" y="0" width="10" height="10" rx="2" fill="${C.teal}"/><text x="20" y="10" class="mono" font-size="14" fill="${C.muted}">shrapnel</text><circle cx="5" cy="35" r="8" fill="none" stroke="${C.amber}" stroke-width="1.6"/><text x="20" y="40" class="mono" font-size="14" fill="${C.muted}">bonded holder</text><rect x="0" y="60" width="10" height="10" rx="2" fill="${C.amber}"/><text x="20" y="70" class="mono" font-size="14" fill="${C.muted}">bond paid out</text><rect x="0" y="90" width="10" height="10" rx="2" fill="${RED}"/><text x="20" y="100" class="mono" font-size="14" fill="${C.muted}">slashed</text></g>`;
+ g+=`<text x="1540" y="870" text-anchor="end" class="mono" font-size="15" fill="${C.teal}">verafy.ai</text><text x="60" y="870" class="mono" font-size="15" fill="${C.dim}">Theoretical. Not live.</text>`;
+ const f=Math.min(a(t,0,.5),1-a(t,DUR-.7,DUR));g+=`<rect width="1600" height="900" fill="${C.bg}" opacity="${1-f}"/>`;
+ document.getElementById('s').innerHTML=g;
+}
+const INTRO=3.8;const inner=render;
+function full(T){
+ if(T>=INTRO){inner(T-INTRO);return}
+ const o=Math.min(a(T,0,.6),1-a(T,INTRO-.6,INTRO));
+ let g=`<rect width="1600" height="900" fill="${C.bg}"/><g opacity="${o}">`+LOGO.replace('translate(60,46) scale(.7)','translate(752,250) scale(1.5)')+
+ `<text x="800" y="420" text-anchor="middle" class="mono" font-size="20" fill="${C.dim}">Verafy / shattering</text>`+
+ `<text x="800" y="500" text-anchor="middle" font-size="44" font-weight="650" fill="${C.text}" letter-spacing="-.5">The following is a theoretical approach</text>`+
+ `<text x="800" y="560" text-anchor="middle" font-size="44" font-weight="650" fill="${C.text}" letter-spacing="-.5">to privacy in a <tspan fill="${C.teal}">Verafy agent swarm</tspan></text></g>`;
+ document.getElementById('s').innerHTML=g;
+}
+window.render=full;full(parseFloat(new URLSearchParams(location.search).get('t')||'0'));
+</script></body></html>
