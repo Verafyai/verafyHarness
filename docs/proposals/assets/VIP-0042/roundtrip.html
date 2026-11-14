@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+*{margin:0;padding:0}
+body{width:1600px;height:900px;background:#05070A;overflow:hidden;font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+svg{display:block}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+</style></head><body>
+<svg id="s" width="1600" height="900" viewBox="0 0 1600 900"></svg>
+<script>
+const C={bg:'#05070A',panel:'#0B1117',line:'#16202A',line2:'#2A3440',text:'#E8EDF2',muted:'#A9B4C0',dim:'#5d6874',teal:'#5FE0C8',fill:'#3F8F80',amber:'#F0B45A',sky:'#7CC4FA'};
+const LOGO=`<g transform="translate(60,46) scale(.7)"><circle cx="32" cy="32" r="27" fill="none" stroke="#5FE0C8" stroke-opacity=".28" stroke-width="1.2"/><g stroke="#F0B45A" stroke-opacity=".55" stroke-width="1.2"><line x1="32" y1="32" x2="32" y2="17"/><line x1="32" y1="32" x2="45" y2="24.5"/><line x1="32" y1="32" x2="45" y2="39.5"/><line x1="32" y1="32" x2="32" y2="47"/><line x1="32" y1="32" x2="19" y2="39.5"/><line x1="32" y1="32" x2="19" y2="24.5"/></g><polygon points="32,17 45,24.5 45,39.5 32,47 19,39.5 19,24.5" fill="none" stroke="#5FE0C8" stroke-width="1.6"/><g fill="#7CC4FA"><rect x="38.3" y="8.3" width="4" height="4" rx="1"/><rect x="51.8" y="18.6" width="4" height="4" rx="1"/><rect x="56.2" y="35.4" width="4" height="4" rx="1"/><rect x="47.7" y="50.2" width="4" height="4" rx="1"/><rect x="30" y="55" width="4" height="4" rx="1"/><rect x="12.3" y="50.2" width="4" height="4" rx="1"/><rect x="3.8" y="35.4" width="4" height="4" rx="1"/><rect x="8.2" y="18.6" width="4" height="4" rx="1"/><rect x="21.7" y="8.3" width="4" height="4" rx="1"/><rect x="30" y="3" width="4" height="4" rx="1"/></g><g fill="#05070A" stroke="#5FE0C8" stroke-width="1.8"><circle cx="32" cy="17" r="3.6"/><circle cx="45" cy="24.5" r="3.6"/><circle cx="45" cy="39.5" r="3.6"/><circle cx="32" cy="47" r="3.6"/><circle cx="19" cy="39.5" r="3.6"/><circle cx="19" cy="24.5" r="3.6"/></g><circle cx="32" cy="32" r="5.5" fill="#F0B45A"/></g>`;
+const DUR=27;
+const cl=x=>Math.max(0,Math.min(1,x));
+const ez=x=>x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;
+const a=(t,s,e)=>ez(cl((t-s)/(e-s)));
+const mix=(c1,c2,k)=>{const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));const A=p(c1),B=p(c2);return '#'+A.map((v,i)=>Math.round(v+(B[i]-v)*k).toString(16).padStart(2,'0')).join('')};
+const N={
+ prog:{x:60,y:200,w:330,h:200,t:'Inference program',n:'1'},
+ comp:{x:480,y:240,w:300,h:120,t:'Compiler',n:'2',s:['clean, simplify, compress,','encrypt, fingerprint']},
+ chain:{x:1350,y:200,w:190,h:440,t:'On chain',n:'',s:['Solana or any L1']},
+ agent:{x:60,y:480,w:200,h:130,t:'Agent or app',n:'3',s:['calls program 7c3a']},
+ guard:{x:300,y:480,w:200,h:130,t:'Prompt Guard',n:'4',s:['screens for hostile','or interfering input']},
+ pack:{x:540,y:480,w:200,h:130,t:'Pack',n:'5',s:['atomize requests','into one block']},
+ jury:{x:780,y:480,w:240,h:130,t:'AI jury',n:'6',s:['or a single AI,','ZK verifiable']},
+ proof:{x:1060,y:480,w:220,h:130,t:'Proof check',n:'7',s:['validate proof,','hash the ruling']},
+ ledger:{x:780,y:690,w:500,h:160,t:'Harness ledger',n:'8',s:['precedent: sources, reasoning, decision']}
+};
+// windows when each node is active [start, done]
+const W={prog:[1,4.2],comp:[4.2,6.4],chain:[6.4,8.2],agent:[8.2,9.8],guard:[9.8,11.9],pack:[11.9,14.3],jury:[14.3,17.3],proof:[17.3,19.2],ledger:[19.6,23.4]};
+const CAP=[
+ [0,'An inference program, round trip','Store the intention once. Run it whenever it is called. Check it after the fact.'],
+ [1,'1  Write the intention','Intent, goals, run rules, guardrails and governance, with context to interpret it.'],
+ [4.2,'2  Compile and fingerprint','Cleaned, simplified, compressed, optionally encrypted, and fingerprinted.'],
+ [6.4,'2  Store on chain','The chain holds the intention and its fingerprint. Never code.'],
+ [8.2,'3  An agent calls it','Any agent or program can trigger the inference program by fingerprint.'],
+ [9.8,'4  Prompt Guard','Every input is screened before any model reads it.'],
+ [11.9,'5  Atomize and pack','Many requests packed into one block: fewer proofs per ruling.'],
+ [14.3,'6  The jury rules','One AI or a jury, each run provable after the fact.'],
+ [17.3,'7  Proof returned and checked','The proof is validated and its hash goes on chain.'],
+ [19.2,'8  Precedent kept','Sources and line by line reasoning, sharded across harness validators.'],
+ [23.4,'Round trip complete','The intention stays fixed. The reasoning is kept, so anyone can check it later.']
+];
+function st(k,t){const [s,d]=W[k];if(t<s-.15)return 0;if(t<d)return 1;return 2}
+function node(k,t){
+ const n=N[k],S=st(k,t);
+ const on=a(t,W[k][0]-.3,W[k][0]+.2);
+ const stroke=S==0?C.line2:S==1?C.teal:mix(C.teal,C.fill,.6);
+ const fill=S==1?'#0d1a1c':C.panel;
+ const tc=S==0?C.dim:C.text, sc=S==0?C.dim:C.muted;
+ let g=`<rect x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="12" fill="${fill}" stroke="${stroke}" stroke-width="${S==1?2:1.2}"/>`;
+ if(S==1)g=`<rect x="${n.x-5}" y="${n.y-5}" width="${n.w+10}" height="${n.h+10}" rx="16" fill="none" stroke="${C.teal}" stroke-opacity="${.18*on}" stroke-width="8"/>`+g;
+ if(n.n)g+=`<text x="${n.x+18}" y="${n.y+30}" class="mono" font-size="14" fill="${S==0?C.dim:C.amber}">${n.n}</text>`;
+ g+=`<text x="${n.x+(n.n?40:18)}" y="${n.y+31}" font-size="21" font-weight="650" fill="${tc}">${n.t}</text>`;
+ (n.s||[]).forEach((l,i)=>g+=`<text x="${n.x+18}" y="${n.y+62+i*23}" font-size="16.5" fill="${sc}">${l}</text>`);
+ return g;
+}
+function edge(pts,t,s,e,color){
+ const d='M'+pts.map(p=>p.join(',')).join(' L');
+ const k=t<s?0:1;
+ const col=t>=e?mix(C.teal,C.fill,.6):t>=s?C.teal:C.line2;
+ const [x1,y1]=pts[pts.length-2],[x2,y2]=pts[pts.length-1];
+ const ang=Math.atan2(y2-y1,x2-x1);
+ const ah=`${x2},${y2} ${x2-11*Math.cos(ang-.45)},${y2-11*Math.sin(ang-.45)} ${x2-11*Math.cos(ang+.45)},${y2-11*Math.sin(ang+.45)}`;
+ return `<path d="${d}" fill="none" stroke="${color||col}" stroke-width="1.8" ${t<s?'stroke-dasharray="5 6"':''}/><polygon points="${ah}" fill="${color||col}"/>`;
+}
+function along(pts,k){
+ const seg=[];let L=0;for(let i=1;i<pts.length;i++){const l=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);seg.push(l);L+=l}
+ let d=k*L;for(let i=0;i<seg.length;i++){if(d<=seg[i]){const r=seg[i]?d/seg[i]:0;return [pts[i][0]+(pts[i+1][0]-pts[i][0])*r,pts[i][1]+(pts[i+1][1]-pts[i][1])*r]}d-=seg[i]}
+ return pts[pts.length-1];
+}
+const E=[
+ {p:[[390,300],[478,300]],s:3.6,e:4.3},
+ {p:[[780,300],[1348,300]],s:5.6,e:6.5},
+ {p:[[260,540],[298,540]],s:9.4,e:9.9},
+ {p:[[500,540],[538,540]],s:11.5,e:12.0},
+ {p:[[740,540],[778,540]],s:13.8,e:14.4},
+ {p:[[1020,540],[1058,540]],s:16.8,e:17.4},
+ {p:[[1280,540],[1348,540]],s:18.6,e:19.3},
+ {p:[[1170,610],[1170,688]],s:19.2,e:19.8},
+];
+// chain to agent: program loaded (dashed return line along the top of row 2)
+const LOAD=[[1445,640],[1445,660],[160,660],[160,612]];
+function render(t){
+ let g=`<rect width="1600" height="900" fill="${C.bg}"/>`;
+ // faint grid
+ g+=`<g opacity=".25">`;for(let x=0;x<=1600;x+=40)g+=`<line x1="${x}" y1="0" x2="${x}" y2="900" stroke="${C.line}"/>`;for(let y=0;y<=900;y+=40)g+=`<line x1="0" y1="${y}" x2="1600" y2="${y}" stroke="${C.line}"/>`;g+=`</g>`;
+ g+=`<rect width="1600" height="180" fill="${C.bg}" opacity=".85"/>`;
+ g+=LOGO+`<text x="116" y="76" font-size="22" font-weight="600" fill="${C.text}">Verafy</text><text x="210" y="76" class="mono" font-size="17" fill="${C.muted}">/ harness block assembly</text>`;
+ // caption
+ let ci=0;CAP.forEach((c,i)=>{if(t>=c[0])ci=i});
+ const c=CAP[ci],ca=a(t,c[0],c[0]+.45);
+ g+=`<g opacity="${ca}" transform="translate(0,${(1-ca)*8})"><text x="60" y="126" font-size="38" font-weight="700" fill="${C.text}" letter-spacing="-.5">${c[1]}</text><text x="60" y="158" font-size="20" fill="${C.muted}">${c[2]}</text></g>`;
+ // row labels
+ g+=`<text x="60" y="189" class="mono" font-size="14" fill="${C.dim}">STORE ONCE</text><text x="60" y="470" class="mono" font-size="14" fill="${C.dim}">RUN ON EVERY CALL</text>`;
+ E.forEach(e=>g+=edge(e.p,t,e.s,e.e));
+ // load line
+ const lk=a(t,7.6,8.4);
+ g+=`<path d="M${LOAD.map(p=>p.join(',')).join(' L')}" fill="none" stroke="${t>8.2?mix(C.teal,C.fill,.6):C.line2}" stroke-width="1.4" stroke-dasharray="4 6"/>`;
+ g+=`<text x="620" y="680" class="mono" font-size="13" fill="${t>7.6?C.muted:C.dim}">program loaded by fingerprint</text>`;
+ Object.keys(N).forEach(k=>g+=node(k,t));
+ // program contents
+ const PL=['intent, goals, objectives','run rules, guidelines','guardrails, governance','context and sources'];
+ PL.forEach((l,i)=>{const o=a(t,1.2+i*.45,1.6+i*.45);g+=`<g opacity="${.25+.75*o}"><rect x="78" y="${248+i*35}" width="294" height="27" rx="5" fill="${o>.5?'#0f2024':C.bg}" stroke="${C.line}"/><text x="90" y="${267+i*35}" class="mono" font-size="14" fill="${o>.5?C.teal:C.dim}">${l}</text></g>`});
+ // compiler fingerprint
+ const fo=a(t,5.2,5.8);
+ g+=`<text x="498" y="345" class="mono" font-size="14" fill="${C.amber}" opacity="${fo}">fp 7c3a…e91f</text>`;
+ // chain entries
+ const ce=[[6.3,'program','7c3a…e91f',C.teal],[19.0,'ruling','91e0…4b2d',C.amber]];
+ ce.forEach((e,i)=>{const o=a(t,e[0],e[0]+.6);g+=`<g opacity="${o}"><rect x="1366" y="${300+i*230}" width="158" height="58" rx="6" fill="#0d1a1c" stroke="${e[3]}" stroke-opacity=".6"/><text x="1378" y="${322+i*230}" class="mono" font-size="13" fill="${C.muted}">${e[1]}</text><text x="1378" y="${344+i*230}" class="mono" font-size="14" fill="${e[3]}">${e[2]}</text></g>`});
+ // chain blocks stack
+ 
+ // guard result
+ const go=a(t,10.9,11.4);g+=`<text x="318" y="${480+108}" class="mono" font-size="13" fill="${C.teal}" opacity="${go}">✓ 0 hostile</text>`;
+ // pack: requests converge
+ const pk=a(t,12.3,13.6);
+ for(let i=0;i<6;i++){const sx=556+i*30,tx=600+(i%3)*22,sy=n=>0;const x=sx+(tx-sx)*pk,y=586+(pk*(i<3?-6:8));const show=t>=11.9?1:.25;g+=`<rect x="${x}" y="${y}" width="16" height="12" rx="2" fill="${t>=11.9?C.sky:C.dim}" opacity="${show}"/>`}
+ if(pk>.95)g+=`<rect x="594" y="574" width="76" height="34" rx="4" fill="none" stroke="${C.amber}" opacity="${a(t,13.6,14)}"/>`;
+ // jury: five jurors light in turn
+ for(let i=0;i<5;i++){const o=a(t,14.6+i*.4,14.9+i*.4);const cx=850+i*36;g+=`<circle cx="${cx}" cy="585" r="9" fill="${o>.5?C.teal:C.panel}" stroke="${o>.5?C.teal:C.dim}" stroke-width="1.5"/>`}
+ // proof result
+ const po=a(t,18.1,18.6);g+=`<text x="1078" y="588" class="mono" font-size="13" fill="${C.amber}" opacity="${po}">✓ proof valid</text>`;
+ // ledger: precedent lines and shards
+ const LL=['sources cited','reasoning, line by line','decision'];const LX=[798,940,1150];
+ LL.forEach((l,i)=>{const o=a(t,20.0+i*.5,20.4+i*.5);g+=`<text x="${LX[i]}" y="790" class="mono" font-size="13" fill="${C.teal}" opacity="${o}">${l}</text>`});
+ for(let i=0;i<14;i++){const o=a(t,21.6+i*.1,21.8+i*.1);g+=`<rect x="${798+i*33}" y="808" width="26" height="18" rx="3" fill="${o>.5?C.fill:C.panel}" stroke="${o>.5?C.teal:C.line2}" opacity="${.4+.6*o}"/>`}
+ g+=`<text x="1262" y="842" text-anchor="end" class="mono" font-size="12" fill="${C.dim}" opacity="${a(t,22,22.5)}">sharded across validators</text>`;
+ // packets
+ const packet=(x,y,col)=>`<circle cx="${x}" cy="${y}" r="13" fill="${col}" opacity=".2"/><circle cx="${x}" cy="${y}" r="6" fill="${col}"/>`;
+ E.forEach((e,i)=>{if(t>=e.s&&t<e.e){const [x,y]=along(e.p,a(t,e.s,e.e));g+=packet(x,y,i>=6?C.amber:C.teal)}});
+ if(t>=7.6&&t<8.4){const [x,y]=along(LOAD,lk);g+=packet(x,y,C.sky)}
+ // footer
+ g+=`<text x="1540" y="870" text-anchor="end" class="mono" font-size="15" fill="${C.teal}">verafy.ai</text><text x="60" y="870" class="mono" font-size="15" fill="${C.dim}">Actually Smart Contracts</text>`;
+ // fade in/out for loop
+ const f=Math.min(a(t,0,.5),1-a(t,DUR-.7,DUR));
+ g+=`<rect width="1600" height="900" fill="${C.bg}" opacity="${1-f}"/>`;
+ document.getElementById('s').innerHTML=g;
+}
+window.render=render;window.DUR=DUR;
+render(parseFloat(new URLSearchParams(location.search).get('t')||'0'));
+</script></body></html>
