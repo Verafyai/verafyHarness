@@ -16,6 +16,10 @@ The funds then rest in the swarm. They are not gone and not owned by any agent: 
 
 Animation: [assets/VIP-0043/verafy-shattering.mp4](assets/VIP-0043/verafy-shattering.mp4) (source: `shatter.html` in the same folder).
 
+Comparison with the Zcash shielded pool: [assets/VIP-0043/zcash-vs-shattering.png](assets/VIP-0043/zcash-vs-shattering.png).
+
+Blog post: [Shattering: A Theoretical Approach to Privacy in a Verafy Agent Swarm](https://blog.verafy.ai/articles/20261114-shattering).
+
 ## Motivation
 
 [VIP-0039](VIP-0039-shielded-mailbox.md) routes a payment privately from A to B. It does not cover funds that need to **rest** privately, or move under a **condition** (an estate opening, a contract milestone, a dead man's switch), or change hands **without moving on chain**. Shattering covers those cases with the pieces Verafy already has: inference programs ([VIP-0042](VIP-0042-precedent.md)), agent bonds and jury slashing ([VIP-0033](VIP-0033-agent-bonds.md)), and agentic contracts ([VIP-0029](VIP-0029-agentic-contracts.md)).

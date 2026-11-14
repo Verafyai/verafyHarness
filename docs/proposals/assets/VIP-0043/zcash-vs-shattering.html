@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+:root{--bg:#05070A;--panel:#0B1117;--line:#16202A;--text:#E8EDF2;--muted:#A9B4C0;--dim:#8994A0;--teal:#5FE0C8;--amber:#F0B45A;--sky:#7CC4FA}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1600px;height:900px;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden;position:relative}
+.grid{position:absolute;inset:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:40px 40px;opacity:.35;mask-image:radial-gradient(ellipse at 85% 10%,#000 0,transparent 60%)}
+.wrap{position:relative;padding:64px 72px;height:100%;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;gap:14px;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:20px;color:var(--muted)}
+.top b{color:var(--text);font-weight:600;font-family:Inter,sans-serif;font-size:24px;letter-spacing:-.01em}
+.top .draft{margin-left:auto;border:1px solid #2A3440;border-radius:999px;padding:6px 16px;font-size:16px;color:var(--amber)}
+h1{margin-top:44px;font-size:76px;line-height:1;font-weight:700;letter-spacing:-.03em}
+.sub{margin-top:18px;font-size:27px;color:var(--muted);max-width:1460px;line-height:1.35}
+.sub em{color:var(--teal);font-style:normal}
+.props{margin-top:44px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;flex:1}
+.p{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 22px 20px;display:flex;flex-direction:column}
+.p .k{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:15px;color:var(--dim)}
+.p h3{margin-top:8px;font-size:27px;font-weight:650;letter-spacing:-.01em;color:var(--teal)}
+.p p{margin-top:10px;font-size:18.5px;line-height:1.42;color:var(--muted)}
+.p.amber h3{color:var(--amber)}
+.p.sky h3{color:var(--sky)}
+.foot{margin-top:22px;display:flex;justify-content:space-between;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:17px;color:var(--dim)}
+.foot span:last-child{color:var(--teal)}
+</style><style>
+.cmp{margin-top:28px;display:grid;grid-template-columns:270px 1fr 1fr;flex:1;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.cmp>div{padding:10px 24px;border-top:1px solid var(--line);font-size:20px;line-height:1.35;display:flex;align-items:center}
+.cmp>.h{border-top:0;font-size:25px;font-weight:650;padding:14px 24px}
+.cmp>.k{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:16px;color:var(--dim)}
+.cmp>.old{color:var(--dim)}
+.cmp>.new{color:var(--text);background:rgba(95,224,200,.045)}
+.cmp>.h.old{color:var(--muted)}
+.cmp>.h.new{color:var(--teal)}
+h1{font-size:60px;margin-top:30px}
+.sub{font-size:23px}
+</style></head><body><body><div class="grid"></div><div class="wrap">
+<div class="top">
+    <svg width="44" height="44" viewBox="0 0 64 64"><circle cx="32" cy="32" r="27" fill="none" stroke="#5FE0C8" stroke-opacity=".28" stroke-width="1.2"/><g stroke="#F0B45A" stroke-opacity=".55" stroke-width="1.2"><line x1="32" y1="32" x2="32" y2="17"/><line x1="32" y1="32" x2="45" y2="24.5"/><line x1="32" y1="32" x2="45" y2="39.5"/><line x1="32" y1="32" x2="32" y2="47"/><line x1="32" y1="32" x2="19" y2="39.5"/><line x1="32" y1="32" x2="19" y2="24.5"/></g><polygon points="32,17 45,24.5 45,39.5 32,47 19,39.5 19,24.5" fill="none" stroke="#5FE0C8" stroke-width="1.6"/><g fill="#7CC4FA"><rect x="38.3" y="8.3" width="4" height="4" rx="1"/><rect x="51.8" y="18.6" width="4" height="4" rx="1"/><rect x="56.2" y="35.4" width="4" height="4" rx="1"/><rect x="47.7" y="50.2" width="4" height="4" rx="1"/><rect x="30" y="55" width="4" height="4" rx="1"/><rect x="12.3" y="50.2" width="4" height="4" rx="1"/><rect x="3.8" y="35.4" width="4" height="4" rx="1"/><rect x="8.2" y="18.6" width="4" height="4" rx="1"/><rect x="21.7" y="8.3" width="4" height="4" rx="1"/><rect x="30" y="3" width="4" height="4" rx="1"/></g><g fill="#05070A" stroke="#5FE0C8" stroke-width="1.8"><circle cx="32" cy="17" r="3.6"/><circle cx="45" cy="24.5" r="3.6"/><circle cx="45" cy="39.5" r="3.6"/><circle cx="32" cy="47" r="3.6"/><circle cx="19" cy="39.5" r="3.6"/><circle cx="19" cy="24.5" r="3.6"/></g><circle cx="32" cy="32" r="5.5" fill="#F0B45A"/></svg>
+    <b>Verafy</b><span>/ shattering vs the Zcash shielded pool</span><span class="draft">theoretical</span></div>
+<h1>Zcash hides more. Shattering does more.</h1>
+<div class="sub">Better together: <em>a shattering strategy can route shrapnel through the Zcash pool.</em></div>
+<div class="cmp"><div class="h"></div><div class="h old" style="color:#F0B45A">Zcash shielded pool</div><div class="h new">Verafy shattering</div><div class="k">Status</div><div class="old" style="color:#C6CFD8">Live</div><div class="new">Theoretical</div><div class="k">How privacy works</div><div class="old" style="color:#C6CFD8">Zero-knowledge proofs hide sender, receiver and amount</div><div class="new">Standard-size shrapnel across a bonded swarm</div><div class="k">Strength of privacy</div><div class="old" style="color:#C6CFD8">Strongest: everything in the pool is hidden</div><div class="new">Weaker per move: moves are visible, links are obscured</div><div class="k">Who holds the funds</div><div class="old" style="color:#C6CFD8">You</div><div class="new">Bonded agents, slashed if they fail</div><div class="k">Assets</div><div class="old" style="color:#C6CFD8">ZEC only</div><div class="new">Any asset, including BTC</div><div class="k">Conditional triggers</div><div class="old" style="color:#C6CFD8">No</div><div class="new">Time locks, inference conditions, dead man's switch</div><div class="k">Hand over the claim</div><div class="old" style="color:#C6CFD8">Only by moving funds</div><div class="new">Pass the bearer key, no on-chain transfer</div><div class="k">Cost</div><div class="old" style="color:#C6CFD8">One network fee</div><div class="new">Many fees, plus agent fees on bonded capital</div></div>
+<div class="foot"><span>VIP-0043, theoretical, not live</span><span>verafy.ai</span></div>
+</div></body></html>
