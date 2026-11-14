@@ -68,6 +68,7 @@ A proposal is not a promise. Each one is tracked in three places:
 | [0041](VIP-0041-self-improvement-loop.md) | The self-improvement loop: a durable graph over every project, verified in code, scored by a jury, shown in Looper | Idea; decision needed | |
 | [0042](VIP-0042-precedent.md) | Precedent v1: inference programs store intentions, not code; cached judgement so most queries never reach a jury | Idea; direction set | |
 | [0043](VIP-0043-shattering.md) | Shattering: shrapnel held by a bonded agent swarm, reassembled by whoever holds the key | Theoretical; legal review required | |
+| [0044](VIP-0044-z-shatter.md) | Z-shatter: shattering inside a shielded pool, policed by split viewing keys and unspent-note proofs | Theoretical; legal review required | |
 
 Tracking issues: [#26 to #36](https://github.com/Verafyai/verafyHarness/issues?q=label%3Aproposal). VIPs 0001 to 0009 were built in v0.0.3-alpha and 0010 to 0017 written in v0.0.4-alpha, unless the status says otherwise; every number in them is illustrative until Rex sets it.
 

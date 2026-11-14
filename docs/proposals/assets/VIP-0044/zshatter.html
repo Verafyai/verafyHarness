@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+*{margin:0;padding:0}
+body{width:1600px;height:900px;background:#05070A;overflow:hidden;font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+svg{display:block}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+</style></head><body>
+<svg id="s" width="1600" height="900" viewBox="0 0 1600 900"></svg>
+<script>
+const C={bg:'#05070A',panel:'#0B1117',line:'#16202A',line2:'#2A3440',text:'#E8EDF2',muted:'#A9B4C0',dim:'#5d6874',teal:'#5FE0C8',fill:'#3F8F80',amber:'#F0B45A',sky:'#7CC4FA'};
+const LOGO=`<g transform="translate(60,46) scale(.7)"><circle cx="32" cy="32" r="27" fill="none" stroke="#5FE0C8" stroke-opacity=".28" stroke-width="1.2"/><g stroke="#F0B45A" stroke-opacity=".55" stroke-width="1.2"><line x1="32" y1="32" x2="32" y2="17"/><line x1="32" y1="32" x2="45" y2="24.5"/><line x1="32" y1="32" x2="45" y2="39.5"/><line x1="32" y1="32" x2="32" y2="47"/><line x1="32" y1="32" x2="19" y2="39.5"/><line x1="32" y1="32" x2="19" y2="24.5"/></g><polygon points="32,17 45,24.5 45,39.5 32,47 19,39.5 19,24.5" fill="none" stroke="#5FE0C8" stroke-width="1.6"/><g fill="#7CC4FA"><rect x="38.3" y="8.3" width="4" height="4" rx="1"/><rect x="51.8" y="18.6" width="4" height="4" rx="1"/><rect x="56.2" y="35.4" width="4" height="4" rx="1"/><rect x="47.7" y="50.2" width="4" height="4" rx="1"/><rect x="30" y="55" width="4" height="4" rx="1"/><rect x="12.3" y="50.2" width="4" height="4" rx="1"/><rect x="3.8" y="35.4" width="4" height="4" rx="1"/><rect x="8.2" y="18.6" width="4" height="4" rx="1"/><rect x="21.7" y="8.3" width="4" height="4" rx="1"/><rect x="30" y="3" width="4" height="4" rx="1"/></g><g fill="#05070A" stroke="#5FE0C8" stroke-width="1.8"><circle cx="32" cy="17" r="3.6"/><circle cx="45" cy="24.5" r="3.6"/><circle cx="45" cy="39.5" r="3.6"/><circle cx="32" cy="47" r="3.6"/><circle cx="19" cy="39.5" r="3.6"/><circle cx="19" cy="24.5" r="3.6"/></g><circle cx="32" cy="32" r="5.5" fill="#F0B45A"/></g>`;
+const cl=x=>Math.max(0,Math.min(1,x));
+const ez=x=>x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;
+const a=(t,s,e)=>ez(cl((t-s)/(e-s)));
+const RED='#F28B82', VIO='#8B93FF';
+let seed=19;const rnd=()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646};
+const AG=[];for(let r=0;r<13;r++)for(let c=0;c<17;c++)AG.push([650+c*30+(rnd()-.5)*12,250+r*40+(rnd()-.5)*14]);
+const NP=40;const P=[];const used=new Set();while(P.length<NP){const i=Math.floor(rnd()*AG.length);if(!used.has(i)){used.add(i);P.push(i)}}
+const MISS=11; const PROG=[460,420], PAY=[1385,780];
+const JX=1270,JY=470; const JUR=[0,1,2,3,4].map(i=>[JX+20+i*52,JY+60]);
+const CAP=[
+ [0,'Z-shatter','Shattering inside a shielded pool, watched by the Verafy network.'],
+ [1,'A deposit triggers Z-Shatter','The receiver wallet calls the Z-Shatter inference program on $100,000.'],
+ [4.6,'Into the shielded pool','Each piece becomes a shielded note held by a bonded agent. The chain records only commitments.'],
+ [9.6,'The public sees nothing','No amounts, no holders, no moves. Just commitments.'],
+ [11.8,'The jury can still watch','Viewing keys are split across Verafy jurors. Any 3 of 5 can check; none can alone.'],
+ [15,'Or agents prove it','Every agent regularly proves, in zero knowledge, that its note is unspent.'],
+ [18,'Miss a proof, get slashed','No proof by the deadline: the bond is slashed and held for the owner.'],
+ [20.2,'The key is a bearer key','The assembly key passes to another wallet. Nothing moves on chain.'],
+ [22,'Proof, not identity','The holder proves the key in zero knowledge and locks the payout wallet.'],
+ [23.6,'Reassembly','Spent notes publish nullifiers, which cannot be linked to their commitments.'],
+ [29,'Commitments in. Nullifiers out.','Nothing on chain links them. The owner is made whole.']
+];
+function box(x,y,w,h,title,sub,on,col){col=col||C.teal;let g='';if(on)g+=`<rect x="${x-5}" y="${y-5}" width="${w+10}" height="${h+10}" rx="16" fill="none" stroke="${col}" stroke-opacity=".16" stroke-width="8"/>`;g+=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="12" fill="${on?'#0d1a1c':C.panel}" stroke="${on?col:C.line2}" stroke-width="${on?2:1.2}"/><text x="${x+18}" y="${y+30}" font-size="19" font-weight="650" fill="${C.text}">${title}</text>`;if(sub)g+=`<text x="${x+18}" y="${y+54}" font-size="14.5" fill="${C.muted}">${sub}</text>`;return g}
+const pc=(x,y,col,o=1,s=8)=>`<rect x="${x-s/2}" y="${y-s/2}" width="${s}" height="${s}" rx="2" fill="${col}" opacity="${o}"/>`;
+function key(x,y,o){return `<g opacity="${o}" transform="translate(${x},${y})"><circle cx="0" cy="0" r="8" fill="none" stroke="${C.amber}" stroke-width="3"/><path d="M8 0 H26 M20 0 V7 M25 0 V6" stroke="${C.amber}" stroke-width="3" fill="none"/></g>`}
+const hx=i=>{let h=(i*2654435761>>>0).toString(16).padStart(8,'0');return h.slice(0,4)+'…'+h.slice(4,8)};
+function inner(t){
+ let g=`<rect width="1600" height="900" fill="${C.bg}"/><g opacity=".22">`;
+ for(let x=0;x<=1600;x+=40)g+=`<line x1="${x}" y1="0" x2="${x}" y2="900" stroke="${C.line}"/>`;for(let y=0;y<=900;y+=40)g+=`<line x1="0" y1="${y}" x2="1600" y2="${y}" stroke="${C.line}"/>`;
+ g+=`</g><rect width="1600" height="190" fill="${C.bg}" opacity=".85"/>`;
+ g+=LOGO+`<text x="116" y="76" font-size="22" font-weight="600" fill="${C.text}">Verafy</text><text x="210" y="76" class="mono" font-size="17" fill="${C.muted}">/ z-shatter</text>`;
+ let ci=0;CAP.forEach((c,i)=>{if(t>=c[0])ci=i});const c=CAP[ci],ca=a(t,c[0],c[0]+.45);
+ g+=`<g opacity="${ca}" transform="translate(0,${(1-ca)*8})"><text x="60" y="126" font-size="38" font-weight="700" fill="${C.text}" letter-spacing="-.5">${c[1]}</text><text x="60" y="158" font-size="20" fill="${C.muted}">${c[2]}</text></g>`;
+ // view mode
+ const jury=(t>=11.8&&t<20.2)||(t>=23.6&&t<29);
+ // pool
+ const pv=a(t,4.4,5);
+ g+=`<rect x="625" y="222" width="540" height="556" rx="14" fill="${VIO}" fill-opacity="${.05*pv}" stroke="${pv>.5?VIO:C.line2}" stroke-opacity="${pv>.5?.7:1}" stroke-dasharray="4 6"/>`;
+ g+=`<text x="640" y="808" class="mono" font-size="14" fill="${VIO}">shielded pool</text>`;
+ const lbl=t<9.6?'':(jury?'jury view: viewing keys, 3 of 5':'public view: nothing to see');
+ if(lbl)g+=`<text x="1150" y="808" text-anchor="end" class="mono" font-size="14" fill="${jury?C.teal:C.dim}">${lbl}</text>`;
+ const holder=new Set(P);
+ AG.forEach(([x,y],i)=>{g+=`<circle cx="${x}" cy="${y}" r="3.2" fill="${C.line2}"/>`});
+ // receiver
+ g+=box(80,340,230,130,'Receiver wallet','',t>=1&&t<4.6||t>=10.6&&t<12.2,C.teal);
+ g+=`<text x="98" y="402" class="mono" font-size="26" fill="${t<4.6?C.teal:C.dim}">${t<4.6?'$100,000':'$0'}</text><text x="98" y="428" class="mono" font-size="14" fill="${C.dim}">BTC</text>`;
+ const ko=a(t,9.8,10.4),mv=a(t,20.4,21.4);
+ g+=box(80,520,230,110,'Another wallet','key holder',t>=20.2&&t<23.6,C.amber);
+ if(ko>0){g+=key(110,452+150*mv,ko);if(t<20.4)g+=`<text x="146" y="457" class="mono" font-size="14" fill="${C.amber}" opacity="${ko}">assembly key</text>`;else g+=`<text x="98" y="452" class="mono" font-size="13" fill="${C.dim}" opacity="${mv}">key passed on</text>`;if(t>=21.4)g+=`<text x="146" y="607" class="mono" font-size="14" fill="${C.amber}">assembly key</text>`}
+ // program
+ g+=box(360,365,200,110,'Z-Shatter','inference program',t>=2&&t<9.6,VIO);
+ g+=`<text x="378" y="455" class="mono" font-size="12.5" fill="${VIO}" opacity="${a(t,2.4,3)}">mode: shielded</text>`;
+ g+=`<line x1="310" y1="405" x2="358" y2="405" stroke="${t>2?C.teal:C.line2}" stroke-width="2"/>`;
+ if(t>=2&&t<3)g+=pc(310+48*a(t,2,3),405,C.teal,1,14);
+ // chain panel
+ g+=box(1240,222,290,200,'On chain','',t>=4.6&&t<9.6||t>=23.6,C.teal);
+ let landed=0,spent=0;
+ // jury panel
+ g+=box(1240,440,290,140,'Verafy jury','',jury,C.teal);
+ JUR.forEach(([x,y],i)=>{const on=jury&&i<3;g+=`<circle cx="${x}" cy="${y}" r="13" fill="${C.bg}" stroke="${jury?C.teal:C.line2}" stroke-width="2"/>`;if(on)g+=`<circle cx="${x}" cy="${y}" r="6" fill="${C.amber}"/>`});
+ g+=`<text x="1258" y="${JY+105}" class="mono" font-size="12.5" fill="${jury?C.teal:C.dim}">viewing key split 3 of 5</text>`;
+ // payout
+ g+=box(1240,700,290,140,'Payout wallet','paid to whoever holds the key',t>=23.6,C.teal);
+ // trigger proof line
+ if(t>=22&&t<23.6){const k=a(t,22,23.2);g+=`<path d="M310 600 C 520 880, 1000 880, 1238 780" fill="none" stroke="${C.amber}" stroke-opacity=".4" stroke-dasharray="4 6"/>`;g+=`<text x="1258" y="${JY+126}" class="mono" font-size="12.5" fill="${C.amber}" opacity="${a(t,22.6,23)}">zk: key valid, payout locked</text>`}
+ // proofs pulses
+ let proofs=0;
+ P.forEach((ai,k)=>{
+  const [ax,ay]=AG[ai];const s1=4.6+k*.1,e1=s1+1.0;const s2=23.8+k*.11,e2=s2+1.2;
+  if(t<s1){if(t>=3.4){const o=a(t,3.4,4.4);g+=pc(PROG[0]+((k%8)-3.5)*7*o,PROG[1]+(Math.floor(k/8)-2)*7*o,C.teal,o)}return}
+  if(t>=e1)landed++;
+  const isMiss=k==MISS;
+  if(t<s2){
+   if(t<e1){const kk=a(t,s1,e1);g+=pc(PROG[0]+(ax-PROG[0])*kk,PROG[1]+(ay-PROG[1])*kk,C.teal,1-.6*kk)}
+   else{ // resting: visible only in jury view
+    const vis=jury?1:0; const col=(isMiss&&t>=18)?RED:C.teal;
+    if(vis){g+=pc(ax,ay,col,1);g+=`<circle cx="${ax}" cy="${ay}" r="9" fill="none" stroke="${(isMiss&&t>=18)?RED:C.amber}" stroke-width="1.6"/>`}
+    // periodic proofs 15-18
+    if(t>=15&&t<20.2&&!(isMiss&&t>=17.2)){const ph=((t-15)*0.9+k*0.37)%1.6;if(ph<.7){const kk=ph/.7;const [jx,jy]=JUR[k%5];g+=pc(ax+(jx-ax)*kk,ay+(jy-ay)*kk,VIO,.9,5)}}
+    if(isMiss&&t>=18&&t<20.2)g+=`<text x="${ax+16}" y="${ay-14}" class="mono" font-size="13.5" fill="${RED}">no proof: slashed</text>`;
+   }
+   return}
+  // reassembly
+  const kk=a(t,s2,e2);
+  if(isMiss){const bs=27.4,be=28.4;if(t>=bs){const q=a(t,bs,be);if(t<be)g+=pc(ax+(PAY[0]-ax)*q,ay+(PAY[1]-ay)*q,C.amber,1);else spent++} if(t>=26.4&&t<29)g+=`<text x="${ax+16}" y="${ay-14}" class="mono" font-size="13.5" fill="${C.amber}">bond pays</text>`;return}
+  if(t<e2)g+=pc(ax+(PAY[0]-ax)*kk,ay+(PAY[1]-ay)*kk,C.teal,.4+.6*kk);else spent++;
+ });
+ // chain rows
+ const cm=Math.min(landed,NP);
+ g+=`<text x="1258" y="280" class="mono" font-size="13" fill="${C.muted}">commitments</text><text x="1512" y="280" text-anchor="end" class="mono" font-size="15" fill="${C.teal}">${cm}</text>`;
+ for(let i=0;i<Math.min(cm,3);i++)g+=`<text x="1258" y="${302+i*18}" class="mono" font-size="12.5" fill="${C.dim}">cm ${hx(i+3)}</text>`;
+ g+=`<text x="1258" y="376" class="mono" font-size="13" fill="${C.muted}">nullifiers</text><text x="1512" y="376" text-anchor="end" class="mono" font-size="15" fill="${spent?C.amber:C.dim}">${spent}</text>`;
+ if(spent)for(let i=0;i<Math.min(spent,1);i++)g+=`<text x="1258" y="${398}" class="mono" font-size="12.5" fill="${C.dim}">nf ${hx(i+91)}</text>`;
+ if(t>=23.6){g+=`<text x="1258" y="806" class="mono" font-size="24" fill="${spent==NP?C.teal:C.text}">$${(spent*2500).toLocaleString('en-US')}</text>`}
+ // legend
+ g+=`<g transform="translate(80,690) scale(.9)"><rect x="0" y="0" width="10" height="10" rx="2" fill="${C.teal}"/><text x="20" y="10" class="mono" font-size="14" fill="${C.muted}">shielded note</text><circle cx="5" cy="35" r="8" fill="none" stroke="${C.amber}" stroke-width="1.6"/><text x="20" y="40" class="mono" font-size="14" fill="${C.muted}">bonded holder</text><rect x="0" y="62" width="8" height="8" rx="2" fill="${VIO}"/><text x="20" y="70" class="mono" font-size="14" fill="${C.muted}">zk proof: unspent</text><rect x="0" y="90" width="10" height="10" rx="2" fill="${RED}"/><text x="20" y="100" class="mono" font-size="14" fill="${C.muted}">slashed</text></g>`;
+ g+=`<text x="1540" y="870" text-anchor="end" class="mono" font-size="15" fill="${C.teal}">verafy.ai</text><text x="60" y="870" class="mono" font-size="15" fill="${C.dim}">Theoretical. Not live.</text>`;
+ const f=Math.min(a(t,0,.5),1-a(t,DUR-.7,DUR));g+=`<rect width="1600" height="900" fill="${C.bg}" opacity="${1-f}"/>`;
+ document.getElementById('s').innerHTML=g;
+}
+const DUR=32.5, INTRO=3.8;
+function full(T){
+ if(T>=INTRO){inner(T-INTRO);return}
+ const o=Math.min(a(T,0,.6),1-a(T,INTRO-.6,INTRO));
+ let g=`<rect width="1600" height="900" fill="${C.bg}"/><g opacity="${o}">`+LOGO.replace('translate(60,46) scale(.7)','translate(752,250) scale(1.5)')+
+ `<text x="800" y="420" text-anchor="middle" class="mono" font-size="20" fill="${C.dim}">Verafy / z-shatter</text>`+
+ `<text x="800" y="500" text-anchor="middle" font-size="44" font-weight="650" fill="${C.text}" letter-spacing="-.5">The following is a theoretical approach</text>`+
+ `<text x="800" y="560" text-anchor="middle" font-size="44" font-weight="650" fill="${C.text}" letter-spacing="-.5">to <tspan fill="${VIO}">zero-knowledge shattering</tspan> on Verafy</text></g>`;
+ document.getElementById('s').innerHTML=g;
+}
+window.render=full;full(0);
+</script></body></html>
