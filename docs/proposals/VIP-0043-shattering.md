@@ -20,6 +20,8 @@ Comparison with the Zcash shielded pool: [assets/VIP-0043/zcash-vs-shattering.pn
 
 Blog post: [Shattering: A Theoretical Approach to Privacy in a Verafy Agent Swarm](https://blog.verafy.ai/articles/20261114-shattering).
 
+Zero-knowledge mode: [VIP-0044, Z-shatter](VIP-0044-z-shatter.md).
+
 ## Motivation
 
 [VIP-0039](VIP-0039-shielded-mailbox.md) routes a payment privately from A to B. It does not cover funds that need to **rest** privately, or move under a **condition** (an estate opening, a contract milestone, a dead man's switch), or change hands **without moving on chain**. Shattering covers those cases with the pieces Verafy already has: inference programs ([VIP-0042](VIP-0042-precedent.md)), agent bonds and jury slashing ([VIP-0033](VIP-0033-agent-bonds.md)), and agentic contracts ([VIP-0029](VIP-0029-agentic-contracts.md)).
