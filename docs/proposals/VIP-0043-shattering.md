@@ -106,6 +106,9 @@ The strategy itself is encrypted and stored with the commitment, so the plan is 
   - **Unauthorized move.** Shrapnel leaves the agent's wallet in a way the strategy did not schedule. The bond is slashed on the spot and held for the owner.
   - **Failure to restore.** Reassembly is triggered and the shrapnel has not reached the destination by the deadline. The bond pays the destination directly: the full value plus a premium for the delay.
 - **Disputes go to a Verafy jury.** An agent that claims it delivered (reorg, wrong amount, stuck transaction) appeals; the jury rules on the evidence. If the agent wins, its bond is restored and an insurance fund covers the owner in the meantime.
+- **Anyone can join, if bonded.** Running a node that holds shrapnel needs no permission, no mining hardware and no membership: only enough slashable bond in the network. The bond is both the admission ticket and the insurance. Comparison with a Zcash miner: [assets/VIP-0043/miner-vs-node.png](assets/VIP-0043/miner-vs-node.png).
+- **Capacity cap.** A node can hold shrapnel only up to a set fraction of its slashable bond. This is the main security dial: 150% collateral (hold up to two thirds of the bond) is the starting proposal; Rex has raised a far stricter cap, around 1% of slashable stake, which makes running unprofitable for almost any node but needs far more total bond for the same deposits. Decision open.
+- **Operator cap.** No operator holds more than a small share of any one shatter, whatever its bond.
 - **Slashed agents are out for good**, under [VIP-0033](VIP-0033-agent-bonds.md).
 - **Agents are paid** for every hour their bond and shrapnel are locked. This is the real price of a shatter: a $100,000 deposit locks $150,000 of agent capital for as long as it rests.
 
@@ -141,7 +144,7 @@ Nothing here is legal advice.
 ## Open questions and decisions for Rex
 
 1. Which chain holds the shrapnel, and how BTC is represented there.
-2. Bond ratio, premium for late delivery, and agent fee per hour locked.
+2. Bond ratio and capacity cap (150% collateral, or a strict cap such as 1% of slashable stake), premium for late delivery, and agent fee per hour locked.
 3. The minimum anonymity set and minimum dwell time in the privacy floor.
 4. Whether a shatter must carry a proof of clean funds.
 5. Who runs the insurance fund for disputed slashes.
