@@ -2,16 +2,154 @@
 
 | Field | Value |
 |---|---|
-| Status | Live: investor page at https://www.verafy.ai/thesis, claims ledger at https://www.verafy.ai/thesis/claims, investor report at https://www.verafy.ai/thesis/report (alpha). No jury run stored yet: Verafy's own api.verafy.ai key is out of credits (section 15.8). |
+| Status | Live: investor page https://www.verafy.ai/thesis, claims ledger https://www.verafy.ai/thesis/claims, investor report https://www.verafy.ai/thesis/report, stamps https://explorer.verafy.ai/thesis (alpha, devnet). Section 0 is the current design. |
 | Spec version | `verafy-thesis/1` |
 | Author | Rex St John |
 | Created | 2026-11-18 |
-| Code | `VerafyTechnologies/verafy-website`, PRs #59 to #71; `VerafyTechnologies/testnet-demo` #256; `VerafyTechnologies/verafy-apis` #50 |
-| Assets | `docs/proposals/assets/VIP-0046/` (screenshots, logo, claims, spec, slide generators, and the revision 2 sources: `score.ts`, `merkle.ts`, `revenue.ts`, `diligence.ts`) |
+| Code | `VerafyTechnologies/verafy-website` #59 to #78; `VerafyTechnologies/testnet-demo` (Swarm Explorer) #256, #257; `VerafyTechnologies/verafy-apis` #50; `Verafyai/explorer` #1 |
+| Assets | `docs/proposals/assets/VIP-0046/`: screenshots 01 to 14 (first build) and 15 to 23 (current design), logo, and `source/` with a snapshot of every current thesis file: the products modules, the UI components, the run, finalize and stamp routes, claims.json, VERIFY-THESIS.md, and Swarm's call-budget.ts |
 
 This VIP records everything needed to rebuild Verafy Thesis from nothing: why it exists, every requirement, the design, the data model, the content, the calculators' math, the jury and stamping protocol, and what is not done. If the site is lost, this file plus its assets regenerate it.
 
 ---
+
+## 0. Current design (Nov 18, 2026, evening)
+
+This section is the design as it runs today. Sections 1 and 2 are the original brief. Sections 3 to 16 record how the build got here; where they differ from this section, this section wins.
+
+### 0.1 Pages
+
+| Page | What it is | Screenshot |
+|---|---|---|
+| `/thesis` | Investor landing page, in pitch order: hero, the final question (hidden until the jury has ruled), revenue model, problem, opportunity, how it works, the ruling, why now, buyer, cost, competitive advantage, risks, team, next 24 months, FAQ. Download PDF in the hero. The header hides credits. | `15-landing.jpg` |
+| `/thesis/claims` | The claims ledger, from top to bottom: the jury board, the run panel, the final question, the summary dashboard, the due diligence scan, ten numbered sections, then the appendix. The header shows the visitor's credits. | `16-ledger-top.jpg`, `23-ledger-mobile.jpg` |
+| `/thesis/report` | Investor report built for print. `?print=1` opens the print dialog so it saves as a PDF. | `22-report.jpg` |
+| `explorer.verafy.ai/thesis` | Every finalized jury run with its Merkle root and stamp. `/thesis/<signature>` reads the stamp from devnet and checks its root against the website. | |
+
+### 0.2 Ledger, top to bottom
+
+1. **The jury board.** The h1 is "Our board: a jury of frontier models". Below it are five family cells (GPT, Claude, Gemini, Grok and DeepSeek, each with its lab), then the legend. The legend shows each lab's icon and color with "not endorsed by" the lab, plus the line "These labs do not endorse Verafy. Their names and icons identify the models we run as jurors through public APIs." Last comes Rex's paragraph about the written spec, the research report and the Solana certificate.
+2. **The run panel** (`RunJury.tsx`, `17-run-panel.jpg`). One centered box:
+   - "Check it yourself" and "Ask the jury to rule on every claim";
+   - a line on cost (5 credits a claim, 335 for the full run, pay only for rulings that come back);
+   - the primary "Run the full check" button;
+   - a row of secondary buttons: Download PDF report, Copy the prompt for your own model, Read the spec, claims.json.
+   
+   While a run is going, a progress panel opens under it. It shows percent, a bar, time left, the claims in flight, a log of each claim's outcome, and the Merkle root and stamp at the end. Leaving the page triggers a warning.
+3. **The final question** (`FinalVerdict.tsx`, `18-final-question.jpg`): "Would a skilled pre-seed investor, after weighing every claim, the market, competition, the founder and the economics, invest in Verafy at its pre-seed terms?"
+   - The ruling is drawn large, with labels "Would invest" and "Would not invest".
+   - A count line reads "N of M jurors who answered would invest".
+   - Three bars follow: Why invest, Hesitations and objections, Why it might not make sense. Each line carries the juror's colored dot.
+   - Snapshot sits in the top right. Ask again (5 credits) sits below.
+4. **The summary dashboard** (`Dashboard.tsx`, `19-dashboard.jpg`):
+   - the verdict and last scan time;
+   - the stamp badge (Stamped on Solana devnet, linking to explorer.verafy.ai/thesis/<signature>, or "Pending stamp: stamp it now");
+   - the checked ring and the gauge set by the weakest "must be proven" claim;
+   - economics and business scores, tier bars, models, sha256 and Merkle root.
+5. **The due diligence scan.** An accordion that shows only "N of 10 checks pass" until it is opened.
+6. **Ten sections:** problem, opportunity, why now, thesis, what exists today, economics, business model and market, competition, risks, team. Each gives a question and an answer, then its claims in an accordion.
+7. **The appendix:** research and sources, method and stamped reports, run it yourself, data room, FAQ.
+
+### 0.3 A ruling, drawn like Swarm Explorer
+
+`JuryDistribution.tsx` (`Distribution`) reproduces Swarm Explorer's answer card, and every ruling uses it: each claim, the final question, and the competitive advantage rows.
+
+- **Headline:** the percentage (44px, or 64px when large), the verdict label, and "chance it holds, jury median".
+- **Responded pill:** "N of 5 responded, range low to high%".
+- **Slider:**
+  - track `#1d2630`;
+  - a 90% band in `rgba(95,224,200,0.16)`;
+  - a 50% tick;
+  - a 9px dot per juror in its model color;
+  - a 5x22 median marker with a "median N%" label;
+  - end labels "0% NO", "50%" and "YES 100%".
+- **Juror chips:** one per juror, with the model icon, color swatch, short name and score. An abstention shows n/a and is faded. Five columns when large.
+- **Model colors, short names and icons** come from Swarm Explorer and are ported in `model-color.ts`. The icons are served from `https://swarm.verafy.ai/icons/*.png` with CORS, so snapshots can include them.
+
+### 0.4 Claim card
+
+A claim card (`21-claim-card.jpg`) shows:
+- the id, tier and label;
+- Snapshot in the top right;
+- the claim text and its ruling;
+- source links and Recheck (5 credits);
+- "How to check", which holds the check method and the desk check.
+
+### 0.5 Snapshot
+
+`Snapshot.tsx` saves the nearest `[data-snapshot]` block (the final question or a claim card) as a 2x PNG with `html-to-image`.
+- Buttons, Recheck and "How to check" carry `data-snapshot-skip`, so they are left out.
+- A source line appears only in the image: "verafy.ai/thesis/claims#ID. Ruled by an AI jury on Swarm Explorer. The labs do not endorse Verafy."
+- File name: `verafy-<id>-<date>.png`. Example: `20-snapshot.jpg`.
+
+### 0.6 The jury
+
+- **The five board models**, each requested by Swarm validator id in `selectedLLMIds`:
+
+  | Model | Validator id |
+  |---|---|
+  | GPT-6.1 Terra Pro | `5c95fdce-18d2-468d-9fd6-6b882a13477b` |
+  | Claude Opus 5.5 | `1eaee990-f0ec-4c23-9abe-ea39cd0ce1ef` |
+  | Gemini 4 Argon | `0580b313-e014-4f91-b085-d059e21bb862` |
+  | Grok 4.7 | `cadf0f3c-25e4-49b9-820d-f3390f227d97` |
+  | DeepSeek V4 Pro | `8cc0f86c-4133-44e6-8fdd-d4e48017825a` |
+
+- **Questions** quote the claim.
+  - Claims and follows tiers: `As of <date>, is this claim true? "..." Vote yes only if current public evidence supports it.`
+  - Proven tier: `Is this claim likely to prove true? "..." Vote yes only if the evidence and reasoning support it.`
+  - Questions are capped at 300 characters.
+- **The final question (`V01`)** is built from the run's summary (`verdictQuestion`) and asks for `INVEST:`, `CONCERNS:` and `AGAINST:` in the rationale. It never counts as a claim.
+- **Scoring:**
+  - A juror's score is confidence x 100 for a yes, (1 minus confidence) x 100 for a no, and 50 for an abstention.
+  - Abstentions stay on the card and never count.
+  - A claim's score is the juror median. Its 90% interval runs from the minimum to the maximum. Its verdict is the majority vote.
+  - The headline is the weakest "must be proven" claim.
+- **Final question bars** (`rationale.ts` `verdictBars`):
+  - Swarm's reasoning JSON (`rationale`, `for`, `against`) is parsed leniently.
+  - The `INVEST:`, `CONCERNS:` and `AGAINST:` parts of the summary go to their own bars.
+  - A yes vote's `for` points go to Why invest and its `against` points to Why not. A no vote is the reverse.
+  - A technical abstention adds nothing.
+
+### 0.7 Runs and billing
+
+- **Who pays.** Runs spend only the visitor's own website credits: 5 a claim, held before the call and refunded on any failure (`runClaim.ts`). The credits are tied to the `verafy_vid` cookie, which `GET /api/credits/balance` mints.
+- **How a run reaches Swarm.** With `SWARM_SITE_KEY` set, `/api/thesis/run` calls `https://swarm.verafy.ai/api/broadcast-query` directly. It sends `x-api-key-public`, `questionGate: "off"` and the five `selectedLLMIds`. Without the key, it falls back to api.verafy.ai with `VERAFY_API_KEY`.
+- **Swarm on trusted calls.** Trusted calls skip the question gate, the per-IP burst limit and the visitor hold (testnet-demo #256). They also give each model 110s instead of 40s (testnet-demo #257).
+  - Measured: at 40s, the five frontier models timed out on thesis questions, and every claim came back 503 `models_did_not_answer` after 38 to 39s.
+  - Swarm's route allows 150s. The thesis route waits up to 160s (maxDuration 180).
+- **Pacing** (`runner.ts`):
+  - The first claim runs alone, to open the run. The rest run 6 at a time. `V01` runs last, then finalize.
+  - The page refreshes every 5 claims.
+  - A full run of 66 units took about 8 minutes on the earlier, faster models (measured). With the five frontier models it will take longer; not yet measured.
+- **When a run stops.** A 503 `question_check_failed`, a 429, or an upstream "Insufficient credits" stops the batch with a refund. Any other failure refunds and reports how many models answered in time.
+
+### 0.8 Reports, Merkle root and stamp
+
+- **Storage.** Each claim result is a versioned report in Postgres (`verafy_thesis_runs`, `verafy_thesis_claim_reports`; the tables are additive). It is hashed as SHA-256 over canonical JSON.
+- **Finalize.** `POST /api/thesis/finalize` builds one Merkle tree over the run's reports and stores each report's proof. It then writes `verafy-thesis/1 merkle:<root> run:<id> https://www.verafy.ai/thesis` as a Memo transaction on Solana devnet, signed by `THESIS_SOLANA_PAYER` (a JSON array of 64 bytes).
+- **Stamp later.** `POST /api/thesis/stamp` stamps up to five finalized runs that are still pending, newest first. It is free, idempotent and rate limited. The dashboard's "Pending stamp: stamp it now" button calls it.
+- **Explorer.** explorer.verafy.ai/thesis lists the runs. `/thesis/<signature>` reads the transaction from devnet, parses the memo, and says whether the root on chain matches the root the website stores for that run.
+- **Devnet only.** The server never stamps on mainnet.
+
+### 0.9 Tests
+
+`src/products/thesis/thesis.test.ts`, 20 tests:
+- canonical hashing, the Merkle tree and its proofs;
+- scoring and the median with abstentions kept;
+- the direct Swarm parse;
+- question length and quoting;
+- refunds on every failure path, and stops on 503, 429 and out of credits;
+- the revenue model matching M01;
+- the final question never counting as a claim;
+- final question bars splitting INVEST, CONCERNS and AGAINST.
+
+Swarm: na-retry, web-search, no-charge-failed-models, question-gate and na-repair (49 pass).
+
+### 0.10 Open
+
+- **`THESIS_SOLANA_PAYER` is not set** on verafy-website, so every run is "pending stamp". The devnet RPC faucet is closed. A funded devnet keypair has to be set by hand; then "stamp it now" stamps the pending runs.
+- **Stored rulings predate the five-model jury,** except the final question. The final question was ruled at 2:17 PM PT with the board models: 4 of 5 answered, and DeepSeek V4 Pro returned a technical abstention. The next full run replaces the rest.
+- **Placeholders from the VC review stay hidden until they are real:** price per ruling by tier, design partners, LOIs or pilots, and named team and advisors.
 
 ## 1. Why
 
@@ -53,7 +191,7 @@ Rex's framing, kept on the page as the subtitle: Verafy relies on machine consen
 17. Economics calculators for every cost claim: off-chain jury cost, Verafy's approach to proof cost, cheap verification. Built-in assumptions, graphs, interactive.
 18. This VIP, with 100% of the designs and thinking, so the whole thing can be regenerated.
 
-## 3. What shipped
+## 3. What shipped (first build; see section 0 for today)
 
 | Piece | Where |
 |---|---|
@@ -70,7 +208,7 @@ Rex's framing, kept on the page as the subtitle: Verafy relies on machine consen
 | Header | `thesis` added to `PRODUCTS` in `public/header/v1/verafy-header.js`; marks at `public/logos/thesis-{32,64,128,512}.png` |
 | Docs | `docs/thesis.md`, `docs/HEADER.md` |
 
-## 4. Design
+## 4. Design (first build; see section 0 for today)
 
 **Shell.** Its own route group `(thesis)` with its own `<html>`, so it does not inherit the marketing site's header. It loads the canonical header script and renders `<verafy-header product="thesis" home="/thesis" links="Economics:/thesis#economics, Claims:/thesis#claims, Data room:/thesis#dataroom">`. The header draws the mark, name, Alpha pill, links, Verafy.ai and the shared credits badge, and handles analytics. Header links must start with `/` or `https://`; hash-only links are dropped by the parser.
 
@@ -500,7 +638,7 @@ There are ten checks against public sources, with no AI and no credits. Results 
 - the final question fits 300 characters, splits its reasoning, and never counts as a claim;
 - K, M and N claims are counted as claims.
 
-### 15.8 Open as of Nov 18, afternoon
+### 15.8 Open as of Nov 18, afternoon (superseded by 0.10)
 
 - **No jury run is stored.** Swarm now answers (the diligence scan's D02 passes), the gate is skipped, and the IP limits are lifted. The remaining blocker: the api.verafy.ai key in `VERAFY_API_KEY` on verafy-website has 4 credits, and a claim costs 5. A full run of 66 claims plus the final question needs about 335. Top up that key's credits on api.verafy.ai.
 - **`THESIS_SOLANA_PAYER` is not set,** so runs will be "pending stamp".
@@ -543,7 +681,11 @@ There are ten checks against public sources, with no AI and no credits. Results 
 - The final question names no round size or cap on the page.
 - No claim begins "therefore"; each stands on its own.
 
-### 16.7 Open
+### 16.7 Open (superseded by 0.10)
 
 - `THESIS_SOLANA_PAYER` is not set, so runs are "pending stamp".
 - Stored rulings from before #76 show the models that answered then; the next full run shows the five board models.
+
+## 17. Revision 5 (Nov 18, 2026, evening: verafy-website #77 and #78, testnet-demo #257, explorer #1)
+
+Folded into section 0: the centered run panel under the board, Download PDF in it, Snapshot, "stamp it now" and `/api/thesis/stamp`, the explorer's thesis pages, Swarm's 110s budget for trusted calls, and the INVEST, CONCERNS and AGAINST bars. Screenshots 15 to 23 and the `source/` snapshots were refreshed.
