@@ -70,6 +70,7 @@ A proposal is not a promise. Each one is tracked in three places:
 | [0043](VIP-0043-shattering.md) | Shattering: shrapnel held by a bonded agent swarm, reassembled by whoever holds the key | Theoretical; legal review required | |
 | [0044](VIP-0044-z-shatter.md) | Z-shatter: shattering inside a shielded pool, policed by split viewing keys and unspent-note proofs | Theoretical; legal review required | |
 | [0045](VIP-0045-verafy-studio.md) | Verafy Studio: design, run and debug judgment flows visually, from templates or by hand | Idea; prototype with mock data | |
+| [0046](VIP-0046-verafy-thesis.md) | Verafy Thesis: an open check of Verafy's own claims by AI juries, with calculators and Solana stamps | Live at verafy.ai/thesis (alpha); no stamped report yet | |
 
 Tracking issues: [#26 to #36](https://github.com/Verafyai/verafyHarness/issues?q=label%3Aproposal). VIPs 0001 to 0009 were built in v0.0.3-alpha and 0010 to 0017 written in v0.0.4-alpha, unless the status says otherwise; every number in them is illustrative until Rex sets it.
 
