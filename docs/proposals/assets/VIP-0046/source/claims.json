@@ -1054,6 +1054,130 @@
    "appears_in": [
     "/thesis revenue model"
    ]
+  },
+  {
+   "id": "K01",
+   "group": "competition",
+   "claim": "Verafy beats GenLayer for Solana treasuries because it co-signs inside their existing signing path, without moving funds to another chain or escrow.",
+   "label": "hypothesis",
+   "sources": [
+    "https://cointelegraph.com/magazine/ai-agent-disputes-sent-to-internet-court-and-a-jury-of-ai-agents"
+   ],
+   "how_to_check": "Compare what GenLayer offers today with Verafy's co-signer, and judge whether the stated advantage holds for a Solana treasury.",
+   "desk_check": "untested",
+   "tier": "proven",
+   "categories": [
+    "business"
+   ],
+   "appears_in": [
+    "/thesis competitive advantage"
+   ]
+  },
+  {
+   "id": "K02",
+   "group": "competition",
+   "claim": "Verafy beats Kleros for treasury transfers because it rules in seconds before a transfer is signed, while Kleros resolves disputes after the fact over days.",
+   "label": "hypothesis",
+   "sources": [
+    "https://kleros.io"
+   ],
+   "how_to_check": "Compare what Kleros offers today with Verafy's co-signer, and judge whether the stated advantage holds for a Solana treasury.",
+   "desk_check": "untested",
+   "tier": "proven",
+   "categories": [
+    "business"
+   ],
+   "appears_in": [
+    "/thesis competitive advantage"
+   ]
+  },
+  {
+   "id": "K03",
+   "group": "competition",
+   "claim": "Verafy beats UMA for treasury approvals because it rules before signing in seconds and has no token-holder vote that large holders can dominate.",
+   "label": "hypothesis",
+   "sources": [
+    "https://uma.xyz"
+   ],
+   "how_to_check": "Compare what UMA offers today with Verafy's co-signer, and judge whether the stated advantage holds for a Solana treasury.",
+   "desk_check": "untested",
+   "tier": "proven",
+   "categories": [
+    "business"
+   ],
+   "appears_in": [
+    "/thesis competitive advantage"
+   ]
+  },
+  {
+   "id": "K04",
+   "group": "competition",
+   "claim": "Verafy beats Chainlink Functions for judgment checks because it is built for rulings: a written policy, a jury from five labs and a record of which models ruled.",
+   "label": "hypothesis",
+   "sources": [
+    "https://defillama.com/protocol/chainlink"
+   ],
+   "how_to_check": "Compare what Chainlink offers today with Verafy's co-signer, and judge whether the stated advantage holds for a Solana treasury.",
+   "desk_check": "untested",
+   "tier": "proven",
+   "categories": [
+    "business"
+   ],
+   "appears_in": [
+    "/thesis competitive advantage"
+   ]
+  },
+  {
+   "id": "K05",
+   "group": "competition",
+   "claim": "Verafy catches transfers that fixed wallet policy limits pass, because it judges each transfer against a written policy rather than a threshold.",
+   "label": "hypothesis",
+   "sources": [
+    "https://docs.squads.so/main/basics/security"
+   ],
+   "how_to_check": "Compare what Wallet policy engines offers today with Verafy's co-signer, and judge whether the stated advantage holds for a Solana treasury.",
+   "desk_check": "untested",
+   "tier": "proven",
+   "categories": [
+    "business"
+   ],
+   "appears_in": [
+    "/thesis competitive advantage"
+   ]
+  },
+  {
+   "id": "K06",
+   "group": "competition",
+   "claim": "Squads is a channel for Verafy rather than a rival, because Verafy can sit in a Squads multisig as one required signer.",
+   "label": "hypothesis",
+   "sources": [
+    "https://docs.squads.so/main/basics/security"
+   ],
+   "how_to_check": "Compare what Squads offers today with Verafy's co-signer, and judge whether the stated advantage holds for a Solana treasury.",
+   "desk_check": "untested",
+   "tier": "proven",
+   "categories": [
+    "business"
+   ],
+   "appears_in": [
+    "/thesis competitive advantage"
+   ]
+  },
+  {
+   "id": "K07",
+   "group": "competition",
+   "claim": "A treasury team cannot build Verafy for itself, because a check run by the same team on the same keys fails when that team's signer is compromised.",
+   "label": "hypothesis",
+   "sources": [],
+   "how_to_check": "Compare what Building it in-house offers today with Verafy's co-signer, and judge whether the stated advantage holds for a Solana treasury.",
+   "desk_check": "untested",
+   "tier": "proven",
+   "categories": [
+    "business"
+   ],
+   "appears_in": [
+    "/thesis competitive advantage"
+   ]
   }
  ],
  "competitors": [
@@ -1375,15 +1499,25 @@
   {
    "id": "problem",
    "title": "The problem",
-   "question": "What breaks today?",
-   "answer": "The biggest losses now come through valid signatures, and the checks that run before signing only enforce fixed limits.",
+   "question": "What is broken today?",
+   "answer": "Legacy smart contracts are incapable of human judgment and lack common sense, so validly signed transfers that make no sense go straight through.",
    "items": [
     "C01",
     "C02",
     "N1",
     "N2",
-    "N6",
-    "I3a"
+    "N6"
+   ]
+  },
+  {
+   "id": "opportunity",
+   "title": "The opportunity",
+   "question": "What does that open up?",
+   "answer": "Falling AI inference costs and off-chain inference create an opportunity to bring a new era of common sense, judgment and intelligence to smart contracts.",
+   "items": [
+    "I3a",
+    "A03",
+    "A04"
    ]
   },
   {
@@ -1414,9 +1548,7 @@
    "question": "What do we believe follows?",
    "answer": "Proven rulings get cheap enough to replace stored logic where judgment is needed. This is the part still to be proven.",
    "items": [
-    "A03",
     "I2",
-    "A04",
     "T03",
     "H1",
     "T06"
@@ -1479,7 +1611,14 @@
     "N5",
     "C65",
     "P6",
-    "H3"
+    "H3",
+    "K01",
+    "K02",
+    "K03",
+    "K04",
+    "K05",
+    "K06",
+    "K07"
    ]
   },
   {
@@ -1666,8 +1805,7 @@
  "board": {
   "title": "Our board: a jury of frontier models",
   "paragraphs": [
-   "Verafy is a generative-AI-first company. Everything we do is distilled from a spec: logic and sources, reasoned through by frontier models. We believe these models have already surpassed human capabilities at this kind of reasoning.",
-   "So we made our most important decision: to proactively displace our own human decision making with reasoning and rulings by a jury of the top models. This is our core thesis, and the reason Verafy exists. We think it produces better decisions, with our own emotions and inclinations removed from the process."
+   "Verafy relies on a written spec and a comprehensive research report validated by a jury of frontier models. Investors can use this report to automate every key question, including economics, modeling, target market, competition and product. Once run, it stamps a certificate on the Solana blockchain: a permanent benchmark of the results that anyone can check after the fact."
   ],
   "jurors": [
    {
@@ -1692,5 +1830,63 @@
    }
   ],
   "note": "Each ruling lists the exact model versions that voted, as Swarm Explorer returns them. The labs are not affiliated with Verafy and have not endorsed it; we run their models through public APIs."
- }
+ },
+ "advantages": [
+  {
+   "id": "K01",
+   "competitor": "GenLayer",
+   "source": "https://cointelegraph.com/magazine/ai-agent-disputes-sent-to-internet-court-and-a-jury-of-ai-agents",
+   "their_offer": "AI-validator juries of five models on its own chain, with appeals and the Internet Court consortium.",
+   "verafy_offer": "A required co-signing key inside a Solana treasury's existing signing path, with a record of which models ruled.",
+   "why_verafy_wins": "Solana treasuries add Verafy without moving funds to another chain or into an escrow."
+  },
+  {
+   "id": "K02",
+   "competitor": "Kleros",
+   "source": "https://kleros.io",
+   "their_offer": "Staked juries, now including AI-agent jurors, that resolve disputes over days with appeals.",
+   "verafy_offer": "A ruling in seconds, before the transfer is signed.",
+   "why_verafy_wins": "It stops a bad transfer before it happens instead of arbitrating after the money has moved."
+  },
+  {
+   "id": "K03",
+   "competitor": "UMA",
+   "source": "https://uma.xyz",
+   "their_offer": "An optimistic oracle: answers stand unless challenged, then token holders vote, over hours to days.",
+   "verafy_offer": "A multi-lab jury that rules before signing, with no token vote.",
+   "why_verafy_wins": "No large token holder can swing a ruling, and the answer arrives before the transfer, not after."
+  },
+  {
+   "id": "K04",
+   "competitor": "Chainlink",
+   "source": "https://defillama.com/protocol/chainlink",
+   "their_offer": "The dominant oracle network; Functions and CRE can call AI models.",
+   "verafy_offer": "A product built for rulings: a written policy, a five-lab jury and a record of which models ruled.",
+   "why_verafy_wins": "A treasury gets a decision with accountability, not a raw model call it has to wrap itself."
+  },
+  {
+   "id": "K05",
+   "competitor": "Wallet policy engines",
+   "source": "https://docs.squads.so/main/basics/security",
+   "their_offer": "Turnkey, Coinbase and Fireblocks enforce fixed limits and allowlists before signing.",
+   "verafy_offer": "Judgment against the treasury's written policy, on top of those limits.",
+   "why_verafy_wins": "It catches transfers that pass every threshold but break the policy, such as a valid-looking drain to a new address."
+  },
+  {
+   "id": "K06",
+   "competitor": "Squads",
+   "source": "https://docs.squads.so/main/basics/security",
+   "their_offer": "The leading Solana multisig, securing over $10B for 450+ teams.",
+   "verafy_offer": "One required signer in a Squads multisig.",
+   "why_verafy_wins": "Squads is the channel, not the rival: Verafy plugs in as a signer without replacing anything."
+  },
+  {
+   "id": "K07",
+   "competitor": "Building it in-house",
+   "source": "",
+   "their_offer": "A treasury team wires a few model APIs into its own approval flow.",
+   "verafy_offer": "An outside party with its own key, a published error rate and a record.",
+   "why_verafy_wins": "A check run by the same team on the same keys fails exactly when that team's signer is compromised."
+  }
+ ]
 }

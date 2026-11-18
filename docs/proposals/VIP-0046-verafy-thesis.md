@@ -2,11 +2,11 @@
 
 | Field | Value |
 |---|---|
-| Status | Live: investor page at https://www.verafy.ai/thesis, claims ledger at https://www.verafy.ai/thesis/claims (alpha). No jury run stored yet: Swarm's model provider key is failing (section 14.10). |
+| Status | Live: investor page at https://www.verafy.ai/thesis, claims ledger at https://www.verafy.ai/thesis/claims, investor report at https://www.verafy.ai/thesis/report (alpha). No jury run stored yet: Verafy's own api.verafy.ai key is out of credits (section 15.8). |
 | Spec version | `verafy-thesis/1` |
 | Author | Rex St John |
 | Created | 2026-11-18 |
-| Code | `VerafyTechnologies/verafy-website`, PRs #59 to #69 |
+| Code | `VerafyTechnologies/verafy-website`, PRs #59 to #71; `VerafyTechnologies/testnet-demo` #256; `VerafyTechnologies/verafy-apis` #50 |
 | Assets | `docs/proposals/assets/VIP-0046/` (screenshots, logo, claims, spec, slide generators, and the revision 2 sources: `score.ts`, `merkle.ts`, `revenue.ts`, `diligence.ts`) |
 
 This VIP records everything needed to rebuild Verafy Thesis from nothing: why it exists, every requirement, the design, the data model, the content, the calculators' math, the jury and stamping protocol, and what is not done. If the site is lost, this file plus its assets regenerate it.
@@ -426,4 +426,83 @@ There are ten checks against public sources, with no AI and no credits. Results 
 - **No jury run is stored.** Swarm's question check returns `503 question_check_failed` because its OpenRouter calls fail. Swarm's claim reader also falls back. The fix is a working `OPENROUTER_API_KEY` in the `testnet-demo` Vercel project, then a redeploy. D02 in the diligence scan reports this live.
 - **`THESIS_SOLANA_PAYER` is not set**, so runs will show "pending stamp".
 - **The bracketed placeholders from the VC review stay hidden until they are real:** price per ruling by tier, design partners, LOIs or pilots, named team members and advisors, and a link to a recorded ruling.
+
+## 15. Revision 3 (Nov 18, 2026, afternoon: verafy-website #70 and #71, testnet-demo #256, verafy-apis #50)
+
+### 15.1 Per-claim jury distribution (`JuryDistribution.tsx`)
+
+- Every claim card on the ledger, every competitive-advantage row and the revenue projection show the jury's ruling as a percentage (the median juror score). Under it is a 0 to 100 track:
+  - one colored dot per juror at its score, with dots that land within 7 points stacked;
+  - the 90% interval as a band and the median as a marker;
+  - a list of each model, its vote and its score.
+- Lab colors match Swarm Explorer: OpenAI `#2f78ff`, Anthropic `#f6233a`, Google `#1ec8a5`, xAI `#e040a0`, DeepSeek `#ffe14a`. Unknown models are grey.
+- `JuryLegend` names each lab with "(not endorsed by <lab>)" and the line "These labs do not endorse Verafy." There are no lab logos: the page uses colored dots and names only.
+- Rulings for every claim load in one request: `GET /api/thesis/report?claims=<ids>` returns the latest stored report per claim, up to 120 ids.
+
+### 15.2 Competitive advantage (`CompetitiveAdvantage.tsx`, `claims.json` `advantages`)
+
+- **Rows:** GenLayer, Kleros, UMA, Chainlink, wallet policy engines, Squads, and building it in-house.
+- **Each row shows** their offer, Verafy's offer, why Verafy wins, the jury distribution, and a Re-verify button (5 credits).
+- **Each advantage is a jury claim,** K01 to K07, tier `proven`, label `hypothesis`, in the competition section of the ledger.
+- **Placement:** on /thesis, replacing the old six-row table.
+
+### 15.3 The final question (`FinalVerdict.tsx`, unit `V01`)
+
+- **The question:** "Would a skilled pre-seed investor, after weighing every claim, the market, competition, the founder and the economics, invest in Verafy at the stated terms ($1.5M post-money SAFE at a $12M cap)?"
+- **The question sent to Swarm** is built by `verdictQuestion()` at run time and stays at 300 characters or fewer. It carries the jury's results so far (claims that hold, of those checked, and the weakest key claim's score). It asks for a rationale in three parts: `INVEST:`, `CONCERNS:` and `AGAINST:`.
+- **When it runs:** a full run asks it automatically after the claims, in the same Merkle-stamped run. It can also be asked alone (5 credits). It is never part of the claim scores.
+- **Shown large** at the top of the ledger, on /thesis once ruled, and at the top of the PDF report.
+- **Reasoning, split into three bars** by `splitRationale()` (`rationale.ts`, browser-safe): why invest, hesitations and objections, and why it might not make sense. Each sentence carries its juror's dot.
+
+### 15.4 PDF investor report (`/thesis/report`)
+
+- **A full investor report**, server-rendered and print-styled (white page, 16 mm and 14 mm margins), with `noindex`.
+- **Contents:**
+  - the final question;
+  - the executive summary and the revenue model table for 2027 to 2030 with the pool;
+  - the problem, how it works, why now, costs, competitive advantage and risks;
+  - team and the next 24 months;
+  - live jury results and live rulings for M01 and K01 to K07;
+  - the due diligence scan;
+  - FAQ, every claim with its tier, and research.
+- **Download PDF** on /thesis and in both page headers opens `/thesis/report?print=1`. That page opens the browser's print dialog once the live data has loaded, where the reader saves a PDF.
+- The shared investor copy lives in `content.ts`, so the page and the report do not drift.
+
+### 15.5 Ledger layout
+
+- The ledger opens with the jury board: "Our board: a jury of frontier models", the legend, and one paragraph. That paragraph says Verafy relies on a written spec and a research report validated by a jury of frontier models, that investors can use it to automate every key question, and that a run stamps a certificate on Solana as a permanent benchmark.
+- Next come the final question, the dashboard (with the Run button top right) and the due diligence scan.
+- **Accordions:**
+  - Every claim section opens with its question and one-line summary, and its claims sit in an accordion.
+  - The scan shows "N of 10 checks pass" and unfolds to the list.
+  - Calculators and objections stay open.
+- **Sections, in pitch order:** problem ("legacy smart contracts are incapable of human judgment and lack common sense"), opportunity ("falling inference costs and off-chain inference bring judgment and common sense to smart contracts"), why now, thesis, product, economics, market, competition, risks, team. /thesis has a matching opportunity section.
+
+### 15.6 Runs: gate, limits and pacing
+
+- **The question gate.** Swarm screens every question with a model that has no web search, and it rejected real 2026 events as "no public record" (422).
+  - The thesis sends `questionGate: "off"`.
+  - api.verafy.ai forwards it (verafy-apis #50).
+  - Swarm honors it only when `x-api-key-public` matches `VERAFY_APIS_KEY_SITE` (testnet-demo #256).
+- **Per-IP limits.** Every proxied request reaches Swarm from one server address, so the per-IP visitor burst limit (30 an hour) and the visitor credit hold throttled all API customers together (429). Requests with the site key now skip both. api.verafy.ai still bills its own API keys and limits each key to 100 an hour.
+- **On the thesis side:**
+  - Claims run 1.5 s apart.
+  - A 429 stops the batch with a refund.
+  - "Insufficient credits" from api.verafy.ai stops the batch with a refund (#71).
+  - The browser is given a visitor id through `GET /api/credits/balance` before the first paid call.
+
+### 15.7 Tests
+
+`thesis.test.ts` (18 tests) adds:
+- a 429 stops the batch;
+- an out-of-credits upstream stops the batch;
+- revenue model consistency with M01;
+- the final question fits 300 characters, splits its reasoning, and never counts as a claim;
+- K, M and N claims are counted as claims.
+
+### 15.8 Open as of Nov 18, afternoon
+
+- **No jury run is stored.** Swarm now answers (the diligence scan's D02 passes), the gate is skipped, and the IP limits are lifted. The remaining blocker: the api.verafy.ai key in `VERAFY_API_KEY` on verafy-website has 4 credits, and a claim costs 5. A full run of 66 claims plus the final question needs about 335. Top up that key's credits on api.verafy.ai.
+- **`THESIS_SOLANA_PAYER` is not set,** so runs will be "pending stamp".
+- **Placeholders from the VC review stay hidden until real:** price per ruling by tier, design partners, LOIs or pilots, named team and advisors.
 
