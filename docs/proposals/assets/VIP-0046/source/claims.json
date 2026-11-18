@@ -25,114 +25,171 @@
  },
  "thesis_chain": [
   {
-   "id": "P1",
+   "id": "A01",
    "kind": "premise",
-   "statement": "Inference at a fixed capability gets roughly 10 to 40x cheaper each year.",
+   "statement": "Inference costs a fee per action.",
    "rests_on": [
-    "C07"
-   ]
-  },
-  {
-   "id": "P2",
-   "kind": "premise",
-   "statement": "Per-action on-chain fees have fallen, but are near their floor and fall more slowly from here.",
-   "rests_on": [
-    "C08",
-    "C09",
-    "T02"
-   ]
-  },
-  {
-   "id": "I1",
-   "kind": "inference",
-   "statement": "Therefore a multi-model jury ruling is already cheaper than an average Ethereum L1 transaction, and the gap widens.",
-   "rests_on": [
-    "P1",
-    "P2",
     "C06",
-    "C11"
-   ]
+    "C10"
+   ],
+   "categories": [
+    "economics"
+   ],
+   "tier": "claims"
   },
   {
-   "id": "P3",
+   "id": "A02",
    "kind": "premise",
-   "statement": "Proving which model produced an answer is now possible, but costly.",
+   "statement": "Proving which model produced an output is now possible, but expensive.",
    "rests_on": [
     "C05",
     "C40",
     "C46"
-   ]
+   ],
+   "categories": [
+    "economics"
+   ],
+   "tier": "claims"
+  },
+  {
+   "id": "A03",
+   "kind": "premise",
+   "statement": "The cost of proving off-chain models will get much cheaper, making them a viable alternative to smart contracts.",
+   "rests_on": [
+    "C43",
+    "C45",
+    "C47"
+   ],
+   "categories": [
+    "economics"
+   ],
+   "tier": "claims"
+  },
+  {
+   "id": "A04",
+   "kind": "premise",
+   "statement": "Smart contracts will become obsolete in the face of stored inference prompts.",
+   "rests_on": [
+    "T03",
+    "H1"
+   ],
+   "categories": [],
+   "tier": "claims"
   },
   {
    "id": "I2",
    "kind": "inference",
    "statement": "Therefore packing, routing and precedent can bring proven rulings under one cent.",
    "rests_on": [
-    "P3",
+    "A02",
     "C43",
     "C44",
     "C47"
    ],
-   "status": "modeled, not yet demonstrated at scale"
-  },
-  {
-   "id": "P4",
-   "kind": "premise",
-   "statement": "Agents already hold wallets and pay on chain, at small but growing scale.",
-   "rests_on": [
-    "C04"
-   ]
-  },
-  {
-   "id": "P5",
-   "kind": "premise",
-   "statement": "The largest losses come from validly signed transfers no rule stopped.",
-   "rests_on": [
-    "C01",
-    "C02"
-   ]
-  },
-  {
-   "id": "I3",
-   "kind": "inference",
-   "statement": "Therefore there is demand for a judgment check before execution.",
-   "rests_on": [
-    "P4",
-    "P5"
+   "status": "modeled, not yet demonstrated at scale; stays modeled until fixes A6 and A7 are done",
+   "categories": [
+    "economics"
    ],
-   "status": "hypothesis: needs buyers"
+   "tier": "follows"
+  },
+  {
+   "id": "I3a",
+   "kind": "inference",
+   "statement": "Therefore pre-execution checks are needed, which policy engines already prove.",
+   "rests_on": [
+    "C04",
+    "C02",
+    "N6"
+   ],
+   "categories": [
+    "business"
+   ],
+   "tier": "follows"
+  },
+  {
+   "id": "I3b",
+   "kind": "hypothesis",
+   "statement": "Therefore buyers will pay for a judgment check beyond deterministic rules.",
+   "rests_on": [
+    "I3a"
+   ],
+   "status": "hypothesis: needs buyer evidence",
+   "categories": [
+    "business"
+   ],
+   "tier": "proven"
+  },
+  {
+   "id": "P6",
+   "kind": "inference",
+   "statement": "GenLayer, Kleros and Cournot already ship AI juries or oracles.",
+   "rests_on": [
+    "N4",
+    "N5",
+    "C65"
+   ],
+   "categories": [
+    "business"
+   ],
+   "tier": "follows"
+  },
+  {
+   "id": "P8",
+   "kind": "inference",
+   "statement": "Prompt injection and correlated errors are known risks with measured losses.",
+   "rests_on": [
+    "N2",
+    "N3"
+   ],
+   "categories": [],
+   "tier": "follows"
   },
   {
    "id": "H1",
    "kind": "hypothesis",
-   "statement": "Generating a contract, checking it with a jury and executing it is cheaper than storing it.",
+   "statement": "Generating a contract, checking it with a jury and executing it is cheaper than storing it, for low-volume, judgment-heavy contracts.",
    "rests_on": [
-    "T04",
-    "I1",
+    "C11",
     "I2"
-   ]
+   ],
+   "categories": [
+    "economics"
+   ],
+   "status": "needs the store-vs-generate model (fix A10)",
+   "tier": "proven"
   },
   {
-   "id": "H2",
+   "id": "H2a",
    "kind": "hypothesis",
-   "statement": "Generating, checking and executing is more secure than storing.",
+   "statement": "An independent jury holding a required co-signing key, outside the client's signing stack, blocks more bad transfers than deterministic limits alone, at a published false-block rate.",
    "rests_on": [
-    "T05",
-    "P5"
-   ]
+    "C02",
+    "P8",
+    "N1",
+    "N6"
+   ],
+   "status": "replaces H2; must be tested against prompt injection and correlated errors",
+   "categories": [],
+   "tier": "proven"
   },
   {
    "id": "H3",
    "kind": "hypothesis",
-   "statement": "Verafy can capture this layer and hold it.",
+   "statement": "Verafy can capture this layer and hold it, even though others already ship AI juries and wallet vendors own the signing chokepoint.",
    "rests_on": [
     "C20",
     "C21",
     "C24",
     "C30",
     "C60",
-    "C65"
-   ]
+    "C65",
+    "P6",
+    "N6"
+   ],
+   "categories": [
+    "business"
+   ],
+   "tier": "proven"
   }
  ],
  "claims": [
@@ -151,40 +208,31 @@
    "appears_in": [
     "pre-seed deck p2",
     "Austin email"
-   ]
+   ],
+   "categories": [],
+   "tier": "claims"
   },
   {
    "id": "C02",
    "group": "why-now",
-   "claim": "The Binance transfers were validly signed, so the chains executed them.",
+   "claim": "Transfers carried valid signatures from Binance's own signing path; Tether and Circle froze about $1.8B after the fact.",
    "label": "sourced",
    "sources": [
     "https://tech-insider.org/?p=50590"
    ],
    "how_to_check": "Read the incident reports: was the signing service itself compromised?",
    "desk_check": "partly-supported",
-   "note": "The attackers reached Binance's internal signing service; the transactions carried valid signatures. Whether an AI jury could have stopped it is a hypothesis (H2), not a fact.",
+   "note": "The attackers reached Binance's internal signing service; the transactions carried valid signatures. Whether an AI jury could have stopped it is a hypothesis (H2a), not a fact.",
    "appears_in": [
     "pre-seed deck p2"
-   ]
-  },
-  {
-   "id": "C03",
-   "group": "why-now",
-   "claim": "A $20-an-hour bank teller would have stopped it on a simple judgment call.",
-   "label": "opinion",
-   "sources": [],
-   "how_to_check": "Treat as rhetoric. Ask: what specific rule or check would have blocked these transfers?",
-   "desk_check": "opinion",
-   "note": "",
-   "appears_in": [
-    "pre-seed deck p2"
-   ]
+   ],
+   "categories": [],
+   "tier": "claims"
   },
   {
    "id": "C04",
    "group": "why-now",
-   "claim": "202M agent payments have settled on chain over x402, moving $43M in stablecoins across 12 chains.",
+   "claim": "285.2M x402 transfers, $59.3M all-time (Token Terminal, Nov 18 2026). Filtered estimates of truly agentic flow are about $1.6M per 30 days (a16z).",
    "label": "sourced",
    "sources": [
     "https://tokenterminal.com/explorer/agentic-payments",
@@ -196,7 +244,11 @@
    "appears_in": [
     "v2 deck p4",
     "pre-seed deck p4"
-   ]
+   ],
+   "categories": [
+    "business"
+   ],
+   "tier": "claims"
   },
   {
    "id": "C05",
@@ -213,13 +265,15 @@
     "v2 deck p4",
     "pre-seed deck p4",
     "data room"
-   ]
+   ],
+   "categories": [],
+   "tier": "claims"
   },
   {
    "id": "C06",
    "group": "why-now",
-   "claim": "Five live rulings on five labs' models cost $0.0163 in total (Nov 6, 2026), 5.9 to 30.1 seconds each.",
-   "label": "measured",
+   "claim": "Five live rulings, 4 to 5 jurors each, $0.0163 total.",
+   "label": "founder-measured",
    "sources": [
     "https://github.com/Verafyai/verafyHarness/blob/main/results/live-2026-11-06.md"
    ],
@@ -232,12 +286,16 @@
     "pre-seed deck p4, p8",
     "data room",
     "emails"
-   ]
+   ],
+   "categories": [
+    "economics"
+   ],
+   "tier": "claims"
   },
   {
    "id": "C07",
    "group": "why-now",
-   "claim": "Inference at a fixed level of performance gets about 40x cheaper a year.",
+   "claim": "10 to 40x a year at fixed capability (Epoch range 9 to 900x; frontier 5 to 10x).",
    "label": "sourced",
    "sources": [
     "https://epoch.ai/data-insights/llm-inference-price-trends"
@@ -248,12 +306,16 @@
    "appears_in": [
     "data room",
     "emails"
-   ]
+   ],
+   "categories": [
+    "economics"
+   ],
+   "tier": "claims"
   },
   {
    "id": "C08",
    "group": "why-now",
-   "claim": "The average Ethereum fee fell from $62.84 (Dec 2021) to $0.197 (Feb 2026).",
+   "claim": "The average Ethereum fee fell from $62.84 (Dec 2021) to $0.197 (Feb 2026); in 2026 it is about 0.0001 ETH per transaction.",
    "label": "sourced",
    "sources": [
     "https://ycharts.com/indicators/ethereum_average_transaction_fee",
@@ -265,12 +327,16 @@
    "appears_in": [
     "data room",
     "emails"
-   ]
+   ],
+   "categories": [
+    "economics"
+   ],
+   "tier": "claims"
   },
   {
    "id": "C09",
    "group": "why-now",
-   "claim": "Solana's median fee is about $0.0008 (Jan 2026).",
+   "claim": "Solana's median fee was about $0.0008 in Jan 2026 and about $0.00043 in Q2 2026.",
    "label": "sourced",
    "sources": [
     "https://www.valr.com/blog/solana-transaction-fees"
@@ -280,7 +346,11 @@
    "note": "",
    "appears_in": [
     "data room"
-   ]
+   ],
+   "categories": [
+    "economics"
+   ],
+   "tier": "claims"
   },
   {
    "id": "C10",
@@ -296,13 +366,17 @@
    "appears_in": [
     "data room",
     "emails"
-   ]
+   ],
+   "categories": [
+    "economics"
+   ],
+   "tier": "claims"
   },
   {
    "id": "C11",
    "group": "why-now",
-   "claim": "A Verafy jury ruling already costs less than an average Ethereum transaction.",
-   "label": "modeled",
+   "claim": "Below an average Ethereum L1 fee; about 4 to 8x a median Solana fee.",
+   "label": "founder-measured",
    "sources": [
     "https://github.com/Verafyai/verafyHarness/blob/main/results/live-2026-11-06.md",
     "https://ycharts.com/indicators/ethereum_average_transaction_fee"
@@ -313,12 +387,16 @@
    "appears_in": [
     "data room",
     "emails"
-   ]
+   ],
+   "categories": [
+    "economics"
+   ],
+   "tier": "claims"
   },
   {
    "id": "C20",
    "group": "traction",
-   "claim": "1,130 queries or rulings have run through Swarm Explorer.",
+   "claim": "1,130 Swarm Explorer runs (internal log).",
    "label": "founder-reported",
    "sources": [
     "https://swarm.verafy.ai",
@@ -330,7 +408,9 @@
    "appears_in": [
     "v2 deck p9",
     "pre-seed deck p6, p9"
-   ]
+   ],
+   "categories": [],
+   "tier": "claims"
   },
   {
    "id": "C21",
@@ -345,7 +425,9 @@
    "note": "No amount stated; treat as qualitative.",
    "appears_in": [
     "pre-seed deck p6"
-   ]
+   ],
+   "categories": [],
+   "tier": "claims"
   },
   {
    "id": "C22",
@@ -361,7 +443,9 @@
    "appears_in": [
     "v2 deck p9",
     "pre-seed deck p9"
-   ]
+   ],
+   "categories": [],
+   "tier": "claims"
   },
   {
    "id": "C23",
@@ -378,13 +462,15 @@
    "appears_in": [
     "v2 deck p9",
     "pre-seed deck p9"
-   ]
+   ],
+   "categories": [],
+   "tier": "claims"
   },
   {
    "id": "C24",
    "group": "traction",
    "claim": "The Judiciary Signer passes 30 of 30 checks on Solana devnet.",
-   "label": "founder-reported",
+   "label": "founder-measured",
    "sources": [
     "https://devnet.verafy.ai",
     "https://explorer.verafy.ai"
@@ -395,7 +481,9 @@
    "appears_in": [
     "v2 deck p6, p9",
     "pre-seed deck p6, p9"
-   ]
+   ],
+   "categories": [],
+   "tier": "claims"
   },
   {
    "id": "C25",
@@ -410,7 +498,9 @@
    "note": "",
    "appears_in": [
     "v1 deck p1, p2, p7"
-   ]
+   ],
+   "categories": [],
+   "tier": "claims"
   },
   {
    "id": "C26",
@@ -423,7 +513,9 @@
    "note": "",
    "appears_in": [
     "v1, v2 and pre-seed decks"
-   ]
+   ],
+   "categories": [],
+   "tier": "claims"
   },
   {
    "id": "C27",
@@ -438,7 +530,9 @@
    "note": "",
    "appears_in": [
     "v1, v2 and pre-seed decks"
-   ]
+   ],
+   "categories": [],
+   "tier": "claims"
   },
   {
    "id": "C28",
@@ -451,12 +545,14 @@
    "note": "",
    "appears_in": [
     "v1, v2 and pre-seed decks"
-   ]
+   ],
+   "categories": [],
+   "tier": "claims"
   },
   {
    "id": "C29",
    "group": "traction",
-   "claim": "Verafy Harness v0.0.2-alpha ships as @verafy/mcp, with binaries for Linux, macOS and Windows and a Docker image, MIT licensed, no token.",
+   "claim": "@verafy/mcp 0.1.0 on npm, MIT, no token; Dockerfile in repo.",
    "label": "sourced",
    "sources": [
     "https://github.com/Verafyai/verafyHarness",
@@ -467,7 +563,9 @@
    "note": "",
    "appears_in": [
     "v1, v2 and pre-seed decks"
-   ]
+   ],
+   "categories": [],
+   "tier": "claims"
   },
   {
    "id": "C30",
@@ -483,13 +581,15 @@
    "note": "A draft discussion is not acceptance by Solana.",
    "appears_in": [
     "all decks"
-   ]
+   ],
+   "categories": [],
+   "tier": "claims"
   },
   {
    "id": "C31",
    "group": "traction",
-   "claim": "Agents reach Verafy through @verafy/mcp, with plugins for seven agents including Claude Code, Codex and Cursor.",
-   "label": "founder-reported",
+   "claim": "Verified with Claude Code; configs for six more agents, not yet tested end to end.",
+   "label": "sourced",
    "sources": [
     "https://www.npmjs.com/package/@verafy/mcp",
     "https://github.com/Verafyai/verafyHarness"
@@ -500,22 +600,9 @@
    "appears_in": [
     "v1 deck p5",
     "pre-seed deck p7"
-   ]
-  },
-  {
-   "id": "C32",
-   "group": "traction",
-   "claim": "A Gemini model gave 82% odds of Republicans holding the Senate vs a 42% five-model panel average (Oct 28 run).",
-   "label": "founder-reported",
-   "sources": [
-    "https://forecast.verafy.ai"
    ],
-   "how_to_check": "Open the forecast run log for Oct 28.",
-   "desk_check": "checkable",
-   "note": "Removed from later decks.",
-   "appears_in": [
-    "v1 deck p2"
-   ]
+   "categories": [],
+   "tier": "claims"
   },
   {
    "id": "C40",
@@ -532,7 +619,11 @@
     "v1 deck p2",
     "data room",
     "emails"
-   ]
+   ],
+   "categories": [
+    "economics"
+   ],
+   "tier": "claims"
   },
   {
    "id": "C41",
@@ -547,7 +638,11 @@
    "note": "",
    "appears_in": [
     "v1 deck p2"
-   ]
+   ],
+   "categories": [
+    "economics"
+   ],
+   "tier": "claims"
   },
   {
    "id": "C42",
@@ -563,7 +658,11 @@
    "appears_in": [
     "data room",
     "emails"
-   ]
+   ],
+   "categories": [
+    "economics"
+   ],
+   "tier": "claims"
   },
   {
    "id": "C43",
@@ -579,13 +678,17 @@
    "appears_in": [
     "data room",
     "emails"
-   ]
+   ],
+   "categories": [
+    "economics"
+   ],
+   "tier": "claims"
   },
   {
    "id": "C44",
    "group": "proof",
    "claim": "In a test block, 60 contracts became 120 atoms, 61 after dedupe, packed into 4 requests at 85% fill.",
-   "label": "measured",
+   "label": "modeled",
    "sources": [
     "https://github.com/Verafyai/verafyHarness"
    ],
@@ -595,7 +698,11 @@
    "appears_in": [
     "data room",
     "emails"
-   ]
+   ],
+   "categories": [
+    "economics"
+   ],
+   "tier": "claims"
   },
   {
    "id": "C45",
@@ -610,12 +717,16 @@
    "note": "",
    "appears_in": [
     "data room"
-   ]
+   ],
+   "categories": [
+    "economics"
+   ],
+   "tier": "claims"
   },
   {
    "id": "C46",
    "group": "proof",
-   "claim": "CommitLLM adds about 12 to 14% GPU overhead and 1.3 ms of CPU time per audited token.",
+   "claim": "About 12 to 14% serving overhead; about 1.3 ms verifier time per challenged token (Llama 70B, 10-layer audit).",
    "label": "vendor-reported",
    "sources": [
     "https://commitllm.com/"
@@ -625,7 +736,11 @@
    "note": "Weaker guarantee than a zero-knowledge proof.",
    "appears_in": [
     "data room"
-   ]
+   ],
+   "categories": [
+    "economics"
+   ],
+   "tier": "claims"
   },
   {
    "id": "C47",
@@ -640,7 +755,11 @@
    "note": "No hit rate has been measured yet.",
    "appears_in": [
     "data room"
-   ]
+   ],
+   "categories": [
+    "economics"
+   ],
+   "tier": "claims"
   },
   {
    "id": "C60",
@@ -654,34 +773,11 @@
    "appears_in": [
     "v2 deck p8",
     "pre-seed deck p8"
-   ]
-  },
-  {
-   "id": "C61",
-   "group": "business",
-   "claim": "Raising $1.5M on a post-money SAFE at a $12M cap with 24 months of runway.",
-   "label": "founder-reported",
-   "sources": [],
-   "how_to_check": "Check the use of funds adds up.",
-   "desk_check": "needs-update",
-   "note": "Use of funds lists 60% + 15% + 12% + 10% = 97%; 3% is unallocated.",
-   "appears_in": [
-    "v2 deck p12",
-    "pre-seed deck p12"
-   ]
-  },
-  {
-   "id": "C62",
-   "group": "business",
-   "claim": "Bootstrapped from validator proceeds and community funding; built without venture capital.",
-   "label": "founder-reported",
-   "sources": [],
-   "how_to_check": "Ask for a funding history.",
-   "desk_check": "unverified",
-   "note": "",
-   "appears_in": [
-    "pre-seed deck p11"
-   ]
+   ],
+   "categories": [
+    "business"
+   ],
+   "tier": "claims"
   },
   {
    "id": "C63",
@@ -695,7 +791,11 @@
    "appears_in": [
     "v2 deck p11",
     "pre-seed deck p11"
-   ]
+   ],
+   "categories": [
+    "business"
+   ],
+   "tier": "claims"
   },
   {
    "id": "C64",
@@ -710,13 +810,17 @@
    "note": "",
    "appears_in": [
     "all decks"
-   ]
+   ],
+   "categories": [
+    "business"
+   ],
+   "tier": "claims"
   },
   {
    "id": "C65",
    "group": "business",
-   "claim": "Competitors: Kleros takes days, UMA hours to days, zkML provers are slow and costly, AI oracles like Cournot use one model or feed; Verafy rules in seconds with a signed record.",
-   "label": "founder-reported",
+   "claim": "Competitors: GenLayer and Kleros's Agentic Commerce Court already run AI juries; UMA rules in hours to days; Cournot is a multi-source AI oracle. Verafy is Solana-native, records which model ruled, and sits in the treasury signing path.",
+   "label": "sourced",
    "sources": [
     "https://cointelegraph.com/magazine/ai-agent-disputes-sent-to-internet-court-and-a-jury-of-ai-agents",
     "https://sociable.co/?p=101165"
@@ -727,27 +831,16 @@
    "appears_in": [
     "v2 deck p10",
     "pre-seed deck p10"
-   ]
-  },
-  {
-   "id": "T01",
-   "group": "thesis",
-   "claim": "Off-chain inference is getting exponentially cheaper, better and faster.",
-   "label": "sourced",
-   "sources": [
-    "https://epoch.ai/data-insights/llm-inference-price-trends"
    ],
-   "how_to_check": "Same as C07.",
-   "desk_check": "supported",
-   "note": "",
-   "appears_in": [
-    "emails"
-   ]
+   "categories": [
+    "business"
+   ],
+   "tier": "claims"
   },
   {
    "id": "T02",
    "group": "thesis",
-   "claim": "On-chain fees are near their floor; inference keeps falling.",
+   "claim": "Fees keep falling, but slower than inference; the gap widens in ratio.",
    "label": "sourced",
    "sources": [
     "https://ycharts.com/indicators/ethereum_average_transaction_fee",
@@ -760,53 +853,31 @@
    "appears_in": [
     "data room",
     "emails"
-   ]
+   ],
+   "categories": [
+    "economics"
+   ],
+   "tier": "claims"
   },
   {
    "id": "T03",
    "group": "thesis",
-   "claim": "Smart contracts are stored technical debt: logic frozen at deploy time that ages.",
-   "label": "opinion",
+   "claim": "About 72 to 74% of 2026 losses came through keys and signers, which no stored contract checks.",
+   "label": "sourced",
    "sources": [],
    "how_to_check": "Look for evidence: share of losses from contract bugs vs key compromise; upgradeability patterns.",
    "desk_check": "opinion",
    "note": "",
    "appears_in": [
     "emails"
-   ]
-  },
-  {
-   "id": "T04",
-   "group": "thesis",
-   "claim": "It is cheaper to generate a contract, check it with an AI jury and execute it than to store and maintain it.",
-   "label": "hypothesis",
-   "sources": [
-    "https://github.com/Verafyai/verafyHarness/tree/main/packages/economics"
    ],
-   "how_to_check": "Build a cost model: deploy + audit + upgrade + rent vs generation + jury per call, at different call volumes.",
-   "desk_check": "untested",
-   "note": "Likely true only for low-volume, judgment-heavy contracts; high-volume deterministic logic is cheaper stored.",
-   "appears_in": [
-    "Rex brief"
-   ]
-  },
-  {
-   "id": "T05",
-   "group": "thesis",
-   "claim": "It is more secure to generate a contract, check it with an AI jury and then execute it than to store it.",
-   "label": "hypothesis",
-   "sources": [],
-   "how_to_check": "Compare failure modes: stored-code exploits vs model error, prompt injection and jury collusion. Look for red-team results.",
-   "desk_check": "untested",
-   "note": "Swaps code bugs for model and prompt-injection risk; needs evidence.",
-   "appears_in": [
-    "Rex brief"
-   ]
+   "categories": [],
+   "tier": "claims"
   },
   {
    "id": "T06",
    "group": "thesis",
-   "claim": "A jury of 3 to 10 jurors on independent models can make rulings of similar quality to a network of thousands of validators.",
+   "claim": "A small, diverse, bonded jury can match a large panel's accuracy on low-value judgment calls, if its correlated-error rate and bribe cost are measured.",
    "label": "hypothesis",
    "sources": [],
    "how_to_check": "Note that validators agree on state, juries rule on judgment; compare accuracy and collusion cost, not node count.",
@@ -814,12 +885,14 @@
    "note": "Different jobs; the comparison needs reframing.",
    "appears_in": [
     "emails"
-   ]
+   ],
+   "categories": [],
+   "tier": "proven"
   },
   {
    "id": "T07",
    "group": "thesis",
-   "claim": "Andrej Karpathy has argued a ~1B parameter model could match the reasoning of today's models.",
+   "claim": "Karpathy has speculated a strong 'cognitive core' might need about 1B parameters, possibly a decade or more out.",
    "label": "attributed-opinion",
    "sources": [],
    "how_to_check": "Find the original talk or post.",
@@ -827,12 +900,14 @@
    "note": "Prediction, not result.",
    "appears_in": [
     "emails"
-   ]
+   ],
+   "categories": [],
+   "tier": "claims"
   },
   {
    "id": "T08",
    "group": "thesis",
-   "claim": "A 27B Qwen model has been compressed from 54 GB to 5.9 GB while keeping 98.2% of its benchmark performance.",
+   "claim": "PrismML's Ternary Bonsai 2 27B: Qwen3.8 27B at 5.9 GB, 98.2% retention by PrismML's own benchmarks.",
    "label": "vendor-reported",
    "sources": [
     "https://alphasignal.ai/news/prismml-squeezes-qwen3-8-27b-into-5-9-gb-with-98-performance-retained",
@@ -844,26 +919,17 @@
    "note": "The compression is PrismML's ternary quantization (Ternary Bonsai 2 27B) of Qwen3.8 27B, not a Qwen release. 98.2% is PrismML's own benchmark figure.",
    "appears_in": [
     "emails"
-   ]
-  },
-  {
-   "id": "T09",
-   "group": "thesis",
-   "claim": "AI can unpack a three-word inference program into 20,000 lines of code, better than any human developer.",
-   "label": "founder-claim",
-   "sources": [],
-   "how_to_check": "Ask for a reproducible demo with tests.",
-   "desk_check": "unsupported",
-   "note": "No measurement given; removed from the latest email.",
-   "appears_in": [
-    "Rex brief"
-   ]
+   ],
+   "categories": [
+    "economics"
+   ],
+   "tier": "claims"
   },
   {
    "id": "T10",
    "group": "thesis",
-   "claim": "AI labs chose credit cards over crypto rails for their payment products.",
-   "label": "founder-claim",
+   "claim": "The labs back rails that carry both cards and stablecoins (Stripe/Tempo MPP; Anthropic on x402 via MCP).",
+   "label": "sourced",
    "sources": [
     "https://www.kucoin.com/news/flash/iosg-ai-agent-payment-infrastructure-enters-race-for-machine-economy-stripe"
    ],
@@ -872,6 +938,121 @@
    "note": "Labs partner with Stripe and card networks; Stripe MPP also supports stablecoins.",
    "appears_in": [
     "Rex brief"
+   ],
+   "categories": [
+    "business"
+   ],
+   "tier": "claims"
+  },
+  {
+   "id": "N1",
+   "group": "competition",
+   "claim": "2026 losses are dominated by key and signer compromise (Blockaid and TRM, H1 2026).",
+   "label": "sourced",
+   "sources": [
+    "Blockaid H1 2026 losses report",
+    "TRM Labs H1 2026"
+   ],
+   "how_to_check": "Find the primary report or product page and confirm the figure and date.",
+   "desk_check": "checkable",
+   "appears_in": [],
+   "categories": [],
+   "tier": "claims"
+  },
+  {
+   "id": "N2",
+   "group": "competition",
+   "claim": "Prompt injection has drained an AI-controlled wallet twice (Grok and Bankr).",
+   "label": "sourced",
+   "sources": [
+    "Grok and Bankr prompt-injection drain reports"
+   ],
+   "how_to_check": "Find the primary report or product page and confirm the figure and date.",
+   "desk_check": "checkable",
+   "appears_in": [],
+   "categories": [],
+   "tier": "claims"
+  },
+  {
+   "id": "N3",
+   "group": "competition",
+   "claim": "Model errors are correlated across labs (Kim et al., ICML 2025).",
+   "label": "sourced",
+   "sources": [
+    "https://proceedings.mlr.press/v267/kim25e.html"
+   ],
+   "how_to_check": "Find the primary report or product page and confirm the figure and date.",
+   "desk_check": "checkable",
+   "appears_in": [],
+   "categories": [],
+   "tier": "claims"
+  },
+  {
+   "id": "N4",
+   "group": "competition",
+   "claim": "GenLayer's Internet Court mainnet is due in Q4 2026, with a 35-member consortium.",
+   "label": "sourced",
+   "sources": [
+    "https://cointelegraph.com/magazine/ai-agent-disputes-sent-to-internet-court-and-a-jury-of-ai-agents"
+   ],
+   "how_to_check": "Find the primary report or product page and confirm the figure and date.",
+   "desk_check": "checkable",
+   "appears_in": [],
+   "categories": [
+    "business"
+   ],
+   "tier": "claims"
+  },
+  {
+   "id": "N5",
+   "group": "competition",
+   "claim": "Kleros runs an Agentic Commerce Court with AI-agent jurors.",
+   "label": "sourced",
+   "sources": [
+    "https://kleros.io"
+   ],
+   "how_to_check": "Find the primary report or product page and confirm the figure and date.",
+   "desk_check": "checkable",
+   "appears_in": [],
+   "categories": [
+    "business"
+   ],
+   "tier": "claims"
+  },
+  {
+   "id": "N6",
+   "group": "competition",
+   "claim": "Wallet policy engines already enforce limits before signing (Turnkey, Coinbase, Fireblocks).",
+   "label": "sourced",
+   "sources": [
+    "Turnkey, Coinbase Agentic Wallets and Fireblocks policy documentation"
+   ],
+   "how_to_check": "Find the primary report or product page and confirm the figure and date.",
+   "desk_check": "checkable",
+   "appears_in": [],
+   "categories": [
+    "business"
+   ],
+   "tier": "claims"
+  },
+  {
+   "id": "M01",
+   "group": "business",
+   "claim": "With the default assumptions in Verafy's revenue model, revenue reaches about $2.7M a year by 2030, mostly from Solana treasury subscriptions: about 10% of a $27M revenue pool.",
+   "label": "modeled",
+   "sources": [
+    "https://docs.squads.so/main/basics/security",
+    "https://technode.global/2026/04/08/agentic-commerce-spending-can-reach-1-5-trillion-by-2030-study-finds/",
+    "https://www.verafy.ai/thesis#revenue"
+   ],
+   "how_to_check": "Open the revenue model on /thesis, check each sourced input, and judge whether the team growth, adoption, fees and on-chain share assumptions are plausible for 2030.",
+   "desk_check": "modeled",
+   "tier": "proven",
+   "categories": [
+    "business"
+   ],
+   "appears_in": [
+    "/thesis revenue model"
    ]
   }
  ],
@@ -890,7 +1071,7 @@
   },
   {
    "name": "Kleros",
-   "what": "Human juror court, token-staked; days to weeks.",
+   "what": "Human juror court, token-staked; days to weeks. Now runs an Agentic Commerce Court with AI-agent jurors.",
    "overlap": "medium",
    "source": "https://kleros.io"
   },
@@ -1013,12 +1194,6 @@
     "formula": "$1.5T agentic spend x 1% of value needing a ruling x 1 bp fee",
     "annual_revenue_usd": 1500000,
     "label": "modeled"
-   },
-   {
-    "name": "2030 bull: judgment checks on agentic commerce",
-    "formula": "$3T x 5% needing a ruling x 5 bp fee",
-    "annual_revenue_usd": 75000000,
-    "label": "modeled"
    }
   ],
   "reading": "The serviceable market today is small: on-chain agent payments total tens of millions of dollars. The thesis depends on agentic commerce growing by orders of magnitude and on judgment checks becoming a priced step. Every scenario here is a modeled assumption to test, not a forecast."
@@ -1030,14 +1205,6 @@
    "Distribution: the founder's developer ecosystem track record (Intel, Arm, NVIDIA, Saga, Anza).",
    "Cost engineering: packing, routing and precedent lower proven-ruling cost (replicable once published).",
    "Multi-lab jury orchestration and Prompt Guard (useful, but copyable)."
-  ],
-  "weaknesses": [
-   "GenLayer already ships the core idea (five-model AI jury for disputes) with a 27-company standard behind it.",
-   "Model orchestration is commoditizing; the labs, Chainlink or Squads could add a judgment check natively.",
-   "No disclosed paying customer for judgment; credit income is unquantified.",
-   "Solo founder with a volunteer team; execution risk is high.",
-   "Proving costs and claims rely on vendor numbers; the packing gains are modeled.",
-   "AI rulings carry liability and prompt-injection risk that buyers may not accept for money movement."
   ],
   "questions_for_the_jury": [
    "Which of the possible moats compounds with usage, and which can a funded competitor copy in six months?",
@@ -1203,5 +1370,327 @@
    "our_answer": "Routine rulings will get cheap. Margin comes from rulings on value at risk, where the record and the bond are the product.",
    "what_would_settle_it": "What the first buyers actually pay, and for which tier."
   }
- ]
+ ],
+ "sections": [
+  {
+   "id": "problem",
+   "title": "The problem",
+   "question": "What breaks today?",
+   "answer": "The biggest losses now come through valid signatures, and the checks that run before signing only enforce fixed limits.",
+   "items": [
+    "C01",
+    "C02",
+    "N1",
+    "N2",
+    "N6",
+    "I3a"
+   ]
+  },
+  {
+   "id": "why-now",
+   "title": "Why now",
+   "question": "What changed?",
+   "answer": "Inference got cheap enough that a multi-model ruling costs less than an Ethereum transaction, and proving which model ruled became possible.",
+   "items": [
+    "C07",
+    "T07",
+    "T08",
+    "C10",
+    "C06",
+    "A01",
+    "C08",
+    "C09",
+    "T02",
+    "C11",
+    "C05",
+    "C40",
+    "C46",
+    "A02"
+   ]
+  },
+  {
+   "id": "thesis",
+   "title": "The thesis",
+   "question": "What do we believe follows?",
+   "answer": "Proven rulings get cheap enough to replace stored logic where judgment is needed. This is the part still to be proven.",
+   "items": [
+    "A03",
+    "I2",
+    "A04",
+    "T03",
+    "H1",
+    "T06"
+   ]
+  },
+  {
+   "id": "product",
+   "title": "What exists today",
+   "question": "What has been built, and who uses it?",
+   "answer": "A devnet signer, an open harness, SDKs and SIMD drafts. Most usage figures are founder-reported and need public evidence.",
+   "items": [
+    "C24",
+    "C29",
+    "C30",
+    "C31",
+    "C23",
+    "C20",
+    "C21",
+    "C22",
+    "C25",
+    "C26",
+    "C27",
+    "C28"
+   ]
+  },
+  {
+   "id": "economics",
+   "title": "Economics",
+   "question": "What does a ruling cost, and can proving be made cheap?",
+   "answer": "A ruling costs about a third of a cent today. Proving every juror costs about 33x more; packing and routing are modeled to close the gap, not yet measured.",
+   "items": [
+    "C41",
+    "C42",
+    "C43",
+    "C44",
+    "C45",
+    "C47"
+   ]
+  },
+  {
+   "id": "market",
+   "title": "Business model and market",
+   "question": "Who pays, and how big can it get?",
+   "answer": "The paying buyer is not proven. The serviceable market today is small; the large cases need agentic commerce to grow by orders of magnitude.",
+   "items": [
+    "M01",
+    "I3b",
+    "C60",
+    "C04",
+    "T10"
+   ]
+  },
+  {
+   "id": "competition",
+   "title": "Competition",
+   "question": "Who else does this, and why would Verafy win?",
+   "answer": "GenLayer and Kleros already run AI juries, and wallet vendors own the signing step. Verafy has to win on position in Solana treasury signing and on published accuracy.",
+   "items": [
+    "N4",
+    "N5",
+    "C65",
+    "P6",
+    "H3"
+   ]
+  },
+  {
+   "id": "risks",
+   "title": "Risks",
+   "question": "What could make this wrong?",
+   "answer": "Correlated model errors, prompt injection and liability. The security case is a hypothesis until error rates are published.",
+   "items": [
+    "N3",
+    "P8",
+    "H2a"
+   ]
+  },
+  {
+   "id": "team",
+   "title": "Team",
+   "question": "Who is building it?",
+   "answer": "A solo technical founder with a developer-ecosystem record and a volunteer team. The gaps are custody sales and cryptography.",
+   "items": [
+    "C64",
+    "C63"
+   ]
+  }
+ ],
+ "executive_summary": {
+  "paragraphs": [
+   "Blockchains made execution trustless, but not judgment. The largest losses of 2026 went through valid signatures: more than $6B left Binance hot wallets on October 29 with signatures the chains had to honor, and key and signer compromise dominates 2026 losses.",
+   "Two things changed. Inference at fixed capability gets 10 to 40x cheaper a year, so a five-model jury ruling now costs about $0.0033, less than an average Ethereum transaction. And it is now possible to prove which model produced an answer, though proving every juror still costs about 33x the ruling itself.",
+   "Verafy's bet is an independent multi-model jury that holds a required co-signing key and records on Solana which models ruled, starting with Solana treasuries. Packing and routing are modeled to bring a proven ruling under half a cent; that is not yet measured."
+  ],
+  "claims": [
+   "C01",
+   "C02",
+   "N1",
+   "C07",
+   "C06",
+   "C11",
+   "C05",
+   "C42",
+   "H2a",
+   "C43"
+  ]
+ },
+ "research": {
+  "updated": "2026-11-18",
+  "note": "This list is updated as new work appears. Each entry says why it matters to the thesis.",
+  "areas": [
+   {
+    "title": "Proving which model ran",
+    "items": [
+     {
+      "title": "Anthropic: provable inference (FlashProve)",
+      "url": "https://anthropic.com/research/provable-inference",
+      "why": "The proof system the economics are built on."
+     },
+     {
+      "title": "CommitLLM",
+      "url": "https://commitllm.com/",
+      "why": "Commit-and-audit receipts: the cheaper, weaker alternative."
+     },
+     {
+      "title": "Lagrange: DeepProve year in review",
+      "url": "https://www.lagrange.dev/blog/lagranges-year-in-review-2025",
+      "why": "An open zkML prover and a fallback."
+     },
+     {
+      "title": "EZKL",
+      "url": "https://ezkl.xyz",
+      "why": "zkML circuits for smaller models."
+     }
+    ]
+   },
+   {
+    "title": "The cost of inference",
+    "items": [
+     {
+      "title": "Epoch AI: LLM inference price trends",
+      "url": "https://epoch.ai/data-insights/llm-inference-price-trends",
+      "why": "The source for 10 to 40x a year."
+     },
+     {
+      "title": "PrismML: Bonsai 2 27B whitepaper",
+      "url": "https://github.com/PrismML-Eng/Bonsai-demo/blob/main/bonsai-2-27b-whitepaper.pdf",
+      "why": "Ternary compression of a 27B model to 5.9 GB."
+     },
+     {
+      "title": "Benjamin Marie: independent evaluation of the compressed model",
+      "url": "https://x.com/bnjmn_marie/status/2122930360631832787",
+      "why": "A third-party check on the vendor figures."
+     }
+    ]
+   },
+   {
+    "title": "Do models fail together?",
+    "items": [
+     {
+      "title": "Kim et al., Correlated Errors in Large Language Models (ICML 2025)",
+      "url": "https://proceedings.mlr.press/v267/kim25e.html",
+      "why": "The strongest evidence against naive multi-model juries."
+     },
+     {
+      "title": "Correlated errors, arXiv 2506.07962",
+      "url": "https://arxiv.org/abs/2506.07962",
+      "why": "Preprint of the correlated-errors study."
+     },
+     {
+      "title": "The Oracle's Fingerprint: correlated AI forecasting errors",
+      "url": "https://arxiv.org/pdf/2605.00844",
+      "why": "GPT-4o, Claude and Gemini errors correlate on 568 forecasting questions."
+     }
+    ]
+   },
+   {
+    "title": "AI juries and on-chain disputes",
+    "items": [
+     {
+      "title": "GenLayer and the Internet Court (Cointelegraph)",
+      "url": "https://cointelegraph.com/magazine/ai-agent-disputes-sent-to-internet-court-and-a-jury-of-ai-agents",
+      "why": "The closest competitor design: five-model validator juries."
+     },
+     {
+      "title": "Kleros",
+      "url": "https://kleros.io",
+      "why": "Staked human juries, now with AI-agent jurors."
+     },
+     {
+      "title": "Bloomberg via KuCoin: whales dominate Polymarket disputes",
+      "url": "https://www.kucoin.com/news/flash/bloomberg-a-few-whales-dominate-polymarket-dispute-resolutions",
+      "why": "Why token-holder voting is a weak dispute mechanism."
+     }
+    ]
+   },
+   {
+    "title": "Agent payments",
+    "items": [
+     {
+      "title": "Token Terminal: agentic payments (x402)",
+      "url": "https://tokenterminal.com/explorer/agentic-payments",
+      "why": "All-time x402 transfers and volume."
+     },
+     {
+      "title": "Bitquery: auditing x402 agent payments",
+      "url": "https://bitquery.io/investigations/x402-ai-agent-payments-audit",
+      "why": "How much of that is real agent commerce."
+     }
+    ]
+   },
+   {
+    "title": "Verafy's own work",
+    "items": [
+     {
+      "title": "Verafy Harness: five live rulings, Nov 6, 2026",
+      "url": "https://github.com/Verafyai/verafyHarness/blob/main/results/live-2026-11-06.md",
+      "why": "The measured ruling cost."
+     },
+     {
+      "title": "Verafy Harness: economics model",
+      "url": "https://github.com/Verafyai/verafyHarness/tree/main/packages/economics",
+      "why": "Every modeled cost on this page."
+     },
+     {
+      "title": "SIMD discussion #724: Inference Programs",
+      "url": "https://github.com/solana-foundation/solana-improvement-documents/discussions/724",
+      "why": "The proposed Solana standard."
+     },
+     {
+      "title": "Prompt Guard",
+      "url": "https://github.com/Verafyai/prompt-guard",
+      "why": "The injection filter in front of every juror."
+     }
+    ]
+   }
+  ]
+ },
+ "faq": [
+  {
+   "id": "F1",
+   "question": "Why are you not launching a coin?",
+   "answer": "None of the utility tokens has worked, and the market is burned out on this approach. Unless something seriously changes in crypto capital formation, this strategy doesn't make sense. Verafy sells rulings for money; credits are a prepaid balance, not a token.",
+   "label": "opinion",
+   "author": "Rex St John"
+  }
+ ],
+ "board": {
+  "title": "Our board: a jury of frontier models",
+  "paragraphs": [
+   "Verafy is a generative-AI-first company. Everything we do is distilled from a spec: logic and sources, reasoned through by frontier models. We believe these models have already surpassed human capabilities at this kind of reasoning.",
+   "So we made our most important decision: to proactively displace our own human decision making with reasoning and rulings by a jury of the top models. This is our core thesis, and the reason Verafy exists. We think it produces better decisions, with our own emotions and inclinations removed from the process."
+  ],
+  "jurors": [
+   {
+    "lab": "OpenAI",
+    "family": "GPT"
+   },
+   {
+    "lab": "Anthropic",
+    "family": "Claude"
+   },
+   {
+    "lab": "Google",
+    "family": "Gemini"
+   },
+   {
+    "lab": "xAI",
+    "family": "Grok"
+   },
+   {
+    "lab": "DeepSeek",
+    "family": "DeepSeek"
+   }
+  ],
+  "note": "Each ruling lists the exact model versions that voted, as Swarm Explorer returns them. The labs are not affiliated with Verafy and have not endorsed it; we run their models through public APIs."
+ }
 }

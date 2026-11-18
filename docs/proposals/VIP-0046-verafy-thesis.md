@@ -2,12 +2,12 @@
 
 | Field | Value |
 |---|---|
-| Status | Live at https://www.verafy.ai/thesis (alpha). No stamped report yet. |
+| Status | Live: investor page at https://www.verafy.ai/thesis, claims ledger at https://www.verafy.ai/thesis/claims (alpha). No jury run stored yet: Swarm's model provider key is failing (section 14.10). |
 | Spec version | `verafy-thesis/1` |
 | Author | Rex St John |
 | Created | 2026-11-18 |
-| Code | `VerafyTechnologies/verafy-website`, PRs #59 to #62 |
-| Assets | `docs/proposals/assets/VIP-0046/` (screenshots, logo, claims, spec, slide generators) |
+| Code | `VerafyTechnologies/verafy-website`, PRs #59 to #69 |
+| Assets | `docs/proposals/assets/VIP-0046/` (screenshots, logo, claims, spec, slide generators, and the revision 2 sources: `score.ts`, `merkle.ts`, `revenue.ts`, `diligence.ts`) |
 
 This VIP records everything needed to rebuild Verafy Thesis from nothing: why it exists, every requirement, the design, the data model, the content, the calculators' math, the jury and stamping protocol, and what is not done. If the site is lost, this file plus its assets regenerate it.
 
@@ -232,7 +232,9 @@ Sections:
 - **Output JSON schema.**
 - **Stamping.**
 
-## 9. Paid run (`POST /api/thesis/run`)
+## 9. Paid run (`POST /api/thesis/run`), revision 1
+
+Superseded by the per-claim run in section 14.3. Kept for the record.
 
 1. Without `VERAFY_API_KEY`, return `503 not_configured` and charge nothing.
 2. Require the shared `verafy_vid` cookie, or return `401 no_visitor`.
@@ -293,3 +295,135 @@ The PDF wraps a cover, a contents page, the slides, the numbers table, a label k
 - **Re-run cadence.** Monthly, and on every material change to the decks or the market inputs. Diff each report against the last.
 - **Measurements the page promises:** re-run consistency (Q2), the false-evidence red team (Q4), error rates by model family (Q5), and the precedent hit rate (C47).
 - **Deck fixes surfaced:** use of funds sums to 97%, the x402 figures are stale, and the competition slide omits GenLayer, the Internet Court and Chainlink.
+
+## 14. Revision 2 (Nov 18, 2026, PRs #63 to #69)
+
+Everything below replaces the matching parts of sections 3, 4, 5, 9 and 10. The current `claims.json`, spec and code are snapshotted in `assets/VIP-0046/source/`.
+
+### 14.1 Two pages
+
+- **`/thesis` is the investor page** (`src/app/(thesis)/thesis/page.tsx`). It is static and server-rendered. The header runs with `credits="off"`. It never shows empty jury data.
+- **Its sections, in order:**
+  - The hero: "An independent AI co-signer for money that moves on Solana." It carries three proof chips: $0.0033 per measured ruling, 30 of 30 devnet signer checks (scripted jurors), and SIMD #724. Its links are See a ruling, Talk to Rex, Read every claim, and Run the due diligence scan.
+  - 1, market size and revenue model (14.6).
+  - 2, the problem.
+  - 3, how it works (propose, rule, co-sign or block).
+  - 4, see a ruling: the latest real jury result, or a link to the devnet rulings on Verafy Explorer.
+  - 5, why now: judgment got cheap, and proof of which model ruled exists. It carries one chart.
+  - 6, the first buyer: Solana treasuries.
+  - 7, the cost per ruling.
+  - 8, where Verafy fits: six rows, with suppliers in a footnote.
+  - 9, risks, each with its design response and the milestone that proves it.
+  - 10, team.
+  - 11, what the next 24 months prove, with CTAs.
+  - The FAQ: why a blockchain, how a non-deterministic ruling can be trusted, and why no coin.
+- **Figures cite their claims** with small superscript links to `/thesis/claims#<id>`.
+- **`/thesis/claims` is the ledger** (`src/app/(thesis)/thesis/claims/page.tsx`). It holds:
+  - the summary dashboard (14.4) and the due diligence scan (14.7);
+  - the jury board: GPT, Claude, Gemini, Grok and DeepSeek, with the line "not affiliated, no endorsement";
+  - the claims in nine sections in pitch order (problem, why now, thesis, product, economics, market, competition, risks, team), each claim appearing once;
+  - the calculators, objections Q1 to Q10, the FAQ, research and sources, the method, and the data room.
+- **Kept off the public site** after the skeptical VC review: per-claim fix notes, hard questions Q11 to Q30, the open fixes A1 to A14, spec v2 notes, withdrawn claims, the weaknesses list, and the round terms. They live in the private `verafy-website` repo at `docs/thesis-private/review-2026-11-18.json`.
+
+### 14.2 Claims data (`claims.json`)
+
+- **`sections`** sets the order. Each claim appears exactly once. A test enforces this, along with no dangling `rests_on` and no two units with the same wording.
+- **Every claim and step has an explicit `tier`**: `claims`, `follows` or `proven`. Claims tagged `economics` or `business` in `categories` feed the area scores.
+- **Thesis claims A01 to A04** lead the thesis. A05 was unfinished and is not published.
+- **Steps:**
+  - I2, I3a and I3b.
+  - P6 (others already ship AI juries) and P8 (correlated errors and injection are measured risks).
+  - H1 (narrowed to low-volume, judgment-heavy contracts), H2a (an independent co-signing key beats fixed limits, at a published false-block rate) and H3.
+- **Claims N1 to N6** cover signer losses, prompt-injection drains, correlated errors, GenLayer's Internet Court, Kleros AI jurors, and wallet policy engines.
+- **M01 is the default revenue projection** (14.6).
+- **Removed as duplicates or cut:** P1 to P5, P7, I1, T01, T04, T05, C03, C32, T09, C61 and C62.
+- **New keys:** `executive_summary`, `board`, `research` (areas of papers, with an updated date), and `faq` (F1, why no coin, in Rex's words, labeled opinion).
+
+### 14.3 Per-claim jury run (`POST /api/thesis/run`)
+
+1. The body is `{ claimId, runId?, idempotencyKey: "thesis:<8 to 80 chars>" }`. Without a `runId`, the route opens a run.
+2. The question is built from the claim by `questionFor`, at no more than 300 characters, because Swarm rejects longer ones.
+3. Spend 5 credits (`THESIS.claimCost`) on the shared balance, then POST to Swarm `broadcast-query` with `queryMode: "fact-check"` and `queriesRequested: 5`.
+4. **Refund on any failure** with `refundCredits` in `src/credits/service.ts`. Refunds are idempotent on `<key>:refund` and go back to the balance the spend came from. The failures are: Swarm unreachable, any non-2xx, no juror answers, or a storage error.
+5. A `503 question_check_failed` returns `stop: true`, and the page stops the batch there.
+6. The page runs claims one at a time. "Run the check with Swarm Explorer (5 credits per claim, N for all)" sits in the upper right of the report, and each claim card has a Recheck button.
+7. `POST /api/thesis/finalize { runId }` closes the run (14.5).
+
+### 14.4 Scoring and the dashboard (`score.ts`)
+
+- **Juror score:** confidence times 100 for a yes, 100 minus that for a no, 50 for an abstention. Model names are kept exactly as Swarm returns them.
+- **Claim score:** the median juror score. The 90% interval runs from the lowest juror score to the highest. The verdict is the majority vote, and a tie is contested.
+- **Overall score:** the score and interval of the weakest "must be proven" claim, named, not an average.
+- **Economics and business model validity:** the averages over the tagged claims.
+- **The dashboard** reads `GET /api/thesis/report`, which combines the latest version of every claim from every visitor. It shows:
+  - the verdict and last scan time in PT;
+  - a checked ring split into valid, contested and unsupported;
+  - the gauge, the area tiles and the tier bars;
+  - the model names, the report sha256 (over the sorted claim, version and report-hash list) and the Merkle root;
+  - the stamp badge and the explorer links.
+- **The empty state** is "Not scanned yet" with 0 checked, and no numbers.
+
+### 14.5 Stored, versioned and stamped reports
+
+- **Postgres, additive tables only**, created on first use through `DATABASE_URI`:
+  - `verafy_thesis_runs`: id, visitor, timestamps, `merkle_root`, `stamp_status`, `stamp_tx`, `stamp_cluster`.
+  - `verafy_thesis_claim_reports`: run, claim, version, sha256, report JSON and `merkle_proof`, unique on claim and version.
+- **Each report** holds the spec, version, claim, tier, categories, question, answers, score, interval, verdict and timestamp. Its leaf is the SHA-256 of its canonical JSON.
+- **Merkle tree** (`merkle.ts`): leaves are ordered by claim, then version. Each parent is the SHA-256 of the left child's bytes followed by the right child's bytes, and an odd node pairs with itself. The root and the proofs are written once.
+- **Memo:** `verafy-thesis/1 merkle:<root> run:<id> https://www.verafy.ai/thesis`, on Solana devnet only, signed by `THESIS_SOLANA_PAYER` (a 64-byte JSON array). Without a payer the run is "pending stamp".
+- **Rechecks** add a version and never overwrite. `GET /api/thesis/report?claim=<id>` returns every version with its proof.
+
+### 14.6 Market size and revenue model (`revenue.ts`, `RevenueModel.tsx`)
+
+The model covers three revenue lines for 2027 to 2030. Adoption and Verafy's share ramp up evenly from 2027, to the full value in 2030.
+
+- **Treasury subscriptions:** teams in 2026 × (1 + team growth)^(year - 2026) × adoption × monthly fee × 12.
+- **Fees on value checked:** value held × growth^(years) × share moved per month × 12 × adoption × fee in basis points.
+- **Agent payment checks:** agentic commerce spend (a geometric path from $8B in 2026 to the 2030 figure) × share on chain × share needing a judgment check × Verafy's share × fee in basis points.
+- **Revenue pool:** what each line would earn in 2030 if Verafy won every buyer.
+
+The defaults carry labels. Sourced: 450 teams and $10B held (Squads). Vendor-reported: $8B to $1.5T (Juniper). Assumptions: 30% team and value growth, 10% adoption by 2030, $1,500 a month, 10% of value moving monthly, a 1 bp value fee, 5% on chain, 1% needing judgment, 20% Verafy share and a 2 bp agent fee.
+
+Under those defaults, revenue is about $2.7M in 2030, about 10% of a $27M pool, mostly from subscriptions. That is claim M01, which the jury rules on. Its latest ruling shows beside the model, and a test keeps the M01 wording in sync with the defaults.
+
+### 14.7 Automatic due diligence scan (`diligence.ts`, `GET /api/thesis/diligence`)
+
+There are ten checks against public sources, with no AI and no credits. Results are cached for ten minutes. Rescan forces a fresh run, rate limited.
+
+1. **D01:** the products named in the pitch are live.
+2. **D02:** the jury service answers. This is Swarm's question check.
+3. **D03:** Verafy Harness was pushed recently. The check reads the GitHub API, falling back to the commit feed.
+4. **D04:** Verafy Harness has an open-source license. The check reads the GitHub API, falling back to the raw LICENSE file.
+5. **D05:** npm downloads in the last 30 days for `@verafy/sdk` and `@verafy/mcp`.
+6. **D06:** SIMD discussion #724 exists.
+7. **D07:** the founder's record of work is online.
+8. **D08:** the cited sources still load. 401, 403, 405 and 429 count as existing but blocking automated requests.
+9. **D09:** `claims.json` is consistent and hashed.
+10. **D10:** a jury run is fresh and stamped.
+
+### 14.8 Executive summary, board and innovations
+
+- The board copy (Rex's words) and the jury list sit on the ledger.
+- The executive summary and the key-innovations box were merged into the investor page's hero and its why-now section after the VC review. The innovations data is kept in the private review file.
+
+### 14.9 Tests
+
+`src/products/thesis/thesis.test.ts` runs in `npm run test:site`. It covers:
+- the 300-character cap;
+- charging and refunds on every failure path;
+- Merkle proofs;
+- the weakest-claim headline;
+- versioning and the empty state;
+- category scores;
+- each claim appearing once, in pitch order;
+- the diligence scan, both healthy and broken, with the GitHub fallbacks;
+- revenue model consistency with M01.
+
+`refundCredits` and the store run against Postgres when `DATABASE_URI` is set.
+
+### 14.10 Open as of Nov 18
+
+- **No jury run is stored.** Swarm's question check returns `503 question_check_failed` because its OpenRouter calls fail. Swarm's claim reader also falls back. The fix is a working `OPENROUTER_API_KEY` in the `testnet-demo` Vercel project, then a redeploy. D02 in the diligence scan reports this live.
+- **`THESIS_SOLANA_PAYER` is not set**, so runs will show "pending stamp".
+- **The bracketed placeholders from the VC review stay hidden until they are real:** price per ruling by tier, design partners, LOIs or pilots, named team members and advisors, and a link to a recorded ruling.
+
