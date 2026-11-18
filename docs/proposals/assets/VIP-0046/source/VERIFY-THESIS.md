@@ -49,7 +49,7 @@ Notes:
 
 ## 4. Task B: test the thesis chain
 
-The thesis is ordered from fact to hypothesis. For each step (P1 to P5, I1 to I3, H1 to H3):
+The thesis is ordered from fact to hypothesis. `claims.json` orders everything into nine sections in pitch order (`sections`: problem, why now, thesis, product, economics, market, competition, risks, team). Each claim appears once. For each thesis step (A01 to A04, I2, I3a, I3b, P6, P8, H1, H2a, H3):
 
 1. Does it follow from the claims it rests on? If a supporting claim failed in Task A, say what that does to this step.
 2. Give a verdict (`holds`, `holds-with-caveats`, `does-not-follow`, `untested`) and a confidence.
@@ -58,7 +58,7 @@ The thesis is ordered from fact to hypothesis. For each step (P1 to P5, I1 to I3
 Pay particular attention to these three hypotheses:
 
 - **H1, cost.** Is it cheaper to generate a contract, check it with an AI jury and execute it, than to store and maintain it on chain? Build a small cost model with stated assumptions: deployment, audits, upgrades and storage rent against generation and jury cost per call, at 10, 1,000 and 1,000,000 calls. Find where it crosses over.
-- **H2, security.** Is generating, checking and executing more secure than storing? Compare failure modes on both sides: stored-code exploits and key compromise against model error, prompt injection, jury collusion and nondeterminism. Cite real incidents.
+- **H2a, security.** Does an independent jury holding a required co-signing key, outside the client's signing stack, block more bad transfers than deterministic limits alone, at a published false-block rate? Compare failure modes on both sides: key compromise and stored-code exploits against model error, prompt injection, jury collusion and nondeterminism. Cite real incidents.
 - **T06, juries vs validators.** Validators agree on state; juries rule on judgment. Is "3 to 10 jurors can replace thousands of validators" a fair comparison, or a category error? Reframe it if needed.
 
 ### Pushbacks
@@ -92,7 +92,7 @@ One model's opinion is not a check. To produce a jury report:
    - **Defensibility score:** the median of the five jurors' scores, with the same interval.
 4. Record the model ids, the date, the spec version and the hash of `claims.json` you used.
 
-Verafy runs this jury through Swarm Explorer and charges 200 credits a run. You can run it yourself with your own model accounts at whatever it costs you.
+Verafy runs this jury through Swarm Explorer and charges 5 credits per claim, refunded when a claim fails. You can run it yourself with your own model accounts at whatever it costs you.
 
 ## 8. Output format
 
@@ -125,6 +125,13 @@ A finished jury report is made checkable after the fact:
 2. Publish the report at a stable URL (Verafy uses `https://www.verafy.ai/thesis/reports/<date>.json`).
 3. Write a Solana Memo transaction whose memo is `verafy-thesis/1 <date> sha256:<hash> <url>`.
 4. Anyone can fetch the report, hash it and compare it with the memo on Solana Explorer. If the hashes match, the report hasn't changed since it was stamped.
+
+Runs made on verafy.ai/thesis are stamped per claim instead:
+
+1. Each claim gets its own report: the juror answers, the score and 90% interval, a timestamp, the spec version and a version number. Its leaf is the SHA-256 of its canonical JSON.
+2. A run's leaves, ordered by claim id, form a SHA-256 Merkle tree (each node hashes the two child hashes as bytes; an odd node pairs with itself).
+3. The memo is `verafy-thesis/1 merkle:<root> run:<run id> https://www.verafy.ai/thesis`.
+4. `https://www.verafy.ai/api/thesis/report?claim=<id>` returns every version of a claim with its proof, so one claim can be checked against the stamp without the others.
 
 Verafy's first reports are stamped on Solana devnet and labeled devnet. A devnet stamp proves the hash and the date; it holds no value.
 
