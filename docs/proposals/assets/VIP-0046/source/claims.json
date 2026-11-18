@@ -79,7 +79,7 @@
   {
    "id": "I2",
    "kind": "inference",
-   "statement": "Therefore packing, routing and precedent can bring proven rulings under one cent.",
+   "statement": "Packing, routing and precedent can bring the cost of a proven ruling under one cent.",
    "rests_on": [
     "A02",
     "C43",
@@ -95,7 +95,7 @@
   {
    "id": "I3a",
    "kind": "inference",
-   "statement": "Therefore pre-execution checks are needed, which policy engines already prove.",
+   "statement": "Transfers need a check before they execute, and wallet policy engines already show that treasuries use one.",
    "rests_on": [
     "C04",
     "C02",
@@ -109,7 +109,7 @@
   {
    "id": "I3b",
    "kind": "hypothesis",
-   "statement": "Therefore buyers will pay for a judgment check beyond deterministic rules.",
+   "statement": "Treasuries will pay for a judgment check that goes beyond fixed rules.",
    "rests_on": [
     "I3a"
    ],

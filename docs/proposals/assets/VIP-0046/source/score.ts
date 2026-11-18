@@ -33,8 +33,8 @@ function voteOf(raw: unknown): JurorAnswer['vote'] {
   if (raw === true) return 'yes'
   if (raw === false) return 'no'
   const v = String(raw ?? '').trim().toLowerCase()
-  if (['yes', 'true', 'y', 'agree', 'supported', 'valid'].includes(v)) return 'yes'
-  if (['no', 'false', 'n', 'disagree', 'unsupported', 'invalid'].includes(v)) return 'no'
+  if (['yes', 'true', 'y', 'agree', 'supported', 'valid', 'forecast_yes'].includes(v)) return 'yes'
+  if (['no', 'false', 'n', 'disagree', 'unsupported', 'invalid', 'forecast_no'].includes(v)) return 'no'
   return 'abstain'
 }
 
@@ -58,11 +58,14 @@ export function jurorScore(vote: JurorAnswer['vote'], confidence: number | null)
 export function parseJurors(body: unknown): JurorAnswer[] {
   const b = (body ?? {}) as Record<string, unknown>
   const cd = (b.confidenceData ?? {}) as Record<string, unknown>
+  // api.verafy.ai wraps answers in confidenceData; Swarm Explorer called directly returns validatorResponses.
   const list = Array.isArray(cd.validatorResponses) && cd.validatorResponses.length
     ? (cd.validatorResponses as Record<string, unknown>[])
-    : Array.isArray(b.responses)
-      ? (b.responses as Record<string, unknown>[])
-      : []
+    : Array.isArray(b.validatorResponses) && b.validatorResponses.length
+      ? (b.validatorResponses as Record<string, unknown>[])
+      : Array.isArray(b.responses)
+        ? (b.responses as Record<string, unknown>[])
+        : []
   return list
     .map((r) => {
       const model = String(r.modelName ?? r.model ?? r.validatorName ?? r.profileName ?? '').trim()
@@ -77,7 +80,8 @@ export function parseJurors(body: unknown): JurorAnswer[] {
         score: jurorScore(vote, confidence),
       }
     })
-    .filter((a) => a.model && a.vote !== 'abstain')
+    // Abstentions are kept so the card shows every juror asked; they never count toward the score.
+    .filter((a) => a.model)
 }
 
 export function median(xs: number[]): number {
@@ -90,7 +94,8 @@ export function median(xs: number[]): number {
  * Same rule as scripts/thesis/combine.mjs: the score is the median juror score and the 90% interval runs from
  * the lowest to the highest juror score. The verdict is the majority vote; a tie is contested.
  */
-export function combine(answers: JurorAnswer[]): { score: number; interval90: [number, number]; verdict: Verdict } {
+export function combine(all: JurorAnswer[]): { score: number; interval90: [number, number]; verdict: Verdict } {
+  const answers = all.filter((a) => a.vote !== 'abstain')
   if (!answers.length) throw new Error('no_jurors')
   const scores = answers.map((a) => a.score)
   const yes = answers.filter((a) => a.vote === 'yes').length

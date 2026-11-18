@@ -83,7 +83,8 @@ export const VERDICT_TERMS = '$1.5M post-money SAFE at a $12M cap'
 export const VERDICT_UNIT: Unit = {
   id: VERDICT_ID,
   tier: 'proven',
-  text: `Would a skilled pre-seed investor, after weighing every claim, the market, competition, the founder and the economics, invest in Verafy at the stated terms (${VERDICT_TERMS})?`,
+  // Shown on the page without the round's numbers; the question sent to the jury carries them (verdictQuestion).
+  text: 'Would a skilled pre-seed investor, after weighing every claim, the market, competition, the founder and the economics, invest in Verafy at its pre-seed terms?',
   categories: [],
   unfinished: false,
 }
@@ -102,12 +103,20 @@ export function unitById(id: string): Unit | undefined {
   return allUnits().find((u) => u.id === id)
 }
 
-const HEAD = 'Fact-check for an investor. '
-const TAIL = ' Vote yes only if current public evidence supports it; vote no if it is false or unsupported.'
+function asOf(): string {
+  const d = new Date(`${claims.as_of}T12:00:00Z`)
+  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
+}
 
-/** The jury question for one unit, never longer than QUESTION_MAX characters. */
+/**
+ * The jury question for one unit, never longer than QUESTION_MAX characters. The claim is quoted so jurors judge
+ * the claim, not the instruction around it. Claims to be proven are asked as a forecast.
+ */
 export function questionFor(unit: Unit): string {
-  const room = QUESTION_MAX - HEAD.length - TAIL.length
+  const head = unit.tier === 'proven' ? 'Is this claim likely to prove true? "' : `As of ${asOf()}, is this claim true? "`
+  const long = unit.tier === 'proven' ? '" Vote yes only if the evidence and reasoning support it.' : '" Vote yes only if current public evidence supports it.'
+  const tail = head.length + unit.text.length + long.length <= QUESTION_MAX ? long : '" Answer yes or no.'
+  const room = QUESTION_MAX - head.length - tail.length
   const body = unit.text.length > room ? `${unit.text.slice(0, room - 3).trimEnd()}...` : unit.text
-  return `${HEAD}${body}${TAIL}`.slice(0, QUESTION_MAX)
+  return `${head}${body}${tail}`.slice(0, QUESTION_MAX)
 }
