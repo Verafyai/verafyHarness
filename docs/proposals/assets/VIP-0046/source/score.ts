@@ -228,3 +228,6 @@ export function summarize(all: StoredReport[], units: Unit[] = runnableUnits()):
     latest: newest ? { runId: newest.runId, merkleRoot: newest.merkleRoot, stampTx: newest.stampTx, stampCluster: newest.stampCluster } : null,
   }
 }
+
+
+export { splitRationale } from './rationale'
