@@ -506,3 +506,44 @@ There are ten checks against public sources, with no AI and no credits. Results 
 - **`THESIS_SOLANA_PAYER` is not set,** so runs will be "pending stamp".
 - **Placeholders from the VC review stay hidden until real:** price per ruling by tier, design partners, LOIs or pilots, named team and advisors.
 
+
+## 16. Revision 4 (Nov 18, 2026, evening: verafy-website #72 to #76)
+
+### 16.1 Billing: the visitor's own credits (#74)
+
+- A run spends only the logged-in visitor's website credits (5 a claim, refunded on any failure).
+- With `SWARM_SITE_KEY` set, `/api/thesis/run` calls `https://swarm.verafy.ai/api/broadcast-query` directly with the trusted site key. api.verafy.ai's per-key credit ledger is no longer in the path.
+- Without `SWARM_SITE_KEY`, it falls back to api.verafy.ai with `VERAFY_API_KEY`.
+
+### 16.2 Full runs with progress (#75)
+
+- Run checks every claim, then the final question (`V01`) last, then finalize.
+- The first claim runs alone to open the run; the rest run six at a time.
+- The panel shows percent, a bar, time left and the claims in flight, and warns before the page is closed. The report refreshes every 5 claims.
+- Measured: a full run of 66 units took about 8 minutes (64 ruled; C63 and H2a hit a transient 503 and can be rechecked).
+
+### 16.3 Five named jurors (#76)
+
+- Every run asks exactly the five board models by Swarm validator id (`selectedLLMIds`): GPT-6.1 Terra Pro, Claude Opus 5.5, Gemini 4 Argon, Grok 4.7, DeepSeek V4 Pro.
+- An abstention stays on the card as n/a and is never scored. A claim fails only if no juror voted.
+
+### 16.4 Rulings drawn like Swarm Explorer (#76)
+
+- `model-color.ts` ports Swarm Explorer's model colors, short names and icons (served from swarm.verafy.ai).
+- Every ruling uses the Explorer answer card: percent and verdict, a responded and range pill, the slider (track, 90% band, 50% tick, a colored dot per juror, median marker and label, 0% NO to YES 100%) and juror chips with icon, color and score.
+- The board legend shows each lab's icon with "not endorsed by" the lab.
+
+### 16.5 Final question reasoning (#76)
+
+- `rationale.ts` parses Swarm's JSON reasoning (`rationale`, `for`, `against`). A yes vote's supporting points go to "Why invest" and its counterpoints to "Why not"; a no vote is the reverse; the summary goes to "Hesitations".
+- The page no longer shows raw JSON.
+
+### 16.6 Copy (#72, #73)
+
+- The final question names no round size or cap on the page.
+- No claim begins "therefore"; each stands on its own.
+
+### 16.7 Open
+
+- `THESIS_SOLANA_PAYER` is not set, so runs are "pending stamp".
+- Stored rulings from before #76 show the models that answered then; the next full run shows the five board models.
